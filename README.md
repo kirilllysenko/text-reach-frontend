@@ -4,7 +4,6 @@ Single-page SvelteKit app built with:
 
 - Bun
 - Tailwind CSS v4
-- daisyUI
 - `@sveltejs/adapter-static` (configured for SPA fallback)
 
 ## Run locally

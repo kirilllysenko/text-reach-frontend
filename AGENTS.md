@@ -27,3 +27,8 @@ After completing the code, ask the user if they want a playground link. Only cal
 ### 1. This app will run both in web and in capacitor
 ### 2. This app will never use ssr. It will only use ssg in static pages.
 ### 3. Build this website with adapter-static
+### 4. Don't write classes in scripts. Write them in html elements. When choosing between array class or object class, chose array
+### 5. Make long string (like classes) into multiline strings if they exceed 120 symbols
+### 6. Instead of dumb forwarding of props, use spread on inner html element. This works well for inputs, buttons and etc.
+### 7. Always use bun or bunx instead of npm or npmx
+### 8. Don't write class: classProp. Instead use rest props like inputProps.class or buttonProps.class and etc.

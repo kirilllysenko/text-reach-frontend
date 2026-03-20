@@ -4,203 +4,185 @@
  * OpenAPI definition
  * OpenAPI spec version: v0
  */
-import type {
-  ErrorResponseDto,
-  SendEmailOtpDto,
-  SendPhoneOtpDto,
-  SignUpDto
-} from '../index.schemas';
-
+import type { ErrorResponseDto, SendEmailOtpDto, SendPhoneOtpDto, SignUpDto } from "../index.schemas";
 
 /**
  * Sign up new account
  */
-export type signUpResponse200 = {
-  data: void
-  status: 200
-}
-
-export type signUpResponse400 = {
-  data: ErrorResponseDto
-  status: 400
-}
-
-export type signUpResponse401 = {
-  data: ErrorResponseDto
-  status: 401
-}
-
-export type signUpResponse404 = {
-  data: ErrorResponseDto
-  status: 404
-}
-
-export type signUpResponse500 = {
-  data: ErrorResponseDto
-  status: 500
-}
-
-export type signUpResponseSuccess = (signUpResponse200) & {
-  headers: Headers;
-};
-export type signUpResponseError = (signUpResponse400 | signUpResponse401 | signUpResponse404 | signUpResponse500) & {
-  headers: Headers;
+export type SignUpResponse200 = {
+  data: void;
+  status: 200;
 };
 
-export type signUpResponse = (signUpResponseSuccess | signUpResponseError)
+export type SignUpResponse400 = {
+  data: ErrorResponseDto;
+  status: 400;
+};
+
+export type SignUpResponse401 = {
+  data: ErrorResponseDto;
+  status: 401;
+};
+
+export type SignUpResponse404 = {
+  data: ErrorResponseDto;
+  status: 404;
+};
+
+export type SignUpResponse500 = {
+  data: ErrorResponseDto;
+  status: 500;
+};
+
+export type SignUpResponseSuccess = SignUpResponse200 & {
+  headers: Headers;
+};
+export type SignUpResponseError = (SignUpResponse400 | SignUpResponse401 | SignUpResponse404 | SignUpResponse500) & {
+  headers: Headers;
+};
+
+export type SignUpResponse = SignUpResponseSuccess | SignUpResponseError;
 
 export const getSignUpUrl = () => {
+  return `/tenant/sign-up`;
+};
 
-
-  
-
-  return `/tenant/sign-up`
-}
-
-export const signUp = async (signUpDto: SignUpDto, options?: RequestInit): Promise<signUpResponse> => {
-  
-  const res = await fetch(getSignUpUrl(),
-  {      
+export const signUp = async (signUpDto: SignUpDto, options?: RequestInit): Promise<SignUpResponse> => {
+  const res = await fetch(getSignUpUrl(), {
     ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      signUpDto,)
-  }
-)
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(signUpDto),
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: signUpResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as signUpResponse
-}
-  
+
+  const data: SignUpResponse["data"] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as SignUpResponse;
+};
 
 /**
  * Send phone confirmation code
  */
-export type sendPhoneCodeResponse200 = {
-  data: void
-  status: 200
-}
-
-export type sendPhoneCodeResponse400 = {
-  data: ErrorResponseDto
-  status: 400
-}
-
-export type sendPhoneCodeResponse401 = {
-  data: ErrorResponseDto
-  status: 401
-}
-
-export type sendPhoneCodeResponse404 = {
-  data: ErrorResponseDto
-  status: 404
-}
-
-export type sendPhoneCodeResponse500 = {
-  data: ErrorResponseDto
-  status: 500
-}
-
-export type sendPhoneCodeResponseSuccess = (sendPhoneCodeResponse200) & {
-  headers: Headers;
-};
-export type sendPhoneCodeResponseError = (sendPhoneCodeResponse400 | sendPhoneCodeResponse401 | sendPhoneCodeResponse404 | sendPhoneCodeResponse500) & {
-  headers: Headers;
+export type SendPhoneCodeResponse200 = {
+  data: void;
+  status: 200;
 };
 
-export type sendPhoneCodeResponse = (sendPhoneCodeResponseSuccess | sendPhoneCodeResponseError)
+export type SendPhoneCodeResponse400 = {
+  data: ErrorResponseDto;
+  status: 400;
+};
+
+export type SendPhoneCodeResponse401 = {
+  data: ErrorResponseDto;
+  status: 401;
+};
+
+export type SendPhoneCodeResponse404 = {
+  data: ErrorResponseDto;
+  status: 404;
+};
+
+export type SendPhoneCodeResponse500 = {
+  data: ErrorResponseDto;
+  status: 500;
+};
+
+export type SendPhoneCodeResponseSuccess = SendPhoneCodeResponse200 & {
+  headers: Headers;
+};
+export type SendPhoneCodeResponseError = (
+  | SendPhoneCodeResponse400
+  | SendPhoneCodeResponse401
+  | SendPhoneCodeResponse404
+  | SendPhoneCodeResponse500
+) & {
+  headers: Headers;
+};
+
+export type SendPhoneCodeResponse = SendPhoneCodeResponseSuccess | SendPhoneCodeResponseError;
 
 export const getSendPhoneCodeUrl = () => {
+  return `/tenant/sign-up/send-phone-code`;
+};
 
-
-  
-
-  return `/tenant/sign-up/send-phone-code`
-}
-
-export const sendPhoneCode = async (sendPhoneOtpDto: SendPhoneOtpDto, options?: RequestInit): Promise<sendPhoneCodeResponse> => {
-  
-  const res = await fetch(getSendPhoneCodeUrl(),
-  {      
+export const sendPhoneCode = async (
+  sendPhoneOtpDto: SendPhoneOtpDto,
+  options?: RequestInit,
+): Promise<SendPhoneCodeResponse> => {
+  const res = await fetch(getSendPhoneCodeUrl(), {
     ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      sendPhoneOtpDto,)
-  }
-)
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(sendPhoneOtpDto),
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: sendPhoneCodeResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as sendPhoneCodeResponse
-}
-  
+
+  const data: SendPhoneCodeResponse["data"] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as SendPhoneCodeResponse;
+};
 
 /**
  * Send email confirmation code
  */
-export type sendEmailCodeResponse200 = {
-  data: void
-  status: 200
-}
-
-export type sendEmailCodeResponse400 = {
-  data: ErrorResponseDto
-  status: 400
-}
-
-export type sendEmailCodeResponse401 = {
-  data: ErrorResponseDto
-  status: 401
-}
-
-export type sendEmailCodeResponse404 = {
-  data: ErrorResponseDto
-  status: 404
-}
-
-export type sendEmailCodeResponse500 = {
-  data: ErrorResponseDto
-  status: 500
-}
-
-export type sendEmailCodeResponseSuccess = (sendEmailCodeResponse200) & {
-  headers: Headers;
-};
-export type sendEmailCodeResponseError = (sendEmailCodeResponse400 | sendEmailCodeResponse401 | sendEmailCodeResponse404 | sendEmailCodeResponse500) & {
-  headers: Headers;
+export type SendEmailCodeResponse200 = {
+  data: void;
+  status: 200;
 };
 
-export type sendEmailCodeResponse = (sendEmailCodeResponseSuccess | sendEmailCodeResponseError)
+export type SendEmailCodeResponse400 = {
+  data: ErrorResponseDto;
+  status: 400;
+};
+
+export type SendEmailCodeResponse401 = {
+  data: ErrorResponseDto;
+  status: 401;
+};
+
+export type SendEmailCodeResponse404 = {
+  data: ErrorResponseDto;
+  status: 404;
+};
+
+export type SendEmailCodeResponse500 = {
+  data: ErrorResponseDto;
+  status: 500;
+};
+
+export type SendEmailCodeResponseSuccess = SendEmailCodeResponse200 & {
+  headers: Headers;
+};
+export type SendEmailCodeResponseError = (
+  | SendEmailCodeResponse400
+  | SendEmailCodeResponse401
+  | SendEmailCodeResponse404
+  | SendEmailCodeResponse500
+) & {
+  headers: Headers;
+};
+
+export type SendEmailCodeResponse = SendEmailCodeResponseSuccess | SendEmailCodeResponseError;
 
 export const getSendEmailCodeUrl = () => {
+  return `/tenant/sign-up/send-email-code`;
+};
 
-
-  
-
-  return `/tenant/sign-up/send-email-code`
-}
-
-export const sendEmailCode = async (sendEmailOtpDto: SendEmailOtpDto, options?: RequestInit): Promise<sendEmailCodeResponse> => {
-  
-  const res = await fetch(getSendEmailCodeUrl(),
-  {      
+export const sendEmailCode = async (
+  sendEmailOtpDto: SendEmailOtpDto,
+  options?: RequestInit,
+): Promise<SendEmailCodeResponse> => {
+  const res = await fetch(getSendEmailCodeUrl(), {
     ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      sendEmailOtpDto,)
-  }
-)
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(sendEmailOtpDto),
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: sendEmailCodeResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as sendEmailCodeResponse
-}
-  
 
+  const data: SendEmailCodeResponse["data"] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as SendEmailCodeResponse;
+};

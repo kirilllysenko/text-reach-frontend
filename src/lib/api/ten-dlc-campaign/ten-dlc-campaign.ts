@@ -4,252 +4,235 @@
  * OpenAPI definition
  * OpenAPI spec version: v0
  */
-import type {
-  ErrorResponseDto,
-  IdDto,
-  TenDlcCampaignCreateDto,
-  TenDlcCampaignDto
-} from '../index.schemas';
+import type { ErrorResponseDto, IdDto, TenDlcCampaignCreateDto, TenDlcCampaignDto } from "../index.schemas";
 
-
-export type getTenDlcCampaignPageResponse200 = {
-  data: TenDlcCampaignDto[]
-  status: 200
-}
-
-export type getTenDlcCampaignPageResponse400 = {
-  data: ErrorResponseDto
-  status: 400
-}
-
-export type getTenDlcCampaignPageResponse401 = {
-  data: ErrorResponseDto
-  status: 401
-}
-
-export type getTenDlcCampaignPageResponse404 = {
-  data: ErrorResponseDto
-  status: 404
-}
-
-export type getTenDlcCampaignPageResponse500 = {
-  data: ErrorResponseDto
-  status: 500
-}
-
-export type getTenDlcCampaignPageResponseSuccess = (getTenDlcCampaignPageResponse200) & {
-  headers: Headers;
-};
-export type getTenDlcCampaignPageResponseError = (getTenDlcCampaignPageResponse400 | getTenDlcCampaignPageResponse401 | getTenDlcCampaignPageResponse404 | getTenDlcCampaignPageResponse500) & {
-  headers: Headers;
+export type GetTenDlcCampaignPageResponse200 = {
+  data: TenDlcCampaignDto[];
+  status: 200;
 };
 
-export type getTenDlcCampaignPageResponse = (getTenDlcCampaignPageResponseSuccess | getTenDlcCampaignPageResponseError)
+export type GetTenDlcCampaignPageResponse400 = {
+  data: ErrorResponseDto;
+  status: 400;
+};
+
+export type GetTenDlcCampaignPageResponse401 = {
+  data: ErrorResponseDto;
+  status: 401;
+};
+
+export type GetTenDlcCampaignPageResponse404 = {
+  data: ErrorResponseDto;
+  status: 404;
+};
+
+export type GetTenDlcCampaignPageResponse500 = {
+  data: ErrorResponseDto;
+  status: 500;
+};
+
+export type GetTenDlcCampaignPageResponseSuccess = GetTenDlcCampaignPageResponse200 & {
+  headers: Headers;
+};
+export type GetTenDlcCampaignPageResponseError = (
+  | GetTenDlcCampaignPageResponse400
+  | GetTenDlcCampaignPageResponse401
+  | GetTenDlcCampaignPageResponse404
+  | GetTenDlcCampaignPageResponse500
+) & {
+  headers: Headers;
+};
+
+export type GetTenDlcCampaignPageResponse = GetTenDlcCampaignPageResponseSuccess | GetTenDlcCampaignPageResponseError;
 
 export const getGetTenDlcCampaignPageUrl = () => {
+  return `/phone/ten-dlc-campaign`;
+};
 
-
-  
-
-  return `/phone/ten-dlc-campaign`
-}
-
-export const getTenDlcCampaignPage = async ( options?: RequestInit): Promise<getTenDlcCampaignPageResponse> => {
-  
-  const res = await fetch(getGetTenDlcCampaignPageUrl(),
-  {      
+export const getTenDlcCampaignPage = async (options?: RequestInit): Promise<GetTenDlcCampaignPageResponse> => {
+  const res = await fetch(getGetTenDlcCampaignPageUrl(), {
     ...options,
-    method: 'GET'
-    
-    
-  }
-)
+    method: "GET",
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: getTenDlcCampaignPageResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as getTenDlcCampaignPageResponse
-}
-  
 
-export type createTenDlcCampaignResponse200 = {
-  data: IdDto
-  status: 200
-}
-
-export type createTenDlcCampaignResponse400 = {
-  data: ErrorResponseDto
-  status: 400
-}
-
-export type createTenDlcCampaignResponse401 = {
-  data: ErrorResponseDto
-  status: 401
-}
-
-export type createTenDlcCampaignResponse404 = {
-  data: ErrorResponseDto
-  status: 404
-}
-
-export type createTenDlcCampaignResponse500 = {
-  data: ErrorResponseDto
-  status: 500
-}
-
-export type createTenDlcCampaignResponseSuccess = (createTenDlcCampaignResponse200) & {
-  headers: Headers;
-};
-export type createTenDlcCampaignResponseError = (createTenDlcCampaignResponse400 | createTenDlcCampaignResponse401 | createTenDlcCampaignResponse404 | createTenDlcCampaignResponse500) & {
-  headers: Headers;
+  const data: GetTenDlcCampaignPageResponse["data"] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as GetTenDlcCampaignPageResponse;
 };
 
-export type createTenDlcCampaignResponse = (createTenDlcCampaignResponseSuccess | createTenDlcCampaignResponseError)
+export type CreateTenDlcCampaignResponse200 = {
+  data: IdDto;
+  status: 200;
+};
+
+export type CreateTenDlcCampaignResponse400 = {
+  data: ErrorResponseDto;
+  status: 400;
+};
+
+export type CreateTenDlcCampaignResponse401 = {
+  data: ErrorResponseDto;
+  status: 401;
+};
+
+export type CreateTenDlcCampaignResponse404 = {
+  data: ErrorResponseDto;
+  status: 404;
+};
+
+export type CreateTenDlcCampaignResponse500 = {
+  data: ErrorResponseDto;
+  status: 500;
+};
+
+export type CreateTenDlcCampaignResponseSuccess = CreateTenDlcCampaignResponse200 & {
+  headers: Headers;
+};
+export type CreateTenDlcCampaignResponseError = (
+  | CreateTenDlcCampaignResponse400
+  | CreateTenDlcCampaignResponse401
+  | CreateTenDlcCampaignResponse404
+  | CreateTenDlcCampaignResponse500
+) & {
+  headers: Headers;
+};
+
+export type CreateTenDlcCampaignResponse = CreateTenDlcCampaignResponseSuccess | CreateTenDlcCampaignResponseError;
 
 export const getCreateTenDlcCampaignUrl = () => {
+  return `/phone/ten-dlc-campaign`;
+};
 
-
-  
-
-  return `/phone/ten-dlc-campaign`
-}
-
-export const createTenDlcCampaign = async (tenDlcCampaignCreateDto: TenDlcCampaignCreateDto, options?: RequestInit): Promise<createTenDlcCampaignResponse> => {
-  
-  const res = await fetch(getCreateTenDlcCampaignUrl(),
-  {      
+export const createTenDlcCampaign = async (
+  tenDlcCampaignCreateDto: TenDlcCampaignCreateDto,
+  options?: RequestInit,
+): Promise<CreateTenDlcCampaignResponse> => {
+  const res = await fetch(getCreateTenDlcCampaignUrl(), {
     ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      tenDlcCampaignCreateDto,)
-  }
-)
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(tenDlcCampaignCreateDto),
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: createTenDlcCampaignResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as createTenDlcCampaignResponse
-}
-  
 
-export type getTenDlcCampaignByIdResponse200 = {
-  data: TenDlcCampaignDto
-  status: 200
-}
-
-export type getTenDlcCampaignByIdResponse400 = {
-  data: ErrorResponseDto
-  status: 400
-}
-
-export type getTenDlcCampaignByIdResponse401 = {
-  data: ErrorResponseDto
-  status: 401
-}
-
-export type getTenDlcCampaignByIdResponse404 = {
-  data: ErrorResponseDto
-  status: 404
-}
-
-export type getTenDlcCampaignByIdResponse500 = {
-  data: ErrorResponseDto
-  status: 500
-}
-
-export type getTenDlcCampaignByIdResponseSuccess = (getTenDlcCampaignByIdResponse200) & {
-  headers: Headers;
-};
-export type getTenDlcCampaignByIdResponseError = (getTenDlcCampaignByIdResponse400 | getTenDlcCampaignByIdResponse401 | getTenDlcCampaignByIdResponse404 | getTenDlcCampaignByIdResponse500) & {
-  headers: Headers;
+  const data: CreateTenDlcCampaignResponse["data"] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as CreateTenDlcCampaignResponse;
 };
 
-export type getTenDlcCampaignByIdResponse = (getTenDlcCampaignByIdResponseSuccess | getTenDlcCampaignByIdResponseError)
+export type GetTenDlcCampaignByIdResponse200 = {
+  data: TenDlcCampaignDto;
+  status: 200;
+};
 
-export const getGetTenDlcCampaignByIdUrl = (id: string,) => {
+export type GetTenDlcCampaignByIdResponse400 = {
+  data: ErrorResponseDto;
+  status: 400;
+};
 
+export type GetTenDlcCampaignByIdResponse401 = {
+  data: ErrorResponseDto;
+  status: 401;
+};
 
-  
+export type GetTenDlcCampaignByIdResponse404 = {
+  data: ErrorResponseDto;
+  status: 404;
+};
 
-  return `/phone/ten-dlc-campaign/${id}`
-}
+export type GetTenDlcCampaignByIdResponse500 = {
+  data: ErrorResponseDto;
+  status: 500;
+};
 
-export const getTenDlcCampaignById = async (id: string, options?: RequestInit): Promise<getTenDlcCampaignByIdResponse> => {
-  
-  const res = await fetch(getGetTenDlcCampaignByIdUrl(id),
-  {      
+export type GetTenDlcCampaignByIdResponseSuccess = GetTenDlcCampaignByIdResponse200 & {
+  headers: Headers;
+};
+export type GetTenDlcCampaignByIdResponseError = (
+  | GetTenDlcCampaignByIdResponse400
+  | GetTenDlcCampaignByIdResponse401
+  | GetTenDlcCampaignByIdResponse404
+  | GetTenDlcCampaignByIdResponse500
+) & {
+  headers: Headers;
+};
+
+export type GetTenDlcCampaignByIdResponse = GetTenDlcCampaignByIdResponseSuccess | GetTenDlcCampaignByIdResponseError;
+
+export const getGetTenDlcCampaignByIdUrl = (id: string) => {
+  return `/phone/ten-dlc-campaign/${id}`;
+};
+
+export const getTenDlcCampaignById = async (
+  id: string,
+  options?: RequestInit,
+): Promise<GetTenDlcCampaignByIdResponse> => {
+  const res = await fetch(getGetTenDlcCampaignByIdUrl(id), {
     ...options,
-    method: 'GET'
-    
-    
-  }
-)
+    method: "GET",
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: getTenDlcCampaignByIdResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as getTenDlcCampaignByIdResponse
-}
-  
 
-export type deleteTenDlcCampaignResponse200 = {
-  data: void
-  status: 200
-}
-
-export type deleteTenDlcCampaignResponse400 = {
-  data: ErrorResponseDto
-  status: 400
-}
-
-export type deleteTenDlcCampaignResponse401 = {
-  data: ErrorResponseDto
-  status: 401
-}
-
-export type deleteTenDlcCampaignResponse404 = {
-  data: ErrorResponseDto
-  status: 404
-}
-
-export type deleteTenDlcCampaignResponse500 = {
-  data: ErrorResponseDto
-  status: 500
-}
-
-export type deleteTenDlcCampaignResponseSuccess = (deleteTenDlcCampaignResponse200) & {
-  headers: Headers;
-};
-export type deleteTenDlcCampaignResponseError = (deleteTenDlcCampaignResponse400 | deleteTenDlcCampaignResponse401 | deleteTenDlcCampaignResponse404 | deleteTenDlcCampaignResponse500) & {
-  headers: Headers;
+  const data: GetTenDlcCampaignByIdResponse["data"] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as GetTenDlcCampaignByIdResponse;
 };
 
-export type deleteTenDlcCampaignResponse = (deleteTenDlcCampaignResponseSuccess | deleteTenDlcCampaignResponseError)
+export type DeleteTenDlcCampaignResponse200 = {
+  data: void;
+  status: 200;
+};
 
-export const getDeleteTenDlcCampaignUrl = (id: string,) => {
+export type DeleteTenDlcCampaignResponse400 = {
+  data: ErrorResponseDto;
+  status: 400;
+};
 
+export type DeleteTenDlcCampaignResponse401 = {
+  data: ErrorResponseDto;
+  status: 401;
+};
 
-  
+export type DeleteTenDlcCampaignResponse404 = {
+  data: ErrorResponseDto;
+  status: 404;
+};
 
-  return `/phone/ten-dlc-campaign/${id}`
-}
+export type DeleteTenDlcCampaignResponse500 = {
+  data: ErrorResponseDto;
+  status: 500;
+};
 
-export const deleteTenDlcCampaign = async (id: string, options?: RequestInit): Promise<deleteTenDlcCampaignResponse> => {
-  
-  const res = await fetch(getDeleteTenDlcCampaignUrl(id),
-  {      
+export type DeleteTenDlcCampaignResponseSuccess = DeleteTenDlcCampaignResponse200 & {
+  headers: Headers;
+};
+export type DeleteTenDlcCampaignResponseError = (
+  | DeleteTenDlcCampaignResponse400
+  | DeleteTenDlcCampaignResponse401
+  | DeleteTenDlcCampaignResponse404
+  | DeleteTenDlcCampaignResponse500
+) & {
+  headers: Headers;
+};
+
+export type DeleteTenDlcCampaignResponse = DeleteTenDlcCampaignResponseSuccess | DeleteTenDlcCampaignResponseError;
+
+export const getDeleteTenDlcCampaignUrl = (id: string) => {
+  return `/phone/ten-dlc-campaign/${id}`;
+};
+
+export const deleteTenDlcCampaign = async (
+  id: string,
+  options?: RequestInit,
+): Promise<DeleteTenDlcCampaignResponse> => {
+  const res = await fetch(getDeleteTenDlcCampaignUrl(id), {
     ...options,
-    method: 'DELETE'
-    
-    
-  }
-)
+    method: "DELETE",
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: deleteTenDlcCampaignResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as deleteTenDlcCampaignResponse
-}
-  
 
+  const data: DeleteTenDlcCampaignResponse["data"] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as DeleteTenDlcCampaignResponse;
+};

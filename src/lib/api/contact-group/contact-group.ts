@@ -11,311 +11,286 @@ import type {
   ErrorResponseDto,
   IdDto,
   PageContactGroupDto,
-  PageRequestContactGroupFilterDtoContactGroupSortDto
-} from '../index.schemas';
+  PageRequestContactGroupFilterDtoContactGroupSortDto,
+} from "../index.schemas";
 
-
-export type getByIdResponse200 = {
-  data: ContactGroupDto
-  status: 200
-}
-
-export type getByIdResponse400 = {
-  data: ErrorResponseDto
-  status: 400
-}
-
-export type getByIdResponse401 = {
-  data: ErrorResponseDto
-  status: 401
-}
-
-export type getByIdResponse404 = {
-  data: ErrorResponseDto
-  status: 404
-}
-
-export type getByIdResponse500 = {
-  data: ErrorResponseDto
-  status: 500
-}
-
-export type getByIdResponseSuccess = (getByIdResponse200) & {
-  headers: Headers;
-};
-export type getByIdResponseError = (getByIdResponse400 | getByIdResponse401 | getByIdResponse404 | getByIdResponse500) & {
-  headers: Headers;
+export type GetByIdResponse200 = {
+  data: ContactGroupDto;
+  status: 200;
 };
 
-export type getByIdResponse = (getByIdResponseSuccess | getByIdResponseError)
+export type GetByIdResponse400 = {
+  data: ErrorResponseDto;
+  status: 400;
+};
 
-export const getGetByIdUrl = (id: string,) => {
+export type GetByIdResponse401 = {
+  data: ErrorResponseDto;
+  status: 401;
+};
 
+export type GetByIdResponse404 = {
+  data: ErrorResponseDto;
+  status: 404;
+};
 
-  
+export type GetByIdResponse500 = {
+  data: ErrorResponseDto;
+  status: 500;
+};
 
-  return `/contact/contact-group/${id}`
-}
+export type GetByIdResponseSuccess = GetByIdResponse200 & {
+  headers: Headers;
+};
+export type GetByIdResponseError = (
+  | GetByIdResponse400
+  | GetByIdResponse401
+  | GetByIdResponse404
+  | GetByIdResponse500
+) & {
+  headers: Headers;
+};
 
-export const getById = async (id: string, options?: RequestInit): Promise<getByIdResponse> => {
-  
-  const res = await fetch(getGetByIdUrl(id),
-  {      
+export type GetByIdResponse = GetByIdResponseSuccess | GetByIdResponseError;
+
+export const getGetByIdUrl = (id: string) => {
+  return `/contact/contact-group/${id}`;
+};
+
+export const getById = async (id: string, options?: RequestInit): Promise<GetByIdResponse> => {
+  const res = await fetch(getGetByIdUrl(id), {
     ...options,
-    method: 'GET'
-    
-    
-  }
-)
+    method: "GET",
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: getByIdResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as getByIdResponse
-}
-  
 
-export type updateResponse200 = {
-  data: void
-  status: 200
-}
-
-export type updateResponse400 = {
-  data: ErrorResponseDto
-  status: 400
-}
-
-export type updateResponse401 = {
-  data: ErrorResponseDto
-  status: 401
-}
-
-export type updateResponse404 = {
-  data: ErrorResponseDto
-  status: 404
-}
-
-export type updateResponse500 = {
-  data: ErrorResponseDto
-  status: 500
-}
-
-export type updateResponseSuccess = (updateResponse200) & {
-  headers: Headers;
-};
-export type updateResponseError = (updateResponse400 | updateResponse401 | updateResponse404 | updateResponse500) & {
-  headers: Headers;
+  const data: GetByIdResponse["data"] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as GetByIdResponse;
 };
 
-export type updateResponse = (updateResponseSuccess | updateResponseError)
+export type UpdateResponse200 = {
+  data: void;
+  status: 200;
+};
 
-export const getUpdateUrl = (id: string,) => {
+export type UpdateResponse400 = {
+  data: ErrorResponseDto;
+  status: 400;
+};
 
+export type UpdateResponse401 = {
+  data: ErrorResponseDto;
+  status: 401;
+};
 
-  
+export type UpdateResponse404 = {
+  data: ErrorResponseDto;
+  status: 404;
+};
 
-  return `/contact/contact-group/${id}`
-}
+export type UpdateResponse500 = {
+  data: ErrorResponseDto;
+  status: 500;
+};
 
-export const update = async (id: string,
-    contactGroupUpdateDto: ContactGroupUpdateDto, options?: RequestInit): Promise<updateResponse> => {
-  
-  const res = await fetch(getUpdateUrl(id),
-  {      
+export type UpdateResponseSuccess = UpdateResponse200 & {
+  headers: Headers;
+};
+export type UpdateResponseError = (UpdateResponse400 | UpdateResponse401 | UpdateResponse404 | UpdateResponse500) & {
+  headers: Headers;
+};
+
+export type UpdateResponse = UpdateResponseSuccess | UpdateResponseError;
+
+export const getUpdateUrl = (id: string) => {
+  return `/contact/contact-group/${id}`;
+};
+
+export const update = async (
+  id: string,
+  contactGroupUpdateDto: ContactGroupUpdateDto,
+  options?: RequestInit,
+): Promise<UpdateResponse> => {
+  const res = await fetch(getUpdateUrl(id), {
     ...options,
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      contactGroupUpdateDto,)
-  }
-)
+    method: "PUT",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(contactGroupUpdateDto),
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: updateResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as updateResponse
-}
-  
+
+  const data: UpdateResponse["data"] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as UpdateResponse;
+};
 
 export type _deleteResponse200 = {
-  data: void
-  status: 200
-}
+  data: void;
+  status: 200;
+};
 
 export type _deleteResponse400 = {
-  data: ErrorResponseDto
-  status: 400
-}
+  data: ErrorResponseDto;
+  status: 400;
+};
 
 export type _deleteResponse401 = {
-  data: ErrorResponseDto
-  status: 401
-}
+  data: ErrorResponseDto;
+  status: 401;
+};
 
 export type _deleteResponse404 = {
-  data: ErrorResponseDto
-  status: 404
-}
+  data: ErrorResponseDto;
+  status: 404;
+};
 
 export type _deleteResponse500 = {
-  data: ErrorResponseDto
-  status: 500
-}
-
-export type _deleteResponseSuccess = (_deleteResponse200) & {
-  headers: Headers;
-};
-export type _deleteResponseError = (_deleteResponse400 | _deleteResponse401 | _deleteResponse404 | _deleteResponse500) & {
-  headers: Headers;
+  data: ErrorResponseDto;
+  status: 500;
 };
 
-export type _deleteResponse = (_deleteResponseSuccess | _deleteResponseError)
+export type _deleteResponseSuccess = _deleteResponse200 & {
+  headers: Headers;
+};
+export type _deleteResponseError = (
+  | _deleteResponse400
+  | _deleteResponse401
+  | _deleteResponse404
+  | _deleteResponse500
+) & {
+  headers: Headers;
+};
 
-export const getDeleteUrl = (id: string,) => {
+export type _deleteResponse = _deleteResponseSuccess | _deleteResponseError;
 
-
-  
-
-  return `/contact/contact-group/${id}`
-}
+export const getDeleteUrl = (id: string) => {
+  return `/contact/contact-group/${id}`;
+};
 
 export const _delete = async (id: string, options?: RequestInit): Promise<_deleteResponse> => {
-  
-  const res = await fetch(getDeleteUrl(id),
-  {      
+  const res = await fetch(getDeleteUrl(id), {
     ...options,
-    method: 'DELETE'
-    
-    
-  }
-)
+    method: "DELETE",
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: _deleteResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as _deleteResponse
-}
-  
 
-export type createResponse200 = {
-  data: IdDto
-  status: 200
-}
-
-export type createResponse400 = {
-  data: ErrorResponseDto
-  status: 400
-}
-
-export type createResponse401 = {
-  data: ErrorResponseDto
-  status: 401
-}
-
-export type createResponse404 = {
-  data: ErrorResponseDto
-  status: 404
-}
-
-export type createResponse500 = {
-  data: ErrorResponseDto
-  status: 500
-}
-
-export type createResponseSuccess = (createResponse200) & {
-  headers: Headers;
-};
-export type createResponseError = (createResponse400 | createResponse401 | createResponse404 | createResponse500) & {
-  headers: Headers;
+  const data: _deleteResponse["data"] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as _deleteResponse;
 };
 
-export type createResponse = (createResponseSuccess | createResponseError)
+export type CreateResponse200 = {
+  data: IdDto;
+  status: 200;
+};
+
+export type CreateResponse400 = {
+  data: ErrorResponseDto;
+  status: 400;
+};
+
+export type CreateResponse401 = {
+  data: ErrorResponseDto;
+  status: 401;
+};
+
+export type CreateResponse404 = {
+  data: ErrorResponseDto;
+  status: 404;
+};
+
+export type CreateResponse500 = {
+  data: ErrorResponseDto;
+  status: 500;
+};
+
+export type CreateResponseSuccess = CreateResponse200 & {
+  headers: Headers;
+};
+export type CreateResponseError = (CreateResponse400 | CreateResponse401 | CreateResponse404 | CreateResponse500) & {
+  headers: Headers;
+};
+
+export type CreateResponse = CreateResponseSuccess | CreateResponseError;
 
 export const getCreateUrl = () => {
+  return `/contact/contact-group`;
+};
 
-
-  
-
-  return `/contact/contact-group`
-}
-
-export const create = async (contactGroupCreateDto: ContactGroupCreateDto, options?: RequestInit): Promise<createResponse> => {
-  
-  const res = await fetch(getCreateUrl(),
-  {      
+export const create = async (
+  contactGroupCreateDto: ContactGroupCreateDto,
+  options?: RequestInit,
+): Promise<CreateResponse> => {
+  const res = await fetch(getCreateUrl(), {
     ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      contactGroupCreateDto,)
-  }
-)
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(contactGroupCreateDto),
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: createResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as createResponse
-}
-  
 
-export type getPageResponse200 = {
-  data: PageContactGroupDto
-  status: 200
-}
-
-export type getPageResponse400 = {
-  data: ErrorResponseDto
-  status: 400
-}
-
-export type getPageResponse401 = {
-  data: ErrorResponseDto
-  status: 401
-}
-
-export type getPageResponse404 = {
-  data: ErrorResponseDto
-  status: 404
-}
-
-export type getPageResponse500 = {
-  data: ErrorResponseDto
-  status: 500
-}
-
-export type getPageResponseSuccess = (getPageResponse200) & {
-  headers: Headers;
-};
-export type getPageResponseError = (getPageResponse400 | getPageResponse401 | getPageResponse404 | getPageResponse500) & {
-  headers: Headers;
+  const data: CreateResponse["data"] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as CreateResponse;
 };
 
-export type getPageResponse = (getPageResponseSuccess | getPageResponseError)
+export type GetPageResponse200 = {
+  data: PageContactGroupDto;
+  status: 200;
+};
+
+export type GetPageResponse400 = {
+  data: ErrorResponseDto;
+  status: 400;
+};
+
+export type GetPageResponse401 = {
+  data: ErrorResponseDto;
+  status: 401;
+};
+
+export type GetPageResponse404 = {
+  data: ErrorResponseDto;
+  status: 404;
+};
+
+export type GetPageResponse500 = {
+  data: ErrorResponseDto;
+  status: 500;
+};
+
+export type GetPageResponseSuccess = GetPageResponse200 & {
+  headers: Headers;
+};
+export type GetPageResponseError = (
+  | GetPageResponse400
+  | GetPageResponse401
+  | GetPageResponse404
+  | GetPageResponse500
+) & {
+  headers: Headers;
+};
+
+export type GetPageResponse = GetPageResponseSuccess | GetPageResponseError;
 
 export const getGetPageUrl = () => {
+  return `/contact/contact-group/fetch`;
+};
 
-
-  
-
-  return `/contact/contact-group/fetch`
-}
-
-export const getPage = async (pageRequestContactGroupFilterDtoContactGroupSortDto: PageRequestContactGroupFilterDtoContactGroupSortDto, options?: RequestInit): Promise<getPageResponse> => {
-  
-  const res = await fetch(getGetPageUrl(),
-  {      
+export const getPage = async (
+  pageRequestContactGroupFilterDtoContactGroupSortDto: PageRequestContactGroupFilterDtoContactGroupSortDto,
+  options?: RequestInit,
+): Promise<GetPageResponse> => {
+  const res = await fetch(getGetPageUrl(), {
     ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      pageRequestContactGroupFilterDtoContactGroupSortDto,)
-  }
-)
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(pageRequestContactGroupFilterDtoContactGroupSortDto),
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: getPageResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as getPageResponse
-}
-  
 
+  const data: GetPageResponse["data"] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as GetPageResponse;
+};

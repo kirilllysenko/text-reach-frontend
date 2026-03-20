@@ -34,38 +34,36 @@ export interface ProfileDto {
   email?: string;
 }
 
-export type ErrorResponseDtoErrorCode = typeof ErrorResponseDtoErrorCode[keyof typeof ErrorResponseDtoErrorCode];
-
+export type ErrorResponseDtoErrorCode = (typeof ErrorResponseDtoErrorCode)[keyof typeof ErrorResponseDtoErrorCode];
 
 export const ErrorResponseDtoErrorCode = {
-  VALUE_REQUIRED: 'VALUE_REQUIRED',
-  INVALID_VALUE: 'INVALID_VALUE',
-  INTERNAL_ERROR: 'INTERNAL_ERROR',
-  NOT_FOUND: 'NOT_FOUND',
-  ACCOUNT_ALREADY_EXISTS: 'ACCOUNT_ALREADY_EXISTS',
-  TOO_MANY_EMAIL_CODE_REQUESTS: 'TOO_MANY_EMAIL_CODE_REQUESTS',
-  TOO_MANY_PHONE_CODE_REQUESTS: 'TOO_MANY_PHONE_CODE_REQUESTS',
-  SESSION_EXPIRED: 'SESSION_EXPIRED',
-  SESSION_CLIENT_CHANGED: 'SESSION_CLIENT_CHANGED',
-  SESSION_INVALID_USER: 'SESSION_INVALID_USER',
-  TEN_DLC_BRAND_REQUIRED: 'TEN_DLC_BRAND_REQUIRED',
+  VALUE_REQUIRED: "VALUE_REQUIRED",
+  INVALID_VALUE: "INVALID_VALUE",
+  INTERNAL_ERROR: "INTERNAL_ERROR",
+  NOT_FOUND: "NOT_FOUND",
+  ACCOUNT_ALREADY_EXISTS: "ACCOUNT_ALREADY_EXISTS",
+  TOO_MANY_EMAIL_CODE_REQUESTS: "TOO_MANY_EMAIL_CODE_REQUESTS",
+  TOO_MANY_PHONE_CODE_REQUESTS: "TOO_MANY_PHONE_CODE_REQUESTS",
+  SESSION_EXPIRED: "SESSION_EXPIRED",
+  SESSION_CLIENT_CHANGED: "SESSION_CLIENT_CHANGED",
+  SESSION_INVALID_USER: "SESSION_INVALID_USER",
+  TEN_DLC_BRAND_REQUIRED: "TEN_DLC_BRAND_REQUIRED",
 } as const;
 
-export type FieldErrorDtoErrorCode = typeof FieldErrorDtoErrorCode[keyof typeof FieldErrorDtoErrorCode];
-
+export type FieldErrorDtoErrorCode = (typeof FieldErrorDtoErrorCode)[keyof typeof FieldErrorDtoErrorCode];
 
 export const FieldErrorDtoErrorCode = {
-  VALUE_REQUIRED: 'VALUE_REQUIRED',
-  INVALID_VALUE: 'INVALID_VALUE',
-  INTERNAL_ERROR: 'INTERNAL_ERROR',
-  NOT_FOUND: 'NOT_FOUND',
-  ACCOUNT_ALREADY_EXISTS: 'ACCOUNT_ALREADY_EXISTS',
-  TOO_MANY_EMAIL_CODE_REQUESTS: 'TOO_MANY_EMAIL_CODE_REQUESTS',
-  TOO_MANY_PHONE_CODE_REQUESTS: 'TOO_MANY_PHONE_CODE_REQUESTS',
-  SESSION_EXPIRED: 'SESSION_EXPIRED',
-  SESSION_CLIENT_CHANGED: 'SESSION_CLIENT_CHANGED',
-  SESSION_INVALID_USER: 'SESSION_INVALID_USER',
-  TEN_DLC_BRAND_REQUIRED: 'TEN_DLC_BRAND_REQUIRED',
+  VALUE_REQUIRED: "VALUE_REQUIRED",
+  INVALID_VALUE: "INVALID_VALUE",
+  INTERNAL_ERROR: "INTERNAL_ERROR",
+  NOT_FOUND: "NOT_FOUND",
+  ACCOUNT_ALREADY_EXISTS: "ACCOUNT_ALREADY_EXISTS",
+  TOO_MANY_EMAIL_CODE_REQUESTS: "TOO_MANY_EMAIL_CODE_REQUESTS",
+  TOO_MANY_PHONE_CODE_REQUESTS: "TOO_MANY_PHONE_CODE_REQUESTS",
+  SESSION_EXPIRED: "SESSION_EXPIRED",
+  SESSION_CLIENT_CHANGED: "SESSION_CLIENT_CHANGED",
+  SESSION_INVALID_USER: "SESSION_INVALID_USER",
+  TEN_DLC_BRAND_REQUIRED: "TEN_DLC_BRAND_REQUIRED",
 } as const;
 
 export interface FieldErrorDto {
@@ -105,13 +103,12 @@ export interface ContactGroupUpdateDto {
   name?: string;
 }
 
-export type CreateCustomFieldDtoType = typeof CreateCustomFieldDtoType[keyof typeof CreateCustomFieldDtoType];
-
+export type CreateCustomFieldDtoType = (typeof CreateCustomFieldDtoType)[keyof typeof CreateCustomFieldDtoType];
 
 export const CreateCustomFieldDtoType = {
-  TEXT: 'TEXT',
-  NUMBER: 'NUMBER',
-  DATE: 'DATE',
+  TEXT: "TEXT",
+  NUMBER: "NUMBER",
+  DATE: "DATE",
 } as const;
 
 export interface CreateCustomFieldDto {
@@ -132,16 +129,16 @@ export interface ContactCreateDto {
   birthday?: string;
 }
 
-export type ComparisonFilterLocalDateOperator = typeof ComparisonFilterLocalDateOperator[keyof typeof ComparisonFilterLocalDateOperator];
-
+export type ComparisonFilterLocalDateOperator =
+  (typeof ComparisonFilterLocalDateOperator)[keyof typeof ComparisonFilterLocalDateOperator];
 
 export const ComparisonFilterLocalDateOperator = {
-  EQUAL: 'EQUAL',
-  NOT_EQUAL: 'NOT_EQUAL',
-  GREATER_THAN: 'GREATER_THAN',
-  LESS_THAN: 'LESS_THAN',
-  GREATER_OR_EQUAL: 'GREATER_OR_EQUAL',
-  LESS_OR_EQUAL: 'LESS_OR_EQUAL',
+  EQUAL: "EQUAL",
+  NOT_EQUAL: "NOT_EQUAL",
+  GREATER_THAN: "GREATER_THAN",
+  LESS_THAN: "LESS_THAN",
+  GREATER_OR_EQUAL: "GREATER_OR_EQUAL",
+  LESS_OR_EQUAL: "LESS_OR_EQUAL",
 } as const;
 
 export interface ComparisonFilterLocalDate {
@@ -149,20 +146,19 @@ export interface ComparisonFilterLocalDate {
   value?: string;
 }
 
-export type ContactFilterDtoOperator = typeof ContactFilterDtoOperator[keyof typeof ContactFilterDtoOperator];
-
+export type ContactFilterDtoOperator = (typeof ContactFilterDtoOperator)[keyof typeof ContactFilterDtoOperator];
 
 export const ContactFilterDtoOperator = {
-  AND: 'AND',
-  OR: 'OR',
+  AND: "AND",
+  OR: "OR",
 } as const;
 
-export type ContainmentFilterULIDOperator = typeof ContainmentFilterULIDOperator[keyof typeof ContainmentFilterULIDOperator];
-
+export type ContainmentFilterULIDOperator =
+  (typeof ContainmentFilterULIDOperator)[keyof typeof ContainmentFilterULIDOperator];
 
 export const ContainmentFilterULIDOperator = {
-  IN: 'IN',
-  NOT_IN: 'NOT_IN',
+  IN: "IN",
+  NOT_IN: "NOT_IN",
 } as const;
 
 export interface ContainmentFilterULID {
@@ -170,16 +166,15 @@ export interface ContainmentFilterULID {
   value?: string[];
 }
 
-export type TextFilterOperator = typeof TextFilterOperator[keyof typeof TextFilterOperator];
-
+export type TextFilterOperator = (typeof TextFilterOperator)[keyof typeof TextFilterOperator];
 
 export const TextFilterOperator = {
-  CONTAINS: 'CONTAINS',
-  NOT_CONTAINS: 'NOT_CONTAINS',
-  STARTS_WITH: 'STARTS_WITH',
-  ENDS_WITH: 'ENDS_WITH',
-  EQUAL: 'EQUAL',
-  NOT_EQUAL: 'NOT_EQUAL',
+  CONTAINS: "CONTAINS",
+  NOT_CONTAINS: "NOT_CONTAINS",
+  STARTS_WITH: "STARTS_WITH",
+  ENDS_WITH: "ENDS_WITH",
+  EQUAL: "EQUAL",
+  NOT_EQUAL: "NOT_EQUAL",
 } as const;
 
 export interface TextFilter {
@@ -200,12 +195,11 @@ export interface ContactFilterDto {
   filter?: string;
 }
 
-export type SortDirection = typeof SortDirection[keyof typeof SortDirection];
-
+export type SortDirection = (typeof SortDirection)[keyof typeof SortDirection];
 
 export const SortDirection = {
-  ASC: 'ASC',
-  DESC: 'DESC',
+  ASC: "ASC",
+  DESC: "DESC",
 } as const;
 
 export interface Sort {
@@ -221,12 +215,12 @@ export interface ContactSortDto {
   birthday?: Sort;
 }
 
-export type PageRequestContactFilterDtoContactSortDtoPageDirection = typeof PageRequestContactFilterDtoContactSortDtoPageDirection[keyof typeof PageRequestContactFilterDtoContactSortDtoPageDirection];
-
+export type PageRequestContactFilterDtoContactSortDtoPageDirection =
+  (typeof PageRequestContactFilterDtoContactSortDtoPageDirection)[keyof typeof PageRequestContactFilterDtoContactSortDtoPageDirection];
 
 export const PageRequestContactFilterDtoContactSortDtoPageDirection = {
-  NEXT: 'NEXT',
-  PREVIOUS: 'PREVIOUS',
+  NEXT: "NEXT",
+  PREVIOUS: "PREVIOUS",
 } as const;
 
 export interface PageRequestContactFilterDtoContactSortDto {
@@ -258,16 +252,16 @@ export interface ContactGroupCreateDto {
   name?: string;
 }
 
-export type ComparisonFilterIntegerOperator = typeof ComparisonFilterIntegerOperator[keyof typeof ComparisonFilterIntegerOperator];
-
+export type ComparisonFilterIntegerOperator =
+  (typeof ComparisonFilterIntegerOperator)[keyof typeof ComparisonFilterIntegerOperator];
 
 export const ComparisonFilterIntegerOperator = {
-  EQUAL: 'EQUAL',
-  NOT_EQUAL: 'NOT_EQUAL',
-  GREATER_THAN: 'GREATER_THAN',
-  LESS_THAN: 'LESS_THAN',
-  GREATER_OR_EQUAL: 'GREATER_OR_EQUAL',
-  LESS_OR_EQUAL: 'LESS_OR_EQUAL',
+  EQUAL: "EQUAL",
+  NOT_EQUAL: "NOT_EQUAL",
+  GREATER_THAN: "GREATER_THAN",
+  LESS_THAN: "LESS_THAN",
+  GREATER_OR_EQUAL: "GREATER_OR_EQUAL",
+  LESS_OR_EQUAL: "LESS_OR_EQUAL",
 } as const;
 
 export interface ComparisonFilterInteger {
@@ -275,12 +269,12 @@ export interface ComparisonFilterInteger {
   value?: number;
 }
 
-export type ContactGroupFilterDtoOperator = typeof ContactGroupFilterDtoOperator[keyof typeof ContactGroupFilterDtoOperator];
-
+export type ContactGroupFilterDtoOperator =
+  (typeof ContactGroupFilterDtoOperator)[keyof typeof ContactGroupFilterDtoOperator];
 
 export const ContactGroupFilterDtoOperator = {
-  AND: 'AND',
-  OR: 'OR',
+  AND: "AND",
+  OR: "OR",
 } as const;
 
 export interface ContactGroupFilterDto {
@@ -295,12 +289,12 @@ export interface ContactGroupSortDto {
   contactCount?: Sort;
 }
 
-export type PageRequestContactGroupFilterDtoContactGroupSortDtoPageDirection = typeof PageRequestContactGroupFilterDtoContactGroupSortDtoPageDirection[keyof typeof PageRequestContactGroupFilterDtoContactGroupSortDtoPageDirection];
-
+export type PageRequestContactGroupFilterDtoContactGroupSortDtoPageDirection =
+  (typeof PageRequestContactGroupFilterDtoContactGroupSortDtoPageDirection)[keyof typeof PageRequestContactGroupFilterDtoContactGroupSortDtoPageDirection];
 
 export const PageRequestContactGroupFilterDtoContactGroupSortDtoPageDirection = {
-  NEXT: 'NEXT',
-  PREVIOUS: 'PREVIOUS',
+  NEXT: "NEXT",
+  PREVIOUS: "PREVIOUS",
 } as const;
 
 export interface PageRequestContactGroupFilterDtoContactGroupSortDto {
@@ -324,13 +318,12 @@ export interface PageContactGroupDto {
   prevCursor?: unknown[];
 }
 
-export type CustomFieldDtoType = typeof CustomFieldDtoType[keyof typeof CustomFieldDtoType];
-
+export type CustomFieldDtoType = (typeof CustomFieldDtoType)[keyof typeof CustomFieldDtoType];
 
 export const CustomFieldDtoType = {
-  TEXT: 'TEXT',
-  NUMBER: 'NUMBER',
-  DATE: 'DATE',
+  TEXT: "TEXT",
+  NUMBER: "NUMBER",
+  DATE: "DATE",
 } as const;
 
 export interface CustomFieldDto {
@@ -356,13 +349,12 @@ export interface TenDlcBrandDto {
   name?: string;
 }
 
-export type TenantPhoneDtoPhoneType = typeof TenantPhoneDtoPhoneType[keyof typeof TenantPhoneDtoPhoneType];
-
+export type TenantPhoneDtoPhoneType = (typeof TenantPhoneDtoPhoneType)[keyof typeof TenantPhoneDtoPhoneType];
 
 export const TenantPhoneDtoPhoneType = {
-  TEN_DLC: 'TEN_DLC',
-  SHORT_CODE: 'SHORT_CODE',
-  TOLL_FREE: 'TOLL_FREE',
+  TEN_DLC: "TEN_DLC",
+  SHORT_CODE: "SHORT_CODE",
+  TOLL_FREE: "TOLL_FREE",
 } as const;
 
 export interface TenantPhoneDto {
@@ -388,33 +380,32 @@ export interface CampaignCreateDto {
   tenantPhoneId?: string;
 }
 
-export type CampaignFilterDtoOperator = typeof CampaignFilterDtoOperator[keyof typeof CampaignFilterDtoOperator];
-
+export type CampaignFilterDtoOperator = (typeof CampaignFilterDtoOperator)[keyof typeof CampaignFilterDtoOperator];
 
 export const CampaignFilterDtoOperator = {
-  AND: 'AND',
-  OR: 'OR',
+  AND: "AND",
+  OR: "OR",
 } as const;
 
-export type ContainmentFilterCampaignStatusOperator = typeof ContainmentFilterCampaignStatusOperator[keyof typeof ContainmentFilterCampaignStatusOperator];
-
+export type ContainmentFilterCampaignStatusOperator =
+  (typeof ContainmentFilterCampaignStatusOperator)[keyof typeof ContainmentFilterCampaignStatusOperator];
 
 export const ContainmentFilterCampaignStatusOperator = {
-  IN: 'IN',
-  NOT_IN: 'NOT_IN',
+  IN: "IN",
+  NOT_IN: "NOT_IN",
 } as const;
 
-export type ContainmentFilterCampaignStatusValueItem = typeof ContainmentFilterCampaignStatusValueItem[keyof typeof ContainmentFilterCampaignStatusValueItem];
-
+export type ContainmentFilterCampaignStatusValueItem =
+  (typeof ContainmentFilterCampaignStatusValueItem)[keyof typeof ContainmentFilterCampaignStatusValueItem];
 
 export const ContainmentFilterCampaignStatusValueItem = {
-  PENDING: 'PENDING',
-  SENDING: 'SENDING',
-  PAUSED_BY_USER: 'PAUSED_BY_USER',
-  PAUSED_BY_BILLING: 'PAUSED_BY_BILLING',
-  CANCELLED_BY_USER: 'CANCELLED_BY_USER',
-  CANCELLED_BY_TIMEOUT: 'CANCELLED_BY_TIMEOUT',
-  SENT: 'SENT',
+  PENDING: "PENDING",
+  SENDING: "SENDING",
+  PAUSED_BY_USER: "PAUSED_BY_USER",
+  PAUSED_BY_BILLING: "PAUSED_BY_BILLING",
+  CANCELLED_BY_USER: "CANCELLED_BY_USER",
+  CANCELLED_BY_TIMEOUT: "CANCELLED_BY_TIMEOUT",
+  SENT: "SENT",
 } as const;
 
 export interface ContainmentFilterCampaignStatus {
@@ -422,16 +413,16 @@ export interface ContainmentFilterCampaignStatus {
   value?: ContainmentFilterCampaignStatusValueItem[];
 }
 
-export type ComparisonFilterInstantOperator = typeof ComparisonFilterInstantOperator[keyof typeof ComparisonFilterInstantOperator];
-
+export type ComparisonFilterInstantOperator =
+  (typeof ComparisonFilterInstantOperator)[keyof typeof ComparisonFilterInstantOperator];
 
 export const ComparisonFilterInstantOperator = {
-  EQUAL: 'EQUAL',
-  NOT_EQUAL: 'NOT_EQUAL',
-  GREATER_THAN: 'GREATER_THAN',
-  LESS_THAN: 'LESS_THAN',
-  GREATER_OR_EQUAL: 'GREATER_OR_EQUAL',
-  LESS_OR_EQUAL: 'LESS_OR_EQUAL',
+  EQUAL: "EQUAL",
+  NOT_EQUAL: "NOT_EQUAL",
+  GREATER_THAN: "GREATER_THAN",
+  LESS_THAN: "LESS_THAN",
+  GREATER_OR_EQUAL: "GREATER_OR_EQUAL",
+  LESS_OR_EQUAL: "LESS_OR_EQUAL",
 } as const;
 
 export interface ComparisonFilterInstant {
@@ -461,12 +452,12 @@ export interface CampaignSortDto {
   status?: Sort;
 }
 
-export type PageRequestCampaignFilterDtoCampaignSortDtoPageDirection = typeof PageRequestCampaignFilterDtoCampaignSortDtoPageDirection[keyof typeof PageRequestCampaignFilterDtoCampaignSortDtoPageDirection];
-
+export type PageRequestCampaignFilterDtoCampaignSortDtoPageDirection =
+  (typeof PageRequestCampaignFilterDtoCampaignSortDtoPageDirection)[keyof typeof PageRequestCampaignFilterDtoCampaignSortDtoPageDirection];
 
 export const PageRequestCampaignFilterDtoCampaignSortDtoPageDirection = {
-  NEXT: 'NEXT',
-  PREVIOUS: 'PREVIOUS',
+  NEXT: "NEXT",
+  PREVIOUS: "PREVIOUS",
 } as const;
 
 export interface PageRequestCampaignFilterDtoCampaignSortDto {
@@ -477,17 +468,16 @@ export interface PageRequestCampaignFilterDtoCampaignSortDto {
   pageDirection?: PageRequestCampaignFilterDtoCampaignSortDtoPageDirection;
 }
 
-export type CampaignDtoStatus = typeof CampaignDtoStatus[keyof typeof CampaignDtoStatus];
-
+export type CampaignDtoStatus = (typeof CampaignDtoStatus)[keyof typeof CampaignDtoStatus];
 
 export const CampaignDtoStatus = {
-  PENDING: 'PENDING',
-  SENDING: 'SENDING',
-  PAUSED_BY_USER: 'PAUSED_BY_USER',
-  PAUSED_BY_BILLING: 'PAUSED_BY_BILLING',
-  CANCELLED_BY_USER: 'CANCELLED_BY_USER',
-  CANCELLED_BY_TIMEOUT: 'CANCELLED_BY_TIMEOUT',
-  SENT: 'SENT',
+  PENDING: "PENDING",
+  SENDING: "SENDING",
+  PAUSED_BY_USER: "PAUSED_BY_USER",
+  PAUSED_BY_BILLING: "PAUSED_BY_BILLING",
+  CANCELLED_BY_USER: "CANCELLED_BY_USER",
+  CANCELLED_BY_TIMEOUT: "CANCELLED_BY_TIMEOUT",
+  SENT: "SENT",
 } as const;
 
 export interface CampaignDto {
@@ -508,24 +498,23 @@ export interface PageCampaignDto {
 }
 
 export type GetUploadUrlParams = {
-filename: string;
+  filename: string;
 };
 
 export type BuyTenantPhoneParams = {
-number: string;
+  number: string;
 };
 
 export type GetAvailableTenantPhonesParams = {
-number?: string;
-type: GetAvailableTenantPhonesType;
+  number?: string;
+  type: GetAvailableTenantPhonesType;
 };
 
-export type GetAvailableTenantPhonesType = typeof GetAvailableTenantPhonesType[keyof typeof GetAvailableTenantPhonesType];
-
+export type GetAvailableTenantPhonesType =
+  (typeof GetAvailableTenantPhonesType)[keyof typeof GetAvailableTenantPhonesType];
 
 export const GetAvailableTenantPhonesType = {
-  TEN_DLC: 'TEN_DLC',
-  SHORT_CODE: 'SHORT_CODE',
-  TOLL_FREE: 'TOLL_FREE',
+  TEN_DLC: "TEN_DLC",
+  SHORT_CODE: "SHORT_CODE",
+  TOLL_FREE: "TOLL_FREE",
 } as const;
-

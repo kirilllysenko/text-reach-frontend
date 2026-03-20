@@ -4,199 +4,175 @@
  * OpenAPI definition
  * OpenAPI spec version: v0
  */
-import type {
-  ErrorResponseDto,
-  SignInDto
-} from '../index.schemas';
-
+import type { ErrorResponseDto, SignInDto } from "../index.schemas";
 
 /**
  * Sign out
  */
-export type signOutResponse200 = {
-  data: void
-  status: 200
-}
-
-export type signOutResponse400 = {
-  data: ErrorResponseDto
-  status: 400
-}
-
-export type signOutResponse401 = {
-  data: ErrorResponseDto
-  status: 401
-}
-
-export type signOutResponse404 = {
-  data: ErrorResponseDto
-  status: 404
-}
-
-export type signOutResponse500 = {
-  data: ErrorResponseDto
-  status: 500
-}
-
-export type signOutResponseSuccess = (signOutResponse200) & {
-  headers: Headers;
-};
-export type signOutResponseError = (signOutResponse400 | signOutResponse401 | signOutResponse404 | signOutResponse500) & {
-  headers: Headers;
+export type SignOutResponse200 = {
+  data: void;
+  status: 200;
 };
 
-export type signOutResponse = (signOutResponseSuccess | signOutResponseError)
+export type SignOutResponse400 = {
+  data: ErrorResponseDto;
+  status: 400;
+};
+
+export type SignOutResponse401 = {
+  data: ErrorResponseDto;
+  status: 401;
+};
+
+export type SignOutResponse404 = {
+  data: ErrorResponseDto;
+  status: 404;
+};
+
+export type SignOutResponse500 = {
+  data: ErrorResponseDto;
+  status: 500;
+};
+
+export type SignOutResponseSuccess = SignOutResponse200 & {
+  headers: Headers;
+};
+export type SignOutResponseError = (
+  | SignOutResponse400
+  | SignOutResponse401
+  | SignOutResponse404
+  | SignOutResponse500
+) & {
+  headers: Headers;
+};
+
+export type SignOutResponse = SignOutResponseSuccess | SignOutResponseError;
 
 export const getSignOutUrl = () => {
+  return `/auth/sign-out`;
+};
 
-
-  
-
-  return `/auth/sign-out`
-}
-
-export const signOut = async ( options?: RequestInit): Promise<signOutResponse> => {
-  
-  const res = await fetch(getSignOutUrl(),
-  {      
+export const signOut = async (options?: RequestInit): Promise<SignOutResponse> => {
+  const res = await fetch(getSignOutUrl(), {
     ...options,
-    method: 'POST'
-    
-    
-  }
-)
+    method: "POST",
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: signOutResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as signOutResponse
-}
-  
+
+  const data: SignOutResponse["data"] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as SignOutResponse;
+};
 
 /**
  * Sign in
  */
-export type signInResponse200 = {
-  data: void
-  status: 200
-}
-
-export type signInResponse400 = {
-  data: ErrorResponseDto
-  status: 400
-}
-
-export type signInResponse401 = {
-  data: ErrorResponseDto
-  status: 401
-}
-
-export type signInResponse404 = {
-  data: ErrorResponseDto
-  status: 404
-}
-
-export type signInResponse500 = {
-  data: ErrorResponseDto
-  status: 500
-}
-
-export type signInResponseSuccess = (signInResponse200) & {
-  headers: Headers;
-};
-export type signInResponseError = (signInResponse400 | signInResponse401 | signInResponse404 | signInResponse500) & {
-  headers: Headers;
+export type SignInResponse200 = {
+  data: void;
+  status: 200;
 };
 
-export type signInResponse = (signInResponseSuccess | signInResponseError)
+export type SignInResponse400 = {
+  data: ErrorResponseDto;
+  status: 400;
+};
+
+export type SignInResponse401 = {
+  data: ErrorResponseDto;
+  status: 401;
+};
+
+export type SignInResponse404 = {
+  data: ErrorResponseDto;
+  status: 404;
+};
+
+export type SignInResponse500 = {
+  data: ErrorResponseDto;
+  status: 500;
+};
+
+export type SignInResponseSuccess = SignInResponse200 & {
+  headers: Headers;
+};
+export type SignInResponseError = (SignInResponse400 | SignInResponse401 | SignInResponse404 | SignInResponse500) & {
+  headers: Headers;
+};
+
+export type SignInResponse = SignInResponseSuccess | SignInResponseError;
 
 export const getSignInUrl = () => {
+  return `/auth/sign-in`;
+};
 
-
-  
-
-  return `/auth/sign-in`
-}
-
-export const signIn = async (signInDto: SignInDto, options?: RequestInit): Promise<signInResponse> => {
-  
-  const res = await fetch(getSignInUrl(),
-  {      
+export const signIn = async (signInDto: SignInDto, options?: RequestInit): Promise<SignInResponse> => {
+  const res = await fetch(getSignInUrl(), {
     ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      signInDto,)
-  }
-)
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(signInDto),
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: signInResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as signInResponse
-}
-  
+
+  const data: SignInResponse["data"] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as SignInResponse;
+};
 
 /**
  * Checks that session is not expired
  */
-export type checkSessionResponse200 = {
-  data: void
-  status: 200
-}
-
-export type checkSessionResponse400 = {
-  data: ErrorResponseDto
-  status: 400
-}
-
-export type checkSessionResponse401 = {
-  data: ErrorResponseDto
-  status: 401
-}
-
-export type checkSessionResponse404 = {
-  data: ErrorResponseDto
-  status: 404
-}
-
-export type checkSessionResponse500 = {
-  data: ErrorResponseDto
-  status: 500
-}
-
-export type checkSessionResponseSuccess = (checkSessionResponse200) & {
-  headers: Headers;
-};
-export type checkSessionResponseError = (checkSessionResponse400 | checkSessionResponse401 | checkSessionResponse404 | checkSessionResponse500) & {
-  headers: Headers;
+export type CheckSessionResponse200 = {
+  data: void;
+  status: 200;
 };
 
-export type checkSessionResponse = (checkSessionResponseSuccess | checkSessionResponseError)
+export type CheckSessionResponse400 = {
+  data: ErrorResponseDto;
+  status: 400;
+};
+
+export type CheckSessionResponse401 = {
+  data: ErrorResponseDto;
+  status: 401;
+};
+
+export type CheckSessionResponse404 = {
+  data: ErrorResponseDto;
+  status: 404;
+};
+
+export type CheckSessionResponse500 = {
+  data: ErrorResponseDto;
+  status: 500;
+};
+
+export type CheckSessionResponseSuccess = CheckSessionResponse200 & {
+  headers: Headers;
+};
+export type CheckSessionResponseError = (
+  | CheckSessionResponse400
+  | CheckSessionResponse401
+  | CheckSessionResponse404
+  | CheckSessionResponse500
+) & {
+  headers: Headers;
+};
+
+export type CheckSessionResponse = CheckSessionResponseSuccess | CheckSessionResponseError;
 
 export const getCheckSessionUrl = () => {
+  return `/auth/check-session`;
+};
 
-
-  
-
-  return `/auth/check-session`
-}
-
-export const checkSession = async ( options?: RequestInit): Promise<checkSessionResponse> => {
-  
-  const res = await fetch(getCheckSessionUrl(),
-  {      
+export const checkSession = async (options?: RequestInit): Promise<CheckSessionResponse> => {
+  const res = await fetch(getCheckSessionUrl(), {
     ...options,
-    method: 'GET'
-    
-    
-  }
-)
+    method: "GET",
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: checkSessionResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as checkSessionResponse
-}
-  
 
+  const data: CheckSessionResponse["data"] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as CheckSessionResponse;
+};

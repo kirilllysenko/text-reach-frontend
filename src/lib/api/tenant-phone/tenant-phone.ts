@@ -8,141 +8,145 @@ import type {
   BuyTenantPhoneParams,
   ErrorResponseDto,
   GetAvailableTenantPhonesParams,
-  TenantPhoneDto
-} from '../index.schemas';
+  TenantPhoneDto,
+} from "../index.schemas";
 
-
-export type buyTenantPhoneResponse200 = {
-  data: TenantPhoneDto
-  status: 200
-}
-
-export type buyTenantPhoneResponse400 = {
-  data: ErrorResponseDto
-  status: 400
-}
-
-export type buyTenantPhoneResponse401 = {
-  data: ErrorResponseDto
-  status: 401
-}
-
-export type buyTenantPhoneResponse404 = {
-  data: ErrorResponseDto
-  status: 404
-}
-
-export type buyTenantPhoneResponse500 = {
-  data: ErrorResponseDto
-  status: 500
-}
-
-export type buyTenantPhoneResponseSuccess = (buyTenantPhoneResponse200) & {
-  headers: Headers;
-};
-export type buyTenantPhoneResponseError = (buyTenantPhoneResponse400 | buyTenantPhoneResponse401 | buyTenantPhoneResponse404 | buyTenantPhoneResponse500) & {
-  headers: Headers;
+export type BuyTenantPhoneResponse200 = {
+  data: TenantPhoneDto;
+  status: 200;
 };
 
-export type buyTenantPhoneResponse = (buyTenantPhoneResponseSuccess | buyTenantPhoneResponseError)
+export type BuyTenantPhoneResponse400 = {
+  data: ErrorResponseDto;
+  status: 400;
+};
 
-export const getBuyTenantPhoneUrl = (params: BuyTenantPhoneParams,) => {
+export type BuyTenantPhoneResponse401 = {
+  data: ErrorResponseDto;
+  status: 401;
+};
+
+export type BuyTenantPhoneResponse404 = {
+  data: ErrorResponseDto;
+  status: 404;
+};
+
+export type BuyTenantPhoneResponse500 = {
+  data: ErrorResponseDto;
+  status: 500;
+};
+
+export type BuyTenantPhoneResponseSuccess = BuyTenantPhoneResponse200 & {
+  headers: Headers;
+};
+export type BuyTenantPhoneResponseError = (
+  | BuyTenantPhoneResponse400
+  | BuyTenantPhoneResponse401
+  | BuyTenantPhoneResponse404
+  | BuyTenantPhoneResponse500
+) & {
+  headers: Headers;
+};
+
+export type BuyTenantPhoneResponse = BuyTenantPhoneResponseSuccess | BuyTenantPhoneResponseError;
+
+export const getBuyTenantPhoneUrl = (params: BuyTenantPhoneParams) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
+      normalizedParams.append(key, value === null ? "null" : value.toString());
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/phone/tenant-phone/buy?${stringifiedParams}` : `/phone/tenant-phone/buy`
-}
+  return stringifiedParams.length > 0 ? `/phone/tenant-phone/buy?${stringifiedParams}` : `/phone/tenant-phone/buy`;
+};
 
-export const buyTenantPhone = async (params: BuyTenantPhoneParams, options?: RequestInit): Promise<buyTenantPhoneResponse> => {
-  
-  const res = await fetch(getBuyTenantPhoneUrl(params),
-  {      
+export const buyTenantPhone = async (
+  params: BuyTenantPhoneParams,
+  options?: RequestInit,
+): Promise<BuyTenantPhoneResponse> => {
+  const res = await fetch(getBuyTenantPhoneUrl(params), {
     ...options,
-    method: 'POST'
-    
-    
-  }
-)
+    method: "POST",
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: buyTenantPhoneResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as buyTenantPhoneResponse
-}
-  
 
-export type getAvailableTenantPhonesResponse200 = {
-  data: TenantPhoneDto[]
-  status: 200
-}
-
-export type getAvailableTenantPhonesResponse400 = {
-  data: ErrorResponseDto
-  status: 400
-}
-
-export type getAvailableTenantPhonesResponse401 = {
-  data: ErrorResponseDto
-  status: 401
-}
-
-export type getAvailableTenantPhonesResponse404 = {
-  data: ErrorResponseDto
-  status: 404
-}
-
-export type getAvailableTenantPhonesResponse500 = {
-  data: ErrorResponseDto
-  status: 500
-}
-
-export type getAvailableTenantPhonesResponseSuccess = (getAvailableTenantPhonesResponse200) & {
-  headers: Headers;
-};
-export type getAvailableTenantPhonesResponseError = (getAvailableTenantPhonesResponse400 | getAvailableTenantPhonesResponse401 | getAvailableTenantPhonesResponse404 | getAvailableTenantPhonesResponse500) & {
-  headers: Headers;
+  const data: BuyTenantPhoneResponse["data"] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as BuyTenantPhoneResponse;
 };
 
-export type getAvailableTenantPhonesResponse = (getAvailableTenantPhonesResponseSuccess | getAvailableTenantPhonesResponseError)
+export type GetAvailableTenantPhonesResponse200 = {
+  data: TenantPhoneDto[];
+  status: 200;
+};
 
-export const getGetAvailableTenantPhonesUrl = (params: GetAvailableTenantPhonesParams,) => {
+export type GetAvailableTenantPhonesResponse400 = {
+  data: ErrorResponseDto;
+  status: 400;
+};
+
+export type GetAvailableTenantPhonesResponse401 = {
+  data: ErrorResponseDto;
+  status: 401;
+};
+
+export type GetAvailableTenantPhonesResponse404 = {
+  data: ErrorResponseDto;
+  status: 404;
+};
+
+export type GetAvailableTenantPhonesResponse500 = {
+  data: ErrorResponseDto;
+  status: 500;
+};
+
+export type GetAvailableTenantPhonesResponseSuccess = GetAvailableTenantPhonesResponse200 & {
+  headers: Headers;
+};
+export type GetAvailableTenantPhonesResponseError = (
+  | GetAvailableTenantPhonesResponse400
+  | GetAvailableTenantPhonesResponse401
+  | GetAvailableTenantPhonesResponse404
+  | GetAvailableTenantPhonesResponse500
+) & {
+  headers: Headers;
+};
+
+export type GetAvailableTenantPhonesResponse =
+  | GetAvailableTenantPhonesResponseSuccess
+  | GetAvailableTenantPhonesResponseError;
+
+export const getGetAvailableTenantPhonesUrl = (params: GetAvailableTenantPhonesParams) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
+      normalizedParams.append(key, value === null ? "null" : value.toString());
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/phone/tenant-phone/available?${stringifiedParams}` : `/phone/tenant-phone/available`
-}
+  return stringifiedParams.length > 0
+    ? `/phone/tenant-phone/available?${stringifiedParams}`
+    : `/phone/tenant-phone/available`;
+};
 
-export const getAvailableTenantPhones = async (params: GetAvailableTenantPhonesParams, options?: RequestInit): Promise<getAvailableTenantPhonesResponse> => {
-  
-  const res = await fetch(getGetAvailableTenantPhonesUrl(params),
-  {      
+export const getAvailableTenantPhones = async (
+  params: GetAvailableTenantPhonesParams,
+  options?: RequestInit,
+): Promise<GetAvailableTenantPhonesResponse> => {
+  const res = await fetch(getGetAvailableTenantPhonesUrl(params), {
     ...options,
-    method: 'GET'
-    
-    
-  }
-)
+    method: "GET",
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: getAvailableTenantPhonesResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as getAvailableTenantPhonesResponse
-}
-  
 
+  const data: GetAvailableTenantPhonesResponse["data"] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as GetAvailableTenantPhonesResponse;
+};

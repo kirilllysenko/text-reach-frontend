@@ -10,372 +10,354 @@ import type {
   ErrorResponseDto,
   IdDto,
   UpdateCustomFieldNameDto,
-  UpdateCustomFieldPositionDto
-} from '../index.schemas';
+  UpdateCustomFieldPositionDto,
+} from "../index.schemas";
 
-
-export type updateCustomFieldPositionResponse200 = {
-  data: void
-  status: 200
-}
-
-export type updateCustomFieldPositionResponse400 = {
-  data: ErrorResponseDto
-  status: 400
-}
-
-export type updateCustomFieldPositionResponse401 = {
-  data: ErrorResponseDto
-  status: 401
-}
-
-export type updateCustomFieldPositionResponse404 = {
-  data: ErrorResponseDto
-  status: 404
-}
-
-export type updateCustomFieldPositionResponse500 = {
-  data: ErrorResponseDto
-  status: 500
-}
-
-export type updateCustomFieldPositionResponseSuccess = (updateCustomFieldPositionResponse200) & {
-  headers: Headers;
-};
-export type updateCustomFieldPositionResponseError = (updateCustomFieldPositionResponse400 | updateCustomFieldPositionResponse401 | updateCustomFieldPositionResponse404 | updateCustomFieldPositionResponse500) & {
-  headers: Headers;
+export type UpdateCustomFieldPositionResponse200 = {
+  data: void;
+  status: 200;
 };
 
-export type updateCustomFieldPositionResponse = (updateCustomFieldPositionResponseSuccess | updateCustomFieldPositionResponseError)
+export type UpdateCustomFieldPositionResponse400 = {
+  data: ErrorResponseDto;
+  status: 400;
+};
 
-export const getUpdateCustomFieldPositionUrl = (id: string,) => {
+export type UpdateCustomFieldPositionResponse401 = {
+  data: ErrorResponseDto;
+  status: 401;
+};
 
+export type UpdateCustomFieldPositionResponse404 = {
+  data: ErrorResponseDto;
+  status: 404;
+};
 
-  
+export type UpdateCustomFieldPositionResponse500 = {
+  data: ErrorResponseDto;
+  status: 500;
+};
 
-  return `/contact/custom-fields/${id}/position`
-}
+export type UpdateCustomFieldPositionResponseSuccess = UpdateCustomFieldPositionResponse200 & {
+  headers: Headers;
+};
+export type UpdateCustomFieldPositionResponseError = (
+  | UpdateCustomFieldPositionResponse400
+  | UpdateCustomFieldPositionResponse401
+  | UpdateCustomFieldPositionResponse404
+  | UpdateCustomFieldPositionResponse500
+) & {
+  headers: Headers;
+};
 
-export const updateCustomFieldPosition = async (id: string,
-    updateCustomFieldPositionDto: UpdateCustomFieldPositionDto, options?: RequestInit): Promise<updateCustomFieldPositionResponse> => {
-  
-  const res = await fetch(getUpdateCustomFieldPositionUrl(id),
-  {      
+export type UpdateCustomFieldPositionResponse =
+  | UpdateCustomFieldPositionResponseSuccess
+  | UpdateCustomFieldPositionResponseError;
+
+export const getUpdateCustomFieldPositionUrl = (id: string) => {
+  return `/contact/custom-fields/${id}/position`;
+};
+
+export const updateCustomFieldPosition = async (
+  id: string,
+  updateCustomFieldPositionDto: UpdateCustomFieldPositionDto,
+  options?: RequestInit,
+): Promise<UpdateCustomFieldPositionResponse> => {
+  const res = await fetch(getUpdateCustomFieldPositionUrl(id), {
     ...options,
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      updateCustomFieldPositionDto,)
-  }
-)
+    method: "PUT",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(updateCustomFieldPositionDto),
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: updateCustomFieldPositionResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as updateCustomFieldPositionResponse
-}
-  
 
-export type updateCustomFieldNameResponse200 = {
-  data: void
-  status: 200
-}
-
-export type updateCustomFieldNameResponse400 = {
-  data: ErrorResponseDto
-  status: 400
-}
-
-export type updateCustomFieldNameResponse401 = {
-  data: ErrorResponseDto
-  status: 401
-}
-
-export type updateCustomFieldNameResponse404 = {
-  data: ErrorResponseDto
-  status: 404
-}
-
-export type updateCustomFieldNameResponse500 = {
-  data: ErrorResponseDto
-  status: 500
-}
-
-export type updateCustomFieldNameResponseSuccess = (updateCustomFieldNameResponse200) & {
-  headers: Headers;
-};
-export type updateCustomFieldNameResponseError = (updateCustomFieldNameResponse400 | updateCustomFieldNameResponse401 | updateCustomFieldNameResponse404 | updateCustomFieldNameResponse500) & {
-  headers: Headers;
+  const data: UpdateCustomFieldPositionResponse["data"] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as UpdateCustomFieldPositionResponse;
 };
 
-export type updateCustomFieldNameResponse = (updateCustomFieldNameResponseSuccess | updateCustomFieldNameResponseError)
+export type UpdateCustomFieldNameResponse200 = {
+  data: void;
+  status: 200;
+};
 
-export const getUpdateCustomFieldNameUrl = (id: string,) => {
+export type UpdateCustomFieldNameResponse400 = {
+  data: ErrorResponseDto;
+  status: 400;
+};
 
+export type UpdateCustomFieldNameResponse401 = {
+  data: ErrorResponseDto;
+  status: 401;
+};
 
-  
+export type UpdateCustomFieldNameResponse404 = {
+  data: ErrorResponseDto;
+  status: 404;
+};
 
-  return `/contact/custom-fields/${id}/name`
-}
+export type UpdateCustomFieldNameResponse500 = {
+  data: ErrorResponseDto;
+  status: 500;
+};
 
-export const updateCustomFieldName = async (id: string,
-    updateCustomFieldNameDto: UpdateCustomFieldNameDto, options?: RequestInit): Promise<updateCustomFieldNameResponse> => {
-  
-  const res = await fetch(getUpdateCustomFieldNameUrl(id),
-  {      
+export type UpdateCustomFieldNameResponseSuccess = UpdateCustomFieldNameResponse200 & {
+  headers: Headers;
+};
+export type UpdateCustomFieldNameResponseError = (
+  | UpdateCustomFieldNameResponse400
+  | UpdateCustomFieldNameResponse401
+  | UpdateCustomFieldNameResponse404
+  | UpdateCustomFieldNameResponse500
+) & {
+  headers: Headers;
+};
+
+export type UpdateCustomFieldNameResponse = UpdateCustomFieldNameResponseSuccess | UpdateCustomFieldNameResponseError;
+
+export const getUpdateCustomFieldNameUrl = (id: string) => {
+  return `/contact/custom-fields/${id}/name`;
+};
+
+export const updateCustomFieldName = async (
+  id: string,
+  updateCustomFieldNameDto: UpdateCustomFieldNameDto,
+  options?: RequestInit,
+): Promise<UpdateCustomFieldNameResponse> => {
+  const res = await fetch(getUpdateCustomFieldNameUrl(id), {
     ...options,
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      updateCustomFieldNameDto,)
-  }
-)
+    method: "PUT",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(updateCustomFieldNameDto),
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: updateCustomFieldNameResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as updateCustomFieldNameResponse
-}
-  
 
-export type getCustomFieldsResponse200 = {
-  data: CustomFieldDto[]
-  status: 200
-}
-
-export type getCustomFieldsResponse400 = {
-  data: ErrorResponseDto
-  status: 400
-}
-
-export type getCustomFieldsResponse401 = {
-  data: ErrorResponseDto
-  status: 401
-}
-
-export type getCustomFieldsResponse404 = {
-  data: ErrorResponseDto
-  status: 404
-}
-
-export type getCustomFieldsResponse500 = {
-  data: ErrorResponseDto
-  status: 500
-}
-
-export type getCustomFieldsResponseSuccess = (getCustomFieldsResponse200) & {
-  headers: Headers;
-};
-export type getCustomFieldsResponseError = (getCustomFieldsResponse400 | getCustomFieldsResponse401 | getCustomFieldsResponse404 | getCustomFieldsResponse500) & {
-  headers: Headers;
+  const data: UpdateCustomFieldNameResponse["data"] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as UpdateCustomFieldNameResponse;
 };
 
-export type getCustomFieldsResponse = (getCustomFieldsResponseSuccess | getCustomFieldsResponseError)
+export type GetCustomFieldsResponse200 = {
+  data: CustomFieldDto[];
+  status: 200;
+};
+
+export type GetCustomFieldsResponse400 = {
+  data: ErrorResponseDto;
+  status: 400;
+};
+
+export type GetCustomFieldsResponse401 = {
+  data: ErrorResponseDto;
+  status: 401;
+};
+
+export type GetCustomFieldsResponse404 = {
+  data: ErrorResponseDto;
+  status: 404;
+};
+
+export type GetCustomFieldsResponse500 = {
+  data: ErrorResponseDto;
+  status: 500;
+};
+
+export type GetCustomFieldsResponseSuccess = GetCustomFieldsResponse200 & {
+  headers: Headers;
+};
+export type GetCustomFieldsResponseError = (
+  | GetCustomFieldsResponse400
+  | GetCustomFieldsResponse401
+  | GetCustomFieldsResponse404
+  | GetCustomFieldsResponse500
+) & {
+  headers: Headers;
+};
+
+export type GetCustomFieldsResponse = GetCustomFieldsResponseSuccess | GetCustomFieldsResponseError;
 
 export const getGetCustomFieldsUrl = () => {
+  return `/contact/custom-fields`;
+};
 
-
-  
-
-  return `/contact/custom-fields`
-}
-
-export const getCustomFields = async ( options?: RequestInit): Promise<getCustomFieldsResponse> => {
-  
-  const res = await fetch(getGetCustomFieldsUrl(),
-  {      
+export const getCustomFields = async (options?: RequestInit): Promise<GetCustomFieldsResponse> => {
+  const res = await fetch(getGetCustomFieldsUrl(), {
     ...options,
-    method: 'GET'
-    
-    
-  }
-)
+    method: "GET",
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: getCustomFieldsResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as getCustomFieldsResponse
-}
-  
 
-export type createCustomFieldResponse200 = {
-  data: IdDto
-  status: 200
-}
-
-export type createCustomFieldResponse400 = {
-  data: ErrorResponseDto
-  status: 400
-}
-
-export type createCustomFieldResponse401 = {
-  data: ErrorResponseDto
-  status: 401
-}
-
-export type createCustomFieldResponse404 = {
-  data: ErrorResponseDto
-  status: 404
-}
-
-export type createCustomFieldResponse500 = {
-  data: ErrorResponseDto
-  status: 500
-}
-
-export type createCustomFieldResponseSuccess = (createCustomFieldResponse200) & {
-  headers: Headers;
-};
-export type createCustomFieldResponseError = (createCustomFieldResponse400 | createCustomFieldResponse401 | createCustomFieldResponse404 | createCustomFieldResponse500) & {
-  headers: Headers;
+  const data: GetCustomFieldsResponse["data"] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as GetCustomFieldsResponse;
 };
 
-export type createCustomFieldResponse = (createCustomFieldResponseSuccess | createCustomFieldResponseError)
+export type CreateCustomFieldResponse200 = {
+  data: IdDto;
+  status: 200;
+};
+
+export type CreateCustomFieldResponse400 = {
+  data: ErrorResponseDto;
+  status: 400;
+};
+
+export type CreateCustomFieldResponse401 = {
+  data: ErrorResponseDto;
+  status: 401;
+};
+
+export type CreateCustomFieldResponse404 = {
+  data: ErrorResponseDto;
+  status: 404;
+};
+
+export type CreateCustomFieldResponse500 = {
+  data: ErrorResponseDto;
+  status: 500;
+};
+
+export type CreateCustomFieldResponseSuccess = CreateCustomFieldResponse200 & {
+  headers: Headers;
+};
+export type CreateCustomFieldResponseError = (
+  | CreateCustomFieldResponse400
+  | CreateCustomFieldResponse401
+  | CreateCustomFieldResponse404
+  | CreateCustomFieldResponse500
+) & {
+  headers: Headers;
+};
+
+export type CreateCustomFieldResponse = CreateCustomFieldResponseSuccess | CreateCustomFieldResponseError;
 
 export const getCreateCustomFieldUrl = () => {
+  return `/contact/custom-fields`;
+};
 
-
-  
-
-  return `/contact/custom-fields`
-}
-
-export const createCustomField = async (createCustomFieldDto: CreateCustomFieldDto, options?: RequestInit): Promise<createCustomFieldResponse> => {
-  
-  const res = await fetch(getCreateCustomFieldUrl(),
-  {      
+export const createCustomField = async (
+  createCustomFieldDto: CreateCustomFieldDto,
+  options?: RequestInit,
+): Promise<CreateCustomFieldResponse> => {
+  const res = await fetch(getCreateCustomFieldUrl(), {
     ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      createCustomFieldDto,)
-  }
-)
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createCustomFieldDto),
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: createCustomFieldResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as createCustomFieldResponse
-}
-  
 
-export type getCustomFieldByIdResponse200 = {
-  data: CustomFieldDto
-  status: 200
-}
-
-export type getCustomFieldByIdResponse400 = {
-  data: ErrorResponseDto
-  status: 400
-}
-
-export type getCustomFieldByIdResponse401 = {
-  data: ErrorResponseDto
-  status: 401
-}
-
-export type getCustomFieldByIdResponse404 = {
-  data: ErrorResponseDto
-  status: 404
-}
-
-export type getCustomFieldByIdResponse500 = {
-  data: ErrorResponseDto
-  status: 500
-}
-
-export type getCustomFieldByIdResponseSuccess = (getCustomFieldByIdResponse200) & {
-  headers: Headers;
-};
-export type getCustomFieldByIdResponseError = (getCustomFieldByIdResponse400 | getCustomFieldByIdResponse401 | getCustomFieldByIdResponse404 | getCustomFieldByIdResponse500) & {
-  headers: Headers;
+  const data: CreateCustomFieldResponse["data"] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as CreateCustomFieldResponse;
 };
 
-export type getCustomFieldByIdResponse = (getCustomFieldByIdResponseSuccess | getCustomFieldByIdResponseError)
+export type GetCustomFieldByIdResponse200 = {
+  data: CustomFieldDto;
+  status: 200;
+};
 
-export const getGetCustomFieldByIdUrl = (id: string,) => {
+export type GetCustomFieldByIdResponse400 = {
+  data: ErrorResponseDto;
+  status: 400;
+};
 
+export type GetCustomFieldByIdResponse401 = {
+  data: ErrorResponseDto;
+  status: 401;
+};
 
-  
+export type GetCustomFieldByIdResponse404 = {
+  data: ErrorResponseDto;
+  status: 404;
+};
 
-  return `/contact/custom-fields/${id}`
-}
+export type GetCustomFieldByIdResponse500 = {
+  data: ErrorResponseDto;
+  status: 500;
+};
 
-export const getCustomFieldById = async (id: string, options?: RequestInit): Promise<getCustomFieldByIdResponse> => {
-  
-  const res = await fetch(getGetCustomFieldByIdUrl(id),
-  {      
+export type GetCustomFieldByIdResponseSuccess = GetCustomFieldByIdResponse200 & {
+  headers: Headers;
+};
+export type GetCustomFieldByIdResponseError = (
+  | GetCustomFieldByIdResponse400
+  | GetCustomFieldByIdResponse401
+  | GetCustomFieldByIdResponse404
+  | GetCustomFieldByIdResponse500
+) & {
+  headers: Headers;
+};
+
+export type GetCustomFieldByIdResponse = GetCustomFieldByIdResponseSuccess | GetCustomFieldByIdResponseError;
+
+export const getGetCustomFieldByIdUrl = (id: string) => {
+  return `/contact/custom-fields/${id}`;
+};
+
+export const getCustomFieldById = async (id: string, options?: RequestInit): Promise<GetCustomFieldByIdResponse> => {
+  const res = await fetch(getGetCustomFieldByIdUrl(id), {
     ...options,
-    method: 'GET'
-    
-    
-  }
-)
+    method: "GET",
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: getCustomFieldByIdResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as getCustomFieldByIdResponse
-}
-  
 
-export type deleteCustomFieldResponse200 = {
-  data: void
-  status: 200
-}
-
-export type deleteCustomFieldResponse400 = {
-  data: ErrorResponseDto
-  status: 400
-}
-
-export type deleteCustomFieldResponse401 = {
-  data: ErrorResponseDto
-  status: 401
-}
-
-export type deleteCustomFieldResponse404 = {
-  data: ErrorResponseDto
-  status: 404
-}
-
-export type deleteCustomFieldResponse500 = {
-  data: ErrorResponseDto
-  status: 500
-}
-
-export type deleteCustomFieldResponseSuccess = (deleteCustomFieldResponse200) & {
-  headers: Headers;
-};
-export type deleteCustomFieldResponseError = (deleteCustomFieldResponse400 | deleteCustomFieldResponse401 | deleteCustomFieldResponse404 | deleteCustomFieldResponse500) & {
-  headers: Headers;
+  const data: GetCustomFieldByIdResponse["data"] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as GetCustomFieldByIdResponse;
 };
 
-export type deleteCustomFieldResponse = (deleteCustomFieldResponseSuccess | deleteCustomFieldResponseError)
+export type DeleteCustomFieldResponse200 = {
+  data: void;
+  status: 200;
+};
 
-export const getDeleteCustomFieldUrl = (id: string,) => {
+export type DeleteCustomFieldResponse400 = {
+  data: ErrorResponseDto;
+  status: 400;
+};
 
+export type DeleteCustomFieldResponse401 = {
+  data: ErrorResponseDto;
+  status: 401;
+};
 
-  
+export type DeleteCustomFieldResponse404 = {
+  data: ErrorResponseDto;
+  status: 404;
+};
 
-  return `/contact/custom-fields/${id}`
-}
+export type DeleteCustomFieldResponse500 = {
+  data: ErrorResponseDto;
+  status: 500;
+};
 
-export const deleteCustomField = async (id: string, options?: RequestInit): Promise<deleteCustomFieldResponse> => {
-  
-  const res = await fetch(getDeleteCustomFieldUrl(id),
-  {      
+export type DeleteCustomFieldResponseSuccess = DeleteCustomFieldResponse200 & {
+  headers: Headers;
+};
+export type DeleteCustomFieldResponseError = (
+  | DeleteCustomFieldResponse400
+  | DeleteCustomFieldResponse401
+  | DeleteCustomFieldResponse404
+  | DeleteCustomFieldResponse500
+) & {
+  headers: Headers;
+};
+
+export type DeleteCustomFieldResponse = DeleteCustomFieldResponseSuccess | DeleteCustomFieldResponseError;
+
+export const getDeleteCustomFieldUrl = (id: string) => {
+  return `/contact/custom-fields/${id}`;
+};
+
+export const deleteCustomField = async (id: string, options?: RequestInit): Promise<DeleteCustomFieldResponse> => {
+  const res = await fetch(getDeleteCustomFieldUrl(id), {
     ...options,
-    method: 'DELETE'
-    
-    
-  }
-)
+    method: "DELETE",
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: deleteCustomFieldResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as deleteCustomFieldResponse
-}
-  
 
+  const data: DeleteCustomFieldResponse["data"] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as DeleteCustomFieldResponse;
+};

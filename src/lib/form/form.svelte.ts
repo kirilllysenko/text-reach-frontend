@@ -1,70 +1,87 @@
-import type {ErrorResponseDto} from '$lib/api/index.schemas';
-import type {ZodType} from 'zod';
+import type { ZodType } from "zod";
+import { forEach, forEachObj, fromKeys } from "remeda";
 
 type FormValues = Record<string, any>;
-type FormErrors<Values extends FormValues> = Record<keyof Values, string | null>;
 
-export class Form<Values extends FormValues> {
-    [key: string]: any;
+type FormErrorKey<Values> = keyof Values | "general";
+type FormErrors<Values extends FormValues> = {
+  [K in FormErrorKey<Values>]: string | null;
+};
 
-    errors: FormErrors<Values>;
-    values: Values;
-    private readonly validator: ZodType<Values>;
+type SubmitHandler<Values extends FormValues, Response> = (values: Values) => Promise<Response>;
 
-    constructor(
-        initialValues: Values,
-        validator: ZodType<Values>
-    ) {
-        this.validator = validator;
-        this.values = $state({...initialValues});
-        this.errors = $state({} as FormErrors<Values>);
+export class Form<Values extends FormValues, Response = void> {
+  errors: FormErrors<Values>;
+  values: Values;
+  loading: boolean;
+  private readonly validator: ZodType<Values>;
+  private readonly onSubmit: SubmitHandler<Values, Response>;
+
+  constructor(initialValues: Values, validator: ZodType<Values>, onSubmit: SubmitHandler<Values, Response>) {
+    const initialErrors = {
+      ...fromKeys(Object.keys(initialValues), () => null),
+      general: null,
+    } as FormErrors<Values>;
+
+    this.validator = validator;
+    this.onSubmit = onSubmit;
+    this.loading = $state(false);
+    this.values = $state(initialValues);
+    this.errors = $state(initialErrors);
+  }
+
+  clearErrors = (): void => {
+    forEachObj(this.errors, (_, key) => {
+      this.errors[key] = null;
+    });
+  };
+
+  setErrors = (errors: Partial<FormErrors<Values>>): void => {
+    this.clearErrors();
+    for (const [key, error] of Object.entries(errors)) {
+      if (error) {
+        this.errors[key as FormErrorKey<Values>] = error;
+      }
+    }
+  };
+
+  validate = (): boolean => {
+    const result = this.validator.safeParse(this.values);
+    if (result.success) {
+      this.clearErrors();
+      return true;
     }
 
-    clearErrors = (): void => {
-        for (const key in this.errors) {
-            this.errors[key] = null;
-        }
-    };
+    const errors = {} as FormErrors<Values>;
 
-    setErrors = (errors: FormErrors<Values>): void => {
-        this.clearErrors();
-        for (const [key, error] of Object.entries(errors) as [keyof Values, string | null][]) {
-            if (error) {
-                this.errors[key] = error;
-            }
-        }
-    };
+    for (const issue of result.error.issues) {
+      const [fieldName] = issue.path;
 
-    validate = (): boolean => {
-        const result = this.validator.safeParse(this.values);
-        if (result.success) {
-            this.clearErrors();
-            return true;
-        }
+      const key = String(fieldName);
+      errors[key as FormErrorKey<Values>] = issue.message;
+    }
 
-        const errors = {} as FormErrors<Values>;
+    this.setErrors(errors);
+    return false;
+  };
 
-        for (const issue of result.error.issues) {
-            const [fieldName] = issue.path;
+  submit = async (event: SubmitEvent): Promise<void> => {
+    event.preventDefault();
+    if (!this.validate()) {
+      return;
+    }
 
-            const key = fieldName as keyof Values;
-            errors[key] = issue.message;
-        }
+    this.loading = true;
+    this.onSubmit(this.values)
+      .then(response => {
+        this.loading = false;
+        this.setErrorsFromResponse(response);
+      });
+  };
 
-        this.setErrors(errors);
-        return false;
-    };
-
-    private errorsFromResponseDto = (dto: ErrorResponseDto): FormErrors<Values> => {
-        const nextErrors = {} as FormErrors<Values>;
-
-        for (const fieldError of dto.fields ?? []) {
-            const key = fieldError.field as keyof Values;
-            if (this.fieldNames.has(key) && !nextErrors[key]) {
-                nextErrors[key] = fieldError.errorDescription;
-            }
-        }
-
-        return nextErrors;
-    };
+  private setErrorsFromResponse = (response: any): void => {
+    if (response.data && response.data.errorDescription) {
+      this.errors.general = response.data.errorDescription;
+    }
+  };
 }

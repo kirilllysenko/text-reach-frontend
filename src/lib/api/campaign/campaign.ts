@@ -10,189 +10,180 @@ import type {
   ErrorResponseDto,
   IdDto,
   PageCampaignDto,
-  PageRequestCampaignFilterDtoCampaignSortDto
-} from '../index.schemas';
+  PageRequestCampaignFilterDtoCampaignSortDto,
+} from "../index.schemas";
 
-
-export type getCampaignPageResponse200 = {
-  data: PageCampaignDto
-  status: 200
-}
-
-export type getCampaignPageResponse400 = {
-  data: ErrorResponseDto
-  status: 400
-}
-
-export type getCampaignPageResponse401 = {
-  data: ErrorResponseDto
-  status: 401
-}
-
-export type getCampaignPageResponse404 = {
-  data: ErrorResponseDto
-  status: 404
-}
-
-export type getCampaignPageResponse500 = {
-  data: ErrorResponseDto
-  status: 500
-}
-
-export type getCampaignPageResponseSuccess = (getCampaignPageResponse200) & {
-  headers: Headers;
-};
-export type getCampaignPageResponseError = (getCampaignPageResponse400 | getCampaignPageResponse401 | getCampaignPageResponse404 | getCampaignPageResponse500) & {
-  headers: Headers;
+export type GetCampaignPageResponse200 = {
+  data: PageCampaignDto;
+  status: 200;
 };
 
-export type getCampaignPageResponse = (getCampaignPageResponseSuccess | getCampaignPageResponseError)
+export type GetCampaignPageResponse400 = {
+  data: ErrorResponseDto;
+  status: 400;
+};
+
+export type GetCampaignPageResponse401 = {
+  data: ErrorResponseDto;
+  status: 401;
+};
+
+export type GetCampaignPageResponse404 = {
+  data: ErrorResponseDto;
+  status: 404;
+};
+
+export type GetCampaignPageResponse500 = {
+  data: ErrorResponseDto;
+  status: 500;
+};
+
+export type GetCampaignPageResponseSuccess = GetCampaignPageResponse200 & {
+  headers: Headers;
+};
+export type GetCampaignPageResponseError = (
+  | GetCampaignPageResponse400
+  | GetCampaignPageResponse401
+  | GetCampaignPageResponse404
+  | GetCampaignPageResponse500
+) & {
+  headers: Headers;
+};
+
+export type GetCampaignPageResponse = GetCampaignPageResponseSuccess | GetCampaignPageResponseError;
 
 export const getGetCampaignPageUrl = () => {
+  return `/campaign/campaign`;
+};
 
-
-  
-
-  return `/campaign/campaign`
-}
-
-export const getCampaignPage = async (pageRequestCampaignFilterDtoCampaignSortDto: PageRequestCampaignFilterDtoCampaignSortDto, options?: RequestInit): Promise<getCampaignPageResponse> => {
-  
-  const res = await fetch(getGetCampaignPageUrl(),
-  {      
+export const getCampaignPage = async (
+  pageRequestCampaignFilterDtoCampaignSortDto: PageRequestCampaignFilterDtoCampaignSortDto,
+  options?: RequestInit,
+): Promise<GetCampaignPageResponse> => {
+  const res = await fetch(getGetCampaignPageUrl(), {
     ...options,
-    method: 'GET',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      pageRequestCampaignFilterDtoCampaignSortDto,)
-  }
-)
+    method: "GET",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(pageRequestCampaignFilterDtoCampaignSortDto),
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: getCampaignPageResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as getCampaignPageResponse
-}
-  
 
-export type createCampaignResponse200 = {
-  data: IdDto
-  status: 200
-}
-
-export type createCampaignResponse400 = {
-  data: ErrorResponseDto
-  status: 400
-}
-
-export type createCampaignResponse401 = {
-  data: ErrorResponseDto
-  status: 401
-}
-
-export type createCampaignResponse404 = {
-  data: ErrorResponseDto
-  status: 404
-}
-
-export type createCampaignResponse500 = {
-  data: ErrorResponseDto
-  status: 500
-}
-
-export type createCampaignResponseSuccess = (createCampaignResponse200) & {
-  headers: Headers;
-};
-export type createCampaignResponseError = (createCampaignResponse400 | createCampaignResponse401 | createCampaignResponse404 | createCampaignResponse500) & {
-  headers: Headers;
+  const data: GetCampaignPageResponse["data"] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as GetCampaignPageResponse;
 };
 
-export type createCampaignResponse = (createCampaignResponseSuccess | createCampaignResponseError)
+export type CreateCampaignResponse200 = {
+  data: IdDto;
+  status: 200;
+};
+
+export type CreateCampaignResponse400 = {
+  data: ErrorResponseDto;
+  status: 400;
+};
+
+export type CreateCampaignResponse401 = {
+  data: ErrorResponseDto;
+  status: 401;
+};
+
+export type CreateCampaignResponse404 = {
+  data: ErrorResponseDto;
+  status: 404;
+};
+
+export type CreateCampaignResponse500 = {
+  data: ErrorResponseDto;
+  status: 500;
+};
+
+export type CreateCampaignResponseSuccess = CreateCampaignResponse200 & {
+  headers: Headers;
+};
+export type CreateCampaignResponseError = (
+  | CreateCampaignResponse400
+  | CreateCampaignResponse401
+  | CreateCampaignResponse404
+  | CreateCampaignResponse500
+) & {
+  headers: Headers;
+};
+
+export type CreateCampaignResponse = CreateCampaignResponseSuccess | CreateCampaignResponseError;
 
 export const getCreateCampaignUrl = () => {
-
-
-  
-
-  return `/campaign/campaign`
-}
-
-export const createCampaign = async (campaignCreateDto: CampaignCreateDto, options?: RequestInit): Promise<createCampaignResponse> => {
-  
-  const res = await fetch(getCreateCampaignUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      campaignCreateDto,)
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: createCampaignResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as createCampaignResponse
-}
-  
-
-export type getCampaignByIdResponse200 = {
-  data: CampaignDto
-  status: 200
-}
-
-export type getCampaignByIdResponse400 = {
-  data: ErrorResponseDto
-  status: 400
-}
-
-export type getCampaignByIdResponse401 = {
-  data: ErrorResponseDto
-  status: 401
-}
-
-export type getCampaignByIdResponse404 = {
-  data: ErrorResponseDto
-  status: 404
-}
-
-export type getCampaignByIdResponse500 = {
-  data: ErrorResponseDto
-  status: 500
-}
-
-export type getCampaignByIdResponseSuccess = (getCampaignByIdResponse200) & {
-  headers: Headers;
-};
-export type getCampaignByIdResponseError = (getCampaignByIdResponse400 | getCampaignByIdResponse401 | getCampaignByIdResponse404 | getCampaignByIdResponse500) & {
-  headers: Headers;
+  return `/campaign/campaign`;
 };
 
-export type getCampaignByIdResponse = (getCampaignByIdResponseSuccess | getCampaignByIdResponseError)
-
-export const getGetCampaignByIdUrl = (id: string,) => {
-
-
-  
-
-  return `/campaign/campaign/${id}`
-}
-
-export const getCampaignById = async (id: string, options?: RequestInit): Promise<getCampaignByIdResponse> => {
-  
-  const res = await fetch(getGetCampaignByIdUrl(id),
-  {      
+export const createCampaign = async (
+  campaignCreateDto: CampaignCreateDto,
+  options?: RequestInit,
+): Promise<CreateCampaignResponse> => {
+  const res = await fetch(getCreateCampaignUrl(), {
     ...options,
-    method: 'GET'
-    
-    
-  }
-)
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(campaignCreateDto),
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: getCampaignByIdResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as getCampaignByIdResponse
-}
-  
 
+  const data: CreateCampaignResponse["data"] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as CreateCampaignResponse;
+};
+
+export type GetCampaignByIdResponse200 = {
+  data: CampaignDto;
+  status: 200;
+};
+
+export type GetCampaignByIdResponse400 = {
+  data: ErrorResponseDto;
+  status: 400;
+};
+
+export type GetCampaignByIdResponse401 = {
+  data: ErrorResponseDto;
+  status: 401;
+};
+
+export type GetCampaignByIdResponse404 = {
+  data: ErrorResponseDto;
+  status: 404;
+};
+
+export type GetCampaignByIdResponse500 = {
+  data: ErrorResponseDto;
+  status: 500;
+};
+
+export type GetCampaignByIdResponseSuccess = GetCampaignByIdResponse200 & {
+  headers: Headers;
+};
+export type GetCampaignByIdResponseError = (
+  | GetCampaignByIdResponse400
+  | GetCampaignByIdResponse401
+  | GetCampaignByIdResponse404
+  | GetCampaignByIdResponse500
+) & {
+  headers: Headers;
+};
+
+export type GetCampaignByIdResponse = GetCampaignByIdResponseSuccess | GetCampaignByIdResponseError;
+
+export const getGetCampaignByIdUrl = (id: string) => {
+  return `/campaign/campaign/${id}`;
+};
+
+export const getCampaignById = async (id: string, options?: RequestInit): Promise<GetCampaignByIdResponse> => {
+  const res = await fetch(getGetCampaignByIdUrl(id), {
+    ...options,
+    method: "GET",
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: GetCampaignByIdResponse["data"] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as GetCampaignByIdResponse;
+};

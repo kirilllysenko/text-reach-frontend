@@ -10,11 +10,11 @@
   let maskPassword = $state(true);
 </script>
 
-<div class="relative mt-1">
+<div class="relative">
   <Input
     {...inputProps}
     type={maskPassword ? "password" : "text"}
-    bind:value={value}
+    bind:value
     {error}
     class={["pr-10", inputProps.class]}
   />

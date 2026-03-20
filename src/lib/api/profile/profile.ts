@@ -4,202 +4,188 @@
  * OpenAPI definition
  * OpenAPI spec version: v0
  */
-import type {
-  ChangePasswordDto,
-  ChangeUserNameDto,
-  ErrorResponseDto,
-  ProfileDto
-} from '../index.schemas';
-
+import type { ChangePasswordDto, ChangeUserNameDto, ErrorResponseDto, ProfileDto } from "../index.schemas";
 
 /**
  * Change password for current authenticated user
  */
-export type changePasswordResponse200 = {
-  data: void
-  status: 200
-}
-
-export type changePasswordResponse400 = {
-  data: ErrorResponseDto
-  status: 400
-}
-
-export type changePasswordResponse401 = {
-  data: ErrorResponseDto
-  status: 401
-}
-
-export type changePasswordResponse404 = {
-  data: ErrorResponseDto
-  status: 404
-}
-
-export type changePasswordResponse500 = {
-  data: ErrorResponseDto
-  status: 500
-}
-
-export type changePasswordResponseSuccess = (changePasswordResponse200) & {
-  headers: Headers;
-};
-export type changePasswordResponseError = (changePasswordResponse400 | changePasswordResponse401 | changePasswordResponse404 | changePasswordResponse500) & {
-  headers: Headers;
+export type ChangePasswordResponse200 = {
+  data: void;
+  status: 200;
 };
 
-export type changePasswordResponse = (changePasswordResponseSuccess | changePasswordResponseError)
+export type ChangePasswordResponse400 = {
+  data: ErrorResponseDto;
+  status: 400;
+};
+
+export type ChangePasswordResponse401 = {
+  data: ErrorResponseDto;
+  status: 401;
+};
+
+export type ChangePasswordResponse404 = {
+  data: ErrorResponseDto;
+  status: 404;
+};
+
+export type ChangePasswordResponse500 = {
+  data: ErrorResponseDto;
+  status: 500;
+};
+
+export type ChangePasswordResponseSuccess = ChangePasswordResponse200 & {
+  headers: Headers;
+};
+export type ChangePasswordResponseError = (
+  | ChangePasswordResponse400
+  | ChangePasswordResponse401
+  | ChangePasswordResponse404
+  | ChangePasswordResponse500
+) & {
+  headers: Headers;
+};
+
+export type ChangePasswordResponse = ChangePasswordResponseSuccess | ChangePasswordResponseError;
 
 export const getChangePasswordUrl = () => {
+  return `/tenant/profile/change-password`;
+};
 
-
-  
-
-  return `/tenant/profile/change-password`
-}
-
-export const changePassword = async (changePasswordDto: ChangePasswordDto, options?: RequestInit): Promise<changePasswordResponse> => {
-  
-  const res = await fetch(getChangePasswordUrl(),
-  {      
+export const changePassword = async (
+  changePasswordDto: ChangePasswordDto,
+  options?: RequestInit,
+): Promise<ChangePasswordResponse> => {
+  const res = await fetch(getChangePasswordUrl(), {
     ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      changePasswordDto,)
-  }
-)
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(changePasswordDto),
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: changePasswordResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as changePasswordResponse
-}
-  
+
+  const data: ChangePasswordResponse["data"] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as ChangePasswordResponse;
+};
 
 /**
  * Change name for current authenticated user
  */
-export type changeNameResponse200 = {
-  data: void
-  status: 200
-}
-
-export type changeNameResponse400 = {
-  data: ErrorResponseDto
-  status: 400
-}
-
-export type changeNameResponse401 = {
-  data: ErrorResponseDto
-  status: 401
-}
-
-export type changeNameResponse404 = {
-  data: ErrorResponseDto
-  status: 404
-}
-
-export type changeNameResponse500 = {
-  data: ErrorResponseDto
-  status: 500
-}
-
-export type changeNameResponseSuccess = (changeNameResponse200) & {
-  headers: Headers;
-};
-export type changeNameResponseError = (changeNameResponse400 | changeNameResponse401 | changeNameResponse404 | changeNameResponse500) & {
-  headers: Headers;
+export type ChangeNameResponse200 = {
+  data: void;
+  status: 200;
 };
 
-export type changeNameResponse = (changeNameResponseSuccess | changeNameResponseError)
+export type ChangeNameResponse400 = {
+  data: ErrorResponseDto;
+  status: 400;
+};
+
+export type ChangeNameResponse401 = {
+  data: ErrorResponseDto;
+  status: 401;
+};
+
+export type ChangeNameResponse404 = {
+  data: ErrorResponseDto;
+  status: 404;
+};
+
+export type ChangeNameResponse500 = {
+  data: ErrorResponseDto;
+  status: 500;
+};
+
+export type ChangeNameResponseSuccess = ChangeNameResponse200 & {
+  headers: Headers;
+};
+export type ChangeNameResponseError = (
+  | ChangeNameResponse400
+  | ChangeNameResponse401
+  | ChangeNameResponse404
+  | ChangeNameResponse500
+) & {
+  headers: Headers;
+};
+
+export type ChangeNameResponse = ChangeNameResponseSuccess | ChangeNameResponseError;
 
 export const getChangeNameUrl = () => {
+  return `/tenant/profile/change-name`;
+};
 
-
-  
-
-  return `/tenant/profile/change-name`
-}
-
-export const changeName = async (changeUserNameDto: ChangeUserNameDto, options?: RequestInit): Promise<changeNameResponse> => {
-  
-  const res = await fetch(getChangeNameUrl(),
-  {      
+export const changeName = async (
+  changeUserNameDto: ChangeUserNameDto,
+  options?: RequestInit,
+): Promise<ChangeNameResponse> => {
+  const res = await fetch(getChangeNameUrl(), {
     ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      changeUserNameDto,)
-  }
-)
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(changeUserNameDto),
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: changeNameResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as changeNameResponse
-}
-  
+
+  const data: ChangeNameResponse["data"] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as ChangeNameResponse;
+};
 
 /**
  * Returns info about authenticated user
  */
-export type getProfileResponse200 = {
-  data: ProfileDto
-  status: 200
-}
-
-export type getProfileResponse400 = {
-  data: ErrorResponseDto
-  status: 400
-}
-
-export type getProfileResponse401 = {
-  data: ErrorResponseDto
-  status: 401
-}
-
-export type getProfileResponse404 = {
-  data: ErrorResponseDto
-  status: 404
-}
-
-export type getProfileResponse500 = {
-  data: ErrorResponseDto
-  status: 500
-}
-
-export type getProfileResponseSuccess = (getProfileResponse200) & {
-  headers: Headers;
-};
-export type getProfileResponseError = (getProfileResponse400 | getProfileResponse401 | getProfileResponse404 | getProfileResponse500) & {
-  headers: Headers;
+export type GetProfileResponse200 = {
+  data: ProfileDto;
+  status: 200;
 };
 
-export type getProfileResponse = (getProfileResponseSuccess | getProfileResponseError)
+export type GetProfileResponse400 = {
+  data: ErrorResponseDto;
+  status: 400;
+};
+
+export type GetProfileResponse401 = {
+  data: ErrorResponseDto;
+  status: 401;
+};
+
+export type GetProfileResponse404 = {
+  data: ErrorResponseDto;
+  status: 404;
+};
+
+export type GetProfileResponse500 = {
+  data: ErrorResponseDto;
+  status: 500;
+};
+
+export type GetProfileResponseSuccess = GetProfileResponse200 & {
+  headers: Headers;
+};
+export type GetProfileResponseError = (
+  | GetProfileResponse400
+  | GetProfileResponse401
+  | GetProfileResponse404
+  | GetProfileResponse500
+) & {
+  headers: Headers;
+};
+
+export type GetProfileResponse = GetProfileResponseSuccess | GetProfileResponseError;
 
 export const getGetProfileUrl = () => {
+  return `/tenant/profile`;
+};
 
-
-  
-
-  return `/tenant/profile`
-}
-
-export const getProfile = async ( options?: RequestInit): Promise<getProfileResponse> => {
-  
-  const res = await fetch(getGetProfileUrl(),
-  {      
+export const getProfile = async (options?: RequestInit): Promise<GetProfileResponse> => {
+  const res = await fetch(getGetProfileUrl(), {
     ...options,
-    method: 'GET'
-    
-    
-  }
-)
+    method: "GET",
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: getProfileResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as getProfileResponse
-}
-  
 
+  const data: GetProfileResponse["data"] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as GetProfileResponse;
+};

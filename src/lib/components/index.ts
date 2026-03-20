@@ -1,4 +1,5 @@
 export { default as Button } from './button/Button.svelte';
+export { default as ButtonEye } from './button-eye/ButtonEye.svelte';
 export { default as Dialog } from './dialog/Dialog.svelte';
 export { default as ConfirmDialog } from './confirm-dialog/ConfirmDialog.svelte';
 export { default as Combobox } from './combobox/Combobox.svelte';

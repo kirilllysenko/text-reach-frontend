@@ -4,192 +4,179 @@
  * OpenAPI definition
  * OpenAPI spec version: v0
  */
-import type {
-  ErrorResponseDto,
-  TenDlcBrandDto,
-  TenDlcBrandUpdateDto
-} from '../index.schemas';
+import type { ErrorResponseDto, TenDlcBrandDto, TenDlcBrandUpdateDto } from "../index.schemas";
 
-
-export type getTenDlcBrandResponse200 = {
-  data: TenDlcBrandDto
-  status: 200
-}
-
-export type getTenDlcBrandResponse400 = {
-  data: ErrorResponseDto
-  status: 400
-}
-
-export type getTenDlcBrandResponse401 = {
-  data: ErrorResponseDto
-  status: 401
-}
-
-export type getTenDlcBrandResponse404 = {
-  data: ErrorResponseDto
-  status: 404
-}
-
-export type getTenDlcBrandResponse500 = {
-  data: ErrorResponseDto
-  status: 500
-}
-
-export type getTenDlcBrandResponseSuccess = (getTenDlcBrandResponse200) & {
-  headers: Headers;
-};
-export type getTenDlcBrandResponseError = (getTenDlcBrandResponse400 | getTenDlcBrandResponse401 | getTenDlcBrandResponse404 | getTenDlcBrandResponse500) & {
-  headers: Headers;
+export type GetTenDlcBrandResponse200 = {
+  data: TenDlcBrandDto;
+  status: 200;
 };
 
-export type getTenDlcBrandResponse = (getTenDlcBrandResponseSuccess | getTenDlcBrandResponseError)
+export type GetTenDlcBrandResponse400 = {
+  data: ErrorResponseDto;
+  status: 400;
+};
+
+export type GetTenDlcBrandResponse401 = {
+  data: ErrorResponseDto;
+  status: 401;
+};
+
+export type GetTenDlcBrandResponse404 = {
+  data: ErrorResponseDto;
+  status: 404;
+};
+
+export type GetTenDlcBrandResponse500 = {
+  data: ErrorResponseDto;
+  status: 500;
+};
+
+export type GetTenDlcBrandResponseSuccess = GetTenDlcBrandResponse200 & {
+  headers: Headers;
+};
+export type GetTenDlcBrandResponseError = (
+  | GetTenDlcBrandResponse400
+  | GetTenDlcBrandResponse401
+  | GetTenDlcBrandResponse404
+  | GetTenDlcBrandResponse500
+) & {
+  headers: Headers;
+};
+
+export type GetTenDlcBrandResponse = GetTenDlcBrandResponseSuccess | GetTenDlcBrandResponseError;
 
 export const getGetTenDlcBrandUrl = () => {
+  return `/phone/ten-dlc-brand`;
+};
 
-
-  
-
-  return `/phone/ten-dlc-brand`
-}
-
-export const getTenDlcBrand = async ( options?: RequestInit): Promise<getTenDlcBrandResponse> => {
-  
-  const res = await fetch(getGetTenDlcBrandUrl(),
-  {      
+export const getTenDlcBrand = async (options?: RequestInit): Promise<GetTenDlcBrandResponse> => {
+  const res = await fetch(getGetTenDlcBrandUrl(), {
     ...options,
-    method: 'GET'
-    
-    
-  }
-)
+    method: "GET",
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: getTenDlcBrandResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as getTenDlcBrandResponse
-}
-  
 
-export type updateTenDlcBrandResponse200 = {
-  data: TenDlcBrandDto
-  status: 200
-}
-
-export type updateTenDlcBrandResponse400 = {
-  data: ErrorResponseDto
-  status: 400
-}
-
-export type updateTenDlcBrandResponse401 = {
-  data: ErrorResponseDto
-  status: 401
-}
-
-export type updateTenDlcBrandResponse404 = {
-  data: ErrorResponseDto
-  status: 404
-}
-
-export type updateTenDlcBrandResponse500 = {
-  data: ErrorResponseDto
-  status: 500
-}
-
-export type updateTenDlcBrandResponseSuccess = (updateTenDlcBrandResponse200) & {
-  headers: Headers;
-};
-export type updateTenDlcBrandResponseError = (updateTenDlcBrandResponse400 | updateTenDlcBrandResponse401 | updateTenDlcBrandResponse404 | updateTenDlcBrandResponse500) & {
-  headers: Headers;
+  const data: GetTenDlcBrandResponse["data"] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as GetTenDlcBrandResponse;
 };
 
-export type updateTenDlcBrandResponse = (updateTenDlcBrandResponseSuccess | updateTenDlcBrandResponseError)
+export type UpdateTenDlcBrandResponse200 = {
+  data: TenDlcBrandDto;
+  status: 200;
+};
+
+export type UpdateTenDlcBrandResponse400 = {
+  data: ErrorResponseDto;
+  status: 400;
+};
+
+export type UpdateTenDlcBrandResponse401 = {
+  data: ErrorResponseDto;
+  status: 401;
+};
+
+export type UpdateTenDlcBrandResponse404 = {
+  data: ErrorResponseDto;
+  status: 404;
+};
+
+export type UpdateTenDlcBrandResponse500 = {
+  data: ErrorResponseDto;
+  status: 500;
+};
+
+export type UpdateTenDlcBrandResponseSuccess = UpdateTenDlcBrandResponse200 & {
+  headers: Headers;
+};
+export type UpdateTenDlcBrandResponseError = (
+  | UpdateTenDlcBrandResponse400
+  | UpdateTenDlcBrandResponse401
+  | UpdateTenDlcBrandResponse404
+  | UpdateTenDlcBrandResponse500
+) & {
+  headers: Headers;
+};
+
+export type UpdateTenDlcBrandResponse = UpdateTenDlcBrandResponseSuccess | UpdateTenDlcBrandResponseError;
 
 export const getUpdateTenDlcBrandUrl = () => {
+  return `/phone/ten-dlc-brand`;
+};
 
-
-  
-
-  return `/phone/ten-dlc-brand`
-}
-
-export const updateTenDlcBrand = async (tenDlcBrandUpdateDto: TenDlcBrandUpdateDto, options?: RequestInit): Promise<updateTenDlcBrandResponse> => {
-  
-  const res = await fetch(getUpdateTenDlcBrandUrl(),
-  {      
+export const updateTenDlcBrand = async (
+  tenDlcBrandUpdateDto: TenDlcBrandUpdateDto,
+  options?: RequestInit,
+): Promise<UpdateTenDlcBrandResponse> => {
+  const res = await fetch(getUpdateTenDlcBrandUrl(), {
     ...options,
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      tenDlcBrandUpdateDto,)
-  }
-)
+    method: "PUT",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(tenDlcBrandUpdateDto),
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: updateTenDlcBrandResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as updateTenDlcBrandResponse
-}
-  
 
-export type createTenDlcBrandResponse200 = {
-  data: TenDlcBrandDto
-  status: 200
-}
-
-export type createTenDlcBrandResponse400 = {
-  data: ErrorResponseDto
-  status: 400
-}
-
-export type createTenDlcBrandResponse401 = {
-  data: ErrorResponseDto
-  status: 401
-}
-
-export type createTenDlcBrandResponse404 = {
-  data: ErrorResponseDto
-  status: 404
-}
-
-export type createTenDlcBrandResponse500 = {
-  data: ErrorResponseDto
-  status: 500
-}
-
-export type createTenDlcBrandResponseSuccess = (createTenDlcBrandResponse200) & {
-  headers: Headers;
-};
-export type createTenDlcBrandResponseError = (createTenDlcBrandResponse400 | createTenDlcBrandResponse401 | createTenDlcBrandResponse404 | createTenDlcBrandResponse500) & {
-  headers: Headers;
+  const data: UpdateTenDlcBrandResponse["data"] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as UpdateTenDlcBrandResponse;
 };
 
-export type createTenDlcBrandResponse = (createTenDlcBrandResponseSuccess | createTenDlcBrandResponseError)
+export type CreateTenDlcBrandResponse200 = {
+  data: TenDlcBrandDto;
+  status: 200;
+};
+
+export type CreateTenDlcBrandResponse400 = {
+  data: ErrorResponseDto;
+  status: 400;
+};
+
+export type CreateTenDlcBrandResponse401 = {
+  data: ErrorResponseDto;
+  status: 401;
+};
+
+export type CreateTenDlcBrandResponse404 = {
+  data: ErrorResponseDto;
+  status: 404;
+};
+
+export type CreateTenDlcBrandResponse500 = {
+  data: ErrorResponseDto;
+  status: 500;
+};
+
+export type CreateTenDlcBrandResponseSuccess = CreateTenDlcBrandResponse200 & {
+  headers: Headers;
+};
+export type CreateTenDlcBrandResponseError = (
+  | CreateTenDlcBrandResponse400
+  | CreateTenDlcBrandResponse401
+  | CreateTenDlcBrandResponse404
+  | CreateTenDlcBrandResponse500
+) & {
+  headers: Headers;
+};
+
+export type CreateTenDlcBrandResponse = CreateTenDlcBrandResponseSuccess | CreateTenDlcBrandResponseError;
 
 export const getCreateTenDlcBrandUrl = () => {
+  return `/phone/ten-dlc-brand`;
+};
 
-
-  
-
-  return `/phone/ten-dlc-brand`
-}
-
-export const createTenDlcBrand = async (tenDlcBrandUpdateDto: TenDlcBrandUpdateDto, options?: RequestInit): Promise<createTenDlcBrandResponse> => {
-  
-  const res = await fetch(getCreateTenDlcBrandUrl(),
-  {      
+export const createTenDlcBrand = async (
+  tenDlcBrandUpdateDto: TenDlcBrandUpdateDto,
+  options?: RequestInit,
+): Promise<CreateTenDlcBrandResponse> => {
+  const res = await fetch(getCreateTenDlcBrandUrl(), {
     ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      tenDlcBrandUpdateDto,)
-  }
-)
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(tenDlcBrandUpdateDto),
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: createTenDlcBrandResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as createTenDlcBrandResponse
-}
-  
 
+  const data: CreateTenDlcBrandResponse["data"] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as CreateTenDlcBrandResponse;
+};

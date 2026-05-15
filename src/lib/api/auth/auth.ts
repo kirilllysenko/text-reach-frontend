@@ -6,6 +6,47 @@
  */
 import type { ErrorResponseDto, SignInDto } from "../index.schemas";
 
+function buildUnexpectedResponseError(message: string): ErrorResponseDto {
+  return {
+    errorCode: "INTERNAL_ERROR",
+    errorDescription: message,
+  };
+}
+
+async function parseApiResponse<T>(
+  res: Response,
+  fallbackMessage: string,
+): Promise<{ data: T | ErrorResponseDto; status: number; headers: Headers }> {
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  if (!body) {
+    return { data: {} as T, status: res.status, headers: res.headers };
+  }
+
+  const contentType = res.headers.get("content-type") ?? "";
+  if (!contentType.toLowerCase().includes("application/json")) {
+    return {
+      data: buildUnexpectedResponseError(fallbackMessage),
+      status: 500,
+      headers: res.headers,
+    };
+  }
+
+  try {
+    return {
+      data: JSON.parse(body) as T,
+      status: res.status,
+      headers: res.headers,
+    };
+  } catch {
+    return {
+      data: buildUnexpectedResponseError(fallbackMessage),
+      status: 500,
+      headers: res.headers,
+    };
+  }
+}
+
 /**
  * Sign out
  */
@@ -58,10 +99,11 @@ export const signOut = async (options?: RequestInit): Promise<SignOutResponse> =
     method: "POST",
   });
 
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: SignOutResponse["data"] = body ? JSON.parse(body) : {};
-  return { data, status: res.status, headers: res.headers } as SignOutResponse;
+  const parsed = await parseApiResponse<SignOutResponse["data"]>(
+    res,
+    "Sign-out returned an unexpected non-JSON response.",
+  );
+  return parsed as SignOutResponse;
 };
 
 /**
@@ -113,10 +155,11 @@ export const signIn = async (signInDto: SignInDto, options?: RequestInit): Promi
     body: JSON.stringify(signInDto),
   });
 
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: SignInResponse["data"] = body ? JSON.parse(body) : {};
-  return { data, status: res.status, headers: res.headers } as SignInResponse;
+  const parsed = await parseApiResponse<SignInResponse["data"]>(
+    res,
+    "Sign-in returned an unexpected non-JSON response.",
+  );
+  return parsed as SignInResponse;
 };
 
 /**
@@ -171,8 +214,9 @@ export const checkSession = async (options?: RequestInit): Promise<CheckSessionR
     method: "GET",
   });
 
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: CheckSessionResponse["data"] = body ? JSON.parse(body) : {};
-  return { data, status: res.status, headers: res.headers } as CheckSessionResponse;
+  const parsed = await parseApiResponse<CheckSessionResponse["data"]>(
+    res,
+    "Session check returned HTML instead of API JSON. This usually means the frontend dev server is serving the SPA fallback because the API proxy is missing or the backend is unavailable.",
+  );
+  return parsed as CheckSessionResponse;
 };

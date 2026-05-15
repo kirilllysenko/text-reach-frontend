@@ -13,6 +13,14 @@ bun install
 bun run dev
 ```
 
+The local dev server proxies API calls to the backend services on these ports:
+
+- `/auth` -> `http://localhost:8014`
+- `/tenant` -> `http://localhost:8000`
+- `/contact` -> `http://localhost:8001`
+- `/phone` -> `http://localhost:8008`
+- `/campaign` -> `http://localhost:8012`
+
 ## Build
 
 ```sh
@@ -45,7 +53,7 @@ Main files:
 Example usage:
 
 ```ts
-import { listCampaigns } from '$lib/api/generated/campaign/campaign';
+import { listCampaigns } from "$lib/api/generated/campaign/campaign";
 
 const result = await listCampaigns();
 console.log(result.data, result.status, result.headers);

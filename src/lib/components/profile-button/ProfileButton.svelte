@@ -1,17 +1,20 @@
 <script lang="ts">
-  import PopupMenu from '../popup-menu/PopupMenu.svelte';
-  import type { HTMLButtonAttributes } from 'svelte/elements';
+  import type { HTMLButtonAttributes } from "svelte/elements";
+  import Avatar from "$lib/components/avatar/Avatar.svelte";
+  import Logout from "$lib/icons/Logout.svelte";
+  import Profile from "$lib/icons/Profile.svelte";
+  import PopupMenu from "../popup-menu/PopupMenu.svelte";
 
   interface ProfileData {
     name?: string | null;
     email?: string | null;
   }
 
-  interface Props extends Omit<HTMLButtonAttributes, 'class' | 'type'> {
+  interface Props extends Omit<HTMLButtonAttributes, "class" | "type"> {
     profile?: ProfileData;
     class?: string;
-    onProfileClick?: () => void;
-    onSignOutClick?: () => void;
+    onProfileClick?: () => void | Promise<void>;
+    onSignOutClick?: () => void | Promise<void>;
     onPopupItemClicked?: () => void;
   }
 
@@ -30,38 +33,40 @@
 
   const menuItems = $derived([
     {
-      text: 'Profile',
+      icon: Profile,
+      text: "Profile",
       clickHandler: () => {
         onPopupItemClicked?.();
-        onProfileClick?.();
+        void onProfileClick?.();
         menuOpen = false;
-      }
+      },
     },
     {
-      text: 'Sign out',
+      icon: Logout,
+      text: "Sign out",
       clickHandler: () => {
         onPopupItemClicked?.();
-        onSignOutClick?.();
+        void onSignOutClick?.();
         menuOpen = false;
-      }
-    }
+      },
+    },
   ]);
 
   const iconText = $derived.by(() => {
-    if (!profile) return '';
+    if (!profile) return "";
 
     const trimmedName = profile.name?.trim();
     if (trimmedName) {
       return trimmedName
-        .split(' ')
+        .split(" ")
         .filter((value) => value.trim())
         .slice(0, 2)
         .map((value) => value.slice(0, 1).toUpperCase())
-        .join('');
+        .join("");
     }
 
     const email = profile.email?.trim();
-    return email ? email.slice(0, 1).toUpperCase() : '';
+    return email ? email.slice(0, 1).toUpperCase() : "";
   });
 
   function toggleMenu(event: MouseEvent): void {
@@ -84,26 +89,24 @@
 <svelte:document onpointerdown={closeOnOutsideClick} />
 
 {#if profile}
-  <div id={rootId} class={['relative', classProp]}>
+  <div id={rootId} class={["relative", classProp]}>
     <button
       {...buttonProps}
       type="button"
-      class="flex items-center gap-3 hover:cursor-pointer w-full"
+      class="flex w-full items-center gap-3 text-left hover:cursor-pointer"
       onclick={toggleMenu}
       aria-haspopup="menu"
       aria-expanded={menuOpen}
     >
-      <div class="size-8 rounded-full bg-slate-700 text-white flex justify-center items-center shadow-sm">
-        {iconText}
-      </div>
-      <div class="flex-1 min-w-0 text-left">
+      <Avatar {profile} />
+      <div class="min-w-0 flex-1">
         <div class="truncate text-slate-800">{profile.name}</div>
         <div class="truncate text-sm text-slate-500">{profile.email}</div>
       </div>
     </button>
 
     {#if menuOpen}
-      <div class="absolute left-0 bottom-full mb-2 z-50 min-w-44" role="menu">
+      <div class="absolute bottom-full left-0 z-50 mb-2 min-w-44" role="menu">
         <PopupMenu items={menuItems} />
       </div>
     {/if}

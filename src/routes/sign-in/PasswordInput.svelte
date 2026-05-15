@@ -10,18 +10,13 @@
   let maskPassword = $state(true);
 </script>
 
-<div class="relative mt-1">
-  <Input
-    {...inputProps}
-    type={maskPassword ? "password" : "text"}
-    bind:value={value}
-    {error}
-    class={["pr-10", inputProps.class]}
-  />
-  <ButtonEye
-    off={!maskPassword}
-    onclick={() => (maskPassword = !maskPassword)}
-    class={["absolute top-1/2 right-3 -translate-y-1/2"]}
-    aria-label={maskPassword ? "Show password" : "Hide password"}
-  />
-</div>
+<Input {...inputProps} type={maskPassword ? "password" : "text"} bind:value {error}>
+  {#snippet rightAddon()}
+    <ButtonEye
+      off={!maskPassword}
+      onclick={() => (maskPassword = !maskPassword)}
+      class="mr-3"
+      aria-label={maskPassword ? "Show password" : "Hide password"}
+    />
+  {/snippet}
+</Input>

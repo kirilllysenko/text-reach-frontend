@@ -1,84 +1,114 @@
 <script lang="ts">
+  import { browser } from "$app/environment";
+  import { goto } from "$app/navigation";
   import { page } from "$app/state";
   import Button from "$lib/components/button/Button.svelte";
-  import { signIn, type SignInResponse } from "$lib/api/auth/auth";
-  import { Form } from "$lib/form/form.svelte";
+  import { checkSession, signIn, type SignInResponse } from "$lib/api/auth/auth";
+  import { PATH_DASHBOARD } from "$lib/app/paths";
+  import { createForm } from "$lib/form/form.svelte";
   import { type FormValues, initialValues, validator } from "./form.svelte";
   import { Input } from "$lib";
   import { Field, FieldError, FieldLabel } from "$lib/components/field";
   import PasswordInput from "./PasswordInput.svelte";
+  import { onMount } from "svelte";
+  import Alert from "$lib/components/alert/Alert.svelte";
+  import Card from "$lib/components/card/Card.svelte";
 
-  const form = new Form<FormValues, SignInResponse>(initialValues, validator, submit);
+  const form = createForm<FormValues, SignInResponse>(initialValues, validator, submit);
+  let render = $state(false);
 
-  const signUpOk = $derived(page.url.searchParams.get("signUpOk") === "1");
+  const signUpOk = $derived(browser && page.url.searchParams.get("signUpOk") === "1");
+  const sessionError = $derived(browser ? page.url.searchParams.get("sessionError") : null);
+
+  onMount(async () => {
+    try {
+      const response = await checkSession({ credentials: "include" });
+      if (response.status === 200) {
+        await goto(PATH_DASHBOARD);
+        return;
+      }
+    } finally {
+      render = true;
+    }
+  });
 
   async function submit(values: FormValues): Promise<SignInResponse> {
-    return signIn(values, { credentials: "include" });
+    const response = await signIn(values, { credentials: "include" });
+
+    if (response.status === 200) {
+      await goto(PATH_DASHBOARD);
+    }
+
+    return response;
   }
 </script>
 
-<div
-  class="flex min-h-full flex-col justify-center bg-linear-to-br from-slate-100 via-slate-50 to-stone-100 p-2"
-  inert={form.loading || undefined}
->
-  {#if form.errors.general}
-    <div
-      class="mt-10 mb-5 rounded-xl border border-rose-200/80 bg-rose-100/90 p-2 text-center text-rose-800
-          shadow-sm sm:mx-auto sm:w-md"
-    >
-      {form.errors.general}
-    </div>
-  {/if}
-
-  {#if signUpOk}
-    <div
-      class={`mt-10 mb-5 rounded-xl border border-emerald-200/80 bg-emerald-100/90 p-2 text-center text-emerald-800
-          shadow-sm sm:mx-auto sm:w-md`}
-    >
-      You have successfully registered. Use your email and password to sign in to the app.
-    </div>
-  {/if}
-
-  <h1 class="mx-auto text-slate-800">Sign in</h1>
-
+{#if render}
   <div
-    class={`mt-10 rounded-2xl border border-white/80 bg-white/75 p-4
-        shadow-[0_20px_45px_-25px_rgba(30,41,59,0.45)] backdrop-blur-md sm:mx-auto
-        sm:w-md sm:p-6`}
+    class="flex min-h-full flex-col justify-center bg-linear-to-br from-slate-100 via-slate-50
+      to-stone-100 p-2"
+    inert={form.loading || undefined}
   >
-    <form onsubmit={form.submit}>
-      <Field>
-        <FieldLabel for="email">E-mail</FieldLabel>
-        <Input
-          id="email"
-          bind:value={form.values.email}
-          error={form.errors.email}
-          type="email"
-          autocomplete="email"
-          placeholder="you@example.com"
-        />
-        <FieldError error={form.errors.email} />
-      </Field>
+    {#if sessionError === "SESSION_EXPIRED"}
+      <Alert type="warning">
+        Your session has expired. Please sign in again.
+      </Alert>
+    {/if}
 
-      <Field>
-        <FieldLabel for="password">Password</FieldLabel>
-        <PasswordInput id="password" bind:value={form.values.password} error={form.errors.password} />
-        <FieldError error={form.errors.password} />
-      </Field>
+    {#if sessionError === "SESSION_CLIENT_CHANGED"}
+      <Alert type="warning">
+        Your browser has changed or your internet connection settings have changed. Please sign in again.
+      </Alert>
+    {/if}
 
-      <FieldError error={form.errors.general} />
+    {#if form.error}
+      <Alert type="error">
+        {form.error}
+      </Alert>
+    {/if}
 
-      <Button class="mt-5 w-full" submit spinner={form.loading}>Sign in</Button>
-    </form>
+    {#if signUpOk}
+      <Alert type="success">
+        You have successfully registered. Use your email and password to sign in to the app.
+      </Alert>
+    {/if}
 
-    <p class="mt-10 text-center text-sm text-slate-500">
-      No account?
-      <a href="/sign-up">Sign up</a>
-    </p>
+    <h1 class="mx-auto text-slate-800">Sign in</h1>
 
-    <p class="mt-2 text-center text-sm text-slate-500">
-      Forgot password?
-      <a href="/reset-password">Reset password</a>
-    </p>
+    <Card>
+      <form onsubmit={form.submit}>
+        <Field>
+          <FieldLabel for="email">E-mail</FieldLabel>
+          <Input
+            id="email"
+            bind:value={form.email.value}
+            error={form.email.error}
+            autocomplete="email"
+            placeholder="you@example.com"
+          />
+          <FieldError error={form.email.error} />
+        </Field>
+
+        <Field>
+          <FieldLabel for="password">Password</FieldLabel>
+          <PasswordInput id="password" bind:value={form.password.value} error={form.password.error} />
+          <FieldError error={form.password.error} />
+        </Field>
+
+        <FieldError error={form.error} />
+
+        <Button class="mt-5 w-full" submit spinner={form.loading}>Sign in</Button>
+      </form>
+
+      <p class="mt-10 text-center text-sm text-slate-500">
+        No account?
+        <a href="/sign-up">Sign up</a>
+      </p>
+
+      <p class="mt-2 text-center text-sm text-slate-500">
+        Forgot password?
+        <a href="/reset-password">Reset password</a>
+      </p>
+    </Card>
   </div>
-</div>
+{/if}

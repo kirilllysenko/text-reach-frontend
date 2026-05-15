@@ -2,33 +2,26 @@
   import { onDestroy } from "svelte";
   import { Button, Input } from "$lib";
   import { sendPhoneCode } from "$lib/api/sign-up/sign-up";
-  import { type ErrorResponseDto } from "$lib/api/index.schemas";
   import { Field, FieldError, FieldLabel } from "$lib/components/field";
-  import { defaultErrorText, networkErrorText, toErrorText } from "$lib/form/errors";
+  import { defaultErrorText } from "$lib/form/errors";
+  import type { FormField } from "$lib/form/form.svelte";
   import { Countdown } from "$lib/utils/countdown.svelte";
   import { normalizePhoneNumber, OTP_LENGTH, PhoneNumberSchema } from "$lib/form/validators";
 
   interface Props {
-    phoneNumber: string;
-    phoneNumberCode: string;
-    phoneNumberError: string | null;
-    phoneNumberCodeError: string | null;
+    phoneNumber: FormField<string>;
+    phoneNumberCode: FormField<string>;
   }
 
-  let {
-    phoneNumber = $bindable(""),
-    phoneNumberCode = $bindable(""),
-    phoneNumberError = $bindable(null),
-    phoneNumberCodeError = $bindable(null),
-  }: Props = $props();
+  let { phoneNumber, phoneNumberCode }: Props = $props();
 
   let codeLoading = $state(false);
 
   const countdown = new Countdown();
 
   async function sendCodeClick(): Promise<void> {
-    const phoneResult = PhoneNumberSchema.safeParse(phoneNumber);
-    phoneNumberError = phoneResult.success ? null : (phoneResult.error.issues[0]?.message ?? defaultErrorText);
+    const phoneResult = PhoneNumberSchema.safeParse(phoneNumber.value);
+    phoneNumber.error = phoneResult.success ? null : (phoneResult.error.issues[0]?.message ?? defaultErrorText);
 
     if (!phoneResult.success) {
       return;
@@ -38,7 +31,7 @@
 
     try {
       const response = await sendPhoneCode(
-        { phoneNumber: normalizePhoneNumber(phoneNumber) },
+        { phoneNumber: normalizePhoneNumber(phoneNumber.value) },
         { credentials: "include" },
       );
 
@@ -59,35 +52,36 @@
   <FieldLabel for="phoneNumber">Phone number</FieldLabel>
   <Input
     id="phoneNumber"
-    bind:value={phoneNumber}
+    bind:value={phoneNumber.value}
     type="tel"
     autocomplete="tel"
     placeholder="(555) 123-4567"
-    error={phoneNumberError}
+    error={phoneNumber.error}
   />
-  <FieldError error={phoneNumberError} />
+  <FieldError error={phoneNumber.error} />
 </Field>
 
 <Field class="mt-4">
   <FieldLabel for="phoneNumberCode">Phone number confirmation code</FieldLabel>
-  <div class="mt-1 flex gap-2">
-    <Input
-      id="phoneNumberCode"
-      bind:value={phoneNumberCode}
-      maxlength={OTP_LENGTH}
-      autocomplete="one-time-code"
-      error={phoneNumberCodeError}
-    />
-    <Button
-      class="min-w-25"
-      secondary
-      small
-      spinner={codeLoading}
-      disabled={countdown.remainingSeconds > 0}
-      onclick={sendCodeClick}
-    >
-      {countdown.remainingSeconds === 0 ? "Send code" : countdown.remainingSeconds}
-    </Button>
-  </div>
-  <FieldError error={phoneNumberCodeError} />
+  <Input
+    id="phoneNumberCode"
+    bind:value={phoneNumberCode.value}
+    maxlength={OTP_LENGTH}
+    autocomplete="one-time-code"
+    error={phoneNumberCode.error}
+  >
+    {#snippet rightAddon()}
+      <Button
+        class="min-w-24 px-3 text-xs tracking-[0.02em]"
+        secondary
+        small
+        spinner={codeLoading}
+        disabled={codeLoading || countdown.remainingSeconds > 0}
+        onclick={() => void sendCodeClick()}
+      >
+        {countdown.remainingSeconds === 0 ? "Send code" : countdown.remainingSeconds}
+      </Button>
+    {/snippet}
+  </Input>
+  <FieldError error={phoneNumberCode.error} />
 </Field>

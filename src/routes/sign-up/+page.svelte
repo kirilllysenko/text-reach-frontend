@@ -3,14 +3,16 @@
   import { Button } from "$lib";
   import { Field, FieldError, FieldLabel } from "$lib/components/field";
   import { signUp, type SignUpResponse } from "$lib/api/sign-up/sign-up";
-  import { Form } from "$lib/form/form.svelte";
+  import { createForm } from "$lib/form/form.svelte";
   import { normalizePhoneNumber } from "$lib/form/validators";
   import { type FormValues, initialValues, validator } from "./form.svelte";
   import EmailSection from "./EmailSection.svelte";
   import PhoneSection from "./PhoneSection.svelte";
   import PasswordInput from "./PasswordInput.svelte";
+  import Alert from "$lib/components/alert/Alert.svelte";
+  import Card from "$lib/components/card/Card.svelte";
 
-  const form = new Form<FormValues, SignUpResponse>(initialValues, validator, submit);
+  const form = createForm<FormValues, SignUpResponse>(initialValues, validator, submit);
 
   async function submit(values: FormValues): Promise<SignUpResponse> {
     const response = await signUp(
@@ -36,49 +38,30 @@
   class="flex min-h-full flex-col justify-center bg-linear-to-br from-slate-100 via-slate-50 to-stone-100 p-2"
   inert={form.loading || undefined}
 >
-  {#if form.errors.general}
-    <div
-      class="mt-10 mb-5 rounded-xl border border-rose-200/80 bg-rose-100/90 p-2 text-center text-rose-800
-        shadow-sm sm:mx-auto sm:w-md"
-    >
-      {form.errors.general}
-    </div>
+  {#if form.error}
+    <Alert type="error">
+      {form.error}
+    </Alert>
   {/if}
 
   <h1 class="mx-auto text-slate-800">Try our solution for free</h1>
 
-  <div
-    class="mt-10 rounded-2xl border border-white/80 bg-white/75 p-4
-      shadow-[0_20px_45px_-25px_rgba(30,41,59,0.45)] backdrop-blur-md sm:mx-auto
-      sm:w-md sm:p-6"
-  >
+  <Card>
     <form onsubmit={form.submit}>
-      <EmailSection
-        bind:email={form.values.email}
-        bind:emailCode={form.values.emailCode}
-        bind:emailError={form.errors.email}
-        bind:emailCodeError={form.errors.emailCode}
-      />
+      <EmailSection email={form.email} emailCode={form.emailCode} />
 
-      <PhoneSection
-        bind:phoneNumber={form.values.phoneNumber}
-        bind:phoneNumberCode={form.values.phoneNumberCode}
-        bind:phoneNumberError={form.errors.phoneNumber}
-        bind:phoneNumberCodeError={form.errors.phoneNumberCode}
-      />
+      <PhoneSection phoneNumber={form.phoneNumber} phoneNumberCode={form.phoneNumberCode} />
 
       <Field class="mt-4">
         <FieldLabel for="password">Password</FieldLabel>
-        <div class="relative mt-1">
-          <PasswordInput
-            id="password"
-            bind:value={form.values.password}
-            autocomplete="new-password"
-            placeholder="Create password"
-            error={form.errors.password}
-          />
-        </div>
-        <FieldError error={form.errors.password} />
+        <PasswordInput
+          id="password"
+          bind:value={form.password.value}
+          autocomplete="new-password"
+          placeholder="Create password"
+          error={form.password.error}
+        />
+        <FieldError error={form.password.error} />
       </Field>
 
       <Button class="mt-5 w-full" submit spinner={form.loading}>Sign up</Button>
@@ -88,5 +71,5 @@
       Already have an account?
       <a href="/sign-in">Sign in</a>
     </p>
-  </div>
+  </Card>
 </div>

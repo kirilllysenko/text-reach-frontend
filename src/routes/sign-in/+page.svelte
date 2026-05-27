@@ -50,9 +50,7 @@
     inert={form.loading || undefined}
   >
     {#if sessionError === "SESSION_EXPIRED"}
-      <Alert type="warning">
-        Your session has expired. Please sign in again.
-      </Alert>
+      <Alert type="warning">Your session has expired. Please sign in again.</Alert>
     {/if}
 
     {#if sessionError === "SESSION_CLIENT_CHANGED"}
@@ -68,9 +66,7 @@
     {/if}
 
     {#if signUpOk}
-      <Alert type="success">
-        You have successfully registered. Use your email and password to sign in to the app.
-      </Alert>
+      <Alert type="success">You have successfully registered. Use your email and password to sign in to the app.</Alert>
     {/if}
 
     <h1 class="mx-auto text-slate-800">Sign in</h1>

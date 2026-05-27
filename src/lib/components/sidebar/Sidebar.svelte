@@ -40,17 +40,6 @@
     return currentPath === path;
   }
 
-  function navItemClass(active: boolean): string {
-    return active
-      ? `active border-white/80 bg-white/75 text-sky-700 shadow-sm`
-      : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
-         hover:bg-white/70 hover:text-slate-800`;
-  }
-
-  function iconClass(active: boolean): string {
-    return active ? "fill-sky-700" : "fill-slate-500 group-hover:fill-sky-700";
-  }
-
   async function goToProfile(): Promise<void> {
     notifyItemClick();
     await goto(PATH_PROFILE);
@@ -74,11 +63,16 @@
       class={[
         `group flex w-full items-center gap-3 rounded-xl border px-2 py-3 font-medium
           transition-colors`,
-        navItemClass(isActive(PATH_DASHBOARD)),
+        isActive(PATH_DASHBOARD)
+          ? "active border-white/80 bg-white/75 text-sky-700 shadow-sm"
+          : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
+             hover:bg-white/70 hover:text-slate-800`,
       ]}
       onclick={notifyItemClick}
     >
-      <Dashboard class={`size-6 ${iconClass(isActive(PATH_DASHBOARD))}`} />
+      <Dashboard
+        class={["size-6", isActive(PATH_DASHBOARD) ? "fill-sky-700" : "fill-slate-500 group-hover:fill-sky-700"]}
+      />
       <span>Dashboard</span>
     </a>
   </li>
@@ -89,11 +83,16 @@
       class={[
         `group flex w-full items-center gap-3 rounded-xl border px-2 py-3 font-medium
           transition-colors`,
-        navItemClass(isActive(PATH_CONVERSATIONS)),
+        isActive(PATH_CONVERSATIONS)
+          ? "active border-white/80 bg-white/75 text-sky-700 shadow-sm"
+          : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
+             hover:bg-white/70 hover:text-slate-800`,
       ]}
       onclick={notifyItemClick}
     >
-      <Conversation class={`size-6 ${iconClass(isActive(PATH_CONVERSATIONS))}`} />
+      <Conversation
+        class={["size-6", isActive(PATH_CONVERSATIONS) ? "fill-sky-700" : "fill-slate-500 group-hover:fill-sky-700"]}
+      />
       <span>Conversations</span>
     </a>
   </li>
@@ -104,11 +103,16 @@
       class={[
         `group flex w-full items-center gap-3 rounded-xl border px-2 py-3 font-medium
           transition-colors`,
-        navItemClass(isActive(PATH_CAMPAIGNS)),
+        isActive(PATH_CAMPAIGNS)
+          ? "active border-white/80 bg-white/75 text-sky-700 shadow-sm"
+          : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
+             hover:bg-white/70 hover:text-slate-800`,
       ]}
       onclick={notifyItemClick}
     >
-      <Campaigns class={`size-6 ${iconClass(isActive(PATH_CAMPAIGNS))}`} />
+      <Campaigns
+        class={["size-6", isActive(PATH_CAMPAIGNS) ? "fill-sky-700" : "fill-slate-500 group-hover:fill-sky-700"]}
+      />
       <span>Campaigns</span>
     </a>
   </li>
@@ -118,11 +122,19 @@
       class={[
         `group flex items-center gap-3 rounded-xl border px-2 py-3 font-medium
           transition-colors`,
-        navItemClass(contactsSectionActive),
+        contactsSectionActive
+          ? "active border-white/80 bg-white/75 text-sky-700 shadow-sm"
+          : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
+             hover:bg-white/70 hover:text-slate-800`,
       ]}
     >
       <a href={PATH_CONTACTS} class="flex min-w-0 grow items-center gap-3" onclick={notifyItemClick}>
-        <Contacts class={`size-6 shrink-0 ${iconClass(contactsSectionActive)}`} />
+        <Contacts
+          class={[
+            "size-6 shrink-0",
+            contactsSectionActive ? "fill-sky-700" : "fill-slate-500 group-hover:fill-sky-700",
+          ]}
+        />
         <span class="grow">Contacts</span>
       </a>
 
@@ -134,7 +146,7 @@
         aria-label={contactsSubmenuOpen ? "Collapse contacts submenu" : "Expand contacts submenu"}
       >
         <ChevronDown
-          class={`size-6 fill-slate-600 transition-transform ${contactsSubmenuOpen ? "rotate-180" : "rotate-0"}`}
+          class={["size-6 fill-slate-600 transition-transform", contactsSubmenuOpen ? "rotate-180" : "rotate-0"]}
         />
       </button>
     </div>
@@ -146,7 +158,10 @@
         href={PATH_GROUPS}
         class={[
           `block rounded-xl border py-3 pl-11 font-medium transition-colors`,
-          navItemClass(isActive(PATH_GROUPS)),
+          isActive(PATH_GROUPS)
+            ? "active border-white/80 bg-white/75 text-sky-700 shadow-sm"
+            : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
+               hover:bg-white/70 hover:text-slate-800`,
         ]}
         onclick={notifyItemClick}
       >
@@ -159,7 +174,10 @@
         href={PATH_SMART_GROUPS}
         class={[
           `block rounded-xl border py-3 pl-11 font-medium transition-colors`,
-          navItemClass(isActive(PATH_SMART_GROUPS)),
+          isActive(PATH_SMART_GROUPS)
+            ? "active border-white/80 bg-white/75 text-sky-700 shadow-sm"
+            : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
+               hover:bg-white/70 hover:text-slate-800`,
         ]}
         onclick={notifyItemClick}
       >
@@ -172,7 +190,10 @@
         href={PATH_CUSTOM_FIELDS}
         class={[
           `block rounded-xl border py-3 pl-11 font-medium transition-colors`,
-          navItemClass(isActive(PATH_CUSTOM_FIELDS)),
+          isActive(PATH_CUSTOM_FIELDS)
+            ? "active border-white/80 bg-white/75 text-sky-700 shadow-sm"
+            : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
+               hover:bg-white/70 hover:text-slate-800`,
         ]}
         onclick={notifyItemClick}
       >

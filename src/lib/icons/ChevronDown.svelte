@@ -1,9 +1,11 @@
 <script lang="ts">
+  import type { ClassValue } from "svelte/elements";
+
   interface Props {
-    class?: string;
+    class?: ClassValue;
   }
 
-  let { class: className = "" }: Props = $props();
+  let { class: className }: Props = $props();
 </script>
 
 <svg class={className} viewBox="0 0 24 24" aria-hidden="true">

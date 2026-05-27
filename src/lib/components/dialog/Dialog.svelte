@@ -1,8 +1,8 @@
 <script lang="ts">
-  import type { Snippet } from 'svelte';
-  import type { HTMLAttributes } from 'svelte/elements';
+  import type { Snippet } from "svelte";
+  import type { HTMLAttributes } from "svelte/elements";
 
-  interface Props extends Omit<HTMLAttributes<HTMLDivElement>, 'class'> {
+  interface Props extends Omit<HTMLAttributes<HTMLDivElement>, "class"> {
     class?: string;
     children?: Snippet;
   }
@@ -13,9 +13,9 @@
 <div
   {...divProps}
   class={[
-    `bg-white/85 backdrop-blur-md border border-white/80
-      sm:rounded-2xl sm:p-6 sm:w-md
-      p-4 w-dvw shadow-2xl text-slate-800`,
+    `w-dvw border border-white/80 bg-white/85
+      p-4 text-slate-800 shadow-2xl
+      backdrop-blur-md sm:w-md sm:rounded-2xl sm:p-6`,
     divProps.class,
   ]}
 >

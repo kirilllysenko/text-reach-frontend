@@ -1,13 +1,16 @@
 <script lang="ts">
+  import { onDestroy } from "svelte";
   import PageTitle from "$lib/components/page-title/PageTitle.svelte";
-  import CampaignDesktopOverlays from "$lib/features/campaigns/CampaignDesktopOverlays.svelte";
   import CampaignDesktopSidebar from "$lib/features/campaigns/CampaignDesktopSidebar.svelte";
   import CampaignDetailsPanel from "$lib/features/campaigns/CampaignDetailsPanel.svelte";
   import CampaignMobileDetails from "$lib/features/campaigns/CampaignMobileDetails.svelte";
   import CampaignMobileList from "$lib/features/campaigns/CampaignMobileList.svelte";
+  import CampaignOverlays from "$lib/features/campaigns/CampaignOverlays.svelte";
   import { CampaignsState } from "$lib/features/campaigns/campaigns-state.svelte";
 
   const state = new CampaignsState();
+
+  onDestroy(() => state.dispose());
 </script>
 
 <div
@@ -64,4 +67,4 @@
   </div>
 </div>
 
-<CampaignDesktopOverlays {state} />
+<CampaignOverlays {state} />

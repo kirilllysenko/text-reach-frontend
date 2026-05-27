@@ -14,8 +14,8 @@
   {...buttonProps}
   type="button"
   class={[
-    `size-5 rounded-sm focus-visible:outline-2 focus-visible:outline-sky-500
-    hover:cursor-pointer`,
+    `size-5 rounded-sm hover:cursor-pointer focus-visible:outline-2
+    focus-visible:outline-sky-500`,
     buttonProps.class,
   ]}
 >

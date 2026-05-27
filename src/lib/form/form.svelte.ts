@@ -6,15 +6,7 @@ type FormErrorKey<Values> = keyof Values | "general";
 type SubmitHandler<Values extends FormValues, Response> = (values: Values) => Promise<Response>;
 
 const formFieldSymbol = Symbol("form-field");
-const reservedKeys = new Set([
-  "clearErrors",
-  "generalError",
-  "loading",
-  "setErrors",
-  "submit",
-  "toValues",
-  "validate",
-]);
+const reservedKeys = new Set(["clearErrors", "generalError", "loading", "setErrors", "submit", "toValues", "validate"]);
 
 export type FormField<Value> = {
   value: Value;
@@ -42,7 +34,7 @@ function isFormField(value: unknown): value is InternalFormField<unknown> {
 
 function createField<Value>(value: Value): FormShape<Value> {
   if (Array.isArray(value)) {
-    return value.map(item => createField(item)) as FormShape<Value>;
+    return value.map((item) => createField(item)) as FormShape<Value>;
   }
 
   if (isPlainObject(value)) {
@@ -78,7 +70,7 @@ function clearShapeErrors(shape: unknown): void {
   }
 
   if (isPlainObject(shape)) {
-    forEachObj(shape, value => {
+    forEachObj(shape, (value) => {
       clearShapeErrors(value);
     });
   }
@@ -86,7 +78,7 @@ function clearShapeErrors(shape: unknown): void {
 
 function extractValues<Value>(shape: FormShape<Value>): Value {
   if (Array.isArray(shape)) {
-    return shape.map(item => extractValues(item)) as Value;
+    return shape.map((item) => extractValues(item)) as Value;
   }
 
   if (isFormField(shape)) {
@@ -212,8 +204,7 @@ class FormController<Values extends FormValues, Response = void> {
   };
 }
 
-export type Form<Values extends FormValues, Response = void> = FormController<Values, Response> &
-  FormShape<Values>;
+export type Form<Values extends FormValues, Response = void> = FormController<Values, Response> & FormShape<Values>;
 
 export function createForm<Values extends FormValues, Response = void>(
   initialValues: Values,

@@ -8,24 +8,32 @@
 
   let { status = CampaignDtoStatus.PENDING }: Props = $props();
 
-  const badgeClass = $derived.by(() => {
-    switch (status) {
-      case CampaignDtoStatus.SENT:
-        return "border border-emerald-200/80 bg-emerald-100/80 text-emerald-700";
-      case CampaignDtoStatus.SENDING:
-        return "border border-sky-200/80 bg-sky-100/80 text-sky-700";
-      case CampaignDtoStatus.PAUSED_BY_USER:
-      case CampaignDtoStatus.PAUSED_BY_BILLING:
-        return "border border-amber-200/80 bg-amber-100/80 text-amber-800";
-      case CampaignDtoStatus.CANCELLED_BY_USER:
-      case CampaignDtoStatus.CANCELLED_BY_TIMEOUT:
-        return "border border-rose-200/80 bg-rose-100/80 text-rose-700";
-      default:
-        return "border border-slate-300/80 bg-slate-200/80 text-slate-700";
-    }
-  });
+  const pausedStatuses: NonNullable<CampaignStatus>[] = [
+    CampaignDtoStatus.PAUSED_BY_USER,
+    CampaignDtoStatus.PAUSED_BY_BILLING,
+  ];
+  const cancelledStatuses: NonNullable<CampaignStatus>[] = [
+    CampaignDtoStatus.CANCELLED_BY_USER,
+    CampaignDtoStatus.CANCELLED_BY_TIMEOUT,
+  ];
+
+  const usesAccentColor = $derived(
+    status === CampaignDtoStatus.SENT ||
+      status === CampaignDtoStatus.SENDING ||
+      pausedStatuses.includes(status) ||
+      cancelledStatuses.includes(status),
+  );
 </script>
 
-<span class={["rounded-full px-2.5 py-1 text-xs font-medium", badgeClass]}>
+<span
+  class={[
+    "rounded-full border px-2.5 py-1 text-xs font-medium",
+    status === CampaignDtoStatus.SENT && "border-emerald-200/80 bg-emerald-100/80 text-emerald-700",
+    status === CampaignDtoStatus.SENDING && "border-sky-200/80 bg-sky-100/80 text-sky-700",
+    pausedStatuses.includes(status) && "border-amber-200/80 bg-amber-100/80 text-amber-800",
+    cancelledStatuses.includes(status) && "border-rose-200/80 bg-rose-100/80 text-rose-700",
+    !usesAccentColor && "border-slate-300/80 bg-slate-200/80 text-slate-700",
+  ]}
+>
   {statusLabelMap[status]}
 </span>

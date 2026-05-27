@@ -1,6 +1,6 @@
 <script lang="ts">
-  import Dialog from '../dialog/Dialog.svelte';
-  import Button from '../button/Button.svelte';
+  import Dialog from "../dialog/Dialog.svelte";
+  import Button from "../button/Button.svelte";
 
   interface Props {
     question: string;
@@ -19,7 +19,7 @@
     onResolve,
     onConfirm,
     onCancel,
-    onError
+    onError,
   }: Props = $props();
 
   let processing = $state(false);
@@ -49,7 +49,7 @@
 <div inert={processing || undefined}>
   <Dialog>
     {#if cannotBeCanceledWarning}
-      <p class="bg-amber-100/90 border border-amber-200/80 text-amber-800 p-2 rounded-xl w-full mb-5">
+      <p class="mb-5 w-full rounded-xl border border-amber-200/80 bg-amber-100/90 p-2 text-amber-800">
         Attention! This action cannot be canceled.
       </p>
     {/if}

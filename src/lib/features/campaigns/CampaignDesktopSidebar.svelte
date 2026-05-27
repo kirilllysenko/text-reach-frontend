@@ -29,15 +29,15 @@
         class={[
           `relative flex size-9 items-center justify-center rounded-xl border bg-white/90 shadow-sm
             hover:cursor-pointer hover:bg-white`,
-          state.desktopFiltersOpen ? "border-sky-300 bg-sky-50/90" : "border-white/80",
+          state.filtersOpen ? "border-sky-300 bg-sky-50/90" : "border-white/80",
         ]}
         type="button"
         aria-label="Toggle filters"
-        onclick={state.openDesktopFilters}
+        onclick={state.openFilters}
       >
         <svg
           viewBox="0 0 24 24"
-          class={["size-5", state.desktopFiltersOpen ? "fill-sky-700" : "fill-slate-700"]}
+          class={["size-5", state.filtersOpen ? "fill-sky-700" : "fill-slate-700"]}
           aria-hidden="true"
         >
           <path d="M3 5h18l-7 8v5l-4 2v-7L3 5z" />
@@ -54,15 +54,15 @@
         class={[
           `relative flex size-9 items-center justify-center rounded-xl border bg-white/90 shadow-sm
             hover:cursor-pointer hover:bg-white`,
-          state.desktopSortOpen ? "border-sky-300 bg-sky-50/90" : "border-white/80",
+          state.sortOpen ? "border-sky-300 bg-sky-50/90" : "border-white/80",
         ]}
         type="button"
         aria-label="Toggle sorting"
-        onclick={state.openDesktopSort}
+        onclick={state.openSort}
       >
         <svg
           viewBox="0 0 24 24"
-          class={["size-5", state.desktopSortOpen ? "fill-sky-700" : "fill-slate-700"]}
+          class={["size-5", state.sortOpen ? "fill-sky-700" : "fill-slate-700"]}
           aria-hidden="true"
         >
           <path d="M7 4h10v2H7V4zm-2 7h14v2H5v-2zm3 7h8v2H8v-2z" />

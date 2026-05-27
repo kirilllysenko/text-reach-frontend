@@ -1,5 +1,5 @@
 <script lang="ts">
-  import CampaignDesktopDialog from "./CampaignDesktopDialog.svelte";
+  import { ResponsiveDialog } from "$lib";
   import CampaignFilterPanel from "./CampaignFilterPanel.svelte";
   import CampaignSortPanel from "./CampaignSortPanel.svelte";
   import type { CampaignsState } from "./campaigns-state.svelte";
@@ -11,11 +11,11 @@
   let { state }: Props = $props();
 </script>
 
-<CampaignDesktopDialog
-  open={state.desktopFiltersOpen}
+<ResponsiveDialog
+  open={state.filtersOpen}
   title="Filter campaigns"
   description="Refine the campaign feed without taking over the whole page."
-  onClose={state.closeDesktopPanels}
+  onClose={state.closeOverlays}
 >
   <CampaignFilterPanel
     activeFilterChips={state.activeFilterChips}
@@ -24,6 +24,7 @@
     createdAfter={state.createdAfter}
     minSentMessageCount={state.minSentMessageCount}
     minMessageCount={state.minMessageCount}
+    compact
     statusLabel={state.statusLabel}
     onToggleStatus={state.toggleStatusFilter}
     onCreatedAfterInput={state.updateCreatedAfter}
@@ -31,22 +32,45 @@
     onMinMessageInput={state.updateMinMessageCount}
     onClear={state.clearFilters}
   />
-</CampaignDesktopDialog>
 
-<CampaignDesktopDialog
-  open={state.desktopSortOpen}
+  {#snippet mobileFooter()}
+    <button
+      class="h-10 w-full rounded-xl bg-slate-700 text-sm font-medium text-white shadow-sm
+        hover:cursor-pointer hover:bg-slate-800"
+      type="button"
+      onclick={state.closeOverlays}
+    >
+      Apply filters
+    </button>
+  {/snippet}
+</ResponsiveDialog>
+
+<ResponsiveDialog
+  open={state.sortOpen}
   title="Sort campaigns"
   description="Adjust the priority stack for the campaign list."
-  onClose={state.closeDesktopPanels}
+  onClose={state.closeOverlays}
 >
   <CampaignSortPanel
     sortRules={state.sortRules}
     sortFieldOptions={state.sortFieldOptions}
     sortChips={state.sortChips}
+    compact
     onAddRule={state.addSortRule}
     onRemoveRule={state.removeSortRule}
     onFieldChange={state.updateSortRuleField}
     onDirectionChange={state.updateSortRuleDirection}
     onReset={state.clearSortRules}
   />
-</CampaignDesktopDialog>
+
+  {#snippet mobileFooter()}
+    <button
+      class="h-10 w-full rounded-xl bg-slate-700 text-sm font-medium text-white shadow-sm
+        hover:cursor-pointer hover:bg-slate-800"
+      type="button"
+      onclick={state.closeOverlays}
+    >
+      Apply sorting
+    </button>
+  {/snippet}
+</ResponsiveDialog>

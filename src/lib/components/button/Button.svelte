@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { Component, Snippet } from 'svelte';
-  import type { ClassValue, HTMLButtonAttributes } from 'svelte/elements';
+  import type { Component, Snippet } from "svelte";
+  import type { ClassValue, HTMLButtonAttributes } from "svelte/elements";
 
   interface Props extends HTMLButtonAttributes {
     secondary?: boolean;
@@ -59,7 +59,7 @@
 
 <button
   {...buttonProps}
-  type={submit ? 'submit' : 'button'}
+  type={submit ? "submit" : "button"}
   disabled={spinner || disabled}
   onpointerenter={handlePointerEnter}
   onpointerleave={handlePointerLeave}
@@ -68,27 +68,27 @@
   onpointercancel={handlePointerCancel}
   onlostpointercapture={handlePointerUp}
   class={[
-    `button-motion relative flex gap-1 justify-center items-center rounded-xl border font-medium
+    `button-motion relative flex items-center justify-center gap-1 rounded-xl border font-medium
       transition-[transform,box-shadow,background-color] duration-200 ease-out
-      focus-visible:outline-2 focus-visible:outline-sky-500
-      hover:not-disabled:cursor-pointer`,
-    small ? 'text-sm h-7 pl-1 pr-1' : 'text-base h-9 pl-3 pr-3',
+      hover:not-disabled:cursor-pointer focus-visible:outline-2
+      focus-visible:outline-sky-500`,
+    small ? "h-7 pr-1 pl-1 text-sm" : "h-9 pr-3 pl-3 text-base",
     disabled && !spinner
-      ? 'border-white/70 bg-white/60 text-slate-400'
+      ? "border-white/70 bg-white/60 text-slate-400"
       : secondary
         ? `border-white/80 bg-white/80 text-slate-700 shadow-sm backdrop-blur-sm
            hover:not-disabled:bg-white`
         : `border-slate-700 bg-slate-700 text-white shadow-sm
            hover:not-disabled:bg-slate-800
            focus-visible:outline-offset-2`,
-    !motionDisabled && hovered && !pressed && 'button-motion--raised',
-    !motionDisabled && pressed && 'button-motion--pressed',
-    classProp
+    !motionDisabled && hovered && !pressed && "button-motion--raised",
+    !motionDisabled && pressed && "button-motion--pressed",
+    classProp,
   ]}
 >
   {#if icon}
     {@const Icon = icon}
-    <Icon class={[small ? 'size-4' : 'size-5', secondary ? 'fill-slate-700' : 'fill-white']} />
+    <Icon class={[small ? "size-4" : "size-5", secondary ? "fill-slate-700" : "fill-white"]} />
   {/if}
 
   <div class="text-nowrap">
@@ -97,7 +97,7 @@
 
   {#if spinner}
     <svg
-      class={['ml-1 animate-spin fill-none stroke-slate-500', small ? 'size-4' : 'size-5']}
+      class={["ml-1 animate-spin fill-none stroke-slate-500", small ? "size-4" : "size-5"]}
       viewBox="0 0 24 24"
       aria-hidden="true"
     >
@@ -109,7 +109,7 @@
 
 <style>
   .button-motion::after {
-    content: '';
+    content: "";
     position: absolute;
     inset-inline: 0;
     top: 0;

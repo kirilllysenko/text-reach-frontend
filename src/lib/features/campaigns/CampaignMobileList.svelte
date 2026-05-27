@@ -1,8 +1,5 @@
 <script lang="ts">
   import { Button, Input } from "$lib";
-  import CampaignFilterPanel from "./CampaignFilterPanel.svelte";
-  import CampaignMobileSheet from "./CampaignMobileSheet.svelte";
-  import CampaignSortPanel from "./CampaignSortPanel.svelte";
   import CampaignVirtualList from "./CampaignVirtualList.svelte";
   import type { CampaignsState } from "./campaigns-state.svelte";
 
@@ -33,7 +30,7 @@
           hover:cursor-pointer hover:bg-white"
         type="button"
         aria-label="Sort campaigns"
-        onclick={state.openMobileSortSheet}
+        onclick={state.openSort}
       >
         <svg viewBox="0 0 24 24" class="size-5 fill-slate-700" aria-hidden="true">
           <path d="M7 4h10v2H7V4zm-2 7h14v2H5v-2zm3 7h8v2H8v-2z" />
@@ -45,7 +42,7 @@
           hover:cursor-pointer hover:bg-white"
         type="button"
         aria-label="Filter campaigns"
-        onclick={state.openMobileFilterSheet}
+        onclick={state.openFilters}
       >
         <svg viewBox="0 0 24 24" class="size-5 fill-slate-700" aria-hidden="true">
           <path d="M3 5h18l-7 8v5l-4 2v-7L3 5z" />
@@ -66,78 +63,4 @@
       onLoadMore={state.loadMoreIfNeeded}
     />
   </div>
-
-  <CampaignMobileSheet open={state.mobileFilterSheetOpen} title="Filters" onClose={state.closeMobileFilterSheet}>
-    {#snippet actions()}
-      <button
-        class="text-xs font-medium text-sky-700 hover:cursor-pointer hover:underline"
-        type="button"
-        onclick={state.clearFilters}
-      >
-        Reset
-      </button>
-    {/snippet}
-
-    <CampaignFilterPanel
-      activeFilterChips={state.activeFilterChips}
-      statusOptions={state.statusOptions}
-      selectedStatuses={state.statusFilters}
-      createdAfter={state.createdAfter}
-      minSentMessageCount={state.minSentMessageCount}
-      minMessageCount={state.minMessageCount}
-      compact
-      statusLabel={state.statusLabel}
-      onToggleStatus={state.toggleStatusFilter}
-      onCreatedAfterInput={state.updateCreatedAfter}
-      onMinSentInput={state.updateMinSentMessageCount}
-      onMinMessageInput={state.updateMinMessageCount}
-      onClear={state.clearFilters}
-    />
-
-    {#snippet footer()}
-      <button
-        class="h-10 w-full rounded-xl bg-slate-700 text-sm font-medium text-white shadow-sm
-          hover:cursor-pointer hover:bg-slate-800"
-        type="button"
-        onclick={state.closeMobileFilterSheet}
-      >
-        Apply filters
-      </button>
-    {/snippet}
-  </CampaignMobileSheet>
-
-  <CampaignMobileSheet open={state.mobileSortSheetOpen} title="Sort" onClose={state.closeMobileSortSheet}>
-    {#snippet actions()}
-      <button
-        class="text-xs font-medium text-sky-700 hover:cursor-pointer hover:underline"
-        type="button"
-        onclick={state.clearSortRules}
-      >
-        Reset
-      </button>
-    {/snippet}
-
-    <CampaignSortPanel
-      sortRules={state.sortRules}
-      sortFieldOptions={state.sortFieldOptions}
-      sortChips={state.sortChips}
-      compact
-      onAddRule={state.addSortRule}
-      onRemoveRule={state.removeSortRule}
-      onFieldChange={state.updateSortRuleField}
-      onDirectionChange={state.updateSortRuleDirection}
-      onReset={state.clearSortRules}
-    />
-
-    {#snippet footer()}
-      <button
-        class="h-10 w-full rounded-xl bg-slate-700 text-sm font-medium text-white shadow-sm
-          hover:cursor-pointer hover:bg-slate-800"
-        type="button"
-        onclick={state.closeMobileSortSheet}
-      >
-        Apply sorting
-      </button>
-    {/snippet}
-  </CampaignMobileSheet>
 </section>

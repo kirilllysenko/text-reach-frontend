@@ -1,5 +1,9 @@
 You are able to use the Svelte MCP server, where you have access to comprehensive Svelte 5 and SvelteKit documentation. Here's how to use the available tools effectively:
 
+## Project docs
+
+Before changing project code, read `docs/README.md` and the relevant files it links. Those docs define the project-specific rules for SvelteKit, Svelte 5, Capacitor, component splitting, and folder structure. Treat them as binding alongside this file.
+
 ## Available Svelte MCP Tools:
 
 ### 1. list-sections
@@ -25,10 +29,17 @@ After completing the code, ask the user if they want a playground link. Only cal
 ## Coding rules
 
 ### 1. This app will run both in web and in capacitor
-### 2. This app will never use ssr. It will only use ssg in static pages.
+
+### 2. This app must not depend on runtime SSR. Static pages may use SSG/prerendered HTML, and Capacitor builds may disable page SSR when needed.
+
 ### 3. Build this website with adapter-static
+
 ### 4. Don't write classes in scripts. Write them in html elements. When choosing between array class or object class, chose array
+
 ### 5. Make long string (like classes) into multiline strings if they exceed 120 symbols
+
 ### 6. Instead of dumb forwarding of props, use spread on inner html element. This works well for inputs, buttons and etc.
+
 ### 7. Always use bun or bunx instead of npm or npmx
+
 ### 8. Don't write class: classProp. Instead use rest props like inputProps.class or buttonProps.class and etc.

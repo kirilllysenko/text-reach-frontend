@@ -1,6 +1,6 @@
 <script lang="ts" generics="T">
-  import type { Component } from 'svelte';
-  import type { HTMLAttributes } from 'svelte/elements';
+  import type { Component } from "svelte";
+  import type { HTMLAttributes } from "svelte/elements";
 
   interface MenuItem<T> {
     icon?: Component<{ class?: string }>;
@@ -8,7 +8,7 @@
     clickHandler: (data?: T) => void;
   }
 
-  interface Props extends Omit<HTMLAttributes<HTMLDivElement>, 'class'> {
+  interface Props extends Omit<HTMLAttributes<HTMLDivElement>, "class"> {
     items: MenuItem<T>[];
     dataProvider?: () => T;
     class?: string;
@@ -24,18 +24,16 @@
 <div
   {...divProps}
   class={[
-    `bg-white/90 backdrop-blur-md border border-white/80
-      rounded-xl shadow-lg select-none p-2`,
-    classProp
+    `rounded-xl border border-white/80 bg-white/90
+      p-2 shadow-lg backdrop-blur-md select-none`,
+    classProp,
   ]}
 >
   {#each items as item (item.text)}
     {@const Icon = item.icon}
     <button
-      class={
-        `flex items-center gap-2 w-full p-2 rounded-lg
-        hover:bg-white hover:cursor-pointer group text-slate-700`
-      }
+      class={`group flex w-full items-center gap-2 rounded-lg
+        p-2 text-slate-700 hover:cursor-pointer hover:bg-white`}
       onclick={() => itemClick(item)}
       tabindex="-1"
       type="button"

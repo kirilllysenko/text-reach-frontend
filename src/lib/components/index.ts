@@ -2,6 +2,7 @@ export { default as Button } from "./button/Button.svelte";
 export { default as ButtonEye } from "./button-eye/ButtonEye.svelte";
 export { default as Dialog } from "./dialog/Dialog.svelte";
 export { default as ConfirmDialog } from "./confirm-dialog/ConfirmDialog.svelte";
+export { default as ResponsiveDialog } from "./responsive-dialog/ResponsiveDialog.svelte";
 export { default as Combobox } from "./combobox/Combobox.svelte";
 export { default as Avatar } from "./avatar/Avatar.svelte";
 export { default as Input } from "./input/Input.svelte";
@@ -12,3 +13,5 @@ export { default as NotificationsLayout } from "./notifications-layout/Notificat
 export { default as PageTitle } from "./page-title/PageTitle.svelte";
 export { default as ProfileButton } from "./profile-button/ProfileButton.svelte";
 export { default as Sidebar } from "./sidebar/Sidebar.svelte";
+export { default as DataTable } from "./data-table/DataTable.svelte";
+export type { DataTableColumn, DataTableFetchRequest, DataTableFetchResult, DataTableFetchRows } from "./data-table";

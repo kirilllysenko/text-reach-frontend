@@ -1,6 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
 
-@import 'tailwindcss';
+@import "tailwindcss";
 /* @import '@angular/cdk/overlay-prebuilt.css'; */
 
 @layer base {
@@ -23,7 +23,7 @@
   }
 
   a {
-    @apply font-medium text-sky-700 rounded-xs focus-visible:outline-2 focus-visible:outline-sky-500;
+    @apply rounded-xs font-medium text-sky-700 focus-visible:outline-2 focus-visible:outline-sky-500;
   }
 
   body.resizing,
@@ -41,27 +41,27 @@
 
 @layer components {
   .dialog-title {
-    @apply text-xl font-semibold mb-4;
+    @apply mb-4 text-xl font-semibold;
   }
 
   .dialog-buttons {
-    @apply flex gap-4 justify-end mt-4;
+    @apply mt-4 flex justify-end gap-4;
   }
 
   .glass-panel {
-    @apply border border-white/80 bg-white/75 backdrop-blur-md rounded-xl shadow-sm;
+    @apply rounded-xl border border-white/80 bg-white/75 shadow-sm backdrop-blur-md;
   }
 
   .glass-card {
-    @apply border border-white/80 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm;
+    @apply rounded-xl border border-white/80 bg-white/80 shadow-sm backdrop-blur-sm;
   }
 
   .glass-input {
-    @apply border border-white/80 bg-white/85 rounded-xl shadow-sm backdrop-blur-sm;
+    @apply rounded-xl border border-white/80 bg-white/85 shadow-sm backdrop-blur-sm;
   }
 
   .glass-action {
-    @apply border border-white/80 bg-white/85 text-slate-700 rounded-xl shadow-sm hover:bg-white;
+    @apply rounded-xl border border-white/80 bg-white/85 text-slate-700 shadow-sm hover:bg-white;
   }
 
   /*.test-card {*/

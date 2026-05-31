@@ -1,15 +1,19 @@
 <script lang="ts">
   import type { SortDirection } from "$lib/api/index.schemas";
-  import { sortFieldLabelMap, type CampaignSortField, type SortRule } from "./campaigns-models";
+  import {
+    contactSortFieldLabelMap,
+    type ContactSortField,
+    type ContactSortRule,
+  } from "$lib/features/contacts/contacts-view-data";
 
   interface Props {
-    sortRules: SortRule[];
-    sortFieldOptions: CampaignSortField[];
+    sortRules: ContactSortRule[];
+    sortFieldOptions: ContactSortField[];
     sortChips: string[];
     compact?: boolean;
     onAddRule: () => void;
     onRemoveRule: (ruleId: string) => void;
-    onFieldChange: (ruleId: string, field: CampaignSortField) => void;
+    onFieldChange: (ruleId: string, field: ContactSortField) => void;
     onDirectionChange: (ruleId: string, direction: SortDirection) => void;
     onReset: () => void;
   }
@@ -65,10 +69,10 @@
         <select
           class="rounded-xl border border-white/80 bg-white/90 px-3 py-2 text-sm text-slate-700"
           value={rule.field}
-          onchange={(event) => onFieldChange(rule.id, event.currentTarget.value as CampaignSortField)}
+          onchange={(event) => onFieldChange(rule.id, event.currentTarget.value as ContactSortField)}
         >
           {#each sortFieldOptions as field (field)}
-            <option value={field}>{sortFieldLabelMap[field]}</option>
+            <option value={field}>{contactSortFieldLabelMap[field]}</option>
           {/each}
         </select>
 
@@ -77,8 +81,8 @@
           value={rule.direction}
           onchange={(event) => onDirectionChange(rule.id, event.currentTarget.value as SortDirection)}
         >
-          <option value="DESC">DESC</option>
           <option value="ASC">ASC</option>
+          <option value="DESC">DESC</option>
         </select>
 
         <button

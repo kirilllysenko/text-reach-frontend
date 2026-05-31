@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Input } from "$lib";
   import CampaignVirtualList from "./CampaignVirtualList.svelte";
-  import type { CampaignsState } from "./campaigns-state.svelte";
+  import type { CampaignsState } from "$lib/features/campaigns/campaigns-state.svelte";
 
   interface Props {
     state: CampaignsState;

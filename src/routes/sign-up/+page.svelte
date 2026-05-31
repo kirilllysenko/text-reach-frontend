@@ -2,7 +2,7 @@
   import { goto } from "$app/navigation";
   import { Button } from "$lib";
   import { Field, FieldError, FieldLabel } from "$lib/components/field";
-  import { signUp, type SignUpResponse } from "$lib/api/sign-up/sign-up";
+  import { signUp, type SignUpResponse } from "$lib/api/tenant/tenant";
   import { createForm } from "$lib/form/form.svelte";
   import { normalizePhoneNumber } from "$lib/form/validators";
   import { type FormValues, initialValues, validator } from "./form.svelte";

@@ -2,7 +2,7 @@
   import { createVirtualizer } from "@tanstack/svelte-virtual";
   import { get } from "svelte/store";
   import CampaignListItem from "./CampaignListItem.svelte";
-  import type { CampaignViewModel } from "./campaigns-models";
+  import type { CampaignViewModel } from "$lib/features/campaigns/campaigns-view-data";
 
   interface Props {
     campaigns: CampaignViewModel[];

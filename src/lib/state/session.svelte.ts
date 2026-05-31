@@ -1,10 +1,10 @@
 import { goto } from "$app/navigation";
 import { PATH_SIGN_IN } from "$lib/app/paths";
-import type { ErrorResponseDtoErrorCode, ProfileDto } from "$lib/api/index.schemas";
+import type { ErrorCode, ProfileDto } from "$lib/api/index.schemas";
 import { checkSession, signOut } from "$lib/api/auth/auth";
-import { getProfile } from "$lib/api/profile/profile";
+import { getProfile } from "$lib/api/tenant/tenant";
 
-function buildSignInHref(errorCode?: ErrorResponseDtoErrorCode): string {
+function buildSignInHref(errorCode?: ErrorCode): string {
   if (!errorCode) {
     return PATH_SIGN_IN;
   }

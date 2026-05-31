@@ -7,6 +7,7 @@ export { default as Combobox } from "./combobox/Combobox.svelte";
 export { default as Avatar } from "./avatar/Avatar.svelte";
 export { default as Input } from "./input/Input.svelte";
 export { default as Field, FieldError, FieldLabel } from "./field";
+export { default as FilterPanel } from "./filter-panel/FilterPanel.svelte";
 export { default as Notification } from "./notification/Notification.svelte";
 export { default as PopupMenu } from "./popup-menu/PopupMenu.svelte";
 export { default as NotificationsLayout } from "./notifications-layout/NotificationsLayout.svelte";

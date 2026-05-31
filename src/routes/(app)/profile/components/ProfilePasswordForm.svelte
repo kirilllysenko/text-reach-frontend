@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Button, ButtonEye, Field, FieldError, FieldLabel, Input } from "$lib";
-  import { changePassword } from "$lib/api/profile/profile";
+  import { changePassword } from "$lib/api/tenant/tenant";
   import { PasswordSchema } from "$lib/form/validators";
   import { notificationsState } from "$lib/state/notifications.svelte";
   import { setProfileResponseErrors } from "./profile-errors";

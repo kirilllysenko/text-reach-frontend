@@ -1,6 +1,6 @@
-import type { ErrorResponseDtoErrorCode, FieldErrorDtoErrorCode } from "$lib/api/index.schemas";
+import type { ErrorCode } from "$lib/api/index.schemas";
 
-type ApiErrorCode = ErrorResponseDtoErrorCode | FieldErrorDtoErrorCode;
+type ApiErrorCode = ErrorCode;
 
 export const defaultErrorText = "Something went wrong. Please try again.";
 export const networkErrorText = "Please check your internet connection and try again.";

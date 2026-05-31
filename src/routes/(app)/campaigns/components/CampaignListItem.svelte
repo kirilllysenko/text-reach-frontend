@@ -1,6 +1,6 @@
 <script lang="ts">
   import CampaignStatusBadge from "./CampaignStatusBadge.svelte";
-  import type { CampaignViewModel } from "./campaigns-models";
+  import type { CampaignViewModel } from "$lib/features/campaigns/campaigns-view-data";
 
   interface Props {
     campaign: CampaignViewModel;

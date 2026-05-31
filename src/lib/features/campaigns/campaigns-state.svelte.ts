@@ -1,11 +1,11 @@
 import {
   SortDirection,
   type CampaignDto,
-  type ErrorResponseDto,
+  type ErrorResponse,
   type PageRequestContactGroupFilterDtoContactGroupSortDto,
 } from "$lib/api/index.schemas";
-import { getPage as getContactGroupPage } from "$lib/api/contact-group/contact-group";
-import { getCampaignPageWithBody } from "./campaigns-api";
+import { fetchContactGroups } from "$lib/api/contact-group/contact-group";
+import { listCampaigns } from "$lib/api/campaign/campaign";
 import {
   campaignSortFieldOptions,
   campaignStatusOptions,
@@ -15,14 +15,14 @@ import {
   type CampaignStatus,
   type CampaignViewModel,
   type SortRule,
-} from "./campaigns-models";
-import { buildCampaignRequest } from "./campaigns-request";
+} from "$lib/features/campaigns/campaigns-view-data";
+import { buildCampaignRequest } from "./campaigns-query";
 import {
   createMockCampaigns,
   defaultContactGroupNameById,
   mergeContactGroupNames,
   toCampaignViewModel,
-} from "./campaigns-view-models";
+} from "./campaigns-display";
 
 type MobileView = "list" | "details";
 
@@ -298,7 +298,7 @@ export class CampaignsState {
     this.loadingMore = this.campaigns.length > 0;
 
     try {
-      const response = await getCampaignPageWithBody(
+      const response = await listCampaigns(
         buildCampaignRequest({
           pageSize: DEFAULT_PAGE_SIZE,
           cursor: this.nextCursor,
@@ -315,7 +315,7 @@ export class CampaignsState {
       }
 
       if (response.status !== 200) {
-        this.handleCampaignLoadError(response.data as ErrorResponseDto);
+        this.handleCampaignLoadError(response.data as ErrorResponse);
         return;
       }
 
@@ -342,10 +342,9 @@ export class CampaignsState {
     }
   }
 
-  private handleCampaignLoadError(error?: ErrorResponseDto): void {
+  private handleCampaignLoadError(error?: ErrorResponse): void {
     this.loadingError =
-      error?.errorDescription ??
-      "Could not load campaigns from API. The current backend campaign-list endpoint is rejecting the browser request, so the page is showing local preview data.";
+      error?.errorDescription ?? "Could not load campaigns from API, so the page is showing local preview data.";
     this.campaigns = createMockCampaigns();
     this.nextCursor = null;
     this.hasNextPage = false;
@@ -376,7 +375,7 @@ export class CampaignsState {
       },
     };
 
-    const response = await getContactGroupPage(request, { credentials: "include" });
+    const response = await fetchContactGroups(request, { credentials: "include" });
     if (response.status !== 200) {
       return;
     }

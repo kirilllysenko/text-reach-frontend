@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { Input } from "$lib";
-  import type { CampaignStatus } from "./campaigns-models";
+  import { FilterPanel, Input } from "$lib";
+  import type { CampaignStatus } from "$lib/features/campaigns/campaigns-view-data";
 
   interface Props {
     activeFilterChips: string[];
@@ -35,37 +35,7 @@
   }: Props = $props();
 </script>
 
-<div
-  class={[
-    `space-y-3 rounded-xl border border-white/80 bg-white/80 p-3 shadow-sm backdrop-blur-sm`,
-    compact && "text-sm",
-  ]}
->
-  <div class="flex items-center justify-between gap-3">
-    <div>
-      <h3 class="text-sm font-semibold text-slate-700">Active filters</h3>
-      <p class="text-xs text-slate-500">Refine the campaign feed</p>
-    </div>
-
-    <button
-      class="text-xs font-medium text-sky-700 hover:cursor-pointer hover:underline"
-      type="button"
-      onclick={onClear}
-    >
-      Clear filters
-    </button>
-  </div>
-
-  {#if activeFilterChips.length > 0}
-    <div class="flex flex-wrap gap-2">
-      {#each activeFilterChips as chip (chip)}
-        <span class="rounded-full border border-white/80 bg-white/90 px-2.5 py-1 text-xs text-slate-700">
-          {chip}
-        </span>
-      {/each}
-    </div>
-  {/if}
-
+<FilterPanel {activeFilterChips} title="Active filters" description="Refine the campaign feed" {compact} {onClear}>
   <div class="space-y-2">
     <p class="text-xs font-medium tracking-[0.02em] text-slate-500 uppercase">Status</p>
     <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -106,4 +76,4 @@
       />
     </label>
   </div>
-</div>
+</FilterPanel>

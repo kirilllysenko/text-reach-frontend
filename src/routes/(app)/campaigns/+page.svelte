@@ -1,12 +1,12 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
   import PageTitle from "$lib/components/page-title/PageTitle.svelte";
-  import CampaignDesktopSidebar from "$lib/features/campaigns/CampaignDesktopSidebar.svelte";
-  import CampaignDetailsPanel from "$lib/features/campaigns/CampaignDetailsPanel.svelte";
-  import CampaignMobileDetails from "$lib/features/campaigns/CampaignMobileDetails.svelte";
-  import CampaignMobileList from "$lib/features/campaigns/CampaignMobileList.svelte";
-  import CampaignOverlays from "$lib/features/campaigns/CampaignOverlays.svelte";
   import { CampaignsState } from "$lib/features/campaigns/campaigns-state.svelte";
+  import CampaignDesktopSidebar from "./components/CampaignDesktopSidebar.svelte";
+  import CampaignDetailsPanel from "./components/CampaignDetailsPanel.svelte";
+  import CampaignMobileDetails from "./components/CampaignMobileDetails.svelte";
+  import CampaignMobileList from "./components/CampaignMobileList.svelte";
+  import CampaignOverlays from "./components/CampaignOverlays.svelte";
 
   const state = new CampaignsState();
 

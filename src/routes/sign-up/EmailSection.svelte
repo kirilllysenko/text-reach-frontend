@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
   import { Button, Input } from "$lib";
-  import { sendEmailCode } from "$lib/api/sign-up/sign-up";
+  import { sendEmailCode } from "$lib/api/tenant/tenant";
   import { Field, FieldError, FieldLabel } from "$lib/components/field";
   import { defaultErrorText } from "$lib/form/errors";
   import type { FormField } from "$lib/form/form.svelte";

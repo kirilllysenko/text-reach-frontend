@@ -1,4 +1,4 @@
-import { CampaignDtoStatus, type CampaignDto, type SortDirection } from "$lib/api/index.schemas";
+import { CampaignStatus as CampaignStatusEnum, type CampaignDto, type SortDirection } from "$lib/api/index.schemas";
 
 export type CampaignStatus = CampaignDto["status"];
 
@@ -25,13 +25,13 @@ export interface SortRule {
 }
 
 export const statusLabelMap: Record<NonNullable<CampaignStatus>, string> = {
-  [CampaignDtoStatus.PENDING]: "Pending",
-  [CampaignDtoStatus.SENDING]: "Sending",
-  [CampaignDtoStatus.PAUSED_BY_USER]: "Paused By User",
-  [CampaignDtoStatus.PAUSED_BY_BILLING]: "Paused By Billing",
-  [CampaignDtoStatus.CANCELLED_BY_USER]: "Cancelled By User",
-  [CampaignDtoStatus.CANCELLED_BY_TIMEOUT]: "Cancelled By Timeout",
-  [CampaignDtoStatus.SENT]: "Sent",
+  [CampaignStatusEnum.PENDING]: "Pending",
+  [CampaignStatusEnum.SENDING]: "Sending",
+  [CampaignStatusEnum.PAUSED_BY_USER]: "Paused By User",
+  [CampaignStatusEnum.PAUSED_BY_BILLING]: "Paused By Billing",
+  [CampaignStatusEnum.CANCELLED_BY_USER]: "Cancelled By User",
+  [CampaignStatusEnum.CANCELLED_BY_TIMEOUT]: "Cancelled By Timeout",
+  [CampaignStatusEnum.SENT]: "Sent",
 };
 
 export const sortFieldLabelMap: Record<CampaignSortField, string> = {
@@ -43,13 +43,13 @@ export const sortFieldLabelMap: Record<CampaignSortField, string> = {
 };
 
 export const campaignStatusOptions: NonNullable<CampaignStatus>[] = [
-  CampaignDtoStatus.PENDING,
-  CampaignDtoStatus.SENDING,
-  CampaignDtoStatus.PAUSED_BY_USER,
-  CampaignDtoStatus.PAUSED_BY_BILLING,
-  CampaignDtoStatus.CANCELLED_BY_USER,
-  CampaignDtoStatus.CANCELLED_BY_TIMEOUT,
-  CampaignDtoStatus.SENT,
+  CampaignStatusEnum.PENDING,
+  CampaignStatusEnum.SENDING,
+  CampaignStatusEnum.PAUSED_BY_USER,
+  CampaignStatusEnum.PAUSED_BY_BILLING,
+  CampaignStatusEnum.CANCELLED_BY_USER,
+  CampaignStatusEnum.CANCELLED_BY_TIMEOUT,
+  CampaignStatusEnum.SENT,
 ];
 
 export const campaignSortFieldOptions: CampaignSortField[] = [

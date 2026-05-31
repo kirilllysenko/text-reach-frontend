@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Button, Field, FieldError, FieldLabel, Input } from "$lib";
-  import { changeName } from "$lib/api/profile/profile";
+  import { changeName } from "$lib/api/tenant/tenant";
   import { notificationsState } from "$lib/state/notifications.svelte";
   import { sessionState } from "$lib/state/session.svelte";
   import { setProfileResponseErrors } from "./profile-errors";
@@ -36,8 +36,12 @@
     savingName = false;
 
     if (response.status === 200) {
+      if (!sessionState.profile) {
+        return;
+      }
+
       const nextProfile = {
-        ...(sessionState.profile ?? {}),
+        ...sessionState.profile,
         name: name.trim(),
       };
 

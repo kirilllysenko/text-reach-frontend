@@ -1,6 +1,6 @@
 <script lang="ts">
   import CampaignDetailsContent from "./CampaignDetailsContent.svelte";
-  import type { CampaignsState } from "./campaigns-state.svelte";
+  import type { CampaignsState } from "$lib/features/campaigns/campaigns-state.svelte";
 
   interface Props {
     state: CampaignsState;

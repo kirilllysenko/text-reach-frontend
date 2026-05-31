@@ -11,10 +11,10 @@ These docs extend `AGENTS.md` for the Text Reach frontend. Read them before chan
 ## Core Standards
 
 - Use Svelte 5 runes and existing local patterns before adding new abstractions.
-- Keep route files thin. Move real UI and behavior into route-local components, feature modules, or shared components.
+- Keep route files thin. Move page-specific UI into route-local components, and promote only reused/shared behavior to feature modules or shared components.
 - Split large components before they become difficult to scan, especially when markup, state, effects, and event handling are mixed together.
 - Preserve adapter-static, no-runtime-SSR assumptions, SSG for static pages, and Capacitor-safe browser code.
-- Prefer generated API clients and typed feature adapters over ad hoc fetch calls.
+- Use generated API clients, backend models, and request DTOs. Do not hand-write backend API wrappers except for generator gaps such as file uploads or downloads.
 - Use `bun` and `bunx` for scripts and package tooling.
 - Run the narrowest useful validation before handing work back, usually `bun run check` and `bun run lint` for code changes.
 

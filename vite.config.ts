@@ -25,7 +25,8 @@ export default defineConfig({
     proxy: {
       "/auth": createApiProxy("http://localhost:8014"),
       "/tenant": createApiProxy("http://localhost:8000"),
-      "/contact": createApiProxy("http://localhost:8001"),
+      "^/contact(?:/|$)": createApiProxy("http://localhost:8001"),
+      "^/contact-group(?:/|$)": createApiProxy("http://localhost:8001"),
       "/phone": createApiProxy("http://localhost:8008"),
       "/campaign": createApiProxy("http://localhost:8012"),
     },

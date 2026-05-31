@@ -1,15 +1,14 @@
 import {
-  CampaignFilterDtoOperator,
-  ComparisonFilterInstantOperator,
-  ComparisonFilterIntegerOperator,
-  ContainmentFilterCampaignStatusOperator,
-  PageRequestCampaignFilterDtoCampaignSortDtoPageDirection,
+  ComparisonOperator,
+  ContainmentOperator,
+  NestedOperator,
+  PageDirection,
   type CampaignFilterDto,
   type CampaignSortDto,
   type PageRequestCampaignFilterDtoCampaignSortDto,
   type Sort,
 } from "$lib/api/index.schemas";
-import type { CampaignStatus, SortRule } from "./campaigns-models";
+import type { CampaignStatus, SortRule } from "$lib/features/campaigns/campaigns-view-data";
 
 interface CampaignRequestOptions {
   pageSize: number;
@@ -25,8 +24,13 @@ interface CampaignRequestOptions {
 export function buildCampaignRequest(options: CampaignRequestOptions): PageRequestCampaignFilterDtoCampaignSortDto {
   return {
     pageSize: options.pageSize,
-    cursor: options.cursor ?? undefined,
-    pageDirection: options.cursor ? PageRequestCampaignFilterDtoCampaignSortDtoPageDirection.NEXT : undefined,
+    position: options.cursor
+      ? {
+          type: "SEEK",
+          cursor: options.cursor as Record<string, never>[],
+          pageDirection: PageDirection.NEXT,
+        }
+      : undefined,
     filter: buildCampaignFilter(options),
     sort: buildCampaignSort(options.sortRules),
   };
@@ -38,7 +42,7 @@ function buildCampaignFilter(options: CampaignRequestOptions): CampaignFilterDto
 
   if (searchValue) {
     nested.push({
-      operator: CampaignFilterDtoOperator.OR,
+      operator: NestedOperator.OR,
       nested: [
         {
           name: {
@@ -59,7 +63,7 @@ function buildCampaignFilter(options: CampaignRequestOptions): CampaignFilterDto
   if (options.statusFilters.length > 0) {
     nested.push({
       status: {
-        operator: ContainmentFilterCampaignStatusOperator.IN,
+        operator: ContainmentOperator.IN,
         value: options.statusFilters,
       },
     });
@@ -70,7 +74,7 @@ function buildCampaignFilter(options: CampaignRequestOptions): CampaignFilterDto
     if (!Number.isNaN(createdAfterDate.valueOf())) {
       nested.push({
         createdAt: {
-          operator: ComparisonFilterInstantOperator.GREATER_OR_EQUAL,
+          operator: ComparisonOperator.GREATER_OR_EQUAL,
           value: createdAfterDate.toISOString(),
         },
       });
@@ -81,7 +85,7 @@ function buildCampaignFilter(options: CampaignRequestOptions): CampaignFilterDto
   if (options.minSentMessageCount && !Number.isNaN(minSentMessageCount)) {
     nested.push({
       sentMessageCount: {
-        operator: ComparisonFilterIntegerOperator.GREATER_OR_EQUAL,
+        operator: ComparisonOperator.GREATER_OR_EQUAL,
         value: minSentMessageCount,
       },
     });
@@ -91,7 +95,7 @@ function buildCampaignFilter(options: CampaignRequestOptions): CampaignFilterDto
   if (options.minMessageCount && !Number.isNaN(minMessageCount)) {
     nested.push({
       messageCount: {
-        operator: ComparisonFilterIntegerOperator.GREATER_OR_EQUAL,
+        operator: ComparisonOperator.GREATER_OR_EQUAL,
         value: minMessageCount,
       },
     });
@@ -102,7 +106,7 @@ function buildCampaignFilter(options: CampaignRequestOptions): CampaignFilterDto
   }
 
   return {
-    operator: CampaignFilterDtoOperator.AND,
+    operator: NestedOperator.AND,
     nested,
   };
 }

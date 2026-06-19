@@ -1,64 +1,44 @@
 <script lang="ts">
   import { FilterPanel, ResponsiveDialog, SortPanel, type FilterPanelConfig } from "$lib";
-  import type { ContactsState } from "$lib/features/contacts/contacts-state.svelte";
-  import { contactSortFieldLabelMap } from "$lib/features/contacts/contacts-view-data";
+  import type { ContactGroupsState } from "$lib/features/contact-groups/contact-groups-state.svelte";
+  import { contactGroupSortFieldLabelMap } from "$lib/features/contact-groups/contact-groups-view-data";
 
   interface Props {
-    state: ContactsState;
+    state: ContactGroupsState;
   }
 
   let { state }: Props = $props();
 
-  const contactGroupOptions = $derived.by(() => {
-    if (state.contactGroups.length > 0) {
-      return state.contactGroups.map((group) => ({
-        value: group.id,
-        label: group.name,
-        checked: state.selectedContactGroupIds.includes(group.id),
-      }));
-    }
-
-    return Object.entries(state.contactGroupNameById).map(([id, name]) => ({
-      value: id,
-      label: name,
-      checked: state.selectedContactGroupIds.includes(id),
-    }));
-  });
-
   const filtering = $derived.by<FilterPanelConfig>(() => ({
     activeFilterChips: state.activeFilterChips,
     title: "Active filters",
-    description: "Refine the contact table",
+    description: "Refine the groups table",
     onClear: state.clearFilters,
     fields: [
       {
-        kind: "checkbox-group",
-        id: "groups",
-        label: "Groups",
-        options: contactGroupOptions,
-        onToggle: state.toggleContactGroupFilter,
-      },
-      {
         kind: "input-grid",
-        id: "contact-fields",
+        id: "contact-counts",
         columns: 2,
         inputs: [
           {
             kind: "input",
-            id: "birthdayAfter",
-            label: "Birthday after",
-            inputType: "date",
-            value: state.birthdayAfter,
-            onInput: state.updateBirthdayAfter,
+            id: "minContactCount",
+            label: "Min contacts",
+            inputType: "number",
+            min: "0",
+            value: state.minContactCount,
+            placeholder: "0",
+            onInput: state.updateMinContactCount,
           },
           {
             kind: "input",
-            id: "emailContains",
-            label: "Email contains",
-            inputType: "search",
-            value: state.emailContains,
-            placeholder: "name@example.com",
-            onInput: state.updateEmailContains,
+            id: "maxContactCount",
+            label: "Max contacts",
+            inputType: "number",
+            min: "0",
+            value: state.maxContactCount,
+            placeholder: "1000",
+            onInput: state.updateMaxContactCount,
           },
         ],
       },
@@ -68,15 +48,15 @@
   const sortFieldOptions = $derived(
     state.sortFieldOptions.map((field) => ({
       value: field,
-      label: contactSortFieldLabelMap[field],
+      label: contactGroupSortFieldLabelMap[field],
     })),
   );
 </script>
 
 <ResponsiveDialog
   open={state.filtersOpen}
-  title="Filter contacts"
-  description="Refine the contact table without taking over the whole page."
+  title="Filter groups"
+  description="Refine the groups table without taking over the whole page."
   onClose={state.closeOverlays}
 >
   <FilterPanel {filtering} compact />
@@ -95,8 +75,8 @@
 
 <ResponsiveDialog
   open={state.sortOpen}
-  title="Sort contacts"
-  description="Adjust the priority stack for the contact table."
+  title="Sort groups"
+  description="Adjust the priority stack for the groups table."
   onClose={state.closeOverlays}
 >
   <SortPanel

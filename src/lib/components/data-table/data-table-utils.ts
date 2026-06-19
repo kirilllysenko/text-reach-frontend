@@ -1,4 +1,4 @@
-import type { ColumnDef } from "@tanstack/svelte-table";
+import type { ColumnDef } from "@tanstack/table-core";
 import type { DataTableColumn } from "./data-table-types";
 
 export const DATA_TABLE_ROW_HEIGHT = 44;

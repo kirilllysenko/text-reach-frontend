@@ -32,8 +32,8 @@
   "dependencies": {
     "@capacitor/cli": "^8.2.0",
     "@capacitor/core": "^8.2.0",
-    "@tanstack/svelte-table": "^8.21.3",
     "@tanstack/svelte-virtual": "^3.13.23",
+    "@tanstack/table-core": "^8.21.3",
     "remeda": "^2.33.6",
     "zod": "^4.3.6"
   }

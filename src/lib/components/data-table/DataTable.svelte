@@ -1,16 +1,17 @@
 <script lang="ts" generics="TRow extends RowData">
   import { onDestroy, untrack } from "svelte";
   import {
-    createSvelteTable,
+    createTable,
     functionalUpdate,
     getCoreRowModel,
     type ColumnOrderState,
     type RowData,
     type TableOptions,
+    type TableOptionsResolved,
     type Updater,
-  } from "@tanstack/svelte-table";
+  } from "@tanstack/table-core";
   import { createVirtualizer } from "@tanstack/svelte-virtual";
-  import { get, writable } from "svelte/store";
+  import { derived, get, writable, type Writable } from "svelte/store";
   import DataTableHeaderCell from "./DataTableHeaderCell.svelte";
   import DataTableSkeletonRows from "./DataTableSkeletonRows.svelte";
   import type {
@@ -88,7 +89,7 @@
     columns: [],
     getCoreRowModel: getCoreRowModel(),
   });
-  const table = createSvelteTable(tableOptions);
+  const table = createTableStore(tableOptions);
 
   const tanstackColumns = $derived(toTanstackColumns(columns, resizable));
   const rowsForTable = $derived(Array.from(loadedRows.values()));
@@ -399,6 +400,46 @@
 
   function getCellValue(row: TRow, column: DataTableRenderedColumn<TRow>): unknown {
     return column.definition?.accessor(row);
+  }
+
+  function createTableStore(optionsStore: Writable<TableOptions<TRow>>) {
+    let resolvedOptions: TableOptionsResolved<TRow> = {
+      state: {},
+      onStateChange: () => {},
+      renderFallbackValue: null,
+      ...get(optionsStore),
+    };
+
+    const tableInstance = createTable<TRow>(resolvedOptions);
+    const stateStore = writable(tableInstance.initialState);
+
+    return derived([stateStore, optionsStore], ([$state, $options]) => {
+      resolvedOptions = {
+        ...resolvedOptions,
+        ...$options,
+        onStateChange: $options.onStateChange ?? resolvedOptions.onStateChange,
+      };
+
+      tableInstance.setOptions((previous) => ({
+        ...previous,
+        ...$options,
+        state: {
+          ...$state,
+          ...$options.state,
+        },
+        onStateChange: (updater) => {
+          if (updater instanceof Function) {
+            stateStore.update(updater);
+          } else {
+            stateStore.set(updater);
+          }
+
+          resolvedOptions.onStateChange?.(updater);
+        },
+      }));
+
+      return tableInstance;
+    });
   }
 </script>
 

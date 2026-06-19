@@ -1,5 +1,5 @@
 <script lang="ts" generics="TRow extends RowData">
-  import type { Header, RowData } from "@tanstack/svelte-table";
+  import type { Header, RowData } from "@tanstack/table-core";
 
   interface Props {
     header: Header<TRow, unknown>;

@@ -1,14 +1,73 @@
 <script lang="ts">
-  import { ResponsiveDialog } from "$lib";
-  import CampaignFilterPanel from "./CampaignFilterPanel.svelte";
-  import CampaignSortPanel from "./CampaignSortPanel.svelte";
+  import { FilterPanel, ResponsiveDialog, SortPanel, type FilterPanelConfig } from "$lib";
   import type { CampaignsState } from "$lib/features/campaigns/campaigns-state.svelte";
+  import { sortFieldLabelMap, type CampaignStatus } from "$lib/features/campaigns/campaigns-view-data";
 
   interface Props {
     state: CampaignsState;
   }
 
   let { state }: Props = $props();
+
+  const filtering = $derived.by<FilterPanelConfig>(() => ({
+    activeFilterChips: state.activeFilterChips,
+    title: "Active filters",
+    description: "Refine the campaign feed",
+    onClear: state.clearFilters,
+    fields: [
+      {
+        kind: "checkbox-group",
+        id: "status",
+        label: "Status",
+        options: state.statusOptions.map((status) => ({
+          value: status,
+          label: state.statusLabel(status),
+          checked: state.statusFilters.includes(status),
+        })),
+        onToggle: (status) => state.toggleStatusFilter(status as NonNullable<CampaignStatus>),
+      },
+      {
+        kind: "input-grid",
+        id: "campaign-fields",
+        columns: 3,
+        inputs: [
+          {
+            kind: "input",
+            id: "createdAfter",
+            label: "Created after",
+            inputType: "date",
+            value: state.createdAfter,
+            onInput: state.updateCreatedAfter,
+          },
+          {
+            kind: "input",
+            id: "minSentMessageCount",
+            label: "Min sent messages",
+            inputType: "number",
+            min: "0",
+            value: state.minSentMessageCount,
+            onInput: state.updateMinSentMessageCount,
+          },
+          {
+            kind: "input",
+            id: "minMessageCount",
+            label: "Min all messages",
+            inputType: "number",
+            min: "0",
+            value: state.minMessageCount,
+            onInput: state.updateMinMessageCount,
+          },
+        ],
+      },
+    ],
+  }));
+
+  const sortFieldOptions = $derived(
+    state.sortFieldOptions.map((field) => ({
+      value: field,
+      label: sortFieldLabelMap[field],
+    })),
+  );
 </script>
 
 <ResponsiveDialog
@@ -17,21 +76,7 @@
   description="Refine the campaign feed without taking over the whole page."
   onClose={state.closeOverlays}
 >
-  <CampaignFilterPanel
-    activeFilterChips={state.activeFilterChips}
-    statusOptions={state.statusOptions}
-    selectedStatuses={state.statusFilters}
-    createdAfter={state.createdAfter}
-    minSentMessageCount={state.minSentMessageCount}
-    minMessageCount={state.minMessageCount}
-    compact
-    statusLabel={state.statusLabel}
-    onToggleStatus={state.toggleStatusFilter}
-    onCreatedAfterInput={state.updateCreatedAfter}
-    onMinSentInput={state.updateMinSentMessageCount}
-    onMinMessageInput={state.updateMinMessageCount}
-    onClear={state.clearFilters}
-  />
+  <FilterPanel {filtering} compact />
 
   {#snippet mobileFooter()}
     <button
@@ -51,11 +96,12 @@
   description="Adjust the priority stack for the campaign list."
   onClose={state.closeOverlays}
 >
-  <CampaignSortPanel
-    sortRules={state.sortRules}
-    sortFieldOptions={state.sortFieldOptions}
-    sortChips={state.sortChips}
+  <SortPanel
+    rules={state.sortRules}
+    fieldOptions={sortFieldOptions}
+    chips={state.sortChips}
     compact
+    directionOptions={["DESC", "ASC"]}
     onAddRule={state.addSortRule}
     onRemoveRule={state.removeSortRule}
     onFieldChange={state.updateSortRuleField}

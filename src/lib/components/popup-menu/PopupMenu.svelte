@@ -8,13 +8,12 @@
     clickHandler: (data?: T) => void;
   }
 
-  interface Props extends Omit<HTMLAttributes<HTMLDivElement>, "class"> {
+  interface Props extends HTMLAttributes<HTMLDivElement> {
     items: MenuItem<T>[];
     dataProvider?: () => T;
-    class?: string;
   }
 
-  let { class: classProp, items, dataProvider, ...divProps }: Props = $props();
+  let { class: propClass, items, dataProvider, ...divProps }: Props = $props();
 
   function itemClick(item: MenuItem<T>): void {
     item.clickHandler(dataProvider?.());
@@ -26,7 +25,7 @@
   class={[
     `rounded-xl border border-white/80 bg-white/90
       p-2 shadow-lg backdrop-blur-md select-none`,
-    classProp,
+    propClass,
   ]}
 >
   {#each items as item (item.text)}

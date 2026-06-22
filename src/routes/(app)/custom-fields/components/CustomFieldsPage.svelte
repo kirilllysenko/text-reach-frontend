@@ -1,40 +1,57 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
-  import { DataTable, Input, PageTitle, type DataTableColumn } from "$lib";
+  import { Input, PageTitle, Table, accessorColumn, createDataTable, type DataTableColumnDef } from "$lib";
   import { CustomFieldsState } from "$lib/features/custom-fields/custom-fields-state.svelte";
   import type { CustomFieldViewModel } from "$lib/features/custom-fields/custom-fields-view-data";
   import CustomFieldOverlays from "./CustomFieldOverlays.svelte";
 
   const customFieldsState = new CustomFieldsState();
 
-  const columns: DataTableColumn<CustomFieldViewModel>[] = [
-    {
-      id: "name",
+  const columns = [
+    accessorColumn({
+      accessorKey: "name",
       header: "Name",
-      accessor: (field) => field.name,
+      sortable: true,
       size: 280,
-    },
-    {
+    }),
+    accessorColumn({
+      accessorKey: "typeLabel",
       id: "type",
       header: "Type",
-      accessor: (field) => field.typeLabel,
+      sortable: true,
       size: 160,
-    },
-    {
-      id: "position",
+    }),
+    accessorColumn({
+      accessorKey: "position",
       header: "Position",
-      accessor: (field) => field.position,
+      sortable: true,
       size: 140,
-    },
-    {
-      id: "id",
+    }),
+    accessorColumn({
+      accessorKey: "id",
       header: "ID",
-      accessor: (field) => field.id,
+      sortable: false,
       size: 280,
-    },
-  ];
+    }),
+  ] satisfies DataTableColumnDef<CustomFieldViewModel>[];
 
   onDestroy(() => customFieldsState.dispose());
+
+  function createCustomFieldsTable() {
+    return createDataTable<CustomFieldViewModel>({
+      columns,
+      emptyLabel: "No custom fields found",
+      errorLabel: "Could not load custom fields.",
+      filters: [],
+      getRowId: (field) => field.id,
+      infinite: {
+        height: "600px",
+        threshold: 15,
+      },
+      loadRows: customFieldsState.fetchRows,
+      pageSize: 50,
+    });
+  }
 </script>
 
 <div
@@ -118,17 +135,8 @@
 
     <div class="min-h-0 grow p-3">
       {#key customFieldsState.tableKey}
-        <DataTable
-          {columns}
-          fetchRows={customFieldsState.fetchRows}
-          totalRows={customFieldsState.totalRows}
-          getRowId={(field) => field.id}
-          pageSize={50}
-          resizable
-          reorderable
-          emptyLabel="No custom fields found"
-          errorLabel="Could not load custom fields."
-        />
+        {@const table = createCustomFieldsTable()}
+        <Table {table} />
       {/key}
     </div>
   </div>

@@ -1,9 +1,7 @@
 <script lang="ts">
   import type { HTMLLabelAttributes } from "svelte/elements";
 
-  interface Props extends HTMLLabelAttributes {}
-
-  let { children, ...labelProps }: Props = $props();
+  let { children, ...labelProps }: HTMLLabelAttributes = $props();
 </script>
 
 <label {...labelProps} class={["block text-sm font-medium text-slate-700", labelProps.class]}>

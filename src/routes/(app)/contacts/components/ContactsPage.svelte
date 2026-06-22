@@ -1,6 +1,15 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
-  import { Button, DataTable, Input, PageTitle, type DataTableColumn } from "$lib";
+  import {
+    Button,
+    Input,
+    PageTitle,
+    Table,
+    accessorColumn,
+    createDataTable,
+    displayColumn,
+    type DataTableColumnDef,
+  } from "$lib";
   import ContactOverlays from "./ContactOverlays.svelte";
   import { ContactsState } from "$lib/features/contacts/contacts-state.svelte";
   import type { ContactViewModel } from "$lib/features/contacts/contacts-view-data";
@@ -9,45 +18,45 @@
 
   let fileInput = $state<HTMLInputElement | null>(null);
 
-  const columns: DataTableColumn<ContactViewModel>[] = [
-    {
-      id: "fullName",
+  const columns = [
+    accessorColumn({
+      accessorKey: "fullName",
+      id: "lastName",
       header: "Name",
-      accessor: (contact) => contact.fullName,
+      sortable: true,
       size: 220,
-    },
-    {
-      id: "phoneNumber",
+    }),
+    accessorColumn({
+      accessorKey: "phoneNumber",
       header: "Phone",
-      accessor: (contact) => contact.phoneNumber,
+      sortable: true,
       size: 180,
-    },
-    {
-      id: "email",
+    }),
+    accessorColumn({
+      accessorKey: "email",
       header: "Email",
-      accessor: (contact) => contact.email,
+      sortable: true,
       size: 240,
-    },
-    {
-      id: "birthday",
+    }),
+    accessorColumn({
+      accessorKey: "birthday",
       header: "Birthday",
-      accessor: (contact) => contact.birthday,
+      sortable: true,
       size: 140,
-    },
-    {
+    }),
+    displayColumn({
       id: "groups",
       header: "Groups",
-      accessor: (contact) =>
+      format: (_, contact: ContactViewModel) =>
         contact.contactGroupIds.map((groupId) => contactsState.contactGroupNameById[groupId] ?? groupId).join(", "),
       size: 260,
-    },
-    {
-      id: "notes",
+    }),
+    accessorColumn({
+      accessorKey: "notes",
       header: "Notes",
-      accessor: (contact) => contact.notes,
       size: 280,
-    },
-  ];
+    }),
+  ] satisfies DataTableColumnDef<ContactViewModel>[];
 
   onDestroy(() => contactsState.dispose());
 
@@ -65,6 +74,22 @@
 
     void contactsState.importContacts(file);
     input.value = "";
+  }
+
+  function createContactsTable() {
+    return createDataTable<ContactViewModel>({
+      columns,
+      emptyLabel: "No contacts found",
+      errorLabel: "Could not load contacts.",
+      filters: [],
+      getRowId: (contact) => contact.id,
+      infinite: {
+        height: "600px",
+        threshold: 15,
+      },
+      loadRows: contactsState.fetchRows,
+      pageSize: 50,
+    });
   }
 </script>
 
@@ -176,17 +201,8 @@
 
     <div class="min-h-0 grow p-3">
       {#key contactsState.tableKey}
-        <DataTable
-          {columns}
-          fetchRows={contactsState.fetchRows}
-          totalRows={contactsState.totalRows}
-          getRowId={(contact) => contact.id}
-          pageSize={50}
-          resizable
-          reorderable
-          emptyLabel="No contacts found"
-          errorLabel="Could not load contacts."
-        />
+        {@const table = createContactsTable()}
+        <Table {table} />
       {/key}
     </div>
   </div>

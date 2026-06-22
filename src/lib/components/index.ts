@@ -16,5 +16,18 @@ export { default as NotificationsLayout } from "./notifications-layout/Notificat
 export { default as PageTitle } from "./page-title/PageTitle.svelte";
 export { default as ProfileButton } from "./profile-button/ProfileButton.svelte";
 export { default as Sidebar } from "./sidebar/Sidebar.svelte";
-export { default as DataTable } from "./data-table/DataTable.svelte";
-export type { DataTableColumn, DataTableFetchRequest, DataTableFetchResult, DataTableFetchRows } from "./data-table";
+export { accessorColumn, createDataTable, DataTable, displayColumn, Table } from "./table";
+export type {
+  DataTableColumnDef,
+  DataTableComparisonFilter,
+  DataTableComparisonOperator,
+  DataTableContainmentFilter,
+  DataTableContainmentOperator,
+  DataTableFilter,
+  DataTableLoadRequest,
+  DataTableLoadResult,
+  DataTableOptions,
+  DataTableSort,
+  DataTableTextFilter,
+  DataTableTextOperator,
+} from "./table";

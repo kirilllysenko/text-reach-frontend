@@ -1,34 +1,50 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
-  import { DataTable, Input, PageTitle, type DataTableColumn } from "$lib";
+  import { Input, PageTitle, Table, accessorColumn, createDataTable, type DataTableColumnDef } from "$lib";
   import { ContactGroupsState } from "$lib/features/contact-groups/contact-groups-state.svelte";
   import type { ContactGroupViewModel } from "$lib/features/contact-groups/contact-groups-view-data";
   import GroupOverlays from "./GroupOverlays.svelte";
 
   const groupsState = new ContactGroupsState();
 
-  const columns: DataTableColumn<ContactGroupViewModel>[] = [
-    {
-      id: "name",
+  const columns = [
+    accessorColumn({
+      accessorKey: "name",
       header: "Name",
-      accessor: (group) => group.name,
+      sortable: true,
       size: 280,
-    },
-    {
-      id: "contactCount",
+    }),
+    accessorColumn({
+      accessorKey: "contactCount",
       header: "Contacts",
-      accessor: (group) => group.contactCount,
+      sortable: true,
       size: 140,
-    },
-    {
-      id: "id",
+    }),
+    accessorColumn({
+      accessorKey: "id",
       header: "ID",
-      accessor: (group) => group.id,
+      sortable: false,
       size: 280,
-    },
-  ];
+    }),
+  ] satisfies DataTableColumnDef<ContactGroupViewModel>[];
 
   onDestroy(() => groupsState.dispose());
+
+  function createGroupsTable() {
+    return createDataTable<ContactGroupViewModel>({
+      columns,
+      emptyLabel: "No groups found",
+      errorLabel: "Could not load groups.",
+      filters: [],
+      getRowId: (group) => group.id,
+      infinite: {
+        height: "600px",
+        threshold: 15,
+      },
+      loadRows: groupsState.fetchRows,
+      pageSize: 50,
+    });
+  }
 </script>
 
 <div
@@ -112,17 +128,8 @@
 
     <div class="min-h-0 grow p-3">
       {#key groupsState.tableKey}
-        <DataTable
-          {columns}
-          fetchRows={groupsState.fetchRows}
-          totalRows={groupsState.totalRows}
-          getRowId={(group) => group.id}
-          pageSize={50}
-          resizable
-          reorderable
-          emptyLabel="No groups found"
-          errorLabel="Could not load groups."
-        />
+        {@const table = createGroupsTable()}
+        <Table {table} />
       {/key}
     </div>
   </div>

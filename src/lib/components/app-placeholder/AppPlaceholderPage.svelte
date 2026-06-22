@@ -10,7 +10,7 @@
 </script>
 
 <div
-  class="flex h-full min-h-0 flex-col rounded-2xl bg-gradient-to-br from-slate-100 via-slate-50
+  class="flex h-full min-h-0 flex-col rounded-2xl bg-linear-to-br from-slate-100 via-slate-50
     to-stone-100 p-2 sm:p-3"
 >
   <PageTitle {title} />

@@ -1,6 +1,6 @@
 import { SortDirection, type ErrorResponse } from "$lib/api/index.schemas";
 import { fetchContactGroups } from "$lib/api/contact-group/contact-group";
-import type { DataTableFetchRequest, DataTableFetchResult } from "$lib/components/data-table";
+import type { DataTableLoadRequest, DataTableLoadResult, DataTableSort } from "$lib/components/table";
 import {
   contactGroupSortFieldLabelMap,
   contactGroupSortFieldOptions,
@@ -144,37 +144,40 @@ export class ContactGroupsState {
     this.sortOpen = false;
   };
 
-  fetchRows = async (request: DataTableFetchRequest): Promise<DataTableFetchResult<ContactGroupViewModel>> => {
+  fetchRows = async (request: DataTableLoadRequest): Promise<DataTableLoadResult<ContactGroupViewModel>> => {
     const pageRequest = buildContactGroupRequest({
-      pageSize: request.pageSize,
-      cursor: request.kind === "cursor" ? request.cursor : null,
-      direction: request.kind === "cursor" ? request.direction : undefined,
-      offset: request.kind === "page" ? request.pageIndex * request.pageSize : undefined,
+      pageSize: request.limit,
+      cursor: request.cursor,
+      direction: "next",
       search: this.search,
       minContactCount: this.minContactCount,
       maxContactCount: this.maxContactCount,
-      sortRules: this.sortRules,
+      sortRules: this.getSortRules(request.sorting),
     });
 
     try {
-      const response = await fetchContactGroups(pageRequest, { credentials: "include" });
+      const response = await fetchContactGroups(pageRequest, { credentials: "include", signal: request.signal });
 
       if (response.status !== 200) {
         this.handleResponseError(response.data as ErrorResponse);
         return this.fetchMockRows(request);
       }
 
-      const rows = (response.data.items ?? []).map((item, index) =>
-        toContactGroupViewModel(item, request.kind === "page" ? request.pageIndex * request.pageSize + index : index),
-      );
+      const rows = (response.data.items ?? []).map((item, index) => toContactGroupViewModel(item, index));
 
       this.loadingError = null;
-      this.updateTotalRows(request, rows.length, Boolean(response.data.nextCursor), response.data.size);
+      this.updateTotalRows(
+        request.limit,
+        request.cursor === null,
+        rows.length,
+        Boolean(response.data.nextCursor),
+        response.data.size,
+      );
 
       return {
         rows,
         nextCursor: response.data.nextCursor ?? null,
-        prevCursor: response.data.prevCursor ?? null,
+        totalRows: this.totalRows,
       };
     } catch {
       this.handleResponseError();
@@ -214,35 +217,52 @@ export class ContactGroupsState {
     );
   }
 
-  private fetchMockRows(request: DataTableFetchRequest): DataTableFetchResult<ContactGroupViewModel> {
+  private fetchMockRows(request: DataTableLoadRequest): DataTableLoadResult<ContactGroupViewModel> {
     const groups = this.filteredMockGroups;
-    const start = request.kind === "page" ? request.pageIndex * request.pageSize : 0;
-    const rows = groups.slice(start, start + request.pageSize);
+    const start = Number(request.cursor?.[0] ?? 0);
+    const end = start + request.limit;
+    const rows = groups.slice(start, end);
 
     this.loadedRowEstimate = rows.length;
     this.totalRows = groups.length;
 
     return {
       rows,
-      nextCursor: null,
-      prevCursor: null,
+      nextCursor: end < groups.length ? [end] : null,
+      totalRows: groups.length,
     };
   }
 
   private updateTotalRows(
-    request: DataTableFetchRequest,
+    limit: number,
+    isInitial: boolean,
     rowsLength: number,
     hasNextCursor: boolean,
     responseSize: number,
   ): void {
-    if (request.kind === "page") {
-      this.loadedRowEstimate = request.pageIndex * request.pageSize + rowsLength;
-    } else if (request.direction === "next") {
+    if (isInitial) {
+      this.loadedRowEstimate = rowsLength;
+    } else {
       this.loadedRowEstimate += rowsLength;
     }
 
     const knownRows = Math.max(responseSize, this.loadedRowEstimate);
-    this.totalRows = hasNextCursor ? Math.max(knownRows + request.pageSize, request.pageSize) : knownRows;
+    this.totalRows = hasNextCursor ? Math.max(knownRows + limit, limit) : knownRows;
+  }
+
+  private getSortRules(sorting: DataTableSort[]): ContactGroupSortRule[] {
+    const sortableFields = new Set<ContactGroupSortField>(this.sortFieldOptions);
+    const tableSortRules = sorting
+      .filter((sort): sort is DataTableSort & { columnId: ContactGroupSortField } =>
+        sortableFields.has(sort.columnId as ContactGroupSortField),
+      )
+      .map((sort) => ({
+        id: sort.columnId,
+        field: sort.columnId,
+        direction: sort.direction === "ascending" ? SortDirection.ASC : SortDirection.DESC,
+      }));
+
+    return tableSortRules.length > 0 ? tableSortRules : this.sortRules;
   }
 
   private handleResponseError(error?: ErrorResponse): void {

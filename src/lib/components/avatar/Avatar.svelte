@@ -6,12 +6,11 @@
     email?: string | null;
   }
 
-  interface Props extends Omit<HTMLAttributes<HTMLDivElement>, "class"> {
+  interface Props extends HTMLAttributes<HTMLDivElement> {
     profile?: ProfileData | null;
-    class?: string;
   }
 
-  let { profile, class: classProp, ...avatarProps }: Props = $props();
+  let { profile, class: propClass, ...avatarProps }: Props = $props();
 
   const initials = $derived.by(() => {
     if (!profile) {
@@ -38,7 +37,7 @@
   class={[
     `flex size-8 items-center justify-center rounded-full bg-slate-700 text-xs
       font-semibold tracking-[0.08em] text-white shadow-sm`,
-    classProp,
+    propClass,
   ]}
   aria-hidden="true"
 >

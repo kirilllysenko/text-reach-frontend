@@ -10,9 +10,8 @@
     email?: string | null;
   }
 
-  interface Props extends Omit<HTMLButtonAttributes, "class" | "type"> {
+  interface Props extends Omit<HTMLButtonAttributes, "type"> {
     profile?: ProfileData;
-    class?: string;
     onProfileClick?: () => void | Promise<void>;
     onSignOutClick?: () => void | Promise<void>;
     onPopupItemClicked?: () => void;

@@ -1,7 +1,7 @@
 import { SortDirection, type ContactGroupDto, type ErrorResponse } from "$lib/api/index.schemas";
 import { fetchContactGroups } from "$lib/api/contact-group/contact-group";
 import { countContacts, fetchContacts, getContactUploadUrl } from "$lib/api/contact/contact";
-import type { DataTableFetchRequest, DataTableFetchResult } from "$lib/components/data-table";
+import type { DataTableLoadRequest, DataTableLoadResult, DataTableSort } from "$lib/components/table";
 import {
   contactSortFieldLabelMap,
   contactSortFieldOptions,
@@ -182,21 +182,20 @@ export class ContactsState {
     this.sortOpen = false;
   };
 
-  fetchRows = async (request: DataTableFetchRequest): Promise<DataTableFetchResult<ContactViewModel>> => {
+  fetchRows = async (request: DataTableLoadRequest): Promise<DataTableLoadResult<ContactViewModel>> => {
     const pageRequest = buildContactRequest({
-      pageSize: request.pageSize,
-      cursor: request.kind === "cursor" ? request.cursor : null,
-      direction: request.kind === "cursor" ? request.direction : undefined,
-      offset: request.kind === "page" ? request.pageIndex * request.pageSize : undefined,
+      pageSize: request.limit,
+      cursor: request.cursor,
+      direction: "next",
       search: this.search,
       contactGroupIds: this.selectedContactGroupIds,
       birthdayAfter: this.birthdayAfter,
       emailContains: this.emailContains,
-      sortRules: this.sortRules,
+      sortRules: this.getSortRules(request.sorting),
     });
 
     try {
-      const response = await fetchContacts(pageRequest, { credentials: "include" });
+      const response = await fetchContacts(pageRequest, { credentials: "include", signal: request.signal });
 
       if (response.status !== 200) {
         this.handleResponseError(response.data as ErrorResponse);
@@ -206,11 +205,9 @@ export class ContactsState {
       this.loadingError = null;
 
       return {
-        rows: (response.data.items ?? []).map((item, index) =>
-          toContactViewModel(item, request.kind === "page" ? request.pageIndex * request.pageSize + index : index),
-        ),
+        rows: (response.data.items ?? []).map((item, index) => toContactViewModel(item, index)),
         nextCursor: response.data.nextCursor ?? null,
-        prevCursor: response.data.prevCursor ?? null,
+        totalRows: this.totalRows,
       };
     } catch {
       this.handleResponseError();
@@ -371,18 +368,34 @@ export class ContactsState {
     );
   }
 
-  private fetchMockRows(request: DataTableFetchRequest): DataTableFetchResult<ContactViewModel> {
+  private fetchMockRows(request: DataTableLoadRequest): DataTableLoadResult<ContactViewModel> {
     const contacts = this.filteredMockContacts;
-    const start = request.kind === "page" ? request.pageIndex * request.pageSize : 0;
-    const rows = contacts.slice(start, start + request.pageSize);
+    const start = Number(request.cursor?.[0] ?? 0);
+    const end = start + request.limit;
+    const rows = contacts.slice(start, end);
 
     this.totalRows = contacts.length;
 
     return {
       rows,
-      nextCursor: null,
-      prevCursor: null,
+      nextCursor: end < contacts.length ? [end] : null,
+      totalRows: contacts.length,
     };
+  }
+
+  private getSortRules(sorting: DataTableSort[]): ContactSortRule[] {
+    const sortableFields = new Set<ContactSortField>(this.sortFieldOptions);
+    const tableSortRules = sorting
+      .filter((sort): sort is DataTableSort & { columnId: ContactSortField } =>
+        sortableFields.has(sort.columnId as ContactSortField),
+      )
+      .map((sort) => ({
+        id: sort.columnId,
+        field: sort.columnId,
+        direction: sort.direction === "ascending" ? SortDirection.ASC : SortDirection.DESC,
+      }));
+
+    return tableSortRules.length > 0 ? tableSortRules : this.sortRules;
   }
 
   private async loadAllContactsForExport(): Promise<ContactViewModel[]> {

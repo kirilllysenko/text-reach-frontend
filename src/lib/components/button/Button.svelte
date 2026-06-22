@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Component, Snippet } from "svelte";
+  import type { Component } from "svelte";
   import type { ClassValue, HTMLButtonAttributes } from "svelte/elements";
 
   interface Props extends HTMLButtonAttributes {
@@ -9,7 +9,6 @@
     spinner?: boolean;
     disabled?: boolean;
     icon?: Component<{ class?: ClassValue }>;
-    children?: Snippet;
   }
 
   let {

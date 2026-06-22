@@ -1,6 +1,6 @@
 import { SortDirection, type CustomFieldType, type ErrorResponse } from "$lib/api/index.schemas";
 import { listCustomFields } from "$lib/api/custom-field/custom-field";
-import type { DataTableFetchRequest, DataTableFetchResult } from "$lib/components/data-table";
+import type { DataTableLoadRequest, DataTableLoadResult, DataTableSort } from "$lib/components/table";
 import {
   customFieldSortFieldLabelMap,
   customFieldSortFieldOptions,
@@ -138,21 +138,22 @@ export class CustomFieldsState {
     this.sortOpen = false;
   };
 
-  fetchRows = async (request: DataTableFetchRequest): Promise<DataTableFetchResult<CustomFieldViewModel>> => {
+  fetchRows = async (request: DataTableLoadRequest): Promise<DataTableLoadResult<CustomFieldViewModel>> => {
     if (!this.loaded) {
       await this.load();
     }
 
-    const fields = this.filteredFields;
-    const start = request.kind === "page" ? request.pageIndex * request.pageSize : 0;
-    const rows = fields.slice(start, start + request.pageSize);
+    const fields = this.getFilteredFields(request.sorting);
+    const start = Number(request.cursor?.[0] ?? 0);
+    const end = start + request.limit;
+    const rows = fields.slice(start, end);
 
     this.totalRows = fields.length;
 
     return {
       rows,
-      nextCursor: null,
-      prevCursor: null,
+      nextCursor: end < fields.length ? [end] : null,
+      totalRows: fields.length,
     };
   };
 
@@ -181,6 +182,24 @@ export class CustomFieldsState {
 
   private get filteredFields(): CustomFieldViewModel[] {
     return sortCustomFields(filterCustomFields(this.fields, this.search, this.typeFilters), this.sortRules);
+  }
+
+  private getFilteredFields(sorting: DataTableSort[]): CustomFieldViewModel[] {
+    const sortableFields = new Set<CustomFieldSortField>(this.sortFieldOptions);
+    const tableSortRules = sorting
+      .filter((sort): sort is DataTableSort & { columnId: CustomFieldSortField } =>
+        sortableFields.has(sort.columnId as CustomFieldSortField),
+      )
+      .map((sort) => ({
+        id: sort.columnId,
+        field: sort.columnId,
+        direction: sort.direction === "ascending" ? SortDirection.ASC : SortDirection.DESC,
+      }));
+
+    return sortCustomFields(
+      filterCustomFields(this.fields, this.search, this.typeFilters),
+      tableSortRules.length > 0 ? tableSortRules : this.sortRules,
+    );
   }
 
   private async load(): Promise<void> {

@@ -1,16 +1,13 @@
 <script lang="ts">
-  import type { Snippet } from "svelte";
   import type { HTMLAttributes } from "svelte/elements";
 
-  interface Props extends Omit<HTMLAttributes<HTMLDivElement>, "class"> {
-    class?: string;
+  interface Props extends HTMLAttributes<HTMLDivElement> {
     type?: "info" | "error";
     timeLeftPercent?: number;
     onClose?: () => void;
-    children?: Snippet;
   }
 
-  let { type = "info", timeLeftPercent = 0, onClose, children, ...divProps }: Props = $props();
+  let { type = "info", timeLeftPercent = 0, onClose, children, class: propClass, ...divProps }: Props = $props();
 </script>
 
 <div
@@ -20,7 +17,7 @@
       shadow-[0_-5px_15px_-3px_rgba(0,0,0,0.1)] backdrop-blur-md sm:rounded-xl
       sm:border
       sm:pt-5 sm:pr-5 sm:pl-5 sm:shadow-md`,
-    divProps.class,
+    propClass,
   ]}
 >
   <div class="flex items-center gap-2 overflow-hidden sm:gap-3">

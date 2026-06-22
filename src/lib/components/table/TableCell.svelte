@@ -1,6 +1,6 @@
 <script lang="ts" generics="TData, TMeta">
   import type { Component } from "svelte";
-  import type { DataTable } from "./core/data-table.svelte";
+  import type { DataTable } from "./core/rendered-table";
   import type { DataTableCellComponentProps, DataTableColumnDef } from "./core/columns";
 
   interface Props {

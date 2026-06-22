@@ -1,7 +1,7 @@
 import { SortDirection, type ContactGroupDto, type ErrorResponse } from "$lib/api/index.schemas";
 import { fetchContactGroups } from "$lib/api/contact-group/contact-group";
 import { countContacts, fetchContacts, getContactUploadUrl } from "$lib/api/contact/contact";
-import type { DataTableLoadRequest, DataTableLoadResult, DataTableSort } from "$lib/components/table";
+import type { DataTableFilter, DataTableLoadRequest, DataTableLoadResult, DataTableSort } from "$lib/components/table";
 import {
   contactSortFieldLabelMap,
   contactSortFieldOptions,
@@ -183,14 +183,20 @@ export class ContactsState {
   };
 
   fetchRows = async (request: DataTableLoadRequest): Promise<DataTableLoadResult<ContactViewModel>> => {
+    const filters = getContactTableFilters(request.filters);
+
+    if (request.cursor === null) {
+      await this.refreshCount(request.filters);
+    }
+
     const pageRequest = buildContactRequest({
       pageSize: request.limit,
       cursor: request.cursor,
       direction: "next",
       search: this.search,
-      contactGroupIds: this.selectedContactGroupIds,
-      birthdayAfter: this.birthdayAfter,
-      emailContains: this.emailContains,
+      contactGroupIds: filters.contactGroupIds,
+      birthdayAfter: filters.birthdayAfter,
+      emailContains: filters.emailContains,
       sortRules: this.getSortRules(request.sorting),
     });
 
@@ -304,12 +310,13 @@ export class ContactsState {
     await this.refreshCount();
   }
 
-  private async refreshCount(): Promise<void> {
+  private async refreshCount(filters: DataTableFilter[] = []): Promise<void> {
+    const tableFilters = getContactTableFilters(filters);
     const filter = buildContactFilter({
       search: this.search,
-      contactGroupIds: this.selectedContactGroupIds,
-      birthdayAfter: this.birthdayAfter,
-      emailContains: this.emailContains,
+      contactGroupIds: tableFilters.contactGroupIds,
+      birthdayAfter: tableFilters.birthdayAfter,
+      emailContains: tableFilters.emailContains,
     });
 
     try {
@@ -356,20 +363,25 @@ export class ContactsState {
   }
 
   private get filteredMockContacts(): ContactViewModel[] {
+    return this.getFilteredMockContacts([]);
+  }
+
+  private getFilteredMockContacts(filters: DataTableFilter[]): ContactViewModel[] {
+    const tableFilters = getContactTableFilters(filters);
     return sortContacts(
       filterMockContacts(
         this.fallbackContacts,
         this.search,
-        this.selectedContactGroupIds,
-        this.birthdayAfter,
-        this.emailContains,
+        tableFilters.contactGroupIds,
+        tableFilters.birthdayAfter,
+        tableFilters.emailContains,
       ),
       this.sortRules,
     );
   }
 
   private fetchMockRows(request: DataTableLoadRequest): DataTableLoadResult<ContactViewModel> {
-    const contacts = this.filteredMockContacts;
+    const contacts = this.getFilteredMockContacts(request.filters);
     const start = Number(request.cursor?.[0] ?? 0);
     const end = start + request.limit;
     const rows = contacts.slice(start, end);
@@ -386,12 +398,12 @@ export class ContactsState {
   private getSortRules(sorting: DataTableSort[]): ContactSortRule[] {
     const sortableFields = new Set<ContactSortField>(this.sortFieldOptions);
     const tableSortRules = sorting
-      .filter((sort): sort is DataTableSort & { columnId: ContactSortField } =>
-        sortableFields.has(sort.columnId as ContactSortField),
+      .filter((sort): sort is DataTableSort & { sortId: ContactSortField } =>
+        sortableFields.has(sort.sortId as ContactSortField),
       )
       .map((sort) => ({
-        id: sort.columnId,
-        field: sort.columnId,
+        id: sort.sortId,
+        field: sort.sortId,
         direction: sort.direction === "ascending" ? SortDirection.ASC : SortDirection.DESC,
       }));
 
@@ -462,4 +474,28 @@ function escapeCsvCell(value: string): string {
   }
 
   return `"${value.replaceAll('"', '""')}"`;
+}
+
+function getContactTableFilters(filters: DataTableFilter[]): {
+  birthdayAfter: string;
+  contactGroupIds: string[];
+  emailContains: string;
+} {
+  const contactGroupFilter = filters.find(
+    (filter) => filter.type === "containment" && filter.filterId === "contactGroup" && filter.operator === "IN",
+  );
+  const birthdayFilter = filters.find(
+    (filter) =>
+      filter.type === "comparison" && filter.filterId === "birthdayAfter" && filter.operator === "GREATER_OR_EQUAL",
+  );
+  const emailFilter = filters.find(
+    (filter) => filter.type === "text" && filter.filterId === "emailContains" && filter.operator === "CONTAINS",
+  );
+
+  return {
+    birthdayAfter:
+      birthdayFilter?.type === "comparison" && typeof birthdayFilter.value === "string" ? birthdayFilter.value : "",
+    contactGroupIds: contactGroupFilter?.type === "containment" ? contactGroupFilter.value : [],
+    emailContains: emailFilter?.type === "text" && emailFilter.value ? emailFilter.value : "",
+  };
 }

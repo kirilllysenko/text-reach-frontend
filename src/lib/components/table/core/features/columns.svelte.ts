@@ -1,6 +1,15 @@
 import { getCellValue, normalizeColumns } from "../columns";
 import type { EventService } from "../events";
 import type { DataTableColumnDef } from "../columns";
+import type { DataTableFeature } from "../data-table.svelte";
+
+export interface ColumnsFeatureOptions<TData, TMeta = unknown> {
+  columns: DataTableColumnDef<TData, TMeta>[];
+}
+
+export interface ColumnsFeatureApi<TData, TMeta = unknown> {
+  columns: ColumnsFeature<TData, TMeta>;
+}
 
 export class ColumnsFeature<TData, TMeta = unknown> {
   definitions: DataTableColumnDef<TData, TMeta>[];
@@ -81,4 +90,16 @@ export class ColumnsFeature<TData, TMeta = unknown> {
   toggleVisibility(columnId: string): void {
     this.setVisibility(columnId, this.visibility[columnId] === false);
   }
+}
+
+export function columnsFeature<TData, TMeta = unknown>(
+  options: ColumnsFeatureOptions<TData, TMeta>,
+): DataTableFeature<ColumnsFeatureApi<TData, TMeta>> {
+  return {
+    install(table) {
+      return {
+        columns: new ColumnsFeature(options.columns, table.events),
+      };
+    },
+  };
 }

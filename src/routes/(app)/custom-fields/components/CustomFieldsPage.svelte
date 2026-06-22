@@ -1,11 +1,25 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
-  import { Input, PageTitle, Table, accessorColumn, createDataTable, type DataTableColumnDef } from "$lib";
+  import {
+    Input,
+    PageTitle,
+    Table,
+    accessorColumn,
+    columnsFeature,
+    createDataTable,
+    filtersFeature,
+    infiniteLoaderFeature,
+    sortingFeature,
+    virtualWindowFeature,
+    type DataTable,
+    type DataTableColumnDef,
+  } from "$lib";
   import { CustomFieldsState } from "$lib/features/custom-fields/custom-fields-state.svelte";
   import type { CustomFieldViewModel } from "$lib/features/custom-fields/custom-fields-view-data";
   import CustomFieldOverlays from "./CustomFieldOverlays.svelte";
 
   const customFieldsState = new CustomFieldsState();
+  let tableKey = customFieldsState.tableKey;
 
   const columns = [
     accessorColumn({
@@ -35,21 +49,39 @@
     }),
   ] satisfies DataTableColumnDef<CustomFieldViewModel>[];
 
+  let table = $state<DataTable<CustomFieldViewModel>>(createCustomFieldsTable());
+
+  $effect(() => {
+    if (customFieldsState.tableKey === tableKey) {
+      return;
+    }
+
+    tableKey = customFieldsState.tableKey;
+    table = createCustomFieldsTable();
+  });
+
   onDestroy(() => customFieldsState.dispose());
 
   function createCustomFieldsTable() {
     return createDataTable<CustomFieldViewModel>({
-      columns,
       emptyLabel: "No custom fields found",
       errorLabel: "Could not load custom fields.",
-      filters: [],
       getRowId: (field) => field.id,
-      infinite: {
-        height: "600px",
-        threshold: 15,
-      },
-      loadRows: customFieldsState.fetchRows,
-      pageSize: 50,
+      features: [
+        columnsFeature({ columns }),
+        sortingFeature({
+          sorts: [{ sortId: "position", direction: "ascending" }],
+        }),
+        filtersFeature({ filters: [] }),
+        infiniteLoaderFeature({
+          loadRows: customFieldsState.fetchRows,
+          pageSize: 50,
+        }),
+        virtualWindowFeature({
+          height: "600px",
+          threshold: 15,
+        }),
+      ],
     });
   }
 </script>
@@ -95,7 +127,7 @@
               class="flex h-4 min-w-4 items-center justify-center rounded-full bg-slate-700 px-1 text-[10px]
                 leading-4 text-white"
             >
-              {customFieldsState.activeFilterCount}
+              {table.filters.value.length}
             </span>
           </button>
 
@@ -120,7 +152,7 @@
               class="flex h-4 min-w-4 items-center justify-center rounded-full bg-slate-700 px-1 text-[10px]
                 leading-4 text-white"
             >
-              {customFieldsState.activeSortCount}
+              {table.sorting.sorts.length}
             </span>
           </button>
         </div>
@@ -134,12 +166,11 @@
     </div>
 
     <div class="min-h-0 grow p-3">
-      {#key customFieldsState.tableKey}
-        {@const table = createCustomFieldsTable()}
+      {#key table}
         <Table {table} />
       {/key}
     </div>
   </div>
 </div>
 
-<CustomFieldOverlays state={customFieldsState} />
+<CustomFieldOverlays state={customFieldsState} {table} />

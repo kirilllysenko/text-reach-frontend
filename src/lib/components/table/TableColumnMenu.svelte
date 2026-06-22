@@ -1,5 +1,5 @@
 <script lang="ts" generics="TData, TMeta">
-  import type { DataTable } from "./core/data-table.svelte";
+  import type { DataTable } from "./core/rendered-table";
   import type { DataTableColumnDef } from "./core/columns";
 
   interface Props {
@@ -18,7 +18,7 @@
       aria-label={`Clear ${column.header} sort`}
       onclick={(event) => {
         event.stopPropagation();
-        table.sorting.clearColumn(column.id);
+        table.sorting.remove(column.id);
       }}
     >
       ×

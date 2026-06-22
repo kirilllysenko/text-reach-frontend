@@ -1,26 +1,30 @@
+import type { DataTableComparisonOperator, DataTableContainmentOperator, DataTableTextOperator } from "../table";
+
 export interface FilterPanelOption {
   value: string;
   label: string;
-  checked: boolean;
 }
 
 export interface FilterPanelCheckboxGroup {
   kind: "checkbox-group";
   id: string;
   label: string;
+  filterId: string;
+  operator?: DataTableContainmentOperator;
   options: FilterPanelOption[];
-  onToggle: (value: string) => void;
 }
 
 export interface FilterPanelInput {
   kind: "input";
   id: string;
   label: string;
+  filterId: string;
+  filterType: "comparison" | "text";
+  operator: DataTableComparisonOperator | DataTableTextOperator;
   inputType: "date" | "number" | "search" | "text";
-  value: string;
   min?: string;
   placeholder?: string;
-  onInput: (value: string) => void;
+  valueKind?: "number" | "string";
 }
 
 export interface FilterPanelInputGrid {
@@ -33,10 +37,8 @@ export interface FilterPanelInputGrid {
 export type FilterPanelField = FilterPanelCheckboxGroup | FilterPanelInputGrid;
 
 export interface FilterPanelConfig {
-  activeFilterChips: string[];
   title: string;
   description: string;
   clearLabel?: string;
-  onClear: () => void;
   fields: FilterPanelField[];
 }

@@ -1,42 +1,40 @@
 <script lang="ts">
-  import { FilterPanel, ResponsiveDialog, SortPanel, type FilterPanelConfig } from "$lib";
+  import { FilterPanel, ResponsiveDialog, SortPanel, type DataTable, type FilterPanelConfig } from "$lib";
   import type { ContactsState } from "$lib/features/contacts/contacts-state.svelte";
-  import { contactSortFieldLabelMap } from "$lib/features/contacts/contacts-view-data";
+  import { contactSortFieldLabelMap, type ContactViewModel } from "$lib/features/contacts/contacts-view-data";
 
   interface Props {
     state: ContactsState;
+    table: DataTable<ContactViewModel>;
   }
 
-  let { state }: Props = $props();
+  let { state, table }: Props = $props();
 
   const contactGroupOptions = $derived.by(() => {
     if (state.contactGroups.length > 0) {
       return state.contactGroups.map((group) => ({
         value: group.id,
         label: group.name,
-        checked: state.selectedContactGroupIds.includes(group.id),
       }));
     }
 
     return Object.entries(state.contactGroupNameById).map(([id, name]) => ({
       value: id,
       label: name,
-      checked: state.selectedContactGroupIds.includes(id),
     }));
   });
 
   const filtering = $derived.by<FilterPanelConfig>(() => ({
-    activeFilterChips: state.activeFilterChips,
     title: "Active filters",
     description: "Refine the contact table",
-    onClear: state.clearFilters,
     fields: [
       {
         kind: "checkbox-group",
         id: "groups",
         label: "Groups",
+        filterId: "contactGroup",
+        operator: "IN",
         options: contactGroupOptions,
-        onToggle: state.toggleContactGroupFilter,
       },
       {
         kind: "input-grid",
@@ -47,18 +45,20 @@
             kind: "input",
             id: "birthdayAfter",
             label: "Birthday after",
+            filterId: "birthdayAfter",
+            filterType: "comparison",
+            operator: "GREATER_OR_EQUAL",
             inputType: "date",
-            value: state.birthdayAfter,
-            onInput: state.updateBirthdayAfter,
           },
           {
             kind: "input",
             id: "emailContains",
             label: "Email contains",
+            filterId: "emailContains",
+            filterType: "text",
+            operator: "CONTAINS",
             inputType: "search",
-            value: state.emailContains,
             placeholder: "name@example.com",
-            onInput: state.updateEmailContains,
           },
         ],
       },
@@ -79,7 +79,7 @@
   description="Refine the contact table without taking over the whole page."
   onClose={state.closeOverlays}
 >
-  <FilterPanel {filtering} compact />
+  <FilterPanel filtering={table.filters} config={filtering} compact />
 
   {#snippet mobileFooter()}
     <button
@@ -99,17 +99,7 @@
   description="Adjust the priority stack for the contact table."
   onClose={state.closeOverlays}
 >
-  <SortPanel
-    rules={state.sortRules}
-    fieldOptions={sortFieldOptions}
-    chips={state.sortChips}
-    compact
-    onAddRule={state.addSortRule}
-    onRemoveRule={state.removeSortRule}
-    onFieldChange={state.updateSortRuleField}
-    onDirectionChange={state.updateSortRuleDirection}
-    onReset={state.clearSortRules}
-  />
+  <SortPanel sorting={table.sorting} fieldOptions={sortFieldOptions} compact />
 
   {#snippet mobileFooter()}
     <button

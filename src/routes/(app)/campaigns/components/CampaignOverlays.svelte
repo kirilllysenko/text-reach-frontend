@@ -1,7 +1,7 @@
 <script lang="ts">
   import { FilterPanel, ResponsiveDialog, SortPanel, type FilterPanelConfig } from "$lib";
   import type { CampaignsState } from "$lib/features/campaigns/campaigns-state.svelte";
-  import { sortFieldLabelMap, type CampaignStatus } from "$lib/features/campaigns/campaigns-view-data";
+  import { sortFieldLabelMap } from "$lib/features/campaigns/campaigns-view-data";
 
   interface Props {
     state: CampaignsState;
@@ -10,21 +10,19 @@
   let { state }: Props = $props();
 
   const filtering = $derived.by<FilterPanelConfig>(() => ({
-    activeFilterChips: state.activeFilterChips,
     title: "Active filters",
     description: "Refine the campaign feed",
-    onClear: state.clearFilters,
     fields: [
       {
         kind: "checkbox-group",
         id: "status",
         label: "Status",
+        filterId: "status",
+        operator: "IN",
         options: state.statusOptions.map((status) => ({
           value: status,
           label: state.statusLabel(status),
-          checked: state.statusFilters.includes(status),
         })),
-        onToggle: (status) => state.toggleStatusFilter(status as NonNullable<CampaignStatus>),
       },
       {
         kind: "input-grid",
@@ -35,27 +33,32 @@
             kind: "input",
             id: "createdAfter",
             label: "Created after",
+            filterId: "createdAfter",
+            filterType: "comparison",
+            operator: "GREATER_OR_EQUAL",
             inputType: "date",
-            value: state.createdAfter,
-            onInput: state.updateCreatedAfter,
           },
           {
             kind: "input",
             id: "minSentMessageCount",
             label: "Min sent messages",
+            filterId: "minSentMessageCount",
+            filterType: "comparison",
+            operator: "GREATER_OR_EQUAL",
             inputType: "number",
             min: "0",
-            value: state.minSentMessageCount,
-            onInput: state.updateMinSentMessageCount,
+            valueKind: "number",
           },
           {
             kind: "input",
             id: "minMessageCount",
             label: "Min all messages",
+            filterId: "minMessageCount",
+            filterType: "comparison",
+            operator: "GREATER_OR_EQUAL",
             inputType: "number",
             min: "0",
-            value: state.minMessageCount,
-            onInput: state.updateMinMessageCount,
+            valueKind: "number",
           },
         ],
       },
@@ -76,7 +79,7 @@
   description="Refine the campaign feed without taking over the whole page."
   onClose={state.closeOverlays}
 >
-  <FilterPanel {filtering} compact />
+  <FilterPanel filtering={state.filters} config={filtering} compact />
 
   {#snippet mobileFooter()}
     <button
@@ -97,16 +100,10 @@
   onClose={state.closeOverlays}
 >
   <SortPanel
-    rules={state.sortRules}
+    sorting={state.sorting}
     fieldOptions={sortFieldOptions}
-    chips={state.sortChips}
     compact
-    directionOptions={["DESC", "ASC"]}
-    onAddRule={state.addSortRule}
-    onRemoveRule={state.removeSortRule}
-    onFieldChange={state.updateSortRuleField}
-    onDirectionChange={state.updateSortRuleDirection}
-    onReset={state.clearSortRules}
+    directionOptions={["descending", "ascending"]}
   />
 
   {#snippet mobileFooter()}

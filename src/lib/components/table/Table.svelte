@@ -1,6 +1,6 @@
 <script lang="ts" generics="TData, TMeta">
   import { onDestroy, onMount } from "svelte";
-  import type { DataTable } from "./core/data-table.svelte";
+  import type { DataTable } from "./core/rendered-table";
   import TableBody from "./TableBody.svelte";
   import TableHeader from "./TableHeader.svelte";
   import TableStatus from "./TableStatus.svelte";

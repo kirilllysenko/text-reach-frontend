@@ -1,5 +1,5 @@
 <script lang="ts" generics="TData, TMeta">
-  import type { DataTable } from "./core/data-table.svelte";
+  import type { DataTable } from "./core/rendered-table";
 
   interface Props {
     table: DataTable<TData, TMeta>;

@@ -1,13 +1,107 @@
 <script lang="ts">
   import Input from "../input/Input.svelte";
-  import type { FilterPanelConfig } from "./filter-panel-types";
+  import type { DataTableFilter, FiltersFeature } from "../table";
+  import type {
+    FilterPanelCheckboxGroup,
+    FilterPanelConfig,
+    FilterPanelField,
+    FilterPanelInput,
+  } from "./filter-panel-types";
 
   interface Props {
-    filtering: FilterPanelConfig;
+    filtering: FiltersFeature;
+    config: FilterPanelConfig;
     compact?: boolean;
   }
 
-  let { filtering, compact = false }: Props = $props();
+  let { filtering, config, compact = false }: Props = $props();
+
+  const chips = $derived.by(() => filtering.value.map(formatChip));
+
+  function getCheckboxValues(field: FilterPanelCheckboxGroup): string[] {
+    const filter = filtering.value.find(
+      (current) =>
+        current.type === "containment" &&
+        current.filterId === field.filterId &&
+        current.operator === (field.operator ?? "IN"),
+    );
+
+    return filter?.type === "containment" ? filter.value : [];
+  }
+
+  function getInputValue(input: FilterPanelInput): string {
+    const filter = filtering.value.find(
+      (current) =>
+        current.type === input.filterType && current.filterId === input.filterId && current.operator === input.operator,
+    );
+
+    if (!filter || filter.type === "containment" || typeof filter.value === "undefined" || filter.value === null) {
+      return "";
+    }
+
+    return String(filter.value);
+  }
+
+  function updateCheckbox(field: FilterPanelCheckboxGroup, value: string): void {
+    const currentValues = getCheckboxValues(field);
+    const nextValues = currentValues.includes(value)
+      ? currentValues.filter((currentValue) => currentValue !== value)
+      : [...currentValues, value];
+    const operator = field.operator ?? "IN";
+
+    if (nextValues.length === 0) {
+      filtering.remove(field.filterId);
+      return;
+    }
+
+    filtering.set(field.filterId, {
+      filterId: field.filterId,
+      operator,
+      type: "containment",
+      value: nextValues,
+    });
+  }
+
+  function updateInput(input: FilterPanelInput, value: string): void {
+    const filterKey = { filterId: input.filterId, operator: input.operator, type: input.filterType };
+    const normalizedValue = value.trim();
+
+    if (!normalizedValue) {
+      filtering.remove(input.filterId);
+      return;
+    }
+
+    filtering.set(input.filterId, {
+      ...filterKey,
+      value: input.valueKind === "number" ? Number(normalizedValue) : normalizedValue,
+    } as DataTableFilter);
+  }
+
+  function formatChip(filter: DataTableFilter): string {
+    const field = getFilterFields().find((current) => {
+      const operator = current.kind === "checkbox-group" ? (current.operator ?? "IN") : current.operator;
+      return current.filterId === filter.filterId && operator === filter.operator;
+    });
+    const label = field?.label ?? filter.filterId;
+
+    if (filter.type === "containment") {
+      return `${label}: ${filter.value.join(", ")}`;
+    }
+
+    return `${label}: ${filter.value ?? ""}`;
+  }
+
+  function getFilterFields(): (FilterPanelCheckboxGroup | FilterPanelInput)[] {
+    return config.fields.reduce<(FilterPanelCheckboxGroup | FilterPanelInput)[]>((fields, field: FilterPanelField) => {
+      if (field.kind === "input-grid") {
+        fields.push(...field.inputs);
+        return fields;
+      }
+
+      fields.push(field);
+      return fields;
+    }, []);
+  }
 </script>
 
 <div
@@ -18,22 +112,22 @@
 >
   <div class="flex items-center justify-between gap-3">
     <div>
-      <h3 class="text-sm font-semibold text-slate-700">{filtering.title}</h3>
-      <p class="text-xs text-slate-500">{filtering.description}</p>
+      <h3 class="text-sm font-semibold text-slate-700">{config.title}</h3>
+      <p class="text-xs text-slate-500">{config.description}</p>
     </div>
 
     <button
       class="text-xs font-medium text-sky-700 hover:cursor-pointer hover:underline"
       type="button"
-      onclick={filtering.onClear}
+      onclick={() => filtering.clear()}
     >
-      {filtering.clearLabel ?? "Clear filters"}
+      {config.clearLabel ?? "Clear filters"}
     </button>
   </div>
 
-  {#if filtering.activeFilterChips.length > 0}
+  {#if chips.length > 0}
     <div class="flex flex-wrap gap-2">
-      {#each filtering.activeFilterChips as chip (chip)}
+      {#each chips as chip (chip)}
         <span class="rounded-full border border-white/80 bg-white/90 px-2.5 py-1 text-xs text-slate-700">
           {chip}
         </span>
@@ -41,8 +135,9 @@
     </div>
   {/if}
 
-  {#each filtering.fields as field (field.id)}
+  {#each config.fields as field (field.id)}
     {#if field.kind === "checkbox-group"}
+      {@const values = getCheckboxValues(field)}
       <div class="space-y-2">
         <p class="text-xs font-medium tracking-[0.02em] text-slate-500 uppercase">{field.label}</p>
         <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -51,7 +146,11 @@
               class="flex items-center gap-2 rounded-xl border border-white/80 bg-white/75 px-3 py-2 text-sm
                 text-slate-700"
             >
-              <input type="checkbox" checked={option.checked} onchange={() => field.onToggle(option.value)} />
+              <input
+                type="checkbox"
+                checked={values.includes(option.value)}
+                onchange={() => updateCheckbox(field, option.value)}
+              />
               <span class="min-w-0 truncate">{option.label}</span>
             </label>
           {/each}
@@ -72,9 +171,9 @@
             <Input
               type={input.inputType}
               min={input.min}
-              value={input.value}
+              value={getInputValue(input)}
               placeholder={input.placeholder}
-              oninput={(event) => input.onInput(event.currentTarget.value)}
+              oninput={(event) => updateInput(input, event.currentTarget.value)}
             />
           </label>
         {/each}

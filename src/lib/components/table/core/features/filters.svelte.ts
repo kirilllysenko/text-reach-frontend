@@ -1,4 +1,5 @@
 import type { EventService } from "../events";
+import type { DataTableFeature } from "../data-table.svelte";
 
 export type DataTableTextOperator = "CONTAINS" | "NOT_CONTAINS" | "STARTS_WITH" | "ENDS_WITH" | "EQUAL" | "NOT_EQUAL";
 
@@ -13,7 +14,7 @@ export type DataTableComparisonOperator =
 export type DataTableContainmentOperator = "IN" | "NOT_IN";
 
 export interface DataTableBaseFilter {
-  columnId: string;
+  filterId: string;
 }
 
 export interface DataTableTextFilter extends DataTableBaseFilter {
@@ -41,6 +42,14 @@ export interface DataTableFilterConfig {
   operator?: DataTableTextOperator | DataTableComparisonOperator | DataTableContainmentOperator;
 }
 
+export interface FiltersFeatureOptions {
+  filters?: DataTableFilter[];
+}
+
+export interface FiltersFeatureApi {
+  filters: FiltersFeature;
+}
+
 export class FiltersFeature {
   initial: DataTableFilter[];
   value = $state<DataTableFilter[]>([]);
@@ -54,23 +63,33 @@ export class FiltersFeature {
   }
 
   clear(): void {
-    this.set([]);
+    this.replaceAll([]);
   }
 
-  remove(columnId: string): void {
-    this.set(this.value.filter((filter) => filter.columnId !== columnId));
+  remove(filterId: string): void {
+    this.replaceAll(this.value.filter((filter) => filter.filterId !== filterId));
   }
 
   reset(): void {
-    this.set(structuredClone(this.initial));
+    this.replaceAll(structuredClone(this.initial));
   }
 
-  set(filters: DataTableFilter[]): void {
+  replaceAll(filters: DataTableFilter[]): void {
     this.value = filters;
     this.events.emit("filterChange", filters);
   }
 
-  upsert(filter: DataTableFilter): void {
-    this.set([...this.value.filter((current) => current.columnId !== filter.columnId), filter]);
+  set(filterId: string, filter: DataTableFilter): void {
+    this.replaceAll([...this.value.filter((current) => current.filterId !== filterId), { ...filter, filterId }]);
   }
+}
+
+export function filtersFeature(options: FiltersFeatureOptions = {}): DataTableFeature<FiltersFeatureApi> {
+  return {
+    install(table) {
+      return {
+        filters: new FiltersFeature(options.filters, table.events),
+      };
+    },
+  };
 }

@@ -7,6 +7,13 @@ import {
 import { fetchContactGroups } from "$lib/api/contact-group/contact-group";
 import { listCampaigns } from "$lib/api/campaign/campaign";
 import {
+  DataTableCore,
+  FiltersFeature,
+  SortingFeature,
+  type DataTableFilter,
+  type DataTableSort,
+} from "$lib/components/table";
+import {
   campaignSortFieldOptions,
   campaignStatusOptions,
   sortFieldLabelMap,
@@ -55,8 +62,11 @@ export class CampaignsState {
   sortOpen = $state(false);
 
   mobileView = $state<MobileView>("list");
+  readonly filters: FiltersFeature;
+  readonly sorting: SortingFeature;
 
   hasNextPage = $state(true);
+  private readonly tableFeatureHost = new DataTableCore<CampaignViewModel>({});
   private nextCursor = $state<unknown[] | null>(null);
   private requestVersion = 0;
   private searchTimer: ReturnType<typeof setTimeout> | null = null;
@@ -112,6 +122,25 @@ export class CampaignsState {
   });
 
   constructor() {
+    this.filters = new FiltersFeature([], this.tableFeatureHost.events);
+    this.sorting = new SortingFeature(this.tableFeatureHost.events, [
+      {
+        direction: "descending",
+        sortId: "createdAt",
+      },
+    ]);
+    this.tableFeatureHost.addDisposer(
+      this.tableFeatureHost.events.on("filterChange", (filters) => {
+        this.applyFeatureFilters(filters);
+        void this.resetAndLoadCampaigns();
+      }),
+    );
+    this.tableFeatureHost.addDisposer(
+      this.tableFeatureHost.events.on("sortChange", (sorts) => {
+        this.applyFeatureSorts(sorts);
+        void this.resetAndLoadCampaigns();
+      }),
+    );
     void this.load();
   }
 
@@ -256,6 +285,8 @@ export class CampaignsState {
   statusLabel = (status: NonNullable<CampaignStatus>): string => statusLabelMap[status];
 
   dispose = (): void => {
+    this.tableFeatureHost.dispose();
+
     if (!this.searchTimer) {
       return;
     }
@@ -272,6 +303,59 @@ export class CampaignsState {
     this.searchTimer = setTimeout(() => {
       void this.resetAndLoadCampaigns();
     }, SEARCH_DEBOUNCE_MS);
+  }
+
+  private applyFeatureFilters(filters: DataTableFilter[]): void {
+    const statusFilter = filters.find(
+      (filter) => filter.type === "containment" && filter.filterId === "status" && filter.operator === "IN",
+    );
+    const createdAfterFilter = filters.find(
+      (filter) =>
+        filter.type === "comparison" && filter.filterId === "createdAfter" && filter.operator === "GREATER_OR_EQUAL",
+    );
+    const minSentFilter = filters.find(
+      (filter) =>
+        filter.type === "comparison" &&
+        filter.filterId === "minSentMessageCount" &&
+        filter.operator === "GREATER_OR_EQUAL",
+    );
+    const minAllFilter = filters.find(
+      (filter) =>
+        filter.type === "comparison" && filter.filterId === "minMessageCount" && filter.operator === "GREATER_OR_EQUAL",
+    );
+
+    this.statusFilters =
+      statusFilter?.type === "containment" ? (statusFilter.value as NonNullable<CampaignStatus>[]) : [];
+    this.createdAfter =
+      createdAfterFilter?.type === "comparison" && typeof createdAfterFilter.value === "string"
+        ? createdAfterFilter.value
+        : "";
+    this.minSentMessageCount =
+      minSentFilter?.type === "comparison" && typeof minSentFilter.value !== "undefined"
+        ? String(minSentFilter.value)
+        : "";
+    this.minMessageCount =
+      minAllFilter?.type === "comparison" && typeof minAllFilter.value !== "undefined"
+        ? String(minAllFilter.value)
+        : "";
+  }
+
+  private applyFeatureSorts(sorts: DataTableSort[]): void {
+    const sortableFields = new Set<CampaignSortField>(this.sortFieldOptions);
+    const sortRules = sorts
+      .filter((sort): sort is DataTableSort & { sortId: CampaignSortField } =>
+        sortableFields.has(sort.sortId as CampaignSortField),
+      )
+      .map((sort) => ({
+        id: sort.sortId,
+        field: sort.sortId,
+        direction: sort.direction === "ascending" ? SortDirection.ASC : SortDirection.DESC,
+      }));
+
+    this.sortRules =
+      sortRules.length > 0
+        ? sortRules
+        : [{ id: crypto.randomUUID(), field: "createdAt", direction: SortDirection.DESC }];
   }
 
   private async resetAndLoadCampaigns(): Promise<void> {

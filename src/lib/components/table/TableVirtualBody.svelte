@@ -1,6 +1,6 @@
 <script lang="ts" generics="TData, TMeta">
   import { VirtualList } from "svelte-virtuallists";
-  import type { DataTable } from "./core/data-table.svelte";
+  import type { DataTable } from "./core/rendered-table";
   import TableRow from "./TableRow.svelte";
 
   interface Props {
@@ -13,7 +13,7 @@
 <div class="h-full overflow-x-auto">
   <VirtualList
     items={table.visibleRows}
-    style={`height:${table.options.infinite?.height ?? "100%"}`}
+    style={`height:${table.virtual.height}`}
     onVisibleRangeUpdate={(range) => table.virtual.updateRange(range)}
   >
     {#snippet vl_slot({ index, item })}

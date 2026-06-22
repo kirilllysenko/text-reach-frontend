@@ -1,10 +1,9 @@
-import type { RowsFeature } from "./rows.svelte";
-import type { SortingFeature } from "./sorting.svelte";
-import type { FiltersFeature } from "./filters.svelte";
 import type { EventService } from "../events";
 import type { DataTableFilter } from "./filters.svelte";
 import type { DataTableCursor } from "./rows.svelte";
 import type { DataTableSort } from "./sorting.svelte";
+import type { DataTableCore, DataTableFeature } from "../data-table.svelte";
+import type { RowsFeature } from "./rows.svelte";
 
 export interface DataTableLoadRequest {
   cursor: DataTableCursor;
@@ -20,27 +19,44 @@ export interface DataTableLoadResult<TData> {
   totalRows?: number;
 }
 
-interface InfiniteLoaderTableOptions<TData> {
-  errorLabel?: string;
+export interface InfiniteLoaderFeatureOptions<TData> {
   loadRows: (request: DataTableLoadRequest) => Promise<DataTableLoadResult<TData>>;
   pageSize: number;
 }
 
-interface InfiniteLoaderOptions<TData, TMeta> {
-  events: EventService;
-  filters: FiltersFeature;
-  options: InfiniteLoaderTableOptions<TData>;
-  rows: RowsFeature<TData>;
-  sorting: SortingFeature;
+export interface InfiniteLoaderFeatureApi<TData> {
+  loader: InfiniteLoader<TData>;
+  loadInitial: () => Promise<void>;
+  loadMore: () => Promise<void>;
+  reload: () => Promise<void>;
 }
 
-export class InfiniteLoader<TData, TMeta = unknown> {
+interface InfiniteLoaderOptions<TData> {
+  errorLabel?: string;
+  events: EventService;
+  getFilters: () => DataTableFilter[];
+  getSorting: () => DataTableSort[];
+  loadRows: (request: DataTableLoadRequest) => Promise<DataTableLoadResult<TData>>;
+  pageSize: number;
+  rows: RowsFeature<TData>;
+}
+
+interface LoaderFeatureDependencies {
+  filters?: {
+    value: DataTableFilter[];
+  };
+  sorting?: {
+    sorts: DataTableSort[];
+  };
+}
+
+export class InfiniteLoader<TData> {
   error = $state<string | null>(null);
   loadingInitial = $state(false);
   loadingMore = $state(false);
   private activeAbortController: AbortController | null = null;
 
-  constructor(private readonly config: InfiniteLoaderOptions<TData, TMeta>) {}
+  constructor(private readonly options: InfiniteLoaderOptions<TData>) {}
 
   abort(): void {
     this.activeAbortController?.abort();
@@ -57,30 +73,29 @@ export class InfiniteLoader<TData, TMeta = unknown> {
     }
 
     this.abort();
-    this.config.rows.reset();
+    this.options.rows.reset();
     this.error = null;
     this.loadingInitial = true;
-    this.config.events.emit("loadInitialStart", undefined);
+    this.options.events.emit("loadInitialStart", undefined);
 
     const abortController = new AbortController();
     this.activeAbortController = abortController;
 
     try {
-      const result = await this.config.options.loadRows({
+      const result = await this.options.loadRows({
         cursor: null,
-        filters: this.config.filters.value,
-        limit: this.config.options.pageSize,
+        filters: this.options.getFilters(),
+        limit: this.options.pageSize,
         signal: abortController.signal,
-        sorting: this.config.sorting.sorts,
+        sorting: this.options.getSorting(),
       });
 
-      this.config.rows.set(result.rows, result.nextCursor, result.totalRows);
-      this.config.events.emit("loadInitialSuccess", undefined);
+      this.options.rows.set(result.rows, result.nextCursor, result.totalRows);
+      this.options.events.emit("loadInitialSuccess", undefined);
     } catch (error) {
       if (!abortController.signal.aborted) {
-        this.error =
-          error instanceof Error ? error.message : (this.config.options.errorLabel ?? "Could not load rows.");
-        this.config.events.emit("loadError", { error: this.error });
+        this.error = error instanceof Error ? error.message : (this.options.errorLabel ?? "Could not load rows.");
+        this.options.events.emit("loadError", { error: this.error });
       }
     } finally {
       if (this.activeAbortController === abortController) {
@@ -92,32 +107,31 @@ export class InfiniteLoader<TData, TMeta = unknown> {
   }
 
   async loadMore(): Promise<void> {
-    if (this.loadingInitial || this.loadingMore || !this.config.rows.hasMore) {
+    if (this.loadingInitial || this.loadingMore || !this.options.rows.hasMore) {
       return;
     }
 
     this.error = null;
     this.loadingMore = true;
-    this.config.events.emit("loadMoreStart", undefined);
+    this.options.events.emit("loadMoreStart", undefined);
     const abortController = new AbortController();
     this.activeAbortController = abortController;
 
     try {
-      const result = await this.config.options.loadRows({
-        cursor: this.config.rows.nextCursor,
-        filters: this.config.filters.value,
-        limit: this.config.options.pageSize,
+      const result = await this.options.loadRows({
+        cursor: this.options.rows.nextCursor,
+        filters: this.options.getFilters(),
+        limit: this.options.pageSize,
         signal: abortController.signal,
-        sorting: this.config.sorting.sorts,
+        sorting: this.options.getSorting(),
       });
 
-      this.config.rows.append(result.rows, result.nextCursor, result.totalRows);
-      this.config.events.emit("loadMoreSuccess", undefined);
+      this.options.rows.append(result.rows, result.nextCursor, result.totalRows);
+      this.options.events.emit("loadMoreSuccess", undefined);
     } catch (error) {
       if (!abortController.signal.aborted) {
-        this.error =
-          error instanceof Error ? error.message : (this.config.options.errorLabel ?? "Could not load rows.");
-        this.config.events.emit("loadError", { error: this.error });
+        this.error = error instanceof Error ? error.message : (this.options.errorLabel ?? "Could not load rows.");
+        this.options.events.emit("loadError", { error: this.error });
       }
     } finally {
       if (this.activeAbortController === abortController) {
@@ -131,4 +145,35 @@ export class InfiniteLoader<TData, TMeta = unknown> {
   async reload(): Promise<void> {
     await this.loadInitial();
   }
+}
+
+export function infiniteLoaderFeature<TData>(
+  options: InfiniteLoaderFeatureOptions<TData>,
+): DataTableFeature<InfiniteLoaderFeatureApi<TData>> {
+  return {
+    install(table) {
+      const typedTable = table as unknown as DataTableCore<TData> & LoaderFeatureDependencies;
+      const loader = new InfiniteLoader<TData>({
+        errorLabel: typedTable.options.errorLabel,
+        events: typedTable.events,
+        getFilters: () => typedTable.filters?.value ?? [],
+        getSorting: () => typedTable.sorting?.sorts ?? [],
+        loadRows: options.loadRows,
+        pageSize: options.pageSize,
+        rows: typedTable.rows,
+      });
+
+      typedTable.addDisposer(typedTable.events.on("filterChange", () => void loader.reload()));
+      typedTable.addDisposer(typedTable.events.on("nearEnd", () => void loader.loadMore()));
+      typedTable.addDisposer(typedTable.events.on("sortChange", () => void loader.reload()));
+      typedTable.addDisposer(() => loader.dispose());
+
+      return {
+        loader,
+        loadInitial: () => loader.loadInitial(),
+        loadMore: () => loader.loadMore(),
+        reload: () => loader.reload(),
+      };
+    },
+  };
 }

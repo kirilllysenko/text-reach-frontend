@@ -1,5 +1,5 @@
 <script lang="ts" generics="TData, TMeta">
-  import type { DataTable } from "./core/data-table.svelte";
+  import type { DataTable } from "./core/rendered-table";
   import TableColumnMenu from "./TableColumnMenu.svelte";
 
   interface Props {
@@ -8,18 +8,18 @@
 
   let { table }: Props = $props();
 
-  function toggleSort(event: MouseEvent, columnId: string, sortable?: boolean): void {
+  function toggleSort(event: MouseEvent, sortId: string, sortable?: boolean): void {
     if (!sortable) {
       return;
     }
 
-    table.sorting.toggle(columnId, event.ctrlKey || event.metaKey);
+    table.sorting.toggle(sortId, event.ctrlKey || event.metaKey);
   }
 </script>
 
 <div class="shrink-0 overflow-x-auto border-b border-slate-200 bg-slate-50">
   <div class="flex min-w-max">
-    {#each table.visibleColumns as column (column.id)}
+    {#each table.columns.visible as column (column.id)}
       <div
         class={[
           `flex min-h-11 items-center gap-2 border-r border-slate-200 px-3 text-left text-xs font-semibold

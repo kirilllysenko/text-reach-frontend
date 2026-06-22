@@ -1,37 +1,37 @@
 <script lang="ts">
-  import { FilterPanel, ResponsiveDialog, SortPanel, type FilterPanelConfig } from "$lib";
+  import { FilterPanel, ResponsiveDialog, SortPanel, type DataTable, type FilterPanelConfig } from "$lib";
   import type { CustomFieldsState } from "$lib/features/custom-fields/custom-fields-state.svelte";
   import {
     customFieldSortFieldLabelMap,
     customFieldTypeLabelMap,
+    type CustomFieldViewModel,
   } from "$lib/features/custom-fields/custom-fields-view-data";
 
   interface Props {
     state: CustomFieldsState;
+    table: DataTable<CustomFieldViewModel>;
   }
 
-  let { state }: Props = $props();
+  let { state, table }: Props = $props();
 
   const typeOptions = $derived(
     state.typeOptions.map((type) => ({
       value: type,
       label: customFieldTypeLabelMap[type],
-      checked: state.typeFilters.includes(type),
     })),
   );
 
   const filtering = $derived.by<FilterPanelConfig>(() => ({
-    activeFilterChips: state.activeFilterChips,
     title: "Active filters",
     description: "Refine the custom fields table",
-    onClear: state.clearFilters,
     fields: [
       {
         kind: "checkbox-group",
         id: "types",
         label: "Types",
+        filterId: "type",
+        operator: "IN",
         options: typeOptions,
-        onToggle: (value) => state.toggleTypeFilter(value as (typeof state.typeOptions)[number]),
       },
     ],
   }));
@@ -50,7 +50,7 @@
   description="Refine the custom fields table without taking over the whole page."
   onClose={state.closeOverlays}
 >
-  <FilterPanel {filtering} compact />
+  <FilterPanel filtering={table.filters} config={filtering} compact />
 
   {#snippet mobileFooter()}
     <button
@@ -70,17 +70,7 @@
   description="Adjust the priority stack for the custom fields table."
   onClose={state.closeOverlays}
 >
-  <SortPanel
-    rules={state.sortRules}
-    fieldOptions={sortFieldOptions}
-    chips={state.sortChips}
-    compact
-    onAddRule={state.addSortRule}
-    onRemoveRule={state.removeSortRule}
-    onFieldChange={state.updateSortRuleField}
-    onDirectionChange={state.updateSortRuleDirection}
-    onReset={state.clearSortRules}
-  />
+  <SortPanel sorting={table.sorting} fieldOptions={sortFieldOptions} compact />
 
   {#snippet mobileFooter()}
     <button

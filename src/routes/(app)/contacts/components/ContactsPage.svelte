@@ -6,8 +6,14 @@
     PageTitle,
     Table,
     accessorColumn,
+    columnsFeature,
     createDataTable,
     displayColumn,
+    filtersFeature,
+    infiniteLoaderFeature,
+    sortingFeature,
+    virtualWindowFeature,
+    type DataTable,
     type DataTableColumnDef,
   } from "$lib";
   import ContactOverlays from "./ContactOverlays.svelte";
@@ -17,6 +23,7 @@
   const contactsState = new ContactsState();
 
   let fileInput = $state<HTMLInputElement | null>(null);
+  let tableKey = contactsState.tableKey;
 
   const columns = [
     accessorColumn({
@@ -58,6 +65,17 @@
     }),
   ] satisfies DataTableColumnDef<ContactViewModel>[];
 
+  let table = $state<DataTable<ContactViewModel>>(createContactsTable());
+
+  $effect(() => {
+    if (contactsState.tableKey === tableKey) {
+      return;
+    }
+
+    tableKey = contactsState.tableKey;
+    table = createContactsTable();
+  });
+
   onDestroy(() => contactsState.dispose());
 
   function openImportPicker(): void {
@@ -78,17 +96,27 @@
 
   function createContactsTable() {
     return createDataTable<ContactViewModel>({
-      columns,
       emptyLabel: "No contacts found",
       errorLabel: "Could not load contacts.",
-      filters: [],
       getRowId: (contact) => contact.id,
-      infinite: {
-        height: "600px",
-        threshold: 15,
-      },
-      loadRows: contactsState.fetchRows,
-      pageSize: 50,
+      features: [
+        columnsFeature({ columns }),
+        sortingFeature({
+          sorts: [
+            { sortId: "lastName", direction: "ascending" },
+            { sortId: "firstName", direction: "ascending" },
+          ],
+        }),
+        filtersFeature({ filters: [] }),
+        infiniteLoaderFeature({
+          loadRows: contactsState.fetchRows,
+          pageSize: 50,
+        }),
+        virtualWindowFeature({
+          height: "600px",
+          threshold: 15,
+        }),
+      ],
     });
   }
 </script>
@@ -154,7 +182,7 @@
               class="flex h-4 min-w-4 items-center justify-center rounded-full bg-slate-700 px-1 text-[10px]
                 leading-4 text-white"
             >
-              {contactsState.activeFilterCount}
+              {table.filters.value.length}
             </span>
           </button>
 
@@ -179,7 +207,7 @@
               class="flex h-4 min-w-4 items-center justify-center rounded-full bg-slate-700 px-1 text-[10px]
                 leading-4 text-white"
             >
-              {contactsState.activeSortCount}
+              {table.sorting.sorts.length}
             </span>
           </button>
         </div>
@@ -200,12 +228,11 @@
     </div>
 
     <div class="min-h-0 grow p-3">
-      {#key contactsState.tableKey}
-        {@const table = createContactsTable()}
+      {#key table}
         <Table {table} />
       {/key}
     </div>
   </div>
 </div>
 
-<ContactOverlays state={contactsState} />
+<ContactOverlays state={contactsState} {table} />

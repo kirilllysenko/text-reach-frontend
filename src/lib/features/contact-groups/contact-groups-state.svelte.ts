@@ -1,6 +1,6 @@
 import { SortDirection, type ErrorResponse } from "$lib/api/index.schemas";
 import { fetchContactGroups } from "$lib/api/contact-group/contact-group";
-import type { DataTableLoadRequest, DataTableLoadResult, DataTableSort } from "$lib/components/table";
+import type { DataTableFilter, DataTableLoadRequest, DataTableLoadResult, DataTableSort } from "$lib/components/table";
 import {
   contactGroupSortFieldLabelMap,
   contactGroupSortFieldOptions,
@@ -145,13 +145,14 @@ export class ContactGroupsState {
   };
 
   fetchRows = async (request: DataTableLoadRequest): Promise<DataTableLoadResult<ContactGroupViewModel>> => {
+    const filters = getContactGroupTableFilters(request.filters);
     const pageRequest = buildContactGroupRequest({
       pageSize: request.limit,
       cursor: request.cursor,
       direction: "next",
       search: this.search,
-      minContactCount: this.minContactCount,
-      maxContactCount: this.maxContactCount,
+      minContactCount: filters.minContactCount,
+      maxContactCount: filters.maxContactCount,
       sortRules: this.getSortRules(request.sorting),
     });
 
@@ -211,14 +212,24 @@ export class ContactGroupsState {
   }
 
   private get filteredMockGroups(): ContactGroupViewModel[] {
+    return this.getFilteredMockGroups([]);
+  }
+
+  private getFilteredMockGroups(filters: DataTableFilter[]): ContactGroupViewModel[] {
+    const tableFilters = getContactGroupTableFilters(filters);
     return sortContactGroups(
-      filterMockContactGroups(this.fallbackGroups, this.search, this.minContactCount, this.maxContactCount),
+      filterMockContactGroups(
+        this.fallbackGroups,
+        this.search,
+        tableFilters.minContactCount,
+        tableFilters.maxContactCount,
+      ),
       this.sortRules,
     );
   }
 
   private fetchMockRows(request: DataTableLoadRequest): DataTableLoadResult<ContactGroupViewModel> {
-    const groups = this.filteredMockGroups;
+    const groups = this.getFilteredMockGroups(request.filters);
     const start = Number(request.cursor?.[0] ?? 0);
     const end = start + request.limit;
     const rows = groups.slice(start, end);
@@ -253,12 +264,12 @@ export class ContactGroupsState {
   private getSortRules(sorting: DataTableSort[]): ContactGroupSortRule[] {
     const sortableFields = new Set<ContactGroupSortField>(this.sortFieldOptions);
     const tableSortRules = sorting
-      .filter((sort): sort is DataTableSort & { columnId: ContactGroupSortField } =>
-        sortableFields.has(sort.columnId as ContactGroupSortField),
+      .filter((sort): sort is DataTableSort & { sortId: ContactGroupSortField } =>
+        sortableFields.has(sort.sortId as ContactGroupSortField),
       )
       .map((sort) => ({
-        id: sort.columnId,
-        field: sort.columnId,
+        id: sort.sortId,
+        field: sort.sortId,
         direction: sort.direction === "ascending" ? SortDirection.ASC : SortDirection.DESC,
       }));
 
@@ -270,4 +281,25 @@ export class ContactGroupsState {
       error?.errorDescription ??
       "Could not load groups from API. The page is showing local preview data until the backend responds.";
   }
+}
+
+function getContactGroupTableFilters(filters: DataTableFilter[]): {
+  maxContactCount: string;
+  minContactCount: string;
+} {
+  const minFilter = filters.find(
+    (filter) =>
+      filter.type === "comparison" && filter.filterId === "minContactCount" && filter.operator === "GREATER_OR_EQUAL",
+  );
+  const maxFilter = filters.find(
+    (filter) =>
+      filter.type === "comparison" && filter.filterId === "maxContactCount" && filter.operator === "LESS_OR_EQUAL",
+  );
+
+  return {
+    maxContactCount:
+      maxFilter?.type === "comparison" && typeof maxFilter.value !== "undefined" ? String(maxFilter.value) : "",
+    minContactCount:
+      minFilter?.type === "comparison" && typeof minFilter.value !== "undefined" ? String(minFilter.value) : "",
+  };
 }

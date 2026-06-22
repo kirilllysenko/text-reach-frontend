@@ -1,19 +1,21 @@
 <script lang="ts">
-  import { FilterPanel, ResponsiveDialog, SortPanel, type FilterPanelConfig } from "$lib";
+  import { FilterPanel, ResponsiveDialog, SortPanel, type DataTable, type FilterPanelConfig } from "$lib";
   import type { ContactGroupsState } from "$lib/features/contact-groups/contact-groups-state.svelte";
-  import { contactGroupSortFieldLabelMap } from "$lib/features/contact-groups/contact-groups-view-data";
+  import {
+    contactGroupSortFieldLabelMap,
+    type ContactGroupViewModel,
+  } from "$lib/features/contact-groups/contact-groups-view-data";
 
   interface Props {
     state: ContactGroupsState;
+    table: DataTable<ContactGroupViewModel>;
   }
 
-  let { state }: Props = $props();
+  let { state, table }: Props = $props();
 
   const filtering = $derived.by<FilterPanelConfig>(() => ({
-    activeFilterChips: state.activeFilterChips,
     title: "Active filters",
     description: "Refine the groups table",
-    onClear: state.clearFilters,
     fields: [
       {
         kind: "input-grid",
@@ -24,21 +26,25 @@
             kind: "input",
             id: "minContactCount",
             label: "Min contacts",
+            filterId: "minContactCount",
+            filterType: "comparison",
+            operator: "GREATER_OR_EQUAL",
             inputType: "number",
             min: "0",
-            value: state.minContactCount,
             placeholder: "0",
-            onInput: state.updateMinContactCount,
+            valueKind: "number",
           },
           {
             kind: "input",
             id: "maxContactCount",
             label: "Max contacts",
+            filterId: "maxContactCount",
+            filterType: "comparison",
+            operator: "LESS_OR_EQUAL",
             inputType: "number",
             min: "0",
-            value: state.maxContactCount,
             placeholder: "1000",
-            onInput: state.updateMaxContactCount,
+            valueKind: "number",
           },
         ],
       },
@@ -59,7 +65,7 @@
   description="Refine the groups table without taking over the whole page."
   onClose={state.closeOverlays}
 >
-  <FilterPanel {filtering} compact />
+  <FilterPanel filtering={table.filters} config={filtering} compact />
 
   {#snippet mobileFooter()}
     <button
@@ -79,17 +85,7 @@
   description="Adjust the priority stack for the groups table."
   onClose={state.closeOverlays}
 >
-  <SortPanel
-    rules={state.sortRules}
-    fieldOptions={sortFieldOptions}
-    chips={state.sortChips}
-    compact
-    onAddRule={state.addSortRule}
-    onRemoveRule={state.removeSortRule}
-    onFieldChange={state.updateSortRuleField}
-    onDirectionChange={state.updateSortRuleDirection}
-    onReset={state.clearSortRules}
-  />
+  <SortPanel sorting={table.sorting} fieldOptions={sortFieldOptions} compact />
 
   {#snippet mobileFooter()}
     <button

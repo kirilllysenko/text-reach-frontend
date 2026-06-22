@@ -1,5 +1,5 @@
 <script lang="ts" generics="TData, TMeta">
-  import type { DataTable } from "./core/data-table.svelte";
+  import type { DataTable } from "./core/rendered-table";
   import TableCell from "./TableCell.svelte";
 
   interface Props {
@@ -12,7 +12,7 @@
 </script>
 
 <div class={["flex min-w-max border-b border-slate-100", rowIndex % 2 === 0 ? "bg-white" : "bg-slate-50/60"]}>
-  {#each table.visibleColumns as column (column.id)}
+  {#each table.columns.visible as column (column.id)}
     <TableCell {column} {row} {table} />
   {/each}
 </div>

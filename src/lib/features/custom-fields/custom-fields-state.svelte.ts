@@ -1,6 +1,6 @@
 import { SortDirection, type CustomFieldType, type ErrorResponse } from "$lib/api/index.schemas";
 import { listCustomFields } from "$lib/api/custom-field/custom-field";
-import type { DataTableLoadRequest, DataTableLoadResult, DataTableSort } from "$lib/components/table";
+import type { DataTableFilter, DataTableLoadRequest, DataTableLoadResult, DataTableSort } from "$lib/components/table";
 import {
   customFieldSortFieldLabelMap,
   customFieldSortFieldOptions,
@@ -143,7 +143,7 @@ export class CustomFieldsState {
       await this.load();
     }
 
-    const fields = this.getFilteredFields(request.sorting);
+    const fields = this.getFilteredFields(request.sorting, request.filters);
     const start = Number(request.cursor?.[0] ?? 0);
     const end = start + request.limit;
     const rows = fields.slice(start, end);
@@ -181,23 +181,25 @@ export class CustomFieldsState {
   }
 
   private get filteredFields(): CustomFieldViewModel[] {
-    return sortCustomFields(filterCustomFields(this.fields, this.search, this.typeFilters), this.sortRules);
+    return this.getFilteredFields([], []);
   }
 
-  private getFilteredFields(sorting: DataTableSort[]): CustomFieldViewModel[] {
+  private getFilteredFields(sorting: DataTableSort[], filters: DataTableFilter[]): CustomFieldViewModel[] {
     const sortableFields = new Set<CustomFieldSortField>(this.sortFieldOptions);
     const tableSortRules = sorting
-      .filter((sort): sort is DataTableSort & { columnId: CustomFieldSortField } =>
-        sortableFields.has(sort.columnId as CustomFieldSortField),
+      .filter((sort): sort is DataTableSort & { sortId: CustomFieldSortField } =>
+        sortableFields.has(sort.sortId as CustomFieldSortField),
       )
       .map((sort) => ({
-        id: sort.columnId,
-        field: sort.columnId,
+        id: sort.sortId,
+        field: sort.sortId,
         direction: sort.direction === "ascending" ? SortDirection.ASC : SortDirection.DESC,
       }));
 
+    const typeFilters = getCustomFieldTypeFilters(filters);
+
     return sortCustomFields(
-      filterCustomFields(this.fields, this.search, this.typeFilters),
+      filterCustomFields(this.fields, this.search, typeFilters),
       tableSortRules.length > 0 ? tableSortRules : this.sortRules,
     );
   }
@@ -226,4 +228,12 @@ export class CustomFieldsState {
     this.fields = createMockCustomFields();
     this.loaded = true;
   }
+}
+
+function getCustomFieldTypeFilters(filters: DataTableFilter[]): CustomFieldType[] {
+  const typeFilter = filters.find(
+    (filter) => filter.type === "containment" && filter.filterId === "type" && filter.operator === "IN",
+  );
+
+  return typeFilter?.type === "containment" ? (typeFilter.value as CustomFieldType[]) : [];
 }

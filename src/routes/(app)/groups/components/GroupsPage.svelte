@@ -1,11 +1,25 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
-  import { Input, PageTitle, Table, accessorColumn, createDataTable, type DataTableColumnDef } from "$lib";
+  import {
+    Input,
+    PageTitle,
+    Table,
+    accessorColumn,
+    columnsFeature,
+    createDataTable,
+    filtersFeature,
+    infiniteLoaderFeature,
+    sortingFeature,
+    virtualWindowFeature,
+    type DataTable,
+    type DataTableColumnDef,
+  } from "$lib";
   import { ContactGroupsState } from "$lib/features/contact-groups/contact-groups-state.svelte";
   import type { ContactGroupViewModel } from "$lib/features/contact-groups/contact-groups-view-data";
   import GroupOverlays from "./GroupOverlays.svelte";
 
   const groupsState = new ContactGroupsState();
+  let tableKey = groupsState.tableKey;
 
   const columns = [
     accessorColumn({
@@ -28,21 +42,39 @@
     }),
   ] satisfies DataTableColumnDef<ContactGroupViewModel>[];
 
+  let table = $state<DataTable<ContactGroupViewModel>>(createGroupsTable());
+
+  $effect(() => {
+    if (groupsState.tableKey === tableKey) {
+      return;
+    }
+
+    tableKey = groupsState.tableKey;
+    table = createGroupsTable();
+  });
+
   onDestroy(() => groupsState.dispose());
 
   function createGroupsTable() {
     return createDataTable<ContactGroupViewModel>({
-      columns,
       emptyLabel: "No groups found",
       errorLabel: "Could not load groups.",
-      filters: [],
       getRowId: (group) => group.id,
-      infinite: {
-        height: "600px",
-        threshold: 15,
-      },
-      loadRows: groupsState.fetchRows,
-      pageSize: 50,
+      features: [
+        columnsFeature({ columns }),
+        sortingFeature({
+          sorts: [{ sortId: "name", direction: "ascending" }],
+        }),
+        filtersFeature({ filters: [] }),
+        infiniteLoaderFeature({
+          loadRows: groupsState.fetchRows,
+          pageSize: 50,
+        }),
+        virtualWindowFeature({
+          height: "600px",
+          threshold: 15,
+        }),
+      ],
     });
   }
 </script>
@@ -88,7 +120,7 @@
               class="flex h-4 min-w-4 items-center justify-center rounded-full bg-slate-700 px-1 text-[10px]
                 leading-4 text-white"
             >
-              {groupsState.activeFilterCount}
+              {table.filters.value.length}
             </span>
           </button>
 
@@ -113,7 +145,7 @@
               class="flex h-4 min-w-4 items-center justify-center rounded-full bg-slate-700 px-1 text-[10px]
                 leading-4 text-white"
             >
-              {groupsState.activeSortCount}
+              {table.sorting.sorts.length}
             </span>
           </button>
         </div>
@@ -127,12 +159,11 @@
     </div>
 
     <div class="min-h-0 grow p-3">
-      {#key groupsState.tableKey}
-        {@const table = createGroupsTable()}
+      {#key table}
         <Table {table} />
       {/key}
     </div>
   </div>
 </div>
 
-<GroupOverlays state={groupsState} />
+<GroupOverlays state={groupsState} {table} />

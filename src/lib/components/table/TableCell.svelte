@@ -1,17 +1,17 @@
 <script lang="ts" generics="TData, TMeta">
   import type { Component } from "svelte";
   import type { DataTable } from "./core/rendered-table";
-  import type { DataTableCellComponentProps, DataTableColumnDef } from "./core/columns";
+  import type { DataTableCellComponentProps, DataTableColumn } from "./core/columns";
 
   interface Props {
-    column: DataTableColumnDef<TData, TMeta>;
+    column: DataTableColumn<TData, TMeta>;
     row: TData;
     table: DataTable<TData, TMeta>;
   }
 
   let { column, row, table }: Props = $props();
 
-  const value = $derived(table.columns.getCellValue(row, column));
+  const value = $derived(table.column.getCellValue(row, column));
   const formattedValue = $derived(column.format ? column.format(value, row) : formatFallbackValue(value));
   const CellComponent = $derived(column.cell as Component<DataTableCellComponentProps<TData>> | undefined);
 

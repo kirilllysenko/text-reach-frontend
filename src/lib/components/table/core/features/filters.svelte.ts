@@ -51,41 +51,41 @@ export interface FiltersFeatureApi {
 }
 
 export class FiltersFeature {
-  initial: DataTableFilter[];
-  value = $state<DataTableFilter[]>([]);
+  filters = $state<DataTableFilter[]>([]);
 
   constructor(
-    initial: DataTableFilter[] = [],
+    filters: DataTableFilter[] = [],
     private readonly events: EventService,
   ) {
-    this.initial = structuredClone(initial);
-    this.value = initial;
+    this.filters = filters;
   }
 
   clear(): void {
-    this.replaceAll([]);
+    this.setAll([]);
   }
 
   remove(filterId: string): void {
-    this.replaceAll(this.value.filter((filter) => filter.filterId !== filterId));
+    this.setAll(this.filters.filter((filter) => filter.filterId !== filterId));
   }
 
   reset(): void {
-    this.replaceAll(structuredClone(this.initial));
+    this.clear();
   }
 
-  replaceAll(filters: DataTableFilter[]): void {
-    this.value = filters;
+  setAll(filters: DataTableFilter[]): void {
+    this.filters = filters;
     this.events.emit("filterChange", filters);
   }
 
   set(filterId: string, filter: DataTableFilter): void {
-    this.replaceAll([...this.value.filter((current) => current.filterId !== filterId), { ...filter, filterId }]);
+    this.setAll([...this.filters.filter((current) => current.filterId !== filterId), { ...filter, filterId }]);
   }
 }
 
 export function filtersFeature(options: FiltersFeatureOptions = {}): DataTableFeature<FiltersFeatureApi> {
   return {
+    dependencies: [],
+    id: "filters",
     install(table) {
       return {
         filters: new FiltersFeature(options.filters, table.events),

@@ -5,7 +5,9 @@
     PageTitle,
     Table,
     accessorColumn,
-    columnsFeature,
+    columnFeature,
+    columnOrderFeature,
+    columnVisibilityFeature,
     createDataTable,
     filtersFeature,
     infiniteLoaderFeature,
@@ -57,11 +59,13 @@
 
   function createGroupsTable() {
     return createDataTable<ContactGroupViewModel>({
-      emptyLabel: "No groups found",
-      errorLabel: "Could not load groups.",
+      empty: groupsEmpty,
       getRowId: (group) => group.id,
+      loadingError: groupsLoadingError,
       features: [
-        columnsFeature({ columns }),
+        columnFeature({ columns }),
+        columnVisibilityFeature(),
+        columnOrderFeature(),
         sortingFeature({
           sorts: [{ sortId: "name", direction: "ascending" }],
         }),
@@ -78,6 +82,14 @@
     });
   }
 </script>
+
+{#snippet groupsEmpty()}
+  No groups found
+{/snippet}
+
+{#snippet groupsLoadingError()}
+  Could not load groups.
+{/snippet}
 
 <div
   class="relative flex h-full min-h-dvh flex-col rounded-2xl bg-gradient-to-br from-slate-100 via-slate-50
@@ -120,7 +132,7 @@
               class="flex h-4 min-w-4 items-center justify-center rounded-full bg-slate-700 px-1 text-[10px]
                 leading-4 text-white"
             >
-              {table.filters.value.length}
+              {table.filters.filters.length}
             </span>
           </button>
 

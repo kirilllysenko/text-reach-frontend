@@ -7,10 +7,25 @@ export interface DataTableCellComponentProps<TData> {
   value: unknown;
 }
 
+export interface DataTableColumnFeatureValueMap {
+  visibility: boolean;
+  order: number;
+}
+
+export const dataTableColumnFeatureMap = {
+  visibility: true,
+  order: 0,
+} satisfies DataTableColumnFeatureValueMap;
+
+export type DataTableColumnFeature = {
+  [TFeature in keyof typeof dataTableColumnFeatureMap]: DataTableColumnFeatureValueMap[TFeature];
+};
+
 interface DataTableBaseColumn<TData, TMeta = unknown> {
   id: string;
   header: string;
   cell?: Component<DataTableCellComponentProps<TData>>;
+  feature?: Partial<DataTableColumnFeature>;
   filter?: DataTableFilterConfig;
   filterable?: boolean;
   format?: (value: unknown, row: TData) => string;
@@ -36,6 +51,10 @@ export interface DataTableDisplayColumn<TData, TMeta = unknown> extends DataTabl
 export type DataTableColumnDef<TData, TMeta = unknown> =
   | DataTableAccessorColumn<TData, TMeta>
   | DataTableDisplayColumn<TData, TMeta>;
+
+export type DataTableColumn<TData, TMeta = unknown> = DataTableColumnDef<TData, TMeta> & {
+  feature: DataTableColumnFeature;
+};
 
 type CreatedAccessorColumn<TPath extends string, TMeta = unknown> = Omit<
   DataTableAccessorColumn<any, TMeta>,
@@ -127,9 +146,14 @@ export function getCellValue<TData, TMeta>(row: TData, column: DataTableColumnDe
 
 export function normalizeColumns<TData, TMeta>(
   columns: DataTableColumnDef<TData, TMeta>[],
-): DataTableColumnDef<TData, TMeta>[] {
-  return columns.map((column) => ({
+): DataTableColumn<TData, TMeta>[] {
+  return columns.map((column, index) => ({
     ...column,
+    feature: {
+      ...dataTableColumnFeatureMap,
+      ...column.feature,
+      order: column.feature?.order ?? index,
+    },
     hideable: column.hideable ?? true,
     maxSize: column.maxSize ?? 480,
     minSize: column.minSize ?? 120,

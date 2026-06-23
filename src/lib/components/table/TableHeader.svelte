@@ -19,7 +19,7 @@
 
 <div class="shrink-0 overflow-x-auto border-b border-slate-200 bg-slate-50">
   <div class="flex min-w-max">
-    {#each table.columns.visible as column (column.id)}
+    {#each table.columnOrder.visible as column (column.id)}
       <div
         class={[
           `flex min-h-11 items-center gap-2 border-r border-slate-200 px-3 text-left text-xs font-semibold

@@ -31,7 +31,7 @@ export class SortingFeature {
   }
 
   clear(): void {
-    this.replaceAll([]);
+    this.setAll([]);
   }
 
   getDirection(sortId: string): DataTableSortDirection {
@@ -43,21 +43,21 @@ export class SortingFeature {
     return index === -1 ? null : index + 1;
   }
 
-  replaceAll(sorts: DataTableSort[]): void {
+  setAll(sorts: DataTableSort[]): void {
     this.sorts = sorts;
     this.events.emit("sortChange", sorts);
   }
 
   remove(sortId: string): void {
-    this.replaceAll(this.sorts.filter((sort) => sort.sortId !== sortId));
+    this.setAll(this.sorts.filter((sort) => sort.sortId !== sortId));
   }
 
   removeAt(index: number): void {
-    this.replaceAll(this.sorts.filter((_, currentIndex) => currentIndex !== index));
+    this.setAll(this.sorts.filter((_, currentIndex) => currentIndex !== index));
   }
 
   set(sortId: string, direction: Exclude<DataTableSortDirection, "intermediate">): void {
-    this.replaceAll([...this.sorts.filter((sort) => sort.sortId !== sortId), { direction, sortId }]);
+    this.setAll([...this.sorts.filter((sort) => sort.sortId !== sortId), { direction, sortId }]);
   }
 
   toggle(sortId: string, multi = false): void {
@@ -65,29 +65,31 @@ export class SortingFeature {
     const remainingSorts = multi ? this.sorts.filter((sort) => sort.sortId !== sortId) : [];
 
     if (currentDirection === "intermediate") {
-      this.replaceAll([...remainingSorts, { direction: "ascending", sortId }]);
+      this.setAll([...remainingSorts, { direction: "ascending", sortId }]);
       return;
     }
 
     if (currentDirection === "ascending") {
-      this.replaceAll([...remainingSorts, { direction: "descending", sortId }]);
+      this.setAll([...remainingSorts, { direction: "descending", sortId }]);
       return;
     }
 
-    this.replaceAll(remainingSorts);
+    this.setAll(remainingSorts);
   }
 
   updateDirection(index: number, direction: Exclude<DataTableSortDirection, "intermediate">): void {
-    this.replaceAll(this.sorts.map((sort, currentIndex) => (currentIndex === index ? { ...sort, direction } : sort)));
+    this.setAll(this.sorts.map((sort, currentIndex) => (currentIndex === index ? { ...sort, direction } : sort)));
   }
 
   updateSortId(index: number, sortId: string): void {
-    this.replaceAll(this.sorts.map((sort, currentIndex) => (currentIndex === index ? { ...sort, sortId } : sort)));
+    this.setAll(this.sorts.map((sort, currentIndex) => (currentIndex === index ? { ...sort, sortId } : sort)));
   }
 }
 
 export function sortingFeature(options: SortingFeatureOptions = {}): DataTableFeature<SortingFeatureApi> {
   return {
+    dependencies: [],
+    id: "sorting",
     install(table) {
       return {
         sorting: new SortingFeature(table.events, options.sorts),

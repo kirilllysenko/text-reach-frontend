@@ -6,7 +6,9 @@
     PageTitle,
     Table,
     accessorColumn,
-    columnsFeature,
+    columnFeature,
+    columnOrderFeature,
+    columnVisibilityFeature,
     createDataTable,
     displayColumn,
     filtersFeature,
@@ -96,11 +98,13 @@
 
   function createContactsTable() {
     return createDataTable<ContactViewModel>({
-      emptyLabel: "No contacts found",
-      errorLabel: "Could not load contacts.",
+      empty: contactsEmpty,
       getRowId: (contact) => contact.id,
+      loadingError: contactsLoadingError,
       features: [
-        columnsFeature({ columns }),
+        columnFeature({ columns }),
+        columnVisibilityFeature(),
+        columnOrderFeature(),
         sortingFeature({
           sorts: [
             { sortId: "lastName", direction: "ascending" },
@@ -120,6 +124,14 @@
     });
   }
 </script>
+
+{#snippet contactsEmpty()}
+  No contacts found
+{/snippet}
+
+{#snippet contactsLoadingError()}
+  Could not load contacts.
+{/snippet}
 
 <div
   class="relative flex h-full min-h-dvh flex-col rounded-2xl bg-gradient-to-br from-slate-100 via-slate-50
@@ -182,7 +194,7 @@
               class="flex h-4 min-w-4 items-center justify-center rounded-full bg-slate-700 px-1 text-[10px]
                 leading-4 text-white"
             >
-              {table.filters.value.length}
+              {table.filters.filters.length}
             </span>
           </button>
 

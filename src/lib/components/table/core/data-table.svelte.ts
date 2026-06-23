@@ -1,15 +1,29 @@
 import { EventService } from "./events";
 import { RowsFeature } from "./features/rows.svelte";
+import type { Snippet } from "svelte";
 
 export interface DataTableCoreOptions<TData> {
-  emptyLabel?: string;
-  errorLabel?: string;
+  empty?: Snippet;
   getRowId?: (row: TData, index: number) => string;
+  loadingError?: Snippet;
 }
 
-export interface DataTableFeature<TApi extends object> {
+export type DataTableFeatureId =
+  | "column"
+  | "columnOrder"
+  | "columnVisibility"
+  | "filters"
+  | "infiniteLoader"
+  | "sorting"
+  | "virtualWindow";
+
+export interface DataTableFeature<TApi extends object, TId extends DataTableFeatureId = DataTableFeatureId> {
+  dependencies: readonly DataTableFeatureId[];
+  id: TId;
   install<TData, TMeta>(table: DataTableCore<TData, TMeta> & object): TApi;
 }
+
+export type DataTableFeatureMap = Map<DataTableFeatureId, DataTableFeature<object>>;
 
 type UnionToIntersection<TValue> = (TValue extends unknown ? (value: TValue) => void : never) extends (
   value: infer TIntersection,

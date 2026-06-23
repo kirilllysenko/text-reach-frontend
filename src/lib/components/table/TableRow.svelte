@@ -12,7 +12,7 @@
 </script>
 
 <div class={["flex min-w-max border-b border-slate-100", rowIndex % 2 === 0 ? "bg-white" : "bg-slate-50/60"]}>
-  {#each table.columns.visible as column (column.id)}
+  {#each table.columnOrder.visible as column (column.id)}
     <TableCell {column} {row} {table} />
   {/each}
 </div>

@@ -44,6 +44,8 @@ export function virtualWindowFeature(
   options: VirtualWindowFeatureOptions = {},
 ): DataTableFeature<VirtualWindowFeatureApi> {
   return {
+    dependencies: [],
+    id: "virtualWindow",
     install(table) {
       return {
         virtual: new VirtualWindowFeature({

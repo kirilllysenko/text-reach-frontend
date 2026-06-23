@@ -1,9 +1,9 @@
 <script lang="ts" generics="TData, TMeta">
   import type { DataTable } from "./core/rendered-table";
-  import type { DataTableColumnDef } from "./core/columns";
+  import type { DataTableColumn } from "./core/columns";
 
   interface Props {
-    column: DataTableColumnDef<TData, TMeta>;
+    column: DataTableColumn<TData, TMeta>;
     table: DataTable<TData, TMeta>;
   }
 
@@ -32,7 +32,7 @@
       aria-label={`Move ${column.header} left`}
       onclick={(event) => {
         event.stopPropagation();
-        table.columns.move(column.id, "left");
+        table.columnOrder.move(column.id, "left");
       }}
     >
       ‹
@@ -43,7 +43,7 @@
       aria-label={`Move ${column.header} right`}
       onclick={(event) => {
         event.stopPropagation();
-        table.columns.move(column.id, "right");
+        table.columnOrder.move(column.id, "right");
       }}
     >
       ›
@@ -57,7 +57,7 @@
       aria-label={`Hide ${column.header}`}
       onclick={(event) => {
         event.stopPropagation();
-        table.columns.toggleVisibility(column.id);
+        table.columnVisibility.toggle(column.id);
       }}
     >
       ◐

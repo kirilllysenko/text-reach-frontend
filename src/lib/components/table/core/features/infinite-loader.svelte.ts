@@ -32,7 +32,6 @@ export interface InfiniteLoaderFeatureApi<TData> {
 }
 
 interface InfiniteLoaderOptions<TData> {
-  errorLabel?: string;
   events: EventService;
   getFilters: () => DataTableFilter[];
   getSorting: () => DataTableSort[];
@@ -43,7 +42,7 @@ interface InfiniteLoaderOptions<TData> {
 
 interface LoaderFeatureDependencies {
   filters?: {
-    value: DataTableFilter[];
+    filters: DataTableFilter[];
   };
   sorting?: {
     sorts: DataTableSort[];
@@ -94,7 +93,7 @@ export class InfiniteLoader<TData> {
       this.options.events.emit("loadInitialSuccess", undefined);
     } catch (error) {
       if (!abortController.signal.aborted) {
-        this.error = error instanceof Error ? error.message : (this.options.errorLabel ?? "Could not load rows.");
+        this.error = error instanceof Error ? error.message : "Could not load rows.";
         this.options.events.emit("loadError", { error: this.error });
       }
     } finally {
@@ -130,7 +129,7 @@ export class InfiniteLoader<TData> {
       this.options.events.emit("loadMoreSuccess", undefined);
     } catch (error) {
       if (!abortController.signal.aborted) {
-        this.error = error instanceof Error ? error.message : (this.options.errorLabel ?? "Could not load rows.");
+        this.error = error instanceof Error ? error.message : "Could not load rows.";
         this.options.events.emit("loadError", { error: this.error });
       }
     } finally {
@@ -151,12 +150,13 @@ export function infiniteLoaderFeature<TData>(
   options: InfiniteLoaderFeatureOptions<TData>,
 ): DataTableFeature<InfiniteLoaderFeatureApi<TData>> {
   return {
+    dependencies: [],
+    id: "infiniteLoader",
     install(table) {
       const typedTable = table as unknown as DataTableCore<TData> & LoaderFeatureDependencies;
       const loader = new InfiniteLoader<TData>({
-        errorLabel: typedTable.options.errorLabel,
         events: typedTable.events,
-        getFilters: () => typedTable.filters?.value ?? [],
+        getFilters: () => typedTable.filters?.filters ?? [],
         getSorting: () => typedTable.sorting?.sorts ?? [],
         loadRows: options.loadRows,
         pageSize: options.pageSize,

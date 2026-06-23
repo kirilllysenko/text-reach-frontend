@@ -14,11 +14,19 @@
     <div class="flex h-full min-h-40 items-center justify-center text-sm text-slate-500">Loading rows...</div>
   {:else if table.loader.error && table.rows.isEmpty}
     <div class="flex h-full min-h-40 items-center justify-center text-sm text-rose-700">
-      {table.options.errorLabel ?? table.loader.error}
+      {#if table.options.loadingError}
+        {@render table.options.loadingError()}
+      {:else}
+        {table.loader.error}
+      {/if}
     </div>
   {:else if table.rows.isEmpty}
     <div class="flex h-full min-h-40 items-center justify-center text-sm text-slate-500">
-      {table.options.emptyLabel ?? "No rows found"}
+      {#if table.options.empty}
+        {@render table.options.empty()}
+      {:else}
+        No rows found
+      {/if}
     </div>
   {:else}
     <TableVirtualBody {table} />

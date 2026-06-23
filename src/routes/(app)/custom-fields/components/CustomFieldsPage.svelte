@@ -5,7 +5,9 @@
     PageTitle,
     Table,
     accessorColumn,
-    columnsFeature,
+    columnFeature,
+    columnOrderFeature,
+    columnVisibilityFeature,
     createDataTable,
     filtersFeature,
     infiniteLoaderFeature,
@@ -64,11 +66,13 @@
 
   function createCustomFieldsTable() {
     return createDataTable<CustomFieldViewModel>({
-      emptyLabel: "No custom fields found",
-      errorLabel: "Could not load custom fields.",
+      empty: customFieldsEmpty,
       getRowId: (field) => field.id,
+      loadingError: customFieldsLoadingError,
       features: [
-        columnsFeature({ columns }),
+        columnFeature({ columns }),
+        columnVisibilityFeature(),
+        columnOrderFeature(),
         sortingFeature({
           sorts: [{ sortId: "position", direction: "ascending" }],
         }),
@@ -85,6 +89,14 @@
     });
   }
 </script>
+
+{#snippet customFieldsEmpty()}
+  No custom fields found
+{/snippet}
+
+{#snippet customFieldsLoadingError()}
+  Could not load custom fields.
+{/snippet}
 
 <div
   class="relative flex h-full min-h-dvh flex-col rounded-2xl bg-gradient-to-br from-slate-100 via-slate-50
@@ -127,7 +139,7 @@
               class="flex h-4 min-w-4 items-center justify-center rounded-full bg-slate-700 px-1 text-[10px]
                 leading-4 text-white"
             >
-              {table.filters.value.length}
+              {table.filters.filters.length}
             </span>
           </button>
 

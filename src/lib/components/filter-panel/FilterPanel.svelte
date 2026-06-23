@@ -16,10 +16,10 @@
 
   let { filtering, config, compact = false }: Props = $props();
 
-  const chips = $derived.by(() => filtering.value.map(formatChip));
+  const chips = $derived.by(() => filtering.filters.map(formatChip));
 
   function getCheckboxValues(field: FilterPanelCheckboxGroup): string[] {
-    const filter = filtering.value.find(
+    const filter = filtering.filters.find(
       (current) =>
         current.type === "containment" &&
         current.filterId === field.filterId &&
@@ -30,7 +30,7 @@
   }
 
   function getInputValue(input: FilterPanelInput): string {
-    const filter = filtering.value.find(
+    const filter = filtering.filters.find(
       (current) =>
         current.type === input.filterType && current.filterId === input.filterId && current.operator === input.operator,
     );

@@ -1,25 +1,25 @@
 <script lang="ts" generics="TData, TMeta">
-  import type { DataTable } from "./core/rendered-table";
+  import type { RenderedTable } from "./core/rendered-table";
   import TableColumnMenu from "./TableColumnMenu.svelte";
 
   interface Props {
-    table: DataTable<TData, TMeta>;
+    view: RenderedTable<TData, TMeta>;
   }
 
-  let { table }: Props = $props();
+  let { view }: Props = $props();
 
   function toggleSort(event: MouseEvent, sortId: string, sortable?: boolean): void {
-    if (!sortable) {
+    if (!sortable || !view.actions.toggleSort) {
       return;
     }
 
-    table.sorting.toggle(sortId, event.ctrlKey || event.metaKey);
+    view.actions.toggleSort(sortId, event.ctrlKey || event.metaKey);
   }
 </script>
 
 <div class="shrink-0 overflow-x-auto border-b border-slate-200 bg-slate-50">
   <div class="flex min-w-max">
-    {#each table.columnOrder.visible as column (column.id)}
+    {#each view.visibleColumns as column (column.id)}
       <div
         class={[
           `flex min-h-11 items-center gap-2 border-r border-slate-200 px-3 text-left text-xs font-semibold
@@ -28,7 +28,7 @@
         ]}
         style={`width:${column.size}px;min-width:${column.minSize}px;max-width:${column.grow ? "none" : `${column.maxSize}px`}`}
       >
-        {#if column.sortable}
+        {#if column.sortable && view.capabilities.canSort}
           <button
             class="min-w-0 flex-1 truncate text-left hover:cursor-pointer"
             type="button"
@@ -39,15 +39,15 @@
         {:else}
           <span class="min-w-0 flex-1 truncate">{column.header}</span>
         {/if}
-        {#if table.sorting.getDirection(column.id) === "ascending"}
+        {#if view.getSortDirection(column.id) === "ascending"}
           <span aria-label="Sorted ascending">▲</span>
-        {:else if table.sorting.getDirection(column.id) === "descending"}
+        {:else if view.getSortDirection(column.id) === "descending"}
           <span aria-label="Sorted descending">▼</span>
         {/if}
-        {#if table.sorting.getIndex(column.id)}
-          <span class="text-[10px] text-slate-400">{table.sorting.getIndex(column.id)}</span>
+        {#if view.getSortIndex(column.id)}
+          <span class="text-[10px] text-slate-400">{view.getSortIndex(column.id)}</span>
         {/if}
-        <TableColumnMenu {table} {column} />
+        <TableColumnMenu {view} {column} />
       </div>
     {/each}
   </div>

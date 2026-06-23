@@ -1,4 +1,5 @@
 export { createDataTable } from "./core/create-data-table";
+export { createStandardDataTable } from "./core/create-standard-data-table";
 export { DataTableCore } from "./core/data-table.svelte";
 export { accessorColumn, displayColumn } from "./core/columns";
 export { columnFeature } from "./core/features/column.svelte";
@@ -10,6 +11,7 @@ export { SortingFeature, sortingFeature } from "./core/features/sorting.svelte";
 export { virtualWindowFeature } from "./core/features/virtual-window.svelte";
 export { default as Table } from "./Table.svelte";
 export type { CreateDataTableOptions } from "./core/create-data-table";
+export type { CreateStandardDataTableOptions } from "./core/create-standard-data-table";
 export type {
   DataTableCoreOptions,
   DataTableFeature,
@@ -17,7 +19,13 @@ export type {
   DataTableFeatureMap,
   DataTableWithFeatures,
 } from "./core/data-table.svelte";
-export type { DataTable, RenderedTableFeatures } from "./core/rendered-table";
+export type {
+  DataTable,
+  RenderableTable,
+  RenderedTable,
+  RenderedTableActions,
+  RenderedTableCapabilities,
+} from "./core/rendered-table";
 export type { DataTableColumn, DataTableColumnDef, DataTableCellComponentProps } from "./core/columns";
 export type { ColumnFeatureApi, ColumnFeatureOptions } from "./core/features/column.svelte";
 export type { ColumnOrderFeatureApi } from "./core/features/column-order.svelte";

@@ -1,13 +1,22 @@
 <script lang="ts">
-  import type { DataTableSortDirection, SortingFeature } from "../table";
+  import type { DataTableSort, DataTableSortDirection } from "../table";
 
   interface SortFieldOption {
     value: string;
     label: string;
   }
 
+  export interface SortController {
+    sorts: DataTableSort[];
+    add: (sortId: string, direction?: Exclude<DataTableSortDirection, "intermediate">) => void;
+    clear: () => void;
+    removeAt: (index: number) => void;
+    updateDirection: (index: number, direction: Exclude<DataTableSortDirection, "intermediate">) => void;
+    updateSortId: (index: number, sortId: string) => void;
+  }
+
   interface Props {
-    sorting: SortingFeature;
+    sorting: SortController;
     fieldOptions: SortFieldOption[];
     compact?: boolean;
     directionOptions?: Exclude<DataTableSortDirection, "intermediate">[];

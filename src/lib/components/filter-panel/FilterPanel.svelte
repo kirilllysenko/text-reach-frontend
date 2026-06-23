@@ -1,6 +1,6 @@
 <script lang="ts">
   import Input from "../input/Input.svelte";
-  import type { DataTableFilter, FiltersFeature } from "../table";
+  import type { DataTableFilter } from "../table";
   import type {
     FilterPanelCheckboxGroup,
     FilterPanelConfig,
@@ -8,8 +8,16 @@
     FilterPanelInput,
   } from "./filter-panel-types";
 
+  export interface FilterController {
+    filters: DataTableFilter[];
+    clear: () => void;
+    remove: (filterId: string) => void;
+    reset: () => void;
+    set: (filterId: string, filter: DataTableFilter) => void;
+  }
+
   interface Props {
-    filtering: FiltersFeature;
+    filtering: FilterController;
     config: FilterPanelConfig;
     compact?: boolean;
   }

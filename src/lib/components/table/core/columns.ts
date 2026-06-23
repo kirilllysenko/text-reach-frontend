@@ -3,7 +3,10 @@ import type { DataTableFilterConfig } from "./features/filters.svelte";
 import type { DotNestedKeys } from "./types";
 
 export interface DataTableCellComponentProps<TData> {
+  column: DataTableColumn<TData>;
   row: TData;
+  rowIndex: number;
+  table: unknown;
   value: unknown;
 }
 

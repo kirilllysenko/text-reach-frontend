@@ -6,15 +6,8 @@
     PageTitle,
     Table,
     accessorColumn,
-    columnFeature,
-    columnOrderFeature,
-    columnVisibilityFeature,
-    createDataTable,
+    createStandardDataTable,
     displayColumn,
-    filtersFeature,
-    infiniteLoaderFeature,
-    sortingFeature,
-    virtualWindowFeature,
     type DataTable,
     type DataTableColumnDef,
   } from "$lib";
@@ -97,30 +90,26 @@
   }
 
   function createContactsTable() {
-    return createDataTable<ContactViewModel>({
+    return createStandardDataTable<ContactViewModel>({
+      columns,
       empty: contactsEmpty,
       getRowId: (contact) => contact.id,
       loadingError: contactsLoadingError,
-      features: [
-        columnFeature({ columns }),
-        columnVisibilityFeature(),
-        columnOrderFeature(),
-        sortingFeature({
-          sorts: [
-            { sortId: "lastName", direction: "ascending" },
-            { sortId: "firstName", direction: "ascending" },
-          ],
-        }),
-        filtersFeature({ filters: [] }),
-        infiniteLoaderFeature({
-          loadRows: contactsState.fetchRows,
-          pageSize: 50,
-        }),
-        virtualWindowFeature({
-          height: "600px",
-          threshold: 15,
-        }),
-      ],
+      sorting: {
+        sorts: [
+          { sortId: "lastName", direction: "ascending" },
+          { sortId: "firstName", direction: "ascending" },
+        ],
+      },
+      filters: { filters: [] },
+      loader: {
+        loadRows: contactsState.fetchRows,
+        pageSize: 50,
+      },
+      virtual: {
+        height: "600px",
+        threshold: 15,
+      },
     });
   }
 </script>

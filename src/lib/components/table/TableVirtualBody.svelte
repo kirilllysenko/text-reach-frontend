@@ -1,23 +1,23 @@
 <script lang="ts" generics="TData, TMeta">
   import { VirtualList } from "svelte-virtuallists";
-  import type { DataTable } from "./core/rendered-table";
+  import type { RenderedTable } from "./core/rendered-table";
   import TableRow from "./TableRow.svelte";
 
   interface Props {
-    table: DataTable<TData, TMeta>;
+    view: RenderedTable<TData, TMeta>;
   }
 
-  let { table }: Props = $props();
+  let { view }: Props = $props();
 </script>
 
 <div class="h-full overflow-x-auto">
   <VirtualList
-    items={table.visibleRows}
-    style={`height:${table.virtual.height}`}
-    onVisibleRangeUpdate={(range) => table.virtual.updateRange(range)}
+    items={view.rows}
+    style={`height:${view.virtualHeight}`}
+    onVisibleRangeUpdate={(range) => view.actions.updateVirtualRange?.(range)}
   >
     {#snippet vl_slot({ index, item })}
-      <TableRow row={item} rowIndex={Number(index)} {table} />
+      <TableRow row={item} rowIndex={Number(index)} {view} />
     {/snippet}
   </VirtualList>
 </div>

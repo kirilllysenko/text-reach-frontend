@@ -6,7 +6,8 @@ import type {
   DataTableFeatureMap,
   DataTableWithFeatures,
 } from "./data-table.svelte";
-import type { DataTable } from "./rendered-table";
+import type { ColumnFeatureApi } from "./features/column.svelte";
+import type { InfiniteLoaderFeatureApi } from "./features/infinite-loader.svelte";
 
 export interface CreateDataTableOptions<
   TData,
@@ -15,16 +16,30 @@ export interface CreateDataTableOptions<
   features: TFeatures;
 }
 
-export function createDataTable<TData>(
-  options: CreateDataTableOptions<TData, readonly DataTableFeature<object>[]>,
-): DataTable<TData>;
+type FeatureApi<TFeature> = TFeature extends DataTableFeature<infer TApi> ? TApi : never;
+type FeatureData<TApi> =
+  TApi extends ColumnFeatureApi<infer TData, infer _TMeta>
+    ? TData
+    : TApi extends InfiniteLoaderFeatureApi<infer TData>
+      ? TData
+      : never;
+type NonNever<TValue, TFallback> = [TValue] extends [never] ? TFallback : TValue;
+
+export type DataTableData<TFeatures extends readonly DataTableFeature<object>[]> = NonNever<
+  FeatureData<FeatureApi<TFeatures[number]>>,
+  unknown
+>;
+
+export function createDataTable<const TFeatures extends readonly DataTableFeature<object>[]>(
+  options: CreateDataTableOptions<DataTableData<TFeatures>, TFeatures>,
+): DataTableWithFeatures<DataTableData<TFeatures>, unknown, TFeatures>;
 export function createDataTable<TData, const TFeatures extends readonly DataTableFeature<object>[]>(
   options: CreateDataTableOptions<TData, TFeatures>,
 ): DataTableWithFeatures<TData, unknown, TFeatures>;
-export function createDataTable<TData>(
-  options: CreateDataTableOptions<TData, readonly DataTableFeature<object>[]>,
-): DataTableCore<TData> & object {
-  const table = new DataTableCore<TData>(options);
+export function createDataTable(
+  options: CreateDataTableOptions<unknown, readonly DataTableFeature<object>[]>,
+): DataTableCore<unknown> & object {
+  const table = new DataTableCore<unknown>(options);
   const featureMap = createFeatureMap(options.features);
   const installedFeatureIds = new Set<DataTableFeatureId>();
 

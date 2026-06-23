@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { accessorColumn, displayColumn } from "../core/columns";
 import { createDataTable } from "../core/create-data-table";
+import { createRenderedTable } from "../core/rendered-table";
 import { EventService } from "../core/events";
 import { columnFeature } from "../core/features/column.svelte";
 import { columnOrderFeature } from "../core/features/column-order.svelte";
@@ -16,7 +17,7 @@ interface ContactRow {
 }
 
 function createColumnTable() {
-  return createDataTable<ContactRow>({
+  return createDataTable({
     features: [
       columnFeature<ContactRow>({
         columns: [
@@ -64,7 +65,7 @@ describe("table features", () => {
 
   it("sets and resets filters through the table API", () => {
     const onFilterChange = vi.fn();
-    const table = createDataTable<ContactRow>({
+    const table = createDataTable({
       features: [filtersFeature()],
     });
     table.events.on("filterChange", onFilterChange);
@@ -135,7 +136,7 @@ describe("table features", () => {
         rows: [{ id: "2", name: "Grace" }],
         totalRows: 2,
       });
-    const table = createDataTable<ContactRow>({
+    const table = createDataTable({
       features: [
         filtersFeature({
           filters: [
@@ -191,7 +192,7 @@ describe("table features", () => {
   });
 
   it("emits nearEnd when the virtual range reaches the threshold", () => {
-    const table = createDataTable<ContactRow>({
+    const table = createDataTable({
       features: [
         virtualWindowFeature({
           threshold: 2,
@@ -222,5 +223,39 @@ describe("table features", () => {
 
     expect(onNearEnd).toHaveBeenCalledOnce();
     expect(table.virtual.height).toBe("100%");
+  });
+
+  it("renders capability fallbacks when optional features are missing", () => {
+    const table = createDataTable({
+      features: [
+        columnFeature<ContactRow>({
+          columns: [
+            accessorColumn<ContactRow>({
+              accessorKey: "id",
+            }),
+            accessorColumn<ContactRow>({
+              accessorKey: "name",
+              feature: {
+                visibility: false,
+              },
+            }),
+          ],
+        }),
+      ],
+    });
+    table.setRows([{ id: "1", name: "Ada" }], null, 1);
+
+    const view = createRenderedTable(table);
+
+    expect(view.capabilities).toMatchObject({
+      canHideColumns: false,
+      canLoadMore: false,
+      canReorderColumns: false,
+      canSort: false,
+      isVirtual: false,
+    });
+    expect(view.visibleColumns.map((column) => column.id)).toEqual(["id"]);
+    expect(view.getSortDirection("id")).toBe("intermediate");
+    expect(view.rows).toEqual([{ id: "1", name: "Ada" }]);
   });
 });

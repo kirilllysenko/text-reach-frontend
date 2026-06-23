@@ -5,14 +5,7 @@
     PageTitle,
     Table,
     accessorColumn,
-    columnFeature,
-    columnOrderFeature,
-    columnVisibilityFeature,
-    createDataTable,
-    filtersFeature,
-    infiniteLoaderFeature,
-    sortingFeature,
-    virtualWindowFeature,
+    createStandardDataTable,
     type DataTable,
     type DataTableColumnDef,
   } from "$lib";
@@ -58,27 +51,23 @@
   onDestroy(() => groupsState.dispose());
 
   function createGroupsTable() {
-    return createDataTable<ContactGroupViewModel>({
+    return createStandardDataTable<ContactGroupViewModel>({
+      columns,
       empty: groupsEmpty,
       getRowId: (group) => group.id,
       loadingError: groupsLoadingError,
-      features: [
-        columnFeature({ columns }),
-        columnVisibilityFeature(),
-        columnOrderFeature(),
-        sortingFeature({
-          sorts: [{ sortId: "name", direction: "ascending" }],
-        }),
-        filtersFeature({ filters: [] }),
-        infiniteLoaderFeature({
-          loadRows: groupsState.fetchRows,
-          pageSize: 50,
-        }),
-        virtualWindowFeature({
-          height: "600px",
-          threshold: 15,
-        }),
-      ],
+      sorting: {
+        sorts: [{ sortId: "name", direction: "ascending" }],
+      },
+      filters: { filters: [] },
+      loader: {
+        loadRows: groupsState.fetchRows,
+        pageSize: 50,
+      },
+      virtual: {
+        height: "600px",
+        threshold: 15,
+      },
     });
   }
 </script>

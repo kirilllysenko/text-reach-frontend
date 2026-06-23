@@ -1,34 +1,43 @@
 <script lang="ts" generics="TData, TMeta">
-  import type { DataTable } from "./core/rendered-table";
+  import type { RenderedTable } from "./core/rendered-table";
   import TableVirtualBody from "./TableVirtualBody.svelte";
+  import TableRow from "./TableRow.svelte";
 
   interface Props {
-    table: DataTable<TData, TMeta>;
+    view: RenderedTable<TData, TMeta>;
   }
 
-  let { table }: Props = $props();
+  let { view }: Props = $props();
 </script>
 
 <div class="min-h-0 grow overflow-hidden">
-  {#if table.loader.loadingInitial}
+  {#if view.loadingInitial}
     <div class="flex h-full min-h-40 items-center justify-center text-sm text-slate-500">Loading rows...</div>
-  {:else if table.loader.error && table.rows.isEmpty}
+  {:else if view.error && view.table.rows.isEmpty}
     <div class="flex h-full min-h-40 items-center justify-center text-sm text-rose-700">
-      {#if table.options.loadingError}
-        {@render table.options.loadingError()}
+      {#if view.options.loadingError}
+        {@render view.options.loadingError()}
       {:else}
-        {table.loader.error}
+        {view.error}
       {/if}
     </div>
-  {:else if table.rows.isEmpty}
+  {:else if view.table.rows.isEmpty}
     <div class="flex h-full min-h-40 items-center justify-center text-sm text-slate-500">
-      {#if table.options.empty}
-        {@render table.options.empty()}
+      {#if view.options.empty}
+        {@render view.options.empty()}
       {:else}
         No rows found
       {/if}
     </div>
+  {:else if view.capabilities.isVirtual}
+    <TableVirtualBody {view} />
   {:else}
-    <TableVirtualBody {table} />
+    <div class="h-full overflow-auto">
+      <div class="min-w-max">
+        {#each view.rows as row, rowIndex (view.table.options.getRowId?.(row, rowIndex) ?? rowIndex)}
+          <TableRow {row} {rowIndex} {view} />
+        {/each}
+      </div>
+    </div>
   {/if}
 </div>

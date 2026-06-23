@@ -5,14 +5,7 @@
     PageTitle,
     Table,
     accessorColumn,
-    columnFeature,
-    columnOrderFeature,
-    columnVisibilityFeature,
-    createDataTable,
-    filtersFeature,
-    infiniteLoaderFeature,
-    sortingFeature,
-    virtualWindowFeature,
+    createStandardDataTable,
     type DataTable,
     type DataTableColumnDef,
   } from "$lib";
@@ -65,27 +58,23 @@
   onDestroy(() => customFieldsState.dispose());
 
   function createCustomFieldsTable() {
-    return createDataTable<CustomFieldViewModel>({
+    return createStandardDataTable<CustomFieldViewModel>({
+      columns,
       empty: customFieldsEmpty,
       getRowId: (field) => field.id,
       loadingError: customFieldsLoadingError,
-      features: [
-        columnFeature({ columns }),
-        columnVisibilityFeature(),
-        columnOrderFeature(),
-        sortingFeature({
-          sorts: [{ sortId: "position", direction: "ascending" }],
-        }),
-        filtersFeature({ filters: [] }),
-        infiniteLoaderFeature({
-          loadRows: customFieldsState.fetchRows,
-          pageSize: 50,
-        }),
-        virtualWindowFeature({
-          height: "600px",
-          threshold: 15,
-        }),
-      ],
+      sorting: {
+        sorts: [{ sortId: "position", direction: "ascending" }],
+      },
+      filters: { filters: [] },
+      loader: {
+        loadRows: customFieldsState.fetchRows,
+        pageSize: 50,
+      },
+      virtual: {
+        height: "600px",
+        threshold: 15,
+      },
     });
   }
 </script>

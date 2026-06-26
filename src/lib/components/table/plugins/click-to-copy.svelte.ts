@@ -1,5 +1,5 @@
-import type { AccessorColumn, ColumnDef, CellValue, ComputedColumn } from "$lib/datagrid/core/types";
-import { getCellContent } from "$lib/datagrid/core/utils.svelte";
+import type { AccessorColumn, ColumnDef, CellValue, ComputedColumn } from "../core/types";
+import { getCellContent } from "../core/utils.svelte";
 
 export type MetaWithClickToCopy = {
     clickToCopy?: boolean;

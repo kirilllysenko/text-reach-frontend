@@ -1,66 +1,88 @@
 <script lang="ts">
-  import { onDestroy } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import {
     Button,
+    DatagridCore,
     Input,
     PageTitle,
     Table,
     accessorColumn,
-    createStandardDataTable,
-    displayColumn,
-    type DataTable,
-    type DataTableColumnDef,
+    computedColumn,
+    createFilterController,
+    createSortController,
+    type ColumnDef,
+    type DataTableLoadRequest,
+    type DataTableSort,
   } from "$lib";
   import ContactOverlays from "./ContactOverlays.svelte";
   import { ContactsState } from "$lib/features/contacts/contacts-state.svelte";
   import type { ContactViewModel } from "$lib/features/contacts/contacts-view-data";
 
+  const PAGE_SIZE = 500;
   const contactsState = new ContactsState();
+  const initialSorting = [
+    { sortId: "lastName", direction: "ascending" },
+    { sortId: "firstName", direction: "ascending" },
+  ] satisfies DataTableSort[];
 
   let fileInput = $state<HTMLInputElement | null>(null);
   let tableKey = contactsState.tableKey;
+  let rows = $state<ContactViewModel[]>([]);
+  let loadingRows = $state(false);
+
+  const filtering = createFilterController(() => void reloadRows());
+  const sorting = createSortController(initialSorting, () => void reloadRows());
+
+  function size(width: number) {
+    return {
+      maxWidth: width,
+      minWidth: width,
+      width,
+    };
+  }
 
   const columns = [
-    accessorColumn({
+    accessorColumn<ContactViewModel, "fullName", unknown>({
       accessorKey: "fullName",
-      id: "lastName",
+      columnId: "lastName",
       header: "Name",
-      sortable: true,
-      size: 220,
+      options: { sortable: true },
+      state: { size: size(220) },
     }),
-    accessorColumn({
+    accessorColumn<ContactViewModel, "phoneNumber", unknown>({
       accessorKey: "phoneNumber",
       header: "Phone",
-      sortable: true,
-      size: 180,
+      options: { sortable: true },
+      state: { size: size(180) },
     }),
-    accessorColumn({
+    accessorColumn<ContactViewModel, "email", unknown>({
       accessorKey: "email",
       header: "Email",
-      sortable: true,
-      size: 240,
+      options: { sortable: true },
+      state: { size: size(240) },
     }),
-    accessorColumn({
+    accessorColumn<ContactViewModel, "birthday", unknown>({
       accessorKey: "birthday",
       header: "Birthday",
-      sortable: true,
-      size: 140,
+      options: { sortable: true },
+      state: { size: size(140) },
     }),
-    displayColumn({
-      id: "groups",
+    computedColumn<ContactViewModel, unknown>({
+      columnId: "groups",
       header: "Groups",
-      format: (_, contact: ContactViewModel) =>
+      getValueFn: (contact) =>
         contact.contactGroupIds.map((groupId) => contactsState.contactGroupNameById[groupId] ?? groupId).join(", "),
-      size: 260,
+      options: { filterable: false, sortable: false },
+      state: { size: size(260) },
     }),
-    accessorColumn({
+    accessorColumn<ContactViewModel, "notes", unknown>({
       accessorKey: "notes",
       header: "Notes",
-      size: 280,
+      state: { size: size(280) },
     }),
-  ] satisfies DataTableColumnDef<ContactViewModel>[];
+  ] satisfies ColumnDef<ContactViewModel>[];
 
-  let table = $state<DataTable<ContactViewModel>>(createContactsTable());
+  let table = $state<DatagridCore<ContactViewModel>>(createContactsTable([]));
 
   $effect(() => {
     if (contactsState.tableKey === tableKey) {
@@ -68,10 +90,13 @@
     }
 
     tableKey = contactsState.tableKey;
-    table = createContactsTable();
+    void reloadRows();
   });
 
   onDestroy(() => contactsState.dispose());
+  onMount(() => {
+    void reloadRows();
+  });
 
   function openImportPicker(): void {
     fileInput?.click();
@@ -89,28 +114,52 @@
     input.value = "";
   }
 
-  function createContactsTable() {
-    return createStandardDataTable<ContactViewModel>({
+  function createContactsTable(data: ContactViewModel[]) {
+    return new DatagridCore<ContactViewModel>({
       columns,
-      empty: contactsEmpty,
-      getRowId: (contact) => contact.id,
-      loadingError: contactsLoadingError,
-      sorting: {
-        sorts: [
-          { sortId: "lastName", direction: "ascending" },
-          { sortId: "firstName", direction: "ascending" },
-        ],
+      data,
+      dataFields: [
+        {
+          fieldId: "lastName",
+          getValueFn: (contact) => contact.lastName,
+          sortable: true,
+        },
+        {
+          fieldId: "firstName",
+          getValueFn: (contact) => contact.firstName,
+          sortable: true,
+        },
+      ],
+      initialState: {
+        pagination: { pageSize: PAGE_SIZE },
+        sorting: {
+          sortConfigs: sorting.sorts.map((sort) => ({
+            direction: sort.direction,
+            fieldId: sort.sortId,
+          })),
+        },
       },
-      filters: { filters: [] },
-      loader: {
-        loadRows: contactsState.fetchRows,
-        pageSize: 50,
-      },
-      virtual: {
-        height: "600px",
-        threshold: 15,
-      },
+      rowIdGetter: (contact) => contact.id,
     });
+  }
+
+  async function reloadRows(): Promise<void> {
+    loadingRows = true;
+
+    const request = {
+      cursor: null,
+      filters: filtering.filters,
+      limit: PAGE_SIZE,
+      sorting: sorting.sorts,
+    } satisfies DataTableLoadRequest;
+
+    try {
+      const result = await contactsState.fetchRows(request);
+      rows = result.rows;
+      table = createContactsTable(rows);
+    } finally {
+      loadingRows = false;
+    }
   }
 </script>
 
@@ -183,7 +232,7 @@
               class="flex h-4 min-w-4 items-center justify-center rounded-full bg-slate-700 px-1 text-[10px]
                 leading-4 text-white"
             >
-              {table.filters.filters.length}
+              {filtering.filters.length}
             </span>
           </button>
 
@@ -208,7 +257,7 @@
               class="flex h-4 min-w-4 items-center justify-center rounded-full bg-slate-700 px-1 text-[10px]
                 leading-4 text-white"
             >
-              {table.sorting.sorts.length}
+              {sorting.sorts.length}
             </span>
           </button>
         </div>
@@ -230,10 +279,10 @@
 
     <div class="min-h-0 grow p-3">
       {#key table}
-        <Table {table} />
+        <Table {table} loading={loadingRows} />
       {/key}
     </div>
   </div>
 </div>
 
-<ContactOverlays state={contactsState} {table} />
+<ContactOverlays state={contactsState} {filtering} {sorting} />

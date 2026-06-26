@@ -1,50 +1,69 @@
 <script lang="ts">
-  import { onDestroy } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import {
+    DatagridCore,
     Input,
     PageTitle,
     Table,
     accessorColumn,
-    createStandardDataTable,
-    type DataTable,
-    type DataTableColumnDef,
+    createFilterController,
+    createSortController,
+    type ColumnDef,
+    type DataTableLoadRequest,
+    type DataTableSort,
   } from "$lib";
   import { CustomFieldsState } from "$lib/features/custom-fields/custom-fields-state.svelte";
   import type { CustomFieldViewModel } from "$lib/features/custom-fields/custom-fields-view-data";
   import CustomFieldOverlays from "./CustomFieldOverlays.svelte";
 
+  const PAGE_SIZE = 500;
   const customFieldsState = new CustomFieldsState();
+  const initialSorting = [{ sortId: "position", direction: "ascending" }] satisfies DataTableSort[];
+
   let tableKey = customFieldsState.tableKey;
+  let rows = $state<CustomFieldViewModel[]>([]);
+  let loadingRows = $state(false);
+
+  const filtering = createFilterController(() => void reloadRows());
+  const sorting = createSortController(initialSorting, () => void reloadRows());
+
+  function size(width: number) {
+    return {
+      maxWidth: width,
+      minWidth: width,
+      width,
+    };
+  }
 
   const columns = [
-    accessorColumn({
+    accessorColumn<CustomFieldViewModel, "name", unknown>({
       accessorKey: "name",
       header: "Name",
-      sortable: true,
-      size: 280,
+      options: { sortable: true },
+      state: { size: size(280) },
     }),
-    accessorColumn({
+    accessorColumn<CustomFieldViewModel, "typeLabel", unknown>({
       accessorKey: "typeLabel",
-      id: "type",
+      columnId: "type",
       header: "Type",
-      sortable: true,
-      size: 160,
+      options: { sortable: true },
+      state: { size: size(160) },
     }),
-    accessorColumn({
+    accessorColumn<CustomFieldViewModel, "position", unknown>({
       accessorKey: "position",
       header: "Position",
-      sortable: true,
-      size: 140,
+      options: { sortable: true },
+      state: { size: size(140) },
     }),
-    accessorColumn({
+    accessorColumn<CustomFieldViewModel, "id", unknown>({
       accessorKey: "id",
       header: "ID",
-      sortable: false,
-      size: 280,
+      options: { sortable: false },
+      state: { size: size(280) },
     }),
-  ] satisfies DataTableColumnDef<CustomFieldViewModel>[];
+  ] satisfies ColumnDef<CustomFieldViewModel>[];
 
-  let table = $state<DataTable<CustomFieldViewModel>>(createCustomFieldsTable());
+  let table = $state<DatagridCore<CustomFieldViewModel>>(createCustomFieldsTable([]));
 
   $effect(() => {
     if (customFieldsState.tableKey === tableKey) {
@@ -52,30 +71,48 @@
     }
 
     tableKey = customFieldsState.tableKey;
-    table = createCustomFieldsTable();
+    void reloadRows();
   });
 
   onDestroy(() => customFieldsState.dispose());
+  onMount(() => {
+    void reloadRows();
+  });
 
-  function createCustomFieldsTable() {
-    return createStandardDataTable<CustomFieldViewModel>({
+  function createCustomFieldsTable(data: CustomFieldViewModel[]) {
+    return new DatagridCore<CustomFieldViewModel>({
       columns,
-      empty: customFieldsEmpty,
-      getRowId: (field) => field.id,
-      loadingError: customFieldsLoadingError,
-      sorting: {
-        sorts: [{ sortId: "position", direction: "ascending" }],
+      data,
+      initialState: {
+        pagination: { pageSize: PAGE_SIZE },
+        sorting: {
+          sortConfigs: sorting.sorts.map((sort) => ({
+            direction: sort.direction,
+            fieldId: sort.sortId,
+          })),
+        },
       },
-      filters: { filters: [] },
-      loader: {
-        loadRows: customFieldsState.fetchRows,
-        pageSize: 50,
-      },
-      virtual: {
-        height: "600px",
-        threshold: 15,
-      },
+      rowIdGetter: (field) => field.id,
     });
+  }
+
+  async function reloadRows(): Promise<void> {
+    loadingRows = true;
+
+    const request = {
+      cursor: null,
+      filters: filtering.filters,
+      limit: PAGE_SIZE,
+      sorting: sorting.sorts,
+    } satisfies DataTableLoadRequest;
+
+    try {
+      const result = await customFieldsState.fetchRows(request);
+      rows = result.rows;
+      table = createCustomFieldsTable(rows);
+    } finally {
+      loadingRows = false;
+    }
   }
 </script>
 
@@ -128,7 +165,7 @@
               class="flex h-4 min-w-4 items-center justify-center rounded-full bg-slate-700 px-1 text-[10px]
                 leading-4 text-white"
             >
-              {table.filters.filters.length}
+              {filtering.filters.length}
             </span>
           </button>
 
@@ -153,7 +190,7 @@
               class="flex h-4 min-w-4 items-center justify-center rounded-full bg-slate-700 px-1 text-[10px]
                 leading-4 text-white"
             >
-              {table.sorting.sorts.length}
+              {sorting.sorts.length}
             </span>
           </button>
         </div>
@@ -168,10 +205,10 @@
 
     <div class="min-h-0 grow p-3">
       {#key table}
-        <Table {table} />
+        <Table {table} loading={loadingRows} />
       {/key}
     </div>
   </div>
 </div>
 
-<CustomFieldOverlays state={customFieldsState} {table} />
+<CustomFieldOverlays state={customFieldsState} {filtering} {sorting} />

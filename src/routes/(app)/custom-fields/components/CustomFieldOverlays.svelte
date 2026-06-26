@@ -1,18 +1,25 @@
 <script lang="ts">
-  import { FilterPanel, ResponsiveDialog, SortPanel, type DataTable, type FilterPanelConfig } from "$lib";
+  import {
+    FilterPanel,
+    ResponsiveDialog,
+    SortPanel,
+    createFilterController,
+    createSortController,
+    type FilterPanelConfig,
+  } from "$lib";
   import type { CustomFieldsState } from "$lib/features/custom-fields/custom-fields-state.svelte";
   import {
     customFieldSortFieldLabelMap,
     customFieldTypeLabelMap,
-    type CustomFieldViewModel,
   } from "$lib/features/custom-fields/custom-fields-view-data";
 
   interface Props {
+    filtering: ReturnType<typeof createFilterController>;
+    sorting: ReturnType<typeof createSortController>;
     state: CustomFieldsState;
-    table: DataTable<CustomFieldViewModel>;
   }
 
-  let { state, table }: Props = $props();
+  let { filtering: filterController, sorting, state }: Props = $props();
 
   const typeOptions = $derived(
     state.typeOptions.map((type) => ({
@@ -50,7 +57,7 @@
   description="Refine the custom fields table without taking over the whole page."
   onClose={state.closeOverlays}
 >
-  <FilterPanel filtering={table.filters} config={filtering} compact />
+  <FilterPanel filtering={filterController} config={filtering} compact />
 
   {#snippet mobileFooter()}
     <button
@@ -70,7 +77,7 @@
   description="Adjust the priority stack for the custom fields table."
   onClose={state.closeOverlays}
 >
-  <SortPanel sorting={table.sorting} fieldOptions={sortFieldOptions} compact />
+  <SortPanel {sorting} fieldOptions={sortFieldOptions} compact />
 
   {#snippet mobileFooter()}
     <button

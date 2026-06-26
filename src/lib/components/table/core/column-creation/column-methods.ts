@@ -5,15 +5,11 @@ export const isColumnVisible = (column: ColumnDef<any>): boolean => {
 }
 
 export const isColumnSortable = (column: ColumnDef<any>): boolean => {
-    if (column.options.sortable === false || column.options.sortable === null) return false
-    return true
+    return column.options.sortable === true;
 }
 
 export const isColumnFilterable = (column: ColumnDef<any>): boolean => {
-    if (column.options.filterable !== null || column.options.filterable !== false) {
-        return true
-    }
-    return false
+    return column.options.filterable === true;
 }
 
 export function isDescendantOf(possibleDescendant: ColumnGroup<any>, ancestor: ColumnGroup<any>): boolean {

@@ -1,43 +1,62 @@
 <script lang="ts">
-  import { onDestroy } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import {
+    DatagridCore,
     Input,
     PageTitle,
     Table,
     accessorColumn,
-    createStandardDataTable,
-    type DataTable,
-    type DataTableColumnDef,
+    createFilterController,
+    createSortController,
+    type ColumnDef,
+    type DataTableLoadRequest,
+    type DataTableSort,
   } from "$lib";
   import { ContactGroupsState } from "$lib/features/contact-groups/contact-groups-state.svelte";
   import type { ContactGroupViewModel } from "$lib/features/contact-groups/contact-groups-view-data";
   import GroupOverlays from "./GroupOverlays.svelte";
 
+  const PAGE_SIZE = 500;
   const groupsState = new ContactGroupsState();
+  const initialSorting = [{ sortId: "name", direction: "ascending" }] satisfies DataTableSort[];
+
   let tableKey = groupsState.tableKey;
+  let rows = $state<ContactGroupViewModel[]>([]);
+  let loadingRows = $state(false);
+
+  const filtering = createFilterController(() => void reloadRows());
+  const sorting = createSortController(initialSorting, () => void reloadRows());
+
+  function size(width: number) {
+    return {
+      maxWidth: width,
+      minWidth: width,
+      width,
+    };
+  }
 
   const columns = [
-    accessorColumn({
+    accessorColumn<ContactGroupViewModel, "name", unknown>({
       accessorKey: "name",
       header: "Name",
-      sortable: true,
-      size: 280,
+      options: { sortable: true },
+      state: { size: size(280) },
     }),
-    accessorColumn({
+    accessorColumn<ContactGroupViewModel, "contactCount", unknown>({
       accessorKey: "contactCount",
       header: "Contacts",
-      sortable: true,
-      size: 140,
+      options: { sortable: true },
+      state: { size: size(140) },
     }),
-    accessorColumn({
+    accessorColumn<ContactGroupViewModel, "id", unknown>({
       accessorKey: "id",
       header: "ID",
-      sortable: false,
-      size: 280,
+      options: { sortable: false },
+      state: { size: size(280) },
     }),
-  ] satisfies DataTableColumnDef<ContactGroupViewModel>[];
+  ] satisfies ColumnDef<ContactGroupViewModel>[];
 
-  let table = $state<DataTable<ContactGroupViewModel>>(createGroupsTable());
+  let table = $state<DatagridCore<ContactGroupViewModel>>(createGroupsTable([]));
 
   $effect(() => {
     if (groupsState.tableKey === tableKey) {
@@ -45,30 +64,48 @@
     }
 
     tableKey = groupsState.tableKey;
-    table = createGroupsTable();
+    void reloadRows();
   });
 
   onDestroy(() => groupsState.dispose());
+  onMount(() => {
+    void reloadRows();
+  });
 
-  function createGroupsTable() {
-    return createStandardDataTable<ContactGroupViewModel>({
+  function createGroupsTable(data: ContactGroupViewModel[]) {
+    return new DatagridCore<ContactGroupViewModel>({
       columns,
-      empty: groupsEmpty,
-      getRowId: (group) => group.id,
-      loadingError: groupsLoadingError,
-      sorting: {
-        sorts: [{ sortId: "name", direction: "ascending" }],
+      data,
+      initialState: {
+        pagination: { pageSize: PAGE_SIZE },
+        sorting: {
+          sortConfigs: sorting.sorts.map((sort) => ({
+            direction: sort.direction,
+            fieldId: sort.sortId,
+          })),
+        },
       },
-      filters: { filters: [] },
-      loader: {
-        loadRows: groupsState.fetchRows,
-        pageSize: 50,
-      },
-      virtual: {
-        height: "600px",
-        threshold: 15,
-      },
+      rowIdGetter: (group) => group.id,
     });
+  }
+
+  async function reloadRows(): Promise<void> {
+    loadingRows = true;
+
+    const request = {
+      cursor: null,
+      filters: filtering.filters,
+      limit: PAGE_SIZE,
+      sorting: sorting.sorts,
+    } satisfies DataTableLoadRequest;
+
+    try {
+      const result = await groupsState.fetchRows(request);
+      rows = result.rows;
+      table = createGroupsTable(rows);
+    } finally {
+      loadingRows = false;
+    }
   }
 </script>
 
@@ -121,7 +158,7 @@
               class="flex h-4 min-w-4 items-center justify-center rounded-full bg-slate-700 px-1 text-[10px]
                 leading-4 text-white"
             >
-              {table.filters.filters.length}
+              {filtering.filters.length}
             </span>
           </button>
 
@@ -146,7 +183,7 @@
               class="flex h-4 min-w-4 items-center justify-center rounded-full bg-slate-700 px-1 text-[10px]
                 leading-4 text-white"
             >
-              {table.sorting.sorts.length}
+              {sorting.sorts.length}
             </span>
           </button>
         </div>
@@ -161,10 +198,10 @@
 
     <div class="min-h-0 grow p-3">
       {#key table}
-        <Table {table} />
+        <Table {table} loading={loadingRows} />
       {/key}
     </div>
   </div>
 </div>
 
-<GroupOverlays state={groupsState} {table} />
+<GroupOverlays state={groupsState} {filtering} {sorting} />

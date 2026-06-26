@@ -1,8 +1,5 @@
-import { isGroupColumn } from "../helpers/column-guards";
 import type { DatagridCore } from "../index.svelte";
-import type { AccessorColumn, ComputedColumn } from "../types";
 import type { SortingDirection } from "../types";
-import { findColumnById, flattenColumnStructureAndClearGroups } from "../utils.svelte";
 
 /**
  * Applies sorting to the given data based on the sort configurations in the datagrid.
@@ -13,7 +10,7 @@ import { findColumnById, flattenColumnStructureAndClearGroups } from "../utils.s
  *
  * @param {DatagridCore<TOriginalRow>} datagrid - The datagrid instance containing the sorting configuration and lifecycle hooks.
  * @param {TOriginalRow[]} data - The data array to be sorted.
- * 
+ *
  * @returns {TOriginalRow[]} - The sorted data array.
  *
  * @remarks
@@ -22,59 +19,57 @@ import { findColumnById, flattenColumnStructureAndClearGroups } from "../utils.s
  * - The Schwartzian Transform is used for precomputing the values to be sorted, which improves performance when sorting large datasets.
  */
 export function applySorting<TOriginalRow>(datagrid: DatagridCore<TOriginalRow>, data: TOriginalRow[]): TOriginalRow[] {
-    data = datagrid.lifecycleHooks.executePreSort(data);
+  data = datagrid.lifecycleHooks.executePreSort(data);
 
-    const isManualSortingEnabled = datagrid.features.globalSearch.isManual || datagrid.features.sorting.isManual;
-    const noSorting = datagrid.features.sorting.sortConfigs.length === 0;
-    if (isManualSortingEnabled || noSorting) return data;
+  const isManualSortingEnabled = datagrid.features.globalSearch.isManual || datagrid.features.sorting.isManual;
+  const noSorting = datagrid.features.sorting.sortConfigs.length === 0;
+  if (isManualSortingEnabled || noSorting) return data;
 
-    const sortConfigs = datagrid.features.sorting.sortConfigs
-        .map(config => {
-            const column = findColumnById(
-                flattenColumnStructureAndClearGroups(datagrid._columns),
-                config.columnId
-            ) as AccessorColumn<TOriginalRow> | ComputedColumn<TOriginalRow>;
+  const sortConfigs = datagrid.features.sorting.sortConfigs
+    .map((config) => {
+      const fieldId = datagrid.dataFields.getSortFieldId(config);
+      const field = datagrid.dataFields.findFieldByIdOrThrow(fieldId);
 
-            if (!column || isGroupColumn(column) || !column.isSortable()) {
-                return null;
-            }
+      if (field.sortable === false) {
+        return null;
+      }
 
-            return {
-                getValue: (row: TOriginalRow) => column.getValueFn(row),
-                direction: config.direction
-            };
-        })
-        .filter(cfg => cfg !== null && cfg.direction !== "intermediate") as {
-            getValue: (row: TOriginalRow) => any;
-            direction: SortingDirection
-        }[];
+      return {
+        getValue: (row: TOriginalRow) => field.getValueFn(row),
+        direction: config.direction,
+      };
+    })
+    .filter((cfg) => cfg !== null && cfg.direction !== "intermediate") as {
+    getValue: (row: TOriginalRow) => any;
+    direction: SortingDirection;
+  }[];
 
-    // Schwartzian Transform: Precompute sort values
-    const decorated = data.map(row => ({
-        row,
-        values: sortConfigs.map(({ getValue }) => getValue(row))
-    }));
+  // Schwartzian Transform: Precompute sort values
+  const decorated = data.map((row) => ({
+    row,
+    values: sortConfigs.map(({ getValue }) => getValue(row)),
+  }));
 
-    datagrid.processors.data.metrics.measure("Sorting", () => {
-        decorated.sort((a, b) => {
-            for (let i = 0; i < sortConfigs.length; i++) {
-                const config = sortConfigs[i];
-                // Check if config exists before using it
-                if (!config) continue;
-                
-                const valA = a.values[i];
-                const valB = b.values[i];
-                
-                if (valA === valB) continue;
-                if (valA == null) return config.direction === "descending" ? 1 : -1;
-                if (valB == null) return config.direction === "descending" ? -1 : 1;
-                
-                return config.direction === "descending" ? (valB > valA ? 1 : -1) : (valA > valB ? 1 : -1);
-            }
-            return 0;
-        });
+  datagrid.processors.data.metrics.measure("Sorting", () => {
+    decorated.sort((a, b) => {
+      for (let i = 0; i < sortConfigs.length; i++) {
+        const config = sortConfigs[i];
+        // Check if config exists before using it
+        if (!config) continue;
+
+        const valA = a.values[i];
+        const valB = b.values[i];
+
+        if (valA === valB) continue;
+        if (valA == null) return config.direction === "descending" ? 1 : -1;
+        if (valB == null) return config.direction === "descending" ? -1 : 1;
+
+        return config.direction === "descending" ? (valB > valA ? 1 : -1) : valA > valB ? 1 : -1;
+      }
+      return 0;
     });
+  });
 
-    // Extract sorted data
-    return datagrid.lifecycleHooks.executePostSort(decorated.map(d => d.row));
+  // Extract sorted data
+  return datagrid.lifecycleHooks.executePostSort(decorated.map((d) => d.row));
 }

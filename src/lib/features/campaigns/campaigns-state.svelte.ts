@@ -7,9 +7,8 @@ import {
 import { fetchContactGroups } from "$lib/api/contact-group/contact-group";
 import { listCampaigns } from "$lib/api/campaign/campaign";
 import {
-  DataTableCore,
-  FiltersFeature,
-  SortingFeature,
+  createFilterController,
+  createSortController,
   type DataTableFilter,
   type DataTableSort,
 } from "$lib/components/table";
@@ -62,11 +61,10 @@ export class CampaignsState {
   sortOpen = $state(false);
 
   mobileView = $state<MobileView>("list");
-  readonly filters: FiltersFeature;
-  readonly sorting: SortingFeature;
+  readonly filters: ReturnType<typeof createFilterController>;
+  readonly sorting: ReturnType<typeof createSortController>;
 
   hasNextPage = $state(true);
-  private readonly tableFeatureHost = new DataTableCore<CampaignViewModel>({});
   private nextCursor = $state<unknown[] | null>(null);
   private requestVersion = 0;
   private searchTimer: ReturnType<typeof setTimeout> | null = null;
@@ -122,25 +120,28 @@ export class CampaignsState {
   });
 
   constructor() {
-    this.filters = new FiltersFeature([], this.tableFeatureHost.events);
-    this.sorting = new SortingFeature(this.tableFeatureHost.events, [
+    this.filters = createFilterController(() => {
+      this.applyFeatureFilters(this.filters.filters);
+      void this.resetAndLoadCampaigns();
+    });
+    this.sorting = createSortController(
+      [
+        {
+          direction: "descending",
+          sortId: "createdAt",
+        },
+      ],
+      () => {
+        this.applyFeatureSorts(this.sorting.sorts);
+        void this.resetAndLoadCampaigns();
+      },
+    );
+    this.applyFeatureSorts([
       {
         direction: "descending",
         sortId: "createdAt",
       },
     ]);
-    this.tableFeatureHost.addDisposer(
-      this.tableFeatureHost.events.on("filterChange", (filters) => {
-        this.applyFeatureFilters(filters);
-        void this.resetAndLoadCampaigns();
-      }),
-    );
-    this.tableFeatureHost.addDisposer(
-      this.tableFeatureHost.events.on("sortChange", (sorts) => {
-        this.applyFeatureSorts(sorts);
-        void this.resetAndLoadCampaigns();
-      }),
-    );
     void this.load();
   }
 
@@ -285,8 +286,6 @@ export class CampaignsState {
   statusLabel = (status: NonNullable<CampaignStatus>): string => statusLabelMap[status];
 
   dispose = (): void => {
-    this.tableFeatureHost.dispose();
-
     if (!this.searchTimer) {
       return;
     }

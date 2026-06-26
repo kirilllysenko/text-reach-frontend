@@ -1,14 +1,22 @@
 <script lang="ts">
-  import { FilterPanel, ResponsiveDialog, SortPanel, type DataTable, type FilterPanelConfig } from "$lib";
+  import {
+    FilterPanel,
+    ResponsiveDialog,
+    SortPanel,
+    createFilterController,
+    createSortController,
+    type FilterPanelConfig,
+  } from "$lib";
   import type { ContactsState } from "$lib/features/contacts/contacts-state.svelte";
-  import { contactSortFieldLabelMap, type ContactViewModel } from "$lib/features/contacts/contacts-view-data";
+  import { contactSortFieldLabelMap } from "$lib/features/contacts/contacts-view-data";
 
   interface Props {
+    filtering: ReturnType<typeof createFilterController>;
+    sorting: ReturnType<typeof createSortController>;
     state: ContactsState;
-    table: DataTable<ContactViewModel>;
   }
 
-  let { state, table }: Props = $props();
+  let { filtering: filterController, sorting, state }: Props = $props();
 
   const contactGroupOptions = $derived.by(() => {
     if (state.contactGroups.length > 0) {
@@ -79,7 +87,7 @@
   description="Refine the contact table without taking over the whole page."
   onClose={state.closeOverlays}
 >
-  <FilterPanel filtering={table.filters} config={filtering} compact />
+  <FilterPanel filtering={filterController} config={filtering} compact />
 
   {#snippet mobileFooter()}
     <button
@@ -99,7 +107,7 @@
   description="Adjust the priority stack for the contact table."
   onClose={state.closeOverlays}
 >
-  <SortPanel sorting={table.sorting} fieldOptions={sortFieldOptions} compact />
+  <SortPanel {sorting} fieldOptions={sortFieldOptions} compact />
 
   {#snippet mobileFooter()}
     <button

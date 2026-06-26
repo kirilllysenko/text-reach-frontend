@@ -1,8 +1,8 @@
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import { XMLBuilder } from 'fast-xml-parser';
-import type { LeafColumn } from '$lib/datagrid/core/types';
-import type { DatagridCore } from '$lib/datagrid/core/index.svelte';
+import type { LeafColumn } from '../core/types';
+import type { DatagridCore } from '../core/index.svelte';
 
 
 export type ExportMethods = 'toExcel' | 'toCSV' | 'toJSON' | 'toXML';

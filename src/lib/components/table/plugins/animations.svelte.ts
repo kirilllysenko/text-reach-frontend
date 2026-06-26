@@ -1,4 +1,4 @@
-import type { DatagridCore } from "$lib/datagrid/core/index.svelte";
+import type { DatagridCore } from "../core/index.svelte";
 
 export type AnimationsPluginConfig = {
     animateHeaders?: boolean;

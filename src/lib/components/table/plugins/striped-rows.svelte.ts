@@ -1,4 +1,4 @@
-import type { GridBasicRow } from "$lib/datagrid/core/types";
+import type { GridBasicRow } from "../core/types";
 
 
 type IStripedRows = {

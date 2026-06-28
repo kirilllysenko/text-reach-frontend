@@ -15,11 +15,11 @@ bun run dev
 
 The local dev server proxies API calls to the backend services on these ports:
 
-- `/auth` -> `http://localhost:8014`
-- `/tenant` -> `http://localhost:8000`
-- `/contact` -> `http://localhost:8001`
-- `/phone` -> `http://localhost:8008`
-- `/campaign` -> `http://localhost:8012`
+- `/auth` -> `http://localhost:8081`
+- `/tenant` -> `http://localhost:8089`
+- `/contact` -> `http://localhost:8083`
+- `/phone` -> `http://localhost:8088`
+- `/campaign` -> `http://localhost:8082`
 
 ## Build
 

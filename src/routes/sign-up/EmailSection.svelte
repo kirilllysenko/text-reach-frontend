@@ -3,18 +3,13 @@
   import { Button, Input } from "$lib";
   import { sendEmailCode } from "$lib/api/tenant/tenant";
   import { Field, FieldError, FieldLabel } from "$lib/components/field";
-  import { defaultErrorText } from "$lib/form/errors";
-  import type { FormField } from "$lib/form/form.svelte";
+  import { defaultErrorText, networkErrorText, toErrorText } from "$lib/form/errors";
+  import { notificationsState } from "$lib/state/notifications.svelte";
   import { Countdown } from "$lib/utils/countdown.svelte";
   import { OTP_LENGTH } from "$lib/form/validators";
-  import { EmailSchema } from "./form.svelte";
+  import { EmailSchema, form } from "./form.svelte";
 
-  interface Props {
-    email: FormField<string>;
-    emailCode: FormField<string>;
-  }
-
-  let { email, emailCode }: Props = $props();
+  let { email, emailCode } = form;
 
   let codeLoading = $state(false);
 
@@ -22,12 +17,13 @@
 
   async function sendCodeClick(): Promise<void> {
     const emailResult = EmailSchema.safeParse(email.value);
-    email.error = emailResult.success ? null : (emailResult.error.issues[0]?.message ?? defaultErrorText);
 
     if (!emailResult.success) {
+      email.error = emailResult.error.issues[0]?.message ?? defaultErrorText;
       return;
     }
 
+    email.error = null;
     codeLoading = true;
 
     try {
@@ -35,7 +31,12 @@
 
       if (response.status === 200) {
         countdown.start(60);
+        return;
       }
+
+      notificationsState.showError(toErrorText(response.data.errorCode));
+    } catch {
+      notificationsState.showError(networkErrorText);
     } finally {
       codeLoading = false;
     }

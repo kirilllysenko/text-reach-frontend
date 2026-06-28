@@ -3,17 +3,13 @@
   import { Button, Input } from "$lib";
   import { sendPhoneCode } from "$lib/api/tenant/tenant";
   import { Field, FieldError, FieldLabel } from "$lib/components/field";
-  import { defaultErrorText } from "$lib/form/errors";
-  import type { FormField } from "$lib/form/form.svelte";
+  import { defaultErrorText, networkErrorText, toErrorText } from "$lib/form/errors";
+  import { notificationsState } from "$lib/state/notifications.svelte";
   import { Countdown } from "$lib/utils/countdown.svelte";
   import { normalizePhoneNumber, OTP_LENGTH, PhoneNumberSchema } from "$lib/form/validators";
+  import { form } from "./form.svelte.ts";
 
-  interface Props {
-    phoneNumber: FormField<string>;
-    phoneNumberCode: FormField<string>;
-  }
-
-  let { phoneNumber, phoneNumberCode }: Props = $props();
+  let { phoneNumber, phoneNumberCode } = form;
 
   let codeLoading = $state(false);
 
@@ -37,7 +33,12 @@
 
       if (response.status === 200) {
         countdown.start(60);
+        return;
       }
+
+      notificationsState.showError(toErrorText(response.data.errorCode));
+    } catch {
+      notificationsState.showError(networkErrorText);
     } finally {
       codeLoading = false;
     }

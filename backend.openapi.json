@@ -1,0 +1,4298 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "",
+    "version": ""
+  },
+  "paths": {
+    "/auth/check-session": {
+      "get": {
+        "tags": ["auth"],
+        "operationId": "check_session",
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/sign-in": {
+      "post": {
+        "tags": ["auth"],
+        "operationId": "sign_in",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignInDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/sign-out": {
+      "post": {
+        "tags": ["auth"],
+        "operationId": "sign_out",
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/campaign/campaign": {
+      "post": {
+        "tags": ["campaign"],
+        "operationId": "create_campaign",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CampaignCreateDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/campaign/campaign/fetch": {
+      "post": {
+        "tags": ["campaign"],
+        "operationId": "list_campaigns",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PageRequest_CampaignFilterDto_CampaignSortDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_CampaignDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/campaign/campaign/{id}": {
+      "get": {
+        "tags": ["campaign"],
+        "operationId": "get_campaign",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contact/contact": {
+      "post": {
+        "tags": ["contact"],
+        "operationId": "create_contact",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContactCreateDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contact/contact-group": {
+      "post": {
+        "tags": ["contact_group"],
+        "operationId": "create_contact_group",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContactGroupCreateDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contact/contact-group/fetch": {
+      "post": {
+        "tags": ["contact_group"],
+        "operationId": "fetch_contact_groups",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PageRequest_ContactGroupFilterDto_ContactGroupSortDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_ContactGroupDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contact/contact-group/{id}": {
+      "get": {
+        "tags": ["contact_group"],
+        "operationId": "get_contact_group",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactGroupDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["contact_group"],
+        "operationId": "update_contact_group",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContactGroupUpdateDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["contact_group"],
+        "operationId": "delete_contact_group",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contact/contact/count": {
+      "post": {
+        "tags": ["contact"],
+        "operationId": "count_contacts",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContactFilterDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contact/contact/export": {
+      "post": {
+        "tags": ["contact"],
+        "operationId": "export_contacts",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContactExportDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {}
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contact/contact/fetch": {
+      "post": {
+        "tags": ["contact"],
+        "operationId": "fetch_contacts",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PageRequest_ContactFilterDto_ContactSortDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_ContactDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contact/contact/import": {
+      "post": {
+        "tags": ["contact"],
+        "operationId": "import_contacts",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContactImportDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactImportResultDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contact/contact/upload-url": {
+      "get": {
+        "tags": ["contact"],
+        "operationId": "get_contact_upload_url",
+        "parameters": [
+          {
+            "name": "filename",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadUrlDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contact/contact/{id}": {
+      "get": {
+        "tags": ["contact"],
+        "operationId": "get_contact",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["contact"],
+        "operationId": "update_contact",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContactUpdateDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["contact"],
+        "operationId": "delete_contact",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contact/custom-fields": {
+      "get": {
+        "tags": ["custom_field"],
+        "operationId": "list_custom_fields",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CustomFieldDto"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["custom_field"],
+        "operationId": "create_custom_field",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCustomFieldDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contact/custom-fields/{id}": {
+      "get": {
+        "tags": ["custom_field"],
+        "operationId": "get_custom_field",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomFieldDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["custom_field"],
+        "operationId": "delete_custom_field",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contact/custom-fields/{id}/name": {
+      "put": {
+        "tags": ["custom_field"],
+        "operationId": "update_custom_field_name",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCustomFieldNameDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contact/custom-fields/{id}/position": {
+      "put": {
+        "tags": ["custom_field"],
+        "operationId": "update_custom_field_position",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCustomFieldPositionDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/message/message": {
+      "post": {
+        "tags": ["message"],
+        "operationId": "get_page",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PageRequest_MessageFilterDto_MessageSortDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_MessageDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/message/message/export": {
+      "post": {
+        "tags": ["message"],
+        "operationId": "export_messages",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MessageExportDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {}
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/message/message/{id}": {
+      "get": {
+        "tags": ["message"],
+        "operationId": "get_by_id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/phone/ten-dlc-brand": {
+      "get": {
+        "tags": ["ten_dlc_brand"],
+        "operationId": "get_ten_dlc_brand",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenDlcBrandDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["ten_dlc_brand"],
+        "operationId": "update_ten_dlc_brand",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TenDlcBrandUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenDlcBrandDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["ten_dlc_brand"],
+        "operationId": "create_ten_dlc_brand",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TenDlcBrandUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenDlcBrandDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/phone/ten-dlc-campaign": {
+      "get": {
+        "tags": ["ten_dlc_campaign"],
+        "operationId": "list_ten_dlc_campaigns",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TenDlcCampaignDto"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["ten_dlc_campaign"],
+        "operationId": "create_ten_dlc_campaign",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TenDlcCampaignCreateDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/phone/ten-dlc-campaign/{id}": {
+      "get": {
+        "tags": ["ten_dlc_campaign"],
+        "operationId": "get_ten_dlc_campaign",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenDlcCampaignDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["ten_dlc_campaign"],
+        "operationId": "delete_ten_dlc_campaign",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/phone/tenant-phone/available": {
+      "get": {
+        "tags": ["tenant_phone"],
+        "operationId": "available_tenant_phones",
+        "parameters": [
+          {
+            "name": "number",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/PhoneType"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TenantPhoneDto"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/phone/tenant-phone/buy": {
+      "post": {
+        "tags": ["tenant_phone"],
+        "operationId": "buy_tenant_phone",
+        "parameters": [
+          {
+            "name": "number",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantPhoneDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tenant/profile": {
+      "get": {
+        "tags": ["tenant"],
+        "operationId": "get_profile",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tenant/profile/change-name": {
+      "post": {
+        "tags": ["tenant"],
+        "operationId": "change_name",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangeUserNameDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tenant/profile/change-password": {
+      "post": {
+        "tags": ["tenant"],
+        "operationId": "change_password",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tenant/sign-up": {
+      "post": {
+        "tags": ["tenant"],
+        "operationId": "sign_up",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignUpDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tenant/sign-up/send-email-code": {
+      "post": {
+        "tags": ["tenant"],
+        "operationId": "send_email_code",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendEmailOtpDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tenant/sign-up/send-phone-code": {
+      "post": {
+        "tags": ["tenant"],
+        "operationId": "send_phone_code",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendPhoneOtpDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CampaignCreateDto": {
+        "type": "object",
+        "properties": {
+          "contactGroupIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "messageTemplate": {
+            "type": ["string", "null"]
+          },
+          "name": {
+            "type": ["string", "null"]
+          },
+          "tenantPhoneId": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "CampaignDto": {
+        "type": "object",
+        "required": ["id", "name", "messageTemplate", "contactGroupIds", "status", "messageCount", "sentMessageCount"],
+        "properties": {
+          "contactGroupIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "id": {
+            "type": "string"
+          },
+          "messageCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "messageTemplate": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "sentMessageCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CampaignStatus"
+          }
+        }
+      },
+      "CampaignFilterDto": {
+        "type": "object",
+        "properties": {
+          "contactGroupId": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ContainmentFilter_Ulid"
+              }
+            ]
+          },
+          "createdAt": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ComparisonFilter_String"
+              }
+            ]
+          },
+          "id": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ContainmentFilter_Ulid"
+              }
+            ]
+          },
+          "messageCount": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ComparisonFilter_i32"
+              }
+            ]
+          },
+          "messageTemplate": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/TextFilter"
+              }
+            ]
+          },
+          "name": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/TextFilter"
+              }
+            ]
+          },
+          "nested": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CampaignFilterDto"
+            }
+          },
+          "operator": {
+            "$ref": "#/components/schemas/NestedOperator"
+          },
+          "sentMessageCount": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ComparisonFilter_i32"
+              }
+            ]
+          },
+          "status": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ContainmentFilter_CampaignStatus"
+              }
+            ]
+          }
+        }
+      },
+      "CampaignSortDto": {
+        "type": "object",
+        "properties": {
+          "createdAt": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Sort"
+              }
+            ]
+          },
+          "id": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Sort"
+              }
+            ]
+          },
+          "messageCount": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Sort"
+              }
+            ]
+          },
+          "name": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Sort"
+              }
+            ]
+          },
+          "sentMessageCount": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Sort"
+              }
+            ]
+          },
+          "status": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Sort"
+              }
+            ]
+          }
+        }
+      },
+      "CampaignStatus": {
+        "type": "string",
+        "enum": [
+          "PENDING",
+          "SENDING",
+          "PAUSED_BY_USER",
+          "PAUSED_BY_BILLING",
+          "CANCELLED_BY_USER",
+          "CANCELLED_BY_TIMEOUT",
+          "SENT"
+        ]
+      },
+      "ChangePasswordDto": {
+        "type": "object",
+        "required": ["oldPassword", "newPassword"],
+        "properties": {
+          "newPassword": {
+            "type": "string"
+          },
+          "oldPassword": {
+            "type": "string"
+          }
+        }
+      },
+      "ChangeUserNameDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "ComparisonFilter_String": {
+        "type": "object",
+        "required": ["operator"],
+        "properties": {
+          "operator": {
+            "$ref": "#/components/schemas/ComparisonOperator"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "ComparisonFilter_i32": {
+        "type": "object",
+        "required": ["operator"],
+        "properties": {
+          "operator": {
+            "$ref": "#/components/schemas/ComparisonOperator"
+          },
+          "value": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ComparisonOperator": {
+        "type": "string",
+        "enum": ["EQUAL", "NOT_EQUAL", "GREATER_THAN", "LESS_THAN", "GREATER_OR_EQUAL", "LESS_OR_EQUAL"]
+      },
+      "ContactCreateDto": {
+        "type": "object",
+        "properties": {
+          "birthday": {
+            "type": ["string", "null"],
+            "format": "date"
+          },
+          "contactGroupIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          },
+          "customFields": {
+            "type": ["array", "null"],
+            "items": {
+              "$ref": "#/components/schemas/CustomFieldValueInputDto"
+            }
+          },
+          "email": {
+            "type": ["string", "null"]
+          },
+          "firstName": {
+            "type": ["string", "null"]
+          },
+          "lastName": {
+            "type": ["string", "null"]
+          },
+          "notes": {
+            "type": ["string", "null"]
+          },
+          "phoneNumber": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "ContactDto": {
+        "type": "object",
+        "required": ["id", "phoneNumber", "customFields", "contactGroupIds"],
+        "properties": {
+          "birthday": {
+            "type": ["string", "null"],
+            "format": "date"
+          },
+          "contactGroupIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          },
+          "customFields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomFieldValueDto"
+            }
+          },
+          "email": {
+            "type": ["string", "null"]
+          },
+          "firstName": {
+            "type": ["string", "null"]
+          },
+          "id": {
+            "$ref": "#/components/schemas/Ulid"
+          },
+          "lastName": {
+            "type": ["string", "null"]
+          },
+          "notes": {
+            "type": ["string", "null"]
+          },
+          "phoneNumber": {
+            "type": "string"
+          }
+        }
+      },
+      "ContactExportDto": {
+        "type": "object",
+        "required": ["format"],
+        "properties": {
+          "filter": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ContactFilterDto"
+              }
+            ]
+          },
+          "format": {
+            "$ref": "#/components/schemas/ContactExportFormatDto"
+          },
+          "sort": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ContactSortDto"
+              }
+            ]
+          }
+        }
+      },
+      "ContactExportFormatDto": {
+        "type": "string",
+        "enum": ["CSV", "EXCEL"]
+      },
+      "ContactFilterDto": {
+        "type": "object",
+        "properties": {
+          "birthday": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ComparisonFilter_String"
+              }
+            ]
+          },
+          "contactGroupId": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ContainmentFilter_Ulid"
+              }
+            ]
+          },
+          "email": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/TextFilter"
+              }
+            ]
+          },
+          "filter": {
+            "type": ["string", "null"]
+          },
+          "firstName": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/TextFilter"
+              }
+            ]
+          },
+          "id": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ContainmentFilter_Ulid"
+              }
+            ]
+          },
+          "lastName": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/TextFilter"
+              }
+            ]
+          },
+          "nested": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContactFilterDto"
+            }
+          },
+          "operator": {
+            "$ref": "#/components/schemas/NestedOperator"
+          },
+          "phoneNumber": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/TextFilter"
+              }
+            ]
+          }
+        }
+      },
+      "ContactGroupCreateDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "ContactGroupDto": {
+        "type": "object",
+        "required": ["id", "name", "contactCount"],
+        "properties": {
+          "contactCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "id": {
+            "$ref": "#/components/schemas/Ulid"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "ContactGroupFilterDto": {
+        "type": "object",
+        "properties": {
+          "contactCount": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ComparisonFilter_i32"
+              }
+            ]
+          },
+          "name": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/TextFilter"
+              }
+            ]
+          },
+          "nested": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContactGroupFilterDto"
+            }
+          },
+          "operator": {
+            "$ref": "#/components/schemas/NestedOperator"
+          }
+        }
+      },
+      "ContactGroupSortDto": {
+        "type": "object",
+        "properties": {
+          "contactCount": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Sort"
+              }
+            ]
+          },
+          "name": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Sort"
+              }
+            ]
+          }
+        }
+      },
+      "ContactGroupUpdateDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "ContactImportColumnDto": {
+        "type": "object",
+        "required": ["columnIndex", "field"],
+        "properties": {
+          "columnIndex": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "field": {
+            "$ref": "#/components/schemas/TableImportFieldDto"
+          }
+        }
+      },
+      "ContactImportDto": {
+        "type": "object",
+        "required": ["filename", "fields"],
+        "properties": {
+          "contactGroupIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContactImportColumnDto"
+            }
+          },
+          "filename": {
+            "type": "string"
+          },
+          "skipFirstRow": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ContactImportResultDto": {
+        "type": "object",
+        "required": ["importedCount"],
+        "properties": {
+          "importedCount": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "ContactSortDto": {
+        "type": "object",
+        "properties": {
+          "birthday": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Sort"
+              }
+            ]
+          },
+          "email": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Sort"
+              }
+            ]
+          },
+          "firstName": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Sort"
+              }
+            ]
+          },
+          "lastName": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Sort"
+              }
+            ]
+          },
+          "phoneNumber": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Sort"
+              }
+            ]
+          }
+        }
+      },
+      "ContactUpdateDto": {
+        "type": "object",
+        "properties": {
+          "birthday": {
+            "type": ["string", "null"],
+            "format": "date"
+          },
+          "contactGroupIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Ulid"
+            }
+          },
+          "customFields": {
+            "type": ["array", "null"],
+            "items": {
+              "$ref": "#/components/schemas/CustomFieldValueInputDto"
+            }
+          },
+          "email": {
+            "type": ["string", "null"]
+          },
+          "firstName": {
+            "type": ["string", "null"]
+          },
+          "lastName": {
+            "type": ["string", "null"]
+          },
+          "notes": {
+            "type": ["string", "null"]
+          },
+          "phoneNumber": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "ContainmentFilter_CampaignStatus": {
+        "type": "object",
+        "required": ["operator", "value"],
+        "properties": {
+          "operator": {
+            "$ref": "#/components/schemas/ContainmentOperator"
+          },
+          "value": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "PENDING",
+                "SENDING",
+                "PAUSED_BY_USER",
+                "PAUSED_BY_BILLING",
+                "CANCELLED_BY_USER",
+                "CANCELLED_BY_TIMEOUT",
+                "SENT"
+              ]
+            }
+          }
+        }
+      },
+      "ContainmentFilter_MessageStatus": {
+        "type": "object",
+        "required": ["operator", "value"],
+        "properties": {
+          "operator": {
+            "$ref": "#/components/schemas/ContainmentOperator"
+          },
+          "value": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["PENDING", "SENT", "FAILED"]
+            }
+          }
+        }
+      },
+      "ContainmentFilter_Ulid": {
+        "type": "object",
+        "required": ["operator", "value"],
+        "properties": {
+          "operator": {
+            "$ref": "#/components/schemas/ContainmentOperator"
+          },
+          "value": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ContainmentOperator": {
+        "type": "string",
+        "enum": ["IN", "NOT_IN"]
+      },
+      "CreateCustomFieldDto": {
+        "type": "object",
+        "required": ["name", "type"],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/CustomFieldType"
+          }
+        }
+      },
+      "CustomFieldDto": {
+        "type": "object",
+        "required": ["id", "name", "type", "position"],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Ulid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "position": {
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/CustomFieldType"
+          }
+        }
+      },
+      "CustomFieldType": {
+        "type": "string",
+        "enum": ["TEXT", "NUMBER", "DATE"]
+      },
+      "CustomFieldValueDto": {
+        "type": "object",
+        "required": ["id", "value"],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Ulid"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "CustomFieldValueInputDto": {
+        "type": "object",
+        "required": ["id", "value"],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Ulid"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "ErrorCode": {
+        "type": "string",
+        "enum": [
+          "VALUE_REQUIRED",
+          "INVALID_VALUE",
+          "INTERNAL_ERROR",
+          "NOT_FOUND",
+          "ACCOUNT_ALREADY_EXISTS",
+          "TOO_MANY_EMAIL_CODE_REQUESTS",
+          "TOO_MANY_PHONE_CODE_REQUESTS",
+          "SESSION_EXPIRED",
+          "SESSION_CLIENT_CHANGED",
+          "SESSION_INVALID_USER",
+          "TEN_DLC_BRAND_REQUIRED"
+        ]
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": ["errorCode"],
+        "properties": {
+          "errorCode": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "errorDescription": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "HealthResponse": {
+        "type": "object",
+        "required": ["status"],
+        "properties": {
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "IdDto": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Ulid"
+          }
+        }
+      },
+      "MessageDto": {
+        "type": "object",
+        "required": ["id", "text", "tenantPhoneId", "tenantPhoneNumber", "status"],
+        "properties": {
+          "campaignId": {
+            "type": ["string", "null"]
+          },
+          "contactId": {
+            "type": ["string", "null"]
+          },
+          "conversationId": {
+            "type": ["string", "null"]
+          },
+          "id": {
+            "type": "string"
+          },
+          "sentAt": {
+            "type": ["string", "null"]
+          },
+          "status": {
+            "$ref": "#/components/schemas/MessageStatus"
+          },
+          "tenantPhoneId": {
+            "type": "string"
+          },
+          "tenantPhoneNumber": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          }
+        }
+      },
+      "MessageExportDto": {
+        "type": "object",
+        "required": ["campaignId", "format"],
+        "properties": {
+          "campaignId": {
+            "type": "string"
+          },
+          "format": {
+            "$ref": "#/components/schemas/MessageExportFormatDto"
+          },
+          "sort": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/MessageSortDto"
+              }
+            ]
+          }
+        }
+      },
+      "MessageExportFormatDto": {
+        "type": "string",
+        "enum": ["CSV", "EXCEL"]
+      },
+      "MessageFilterDto": {
+        "type": "object",
+        "properties": {
+          "campaignId": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ContainmentFilter_Ulid"
+              }
+            ]
+          },
+          "contactId": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ContainmentFilter_Ulid"
+              }
+            ]
+          },
+          "conversationId": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ContainmentFilter_Ulid"
+              }
+            ]
+          },
+          "id": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ContainmentFilter_Ulid"
+              }
+            ]
+          },
+          "nested": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MessageFilterDto"
+            }
+          },
+          "operator": {
+            "$ref": "#/components/schemas/NestedOperator"
+          },
+          "sentAt": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ComparisonFilter_String"
+              }
+            ]
+          },
+          "status": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ContainmentFilter_MessageStatus"
+              }
+            ]
+          },
+          "tenantPhoneId": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ContainmentFilter_Ulid"
+              }
+            ]
+          },
+          "tenantPhoneNumber": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/TextFilter"
+              }
+            ]
+          },
+          "text": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/TextFilter"
+              }
+            ]
+          }
+        }
+      },
+      "MessageSortDto": {
+        "type": "object",
+        "properties": {
+          "campaignId": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Sort"
+              }
+            ]
+          },
+          "contactId": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Sort"
+              }
+            ]
+          },
+          "conversationId": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Sort"
+              }
+            ]
+          },
+          "id": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Sort"
+              }
+            ]
+          },
+          "sentAt": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Sort"
+              }
+            ]
+          },
+          "status": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Sort"
+              }
+            ]
+          },
+          "tenantPhoneId": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Sort"
+              }
+            ]
+          },
+          "tenantPhoneNumber": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Sort"
+              }
+            ]
+          },
+          "text": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Sort"
+              }
+            ]
+          }
+        }
+      },
+      "MessageStatus": {
+        "type": "string",
+        "enum": ["PENDING", "SENT", "FAILED"]
+      },
+      "NestedOperator": {
+        "type": "string",
+        "enum": ["AND", "OR"]
+      },
+      "PageDirection": {
+        "type": "string",
+        "enum": ["NEXT", "PREVIOUS"]
+      },
+      "PagePosition": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "cursor": {
+                "type": ["array", "null"],
+                "items": {
+                  "$ref": "#/components/schemas/Value"
+                }
+              },
+              "pageDirection": {
+                "$ref": "#/components/schemas/PageDirection"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["SEEK"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["offset", "type"],
+            "properties": {
+              "offset": {
+                "type": "integer",
+                "format": "int64",
+                "minimum": 0
+              },
+              "type": {
+                "type": "string",
+                "enum": ["OFFSET"]
+              }
+            }
+          }
+        ]
+      },
+      "PageRequest_CampaignFilterDto_CampaignSortDto": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PageWindow"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "filter": {
+                "type": "object",
+                "properties": {
+                  "contactGroupId": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/ContainmentFilter_Ulid"
+                      }
+                    ]
+                  },
+                  "createdAt": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/ComparisonFilter_String"
+                      }
+                    ]
+                  },
+                  "id": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/ContainmentFilter_Ulid"
+                      }
+                    ]
+                  },
+                  "messageCount": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/ComparisonFilter_i32"
+                      }
+                    ]
+                  },
+                  "messageTemplate": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/TextFilter"
+                      }
+                    ]
+                  },
+                  "name": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/TextFilter"
+                      }
+                    ]
+                  },
+                  "nested": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/CampaignFilterDto"
+                    }
+                  },
+                  "operator": {
+                    "$ref": "#/components/schemas/NestedOperator"
+                  },
+                  "sentMessageCount": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/ComparisonFilter_i32"
+                      }
+                    ]
+                  },
+                  "status": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/ContainmentFilter_CampaignStatus"
+                      }
+                    ]
+                  }
+                }
+              },
+              "sort": {
+                "type": "object",
+                "properties": {
+                  "createdAt": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/Sort"
+                      }
+                    ]
+                  },
+                  "id": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/Sort"
+                      }
+                    ]
+                  },
+                  "messageCount": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/Sort"
+                      }
+                    ]
+                  },
+                  "name": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/Sort"
+                      }
+                    ]
+                  },
+                  "sentMessageCount": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/Sort"
+                      }
+                    ]
+                  },
+                  "status": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/Sort"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "PageRequest_ContactFilterDto_ContactSortDto": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PageWindow"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "filter": {
+                "type": "object",
+                "properties": {
+                  "birthday": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/ComparisonFilter_String"
+                      }
+                    ]
+                  },
+                  "contactGroupId": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/ContainmentFilter_Ulid"
+                      }
+                    ]
+                  },
+                  "email": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/TextFilter"
+                      }
+                    ]
+                  },
+                  "filter": {
+                    "type": ["string", "null"]
+                  },
+                  "firstName": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/TextFilter"
+                      }
+                    ]
+                  },
+                  "id": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/ContainmentFilter_Ulid"
+                      }
+                    ]
+                  },
+                  "lastName": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/TextFilter"
+                      }
+                    ]
+                  },
+                  "nested": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/ContactFilterDto"
+                    }
+                  },
+                  "operator": {
+                    "$ref": "#/components/schemas/NestedOperator"
+                  },
+                  "phoneNumber": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/TextFilter"
+                      }
+                    ]
+                  }
+                }
+              },
+              "sort": {
+                "type": "object",
+                "properties": {
+                  "birthday": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/Sort"
+                      }
+                    ]
+                  },
+                  "email": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/Sort"
+                      }
+                    ]
+                  },
+                  "firstName": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/Sort"
+                      }
+                    ]
+                  },
+                  "lastName": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/Sort"
+                      }
+                    ]
+                  },
+                  "phoneNumber": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/Sort"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "PageRequest_ContactGroupFilterDto_ContactGroupSortDto": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PageWindow"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "filter": {
+                "type": "object",
+                "properties": {
+                  "contactCount": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/ComparisonFilter_i32"
+                      }
+                    ]
+                  },
+                  "name": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/TextFilter"
+                      }
+                    ]
+                  },
+                  "nested": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/ContactGroupFilterDto"
+                    }
+                  },
+                  "operator": {
+                    "$ref": "#/components/schemas/NestedOperator"
+                  }
+                }
+              },
+              "sort": {
+                "type": "object",
+                "properties": {
+                  "contactCount": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/Sort"
+                      }
+                    ]
+                  },
+                  "name": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/Sort"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "PageRequest_MessageFilterDto_MessageSortDto": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PageWindow"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "filter": {
+                "type": "object",
+                "properties": {
+                  "campaignId": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/ContainmentFilter_Ulid"
+                      }
+                    ]
+                  },
+                  "contactId": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/ContainmentFilter_Ulid"
+                      }
+                    ]
+                  },
+                  "conversationId": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/ContainmentFilter_Ulid"
+                      }
+                    ]
+                  },
+                  "id": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/ContainmentFilter_Ulid"
+                      }
+                    ]
+                  },
+                  "nested": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/MessageFilterDto"
+                    }
+                  },
+                  "operator": {
+                    "$ref": "#/components/schemas/NestedOperator"
+                  },
+                  "sentAt": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/ComparisonFilter_String"
+                      }
+                    ]
+                  },
+                  "status": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/ContainmentFilter_MessageStatus"
+                      }
+                    ]
+                  },
+                  "tenantPhoneId": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/ContainmentFilter_Ulid"
+                      }
+                    ]
+                  },
+                  "tenantPhoneNumber": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/TextFilter"
+                      }
+                    ]
+                  },
+                  "text": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/TextFilter"
+                      }
+                    ]
+                  }
+                }
+              },
+              "sort": {
+                "type": "object",
+                "properties": {
+                  "campaignId": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/Sort"
+                      }
+                    ]
+                  },
+                  "contactId": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/Sort"
+                      }
+                    ]
+                  },
+                  "conversationId": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/Sort"
+                      }
+                    ]
+                  },
+                  "id": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/Sort"
+                      }
+                    ]
+                  },
+                  "sentAt": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/Sort"
+                      }
+                    ]
+                  },
+                  "status": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/Sort"
+                      }
+                    ]
+                  },
+                  "tenantPhoneId": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/Sort"
+                      }
+                    ]
+                  },
+                  "tenantPhoneNumber": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/Sort"
+                      }
+                    ]
+                  },
+                  "text": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/Sort"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "PageWindow": {
+        "type": "object",
+        "properties": {
+          "pageSize": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "position": {
+            "$ref": "#/components/schemas/PagePosition"
+          }
+        }
+      },
+      "Page_CampaignDto": {
+        "type": "object",
+        "required": ["items", "size"],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "name",
+                "messageTemplate",
+                "contactGroupIds",
+                "status",
+                "messageCount",
+                "sentMessageCount"
+              ],
+              "properties": {
+                "contactGroupIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "id": {
+                  "type": "string"
+                },
+                "messageCount": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "messageTemplate": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "sentMessageCount": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "status": {
+                  "$ref": "#/components/schemas/CampaignStatus"
+                }
+              }
+            }
+          },
+          "nextCursor": {
+            "type": ["array", "null"],
+            "items": {
+              "$ref": "#/components/schemas/Value"
+            }
+          },
+          "prevCursor": {
+            "type": ["array", "null"],
+            "items": {
+              "$ref": "#/components/schemas/Value"
+            }
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "Page_ContactDto": {
+        "type": "object",
+        "required": ["items", "size"],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "phoneNumber", "customFields", "contactGroupIds"],
+              "properties": {
+                "birthday": {
+                  "type": ["string", "null"],
+                  "format": "date"
+                },
+                "contactGroupIds": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Ulid"
+                  }
+                },
+                "customFields": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CustomFieldValueDto"
+                  }
+                },
+                "email": {
+                  "type": ["string", "null"]
+                },
+                "firstName": {
+                  "type": ["string", "null"]
+                },
+                "id": {
+                  "$ref": "#/components/schemas/Ulid"
+                },
+                "lastName": {
+                  "type": ["string", "null"]
+                },
+                "notes": {
+                  "type": ["string", "null"]
+                },
+                "phoneNumber": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "nextCursor": {
+            "type": ["array", "null"],
+            "items": {
+              "$ref": "#/components/schemas/Value"
+            }
+          },
+          "prevCursor": {
+            "type": ["array", "null"],
+            "items": {
+              "$ref": "#/components/schemas/Value"
+            }
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "Page_ContactGroupDto": {
+        "type": "object",
+        "required": ["items", "size"],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "name", "contactCount"],
+              "properties": {
+                "contactCount": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "id": {
+                  "$ref": "#/components/schemas/Ulid"
+                },
+                "name": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "nextCursor": {
+            "type": ["array", "null"],
+            "items": {
+              "$ref": "#/components/schemas/Value"
+            }
+          },
+          "prevCursor": {
+            "type": ["array", "null"],
+            "items": {
+              "$ref": "#/components/schemas/Value"
+            }
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "Page_MessageDto": {
+        "type": "object",
+        "required": ["items", "size"],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "text", "tenantPhoneId", "tenantPhoneNumber", "status"],
+              "properties": {
+                "campaignId": {
+                  "type": ["string", "null"]
+                },
+                "contactId": {
+                  "type": ["string", "null"]
+                },
+                "conversationId": {
+                  "type": ["string", "null"]
+                },
+                "id": {
+                  "type": "string"
+                },
+                "sentAt": {
+                  "type": ["string", "null"]
+                },
+                "status": {
+                  "$ref": "#/components/schemas/MessageStatus"
+                },
+                "tenantPhoneId": {
+                  "type": "string"
+                },
+                "tenantPhoneNumber": {
+                  "type": "string"
+                },
+                "text": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "nextCursor": {
+            "type": ["array", "null"],
+            "items": {
+              "$ref": "#/components/schemas/Value"
+            }
+          },
+          "prevCursor": {
+            "type": ["array", "null"],
+            "items": {
+              "$ref": "#/components/schemas/Value"
+            }
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "PhoneType": {
+        "type": "string",
+        "enum": ["TEN_DLC", "SHORT_CODE", "TOLL_FREE"]
+      },
+      "ProfileDto": {
+        "type": "object",
+        "required": ["email"],
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "name": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "RegularContactImportFieldDto": {
+        "type": "string",
+        "enum": ["PhoneNumber", "FirstName", "LastName", "Email", "Birthday", "Notes"]
+      },
+      "SendEmailOtpDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "SendPhoneOtpDto": {
+        "type": "object",
+        "properties": {
+          "phoneNumber": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "SignInDto": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "SignUpDto": {
+        "type": "object",
+        "required": ["password"],
+        "properties": {
+          "email": {
+            "type": ["string", "null"]
+          },
+          "emailCode": {
+            "type": ["string", "null"]
+          },
+          "password": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": ["string", "null"]
+          },
+          "phoneNumberCode": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "Sort": {
+        "type": "object",
+        "required": ["order"],
+        "properties": {
+          "direction": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/SortDirection"
+              }
+            ]
+          },
+          "order": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "SortDirection": {
+        "type": "string",
+        "enum": ["ASC", "DESC"]
+      },
+      "TableImportFieldDto": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["field", "type"],
+            "properties": {
+              "field": {
+                "$ref": "#/components/schemas/RegularContactImportFieldDto"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["REGULAR"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["custom_field_id", "type"],
+            "properties": {
+              "custom_field_id": {
+                "$ref": "#/components/schemas/Ulid"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["CUSTOM_FIELD"]
+              }
+            }
+          }
+        ]
+      },
+      "TenDlcBrandDto": {
+        "type": "object",
+        "required": ["id", "createdAt", "updatedAt", "name"],
+        "properties": {
+          "createdAt": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        }
+      },
+      "TenDlcBrandUpdate": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "TenDlcCampaignCreateDto": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "TenDlcCampaignDto": {
+        "type": "object",
+        "required": ["id", "createdAt", "updatedAt"],
+        "properties": {
+          "createdAt": {
+            "type": "string"
+          },
+          "description": {
+            "type": ["string", "null"]
+          },
+          "id": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        }
+      },
+      "TenantPhoneDto": {
+        "type": "object",
+        "required": ["phoneType", "phoneNumber"],
+        "properties": {
+          "phoneNumber": {
+            "type": "string"
+          },
+          "phoneType": {
+            "$ref": "#/components/schemas/PhoneType"
+          }
+        }
+      },
+      "TextFilter": {
+        "type": "object",
+        "required": ["operator"],
+        "properties": {
+          "operator": {
+            "$ref": "#/components/schemas/TextOperator"
+          },
+          "value": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "TextOperator": {
+        "type": "string",
+        "enum": ["CONTAINS", "NOT_CONTAINS", "STARTS_WITH", "ENDS_WITH", "EQUAL", "NOT_EQUAL"]
+      },
+      "Ulid": {
+        "type": "string"
+      },
+      "UpdateCustomFieldNameDto": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateCustomFieldPositionDto": {
+        "type": "object",
+        "required": ["position"],
+        "properties": {
+          "position": {
+            "type": "string"
+          }
+        }
+      },
+      "UploadUrlDto": {
+        "type": "object",
+        "required": ["url", "newFilename"],
+        "properties": {
+          "newFilename": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        }
+      },
+      "Value": {}
+    }
+  }
+}

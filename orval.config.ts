@@ -3,7 +3,7 @@ import { defineConfig } from "orval";
 export default defineConfig({
   backend: {
     input: {
-      target: "./merged.yaml",
+      target: "./backend.openapi.json",
     },
     output: {
       target: "./src/lib/api/index.ts",

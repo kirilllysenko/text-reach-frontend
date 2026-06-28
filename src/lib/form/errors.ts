@@ -21,10 +21,10 @@ const errorTextByCode: Partial<Record<ApiErrorCode, string>> = {
   TEN_DLC_BRAND_REQUIRED: "A 10DLC brand is required for this action.",
 };
 
-export function toErrorText(code?: ApiErrorCode): string | undefined {
+export function toErrorText(code?: ApiErrorCode): string {
   if (!code) {
-    return undefined;
+    return defaultErrorText;
   }
 
-  return errorTextByCode[code];
+  return errorTextByCode[code] ?? defaultErrorText;
 }

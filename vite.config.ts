@@ -23,12 +23,11 @@ export default defineConfig({
   plugins: [tailwindcss(), sveltekit()],
   server: {
     proxy: {
-      "/auth": createApiProxy("http://localhost:8014"),
-      "/tenant": createApiProxy("http://localhost:8000"),
-      "^/contact(?:/|$)": createApiProxy("http://localhost:8001"),
-      "^/contact-group(?:/|$)": createApiProxy("http://localhost:8001"),
-      "/phone": createApiProxy("http://localhost:8008"),
-      "/campaign": createApiProxy("http://localhost:8012"),
+      "/auth": createApiProxy("http://localhost:8081"),
+      "/tenant": createApiProxy("http://localhost:8089"),
+      "^/contact(?:/|$)": createApiProxy("http://localhost:8083"),
+      "/phone": createApiProxy("http://localhost:8088"),
+      "/campaign": createApiProxy("http://localhost:8082"),
     },
   },
 });

@@ -3,6 +3,10 @@ import { sveltekit } from "@sveltejs/kit/vite";
 import type { ProxyOptions } from "vite";
 import { defineConfig } from "vite";
 
+function allowLocalHttpCookies(setCookieHeaders: string[] | undefined): string[] | undefined {
+  return setCookieHeaders?.map((cookie) => cookie.replace(/;\s*Secure/gi, ""));
+}
+
 function createApiProxy(target: string): ProxyOptions {
   return {
     target,
@@ -14,6 +18,10 @@ function createApiProxy(target: string): ProxyOptions {
         }
 
         proxyReq.setHeader("origin", target);
+      });
+
+      proxy.on("proxyRes", (proxyRes) => {
+        proxyRes.headers["set-cookie"] = allowLocalHttpCookies(proxyRes.headers["set-cookie"]);
       });
     },
   };

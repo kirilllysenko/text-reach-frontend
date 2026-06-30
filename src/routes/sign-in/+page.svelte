@@ -1,12 +1,8 @@
 <script lang="ts">
   import { browser } from "$app/environment";
-  import { goto } from "$app/navigation";
   import { page } from "$app/state";
   import Button from "$lib/components/button/Button.svelte";
-  import { checkSession, signIn, type SignInResponse } from "$lib/api/auth/auth";
-  import { PATH_DASHBOARD } from "$lib/app/paths";
-  import { createForm } from "$lib/form/form.svelte";
-  import { type FormValues, initialValues, validator } from "./form.svelte";
+  import { form, redirectActiveSession } from "./form.svelte";
   import { Input } from "$lib";
   import { Field, FieldError, FieldLabel } from "$lib/components/field";
   import PasswordInput from "./PasswordInput.svelte";
@@ -14,7 +10,6 @@
   import Alert from "$lib/components/alert/Alert.svelte";
   import Card from "$lib/components/card/Card.svelte";
 
-  const form = createForm<FormValues, SignInResponse>(initialValues, validator, submit);
   let render = $state(false);
 
   const signUpOk = $derived(browser && page.url.searchParams.get("signUpOk") === "1");
@@ -22,25 +17,11 @@
 
   onMount(async () => {
     try {
-      const response = await checkSession({ credentials: "include" });
-      if (response.status === 200) {
-        await goto(PATH_DASHBOARD);
-        return;
-      }
+      await redirectActiveSession();
     } finally {
       render = true;
     }
   });
-
-  async function submit(values: FormValues): Promise<SignInResponse> {
-    const response = await signIn(values, { credentials: "include" });
-
-    if (response.status === 200) {
-      await goto(PATH_DASHBOARD);
-    }
-
-    return response;
-  }
 </script>
 
 {#if render}

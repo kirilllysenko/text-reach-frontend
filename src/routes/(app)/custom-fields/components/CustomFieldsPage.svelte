@@ -6,31 +6,32 @@
     PageTitle,
     Table,
     accessorColumn,
-    createFilterController,
     createSortController,
+    displayColumn,
     type ColumnDef,
     type DataTableLoadRequest,
     type DataTableSort,
   } from "$lib";
+  import { PATH_CUSTOM_FIELD_ADD } from "$lib/app/paths";
   import { CustomFieldsState } from "$lib/features/custom-fields/custom-fields-state.svelte";
   import type { CustomFieldViewModel } from "$lib/features/custom-fields/custom-fields-view-data";
+  import CustomFieldActionsCell from "./CustomFieldActionsCell.svelte";
   import CustomFieldOverlays from "./CustomFieldOverlays.svelte";
 
   const PAGE_SIZE = 500;
   const customFieldsState = new CustomFieldsState();
-  const initialSorting = [{ sortId: "position", direction: "ascending" }] satisfies DataTableSort[];
+  const initialSorting = [{ sortId: "name", direction: "ascending" }] satisfies DataTableSort[];
 
   let tableKey = customFieldsState.tableKey;
   let rows = $state<CustomFieldViewModel[]>([]);
   let loadingRows = $state(false);
 
-  const filtering = createFilterController(() => void reloadRows());
   const sorting = createSortController(initialSorting, () => void reloadRows());
 
-  function size(width: number) {
+  function size(width: number, maxWidth: number) {
     return {
-      maxWidth: width,
-      minWidth: width,
+      maxWidth,
+      minWidth: Math.min(width, 96),
       width,
     };
   }
@@ -40,26 +41,29 @@
       accessorKey: "name",
       header: "Name",
       options: { sortable: true },
-      state: { size: size(280) },
+      state: { size: size(280, 1200) },
     }),
     accessorColumn<CustomFieldViewModel, "typeLabel", unknown>({
       accessorKey: "typeLabel",
       columnId: "type",
       header: "Type",
       options: { sortable: true },
-      state: { size: size(160) },
+      state: { size: size(160, 320) },
     }),
-    accessorColumn<CustomFieldViewModel, "position", unknown>({
-      accessorKey: "position",
-      header: "Position",
-      options: { sortable: true },
-      state: { size: size(140) },
-    }),
-    accessorColumn<CustomFieldViewModel, "id", unknown>({
-      accessorKey: "id",
-      header: "ID",
-      options: { sortable: false },
-      state: { size: size(280) },
+    displayColumn<CustomFieldViewModel, unknown>({
+      columnId: "actions",
+      header: "",
+      cell: ({ row }) => ({
+        component: CustomFieldActionsCell,
+        props: { field: row.original },
+      }),
+      options: {
+        hideable: false,
+        moveable: false,
+        pinnable: false,
+        resizable: false,
+      },
+      state: { size: size(88, 120) },
     }),
   ] satisfies ColumnDef<CustomFieldViewModel>[];
 
@@ -101,7 +105,7 @@
 
     const request = {
       cursor: null,
-      filters: filtering.filters,
+      filters: [],
       limit: PAGE_SIZE,
       sorting: sorting.sorts,
     } satisfies DataTableLoadRequest;
@@ -125,90 +129,74 @@
 {/snippet}
 
 <div
-  class="relative flex h-full min-h-dvh flex-col rounded-2xl bg-gradient-to-br from-slate-100 via-slate-50
-    to-stone-100 p-2 sm:min-h-[calc(100dvh-3rem)] sm:p-3"
+  class="relative flex h-dvh min-h-0 flex-col gap-3 rounded-2xl bg-gradient-to-br from-slate-100 via-slate-50
+    to-stone-100 p-2 sm:h-[calc(100dvh-3rem)] sm:p-3"
 >
-  <PageTitle title="Custom Fields" />
+  <PageTitle title="Custom Fields">
+    <a
+      href={PATH_CUSTOM_FIELD_ADD}
+      class="flex h-9 items-center justify-center rounded-xl border border-slate-700 bg-slate-700 px-3
+        text-base font-medium text-white shadow-sm hover:bg-slate-800"
+    >
+      Add custom field
+    </a>
+  </PageTitle>
 
   <div
-    class="flex min-h-0 grow flex-col overflow-hidden rounded-2xl border border-white/70 bg-white/70
+    class="shrink-0 space-y-3 rounded-2xl border border-white/70 bg-white/70 p-3
       shadow-[0_20px_45px_-25px_rgba(30,41,59,0.45)] backdrop-blur-md"
   >
-    <div class="shrink-0 space-y-3 border-b border-white/70 bg-white/55 p-3 backdrop-blur-sm">
-      <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
-        <Input
-          class="min-w-0 grow"
-          placeholder="Search custom fields"
-          value={customFieldsState.search}
-          oninput={(event) => customFieldsState.updateSearch(event.currentTarget.value)}
-        />
+    <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+      <Input
+        class="min-w-0 grow"
+        placeholder="Search custom fields"
+        value={customFieldsState.search}
+        oninput={(event) => customFieldsState.updateSearch(event.currentTarget.value)}
+      />
 
-        <div class="flex items-center gap-2">
-          <button
-            class={[
-              `relative flex h-9 items-center gap-2 rounded-xl border bg-white/90 px-3 text-sm font-medium
-                text-slate-700 shadow-sm hover:cursor-pointer hover:bg-white`,
-              customFieldsState.filtersOpen ? "border-sky-300 bg-sky-50/90" : "border-white/80",
-            ]}
-            type="button"
-            onclick={customFieldsState.openFilters}
+      <div class="flex items-center gap-2">
+        <button
+          class={[
+            `relative flex h-9 items-center gap-2 rounded-xl border bg-white/90 px-3 text-sm font-medium
+              text-slate-700 shadow-sm hover:cursor-pointer hover:bg-white`,
+            customFieldsState.sortOpen ? "border-sky-300 bg-sky-50/90" : "border-white/80",
+          ]}
+          type="button"
+          onclick={customFieldsState.openSort}
+        >
+          <svg
+            viewBox="0 0 24 24"
+            class={["size-5", customFieldsState.sortOpen ? "fill-sky-700" : "fill-slate-700"]}
+            aria-hidden="true"
           >
-            <svg
-              viewBox="0 0 24 24"
-              class={["size-5", customFieldsState.filtersOpen ? "fill-sky-700" : "fill-slate-700"]}
-              aria-hidden="true"
-            >
-              <path d="M3 5h18l-7 8v5l-4 2v-7L3 5z" />
-            </svg>
-            Filters
-            <span
-              class="flex h-4 min-w-4 items-center justify-center rounded-full bg-slate-700 px-1 text-[10px]
-                leading-4 text-white"
-            >
-              {filtering.filters.length}
-            </span>
-          </button>
-
-          <button
-            class={[
-              `relative flex h-9 items-center gap-2 rounded-xl border bg-white/90 px-3 text-sm font-medium
-                text-slate-700 shadow-sm hover:cursor-pointer hover:bg-white`,
-              customFieldsState.sortOpen ? "border-sky-300 bg-sky-50/90" : "border-white/80",
-            ]}
-            type="button"
-            onclick={customFieldsState.openSort}
+            <path d="M7 4h10v2H7V4zm-2 7h14v2H5v-2zm3 7h8v2H8v-2z" />
+          </svg>
+          Sort
+          <span
+            class="flex h-4 min-w-4 items-center justify-center rounded-full bg-slate-700 px-1 text-[10px]
+              leading-4 text-white"
           >
-            <svg
-              viewBox="0 0 24 24"
-              class={["size-5", customFieldsState.sortOpen ? "fill-sky-700" : "fill-slate-700"]}
-              aria-hidden="true"
-            >
-              <path d="M7 4h10v2H7V4zm-2 7h14v2H5v-2zm3 7h8v2H8v-2z" />
-            </svg>
-            Sort
-            <span
-              class="flex h-4 min-w-4 items-center justify-center rounded-full bg-slate-700 px-1 text-[10px]
-                leading-4 text-white"
-            >
-              {sorting.sorts.length}
-            </span>
-          </button>
-        </div>
+            {sorting.sorts.length}
+          </span>
+        </button>
       </div>
-
-      {#if customFieldsState.loadingError}
-        <div class="text-amber-900 rounded-xl border border-amber-200/80 bg-amber-100/90 px-3 py-2 text-sm shadow-sm">
-          {customFieldsState.loadingError}
-        </div>
-      {/if}
     </div>
 
-    <div class="min-h-0 grow p-3">
-      {#key table}
-        <Table {table} loading={loadingRows} />
-      {/key}
-    </div>
+    {#if customFieldsState.loadingError}
+      <div class="text-amber-900 rounded-xl border border-amber-200/80 bg-amber-100/90 px-3 py-2 text-sm shadow-sm">
+        {customFieldsState.loadingError}
+      </div>
+    {/if}
+  </div>
+
+  <div
+    class="flex min-h-0 grow flex-col overflow-hidden rounded-2xl border border-white/70 bg-white/70 p-0
+      shadow-[0_20px_45px_-25px_rgba(30,41,59,0.45)] backdrop-blur-md"
+  >
+    {#key table}
+      <Table {table} loading={loadingRows} />
+    {/key}
   </div>
 </div>
 
-<CustomFieldOverlays state={customFieldsState} {filtering} {sorting} />
+<CustomFieldOverlays state={customFieldsState} {sorting} />

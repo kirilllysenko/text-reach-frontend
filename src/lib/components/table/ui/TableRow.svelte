@@ -14,7 +14,7 @@
   const visibleColumns = $derived(table.columns.getLeafColumnsInOrder().filter((column) => column.isVisible()));
 </script>
 
-<div class={["flex min-w-max border-b border-slate-100", rowIndex % 2 === 0 ? "bg-white" : "bg-slate-50/60"]}>
+<div class={["flex w-max min-w-full border-b border-slate-100", rowIndex % 2 === 0 ? "bg-white" : "bg-slate-50/60"]}>
   {#each visibleColumns as column (column.columnId)}
     <TableCell {column} {row} {rowIndex} {table} />
   {/each}

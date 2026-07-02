@@ -15,7 +15,6 @@ export function toCustomFieldViewModel(dto: CustomFieldDtoLike, index: number): 
     name: dto.name?.trim() || "Unnamed field",
     type,
     typeLabel: customFieldTypeLabelMap[type],
-    position: dto.position ?? "",
   };
 }
 
@@ -26,21 +25,18 @@ export function createMockCustomFields(): CustomFieldViewModel[] {
       name: "Lead Source",
       type: "TEXT",
       typeLabel: customFieldTypeLabelMap.TEXT,
-      position: "1",
     },
     {
       id: "mock-custom-field-2",
       name: "Lifetime Value",
       type: "NUMBER",
       typeLabel: customFieldTypeLabelMap.NUMBER,
-      position: "2",
     },
     {
       id: "mock-custom-field-3",
       name: "Renewal Date",
       type: "DATE",
       typeLabel: customFieldTypeLabelMap.DATE,
-      position: "3",
     },
   ];
 }
@@ -53,7 +49,7 @@ export function filterCustomFields(
   const searchValue = search.trim().toLowerCase();
 
   return fields.filter((field) => {
-    const searchable = [field.name, field.typeLabel, field.position].join(" ").toLowerCase();
+    const searchable = [field.name, field.typeLabel].join(" ").toLowerCase();
 
     if (searchValue && !searchable.includes(searchValue)) {
       return false;

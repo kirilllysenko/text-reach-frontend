@@ -28,7 +28,7 @@ export class CustomFieldsState {
   sortRules = $state<CustomFieldSortRule[]>([
     {
       id: crypto.randomUUID(),
-      field: "position",
+      field: "name",
       direction: SortDirection.ASC,
     },
   ]);
@@ -99,7 +99,7 @@ export class CustomFieldsState {
   removeSortRule = (ruleId: string): void => {
     const remaining = this.sortRules.filter((rule) => rule.id !== ruleId);
     this.sortRules =
-      remaining.length > 0 ? remaining : [{ id: crypto.randomUUID(), field: "position", direction: SortDirection.ASC }];
+      remaining.length > 0 ? remaining : [{ id: crypto.randomUUID(), field: "name", direction: SortDirection.ASC }];
 
     this.refreshTable();
   };
@@ -115,7 +115,7 @@ export class CustomFieldsState {
   };
 
   clearSortRules = (): void => {
-    this.sortRules = [{ id: crypto.randomUUID(), field: "position", direction: SortDirection.ASC }];
+    this.sortRules = [{ id: crypto.randomUUID(), field: "name", direction: SortDirection.ASC }];
     this.refreshTable();
   };
 

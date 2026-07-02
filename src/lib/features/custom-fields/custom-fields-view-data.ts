@@ -5,10 +5,9 @@ export interface CustomFieldViewModel {
   name: string;
   type: CustomFieldType;
   typeLabel: string;
-  position: string;
 }
 
-export type CustomFieldSortField = "name" | "type" | "position";
+export type CustomFieldSortField = "name" | "type";
 
 export interface CustomFieldSortRule {
   id: string;
@@ -16,10 +15,10 @@ export interface CustomFieldSortRule {
   direction: SortDirection;
 }
 
-export type CustomFieldDtoLike = Pick<CustomFieldDto, "id" | "name" | "position" | "type">;
+export type CustomFieldDtoLike = Pick<CustomFieldDto, "id" | "name" | "type">;
 
 export const customFieldTypeOptions: CustomFieldType[] = ["TEXT", "NUMBER", "DATE"];
-export const customFieldSortFieldOptions: CustomFieldSortField[] = ["name", "type", "position"];
+export const customFieldSortFieldOptions: CustomFieldSortField[] = ["name", "type"];
 
 export const customFieldTypeLabelMap: Record<CustomFieldType, string> = {
   TEXT: "Text",
@@ -30,5 +29,4 @@ export const customFieldTypeLabelMap: Record<CustomFieldType, string> = {
 export const customFieldSortFieldLabelMap: Record<CustomFieldSortField, string> = {
   name: "Name",
   type: "Type",
-  position: "Position",
 };

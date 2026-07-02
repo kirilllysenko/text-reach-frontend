@@ -23,7 +23,7 @@
     <div class="flex h-full min-h-40 items-center justify-center text-sm text-slate-500">No rows found</div>
   {:else}
     <div class="h-full overflow-auto">
-      <div class="min-w-max">
+      <div class="w-max min-w-full">
         {#each rows as row, rowIndex (row.identifier)}
           <TableRow {row} {rowIndex} {table} />
         {/each}

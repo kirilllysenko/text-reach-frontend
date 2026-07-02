@@ -1,35 +1,33 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
   import { Button, Input } from "$lib";
-  import { sendPhoneCode } from "$lib/api/tenant/tenant";
+  import { sendEmailCode } from "$lib/api/tenant/tenant";
   import { Field, FieldError, FieldLabel } from "$lib/components/field";
   import { defaultErrorText, networkErrorText, toErrorText } from "$lib/form/errors";
   import { notificationsState } from "$lib/state/notifications.svelte";
   import { Countdown } from "$lib/utils/countdown.svelte";
-  import { normalizePhoneNumber, OTP_LENGTH, PhoneNumberSchema } from "$lib/form/validators";
-  import { form } from "./form.svelte.ts";
+  import { OTP_LENGTH } from "$lib/form/validators";
+  import { EmailSchema, form } from "../form.svelte";
 
-  let { phoneNumber, phoneNumberCode } = form;
+  let { email, emailCode } = form;
 
   let codeLoading = $state(false);
 
   const countdown = new Countdown();
 
   async function sendCodeClick(): Promise<void> {
-    const phoneResult = PhoneNumberSchema.safeParse(phoneNumber.value);
-    phoneNumber.error = phoneResult.success ? null : (phoneResult.error.issues[0]?.message ?? defaultErrorText);
+    const emailResult = EmailSchema.safeParse(email.value);
 
-    if (!phoneResult.success) {
+    if (!emailResult.success) {
+      email.error = emailResult.error.issues[0]?.message ?? defaultErrorText;
       return;
     }
 
+    email.error = null;
     codeLoading = true;
 
     try {
-      const response = await sendPhoneCode(
-        { phoneNumber: normalizePhoneNumber(phoneNumber.value) },
-        { credentials: "include" },
-      );
+      const response = await sendEmailCode({ email: email.value }, { credentials: "include" });
 
       if (response.status === 200) {
         countdown.start(60);
@@ -49,27 +47,27 @@
   });
 </script>
 
-<Field class="mt-4">
-  <FieldLabel for="phoneNumber">Phone number</FieldLabel>
+<Field>
+  <FieldLabel for="email">E-mail</FieldLabel>
   <Input
-    id="phoneNumber"
-    bind:value={phoneNumber.value}
-    type="tel"
-    autocomplete="tel"
-    placeholder="(555) 123-4567"
-    error={phoneNumber.error}
+    id="email"
+    bind:value={email.value}
+    type="email"
+    autocomplete="email"
+    placeholder="you@example.com"
+    error={email.error}
   />
-  <FieldError error={phoneNumber.error} />
+  <FieldError error={email.error} />
 </Field>
 
 <Field class="mt-4">
-  <FieldLabel for="phoneNumberCode">Phone number confirmation code</FieldLabel>
+  <FieldLabel for="emailCode">E-mail confirmation code</FieldLabel>
   <Input
-    id="phoneNumberCode"
-    bind:value={phoneNumberCode.value}
+    id="emailCode"
+    bind:value={emailCode.value}
     maxlength={OTP_LENGTH}
     autocomplete="one-time-code"
-    error={phoneNumberCode.error}
+    error={emailCode.error}
   >
     {#snippet rightAddon()}
       <Button
@@ -84,5 +82,5 @@
       </Button>
     {/snippet}
   </Input>
-  <FieldError error={phoneNumberCode.error} />
+  <FieldError error={emailCode.error} />
 </Field>

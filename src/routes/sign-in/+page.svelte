@@ -5,7 +5,7 @@
   import { form, redirectActiveSession } from "./form.svelte";
   import { Input } from "$lib";
   import { Field, FieldError, FieldLabel } from "$lib/components/field";
-  import PasswordInput from "./PasswordInput.svelte";
+  import PasswordInput from "./components/PasswordInput.svelte";
   import { onMount } from "svelte";
   import Alert from "$lib/components/alert/Alert.svelte";
   import Card from "$lib/components/card/Card.svelte";

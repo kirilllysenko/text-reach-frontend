@@ -13,7 +13,7 @@
   let { table, error = null, loading = false }: Props = $props();
 </script>
 
-<div class="flex h-full min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white">
+<div class="flex h-full min-h-0 flex-col overflow-hidden bg-white">
   <TableHeader {table} />
   <TableBody {table} {error} {loading} />
   <TableStatus {table} />

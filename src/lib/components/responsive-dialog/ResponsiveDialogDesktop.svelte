@@ -14,12 +14,13 @@
 
 <div class="fixed inset-0 z-50 hidden items-center justify-center p-4 sm:flex sm:p-6">
   <Dialog
-    class="max-h-[min(44rem,calc(100dvh-2rem))] w-full max-w-3xl overflow-hidden p-0 sm:w-full sm:max-w-3xl"
+    class="max-h-[min(56rem,calc(100dvh-3rem))] w-full max-w-4xl overflow-hidden p-0
+      sm:w-full lg:max-w-5xl xl:max-w-6xl"
     role="dialog"
     aria-modal="true"
     aria-label={title}
   >
-    <section class="flex max-h-[min(44rem,calc(100dvh-2rem))] flex-col">
+    <section class="flex max-h-[min(56rem,calc(100dvh-3rem))] flex-col">
       <header class="flex items-start justify-between gap-4 border-b border-white/70 px-5 py-4 sm:px-6">
         <div class="space-y-1">
           <h2 class="text-lg font-semibold text-slate-800">{title}</h2>

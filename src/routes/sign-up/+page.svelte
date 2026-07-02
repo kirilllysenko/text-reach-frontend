@@ -1,14 +1,14 @@
 <script lang="ts">
   import { Button } from "$lib";
   import { Field, FieldError, FieldLabel } from "$lib/components/field";
-  import EmailSection from "./EmailSection.svelte";
-  import PhoneSection from "./PhoneSection.svelte";
+  import EmailSection from "./components/EmailSection.svelte";
+  import PhoneSection from "./components/PhoneSection.svelte";
   import Alert from "$lib/components/alert/Alert.svelte";
   import Card from "$lib/components/card/Card.svelte";
   import { form } from "./form.svelte";
   import PasswordInput from "$lib/components/password-input/PasswordInput.svelte";
 
-  let {password} =  form;
+  let { password } = form;
 </script>
 
 <div

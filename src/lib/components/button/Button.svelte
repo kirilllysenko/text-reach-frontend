@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Component } from "svelte";
   import type { ClassValue, HTMLButtonAttributes } from "svelte/elements";
+  import Spinner from "$lib/icons/Spinner.svelte";
 
   interface Props extends HTMLButtonAttributes {
     secondary?: boolean;
@@ -95,14 +96,7 @@
   </div>
 
   {#if spinner}
-    <svg
-      class={["ml-1 animate-spin fill-none stroke-slate-500", small ? "size-4" : "size-5"]}
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-    >
-      <circle class="opacity-20" cx="12" cy="12" r="9" stroke-width="3" />
-      <path class="opacity-90" d="M21 12a9 9 0 0 0-9-9" stroke-width="3" stroke-linecap="round" />
-    </svg>
+    <Spinner class={["ml-1 animate-spin fill-none stroke-slate-500", small ? "size-4" : "size-5"]} />
   {/if}
 </button>
 

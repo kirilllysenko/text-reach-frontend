@@ -1,4 +1,5 @@
 <script lang="ts" generics="T">
+  import Check from "$lib/icons/Check.svelte";
   import type { DropdownOption } from "./dropdown-types";
 
   interface Props {
@@ -52,9 +53,7 @@
     >
       <span class="grow text-left">{option.value}</span>
       {#if option.id === value?.id}
-        <svg class="size-4 fill-slate-600" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M9.2 16.6 4.8 12.2l1.4-1.4 3 3 8.6-8.6 1.4 1.4z" />
-        </svg>
+        <Check class="size-4 fill-slate-600" />
       {/if}
     </button>
   {:else}

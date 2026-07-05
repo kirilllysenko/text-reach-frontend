@@ -1,10 +1,26 @@
-import type { ErrorResponse } from "$lib/api/index.schemas";
+import {
+  SortDirection,
+  type ErrorResponse,
+  type ComparisonFilterString,
+  type ContainmentFilterUlid,
+  type TextFilter,
+  NestedOperator,
+} from "$lib/api/index.schemas";
 import { countContacts as countContactList, fetchContacts as fetchContactList } from "$lib/api/contact/contact";
 import type { DataTableFilter, DataTableLoadRequest, DataTableLoadResult, DataTableSort } from "$lib/components/table";
-import type { ContactViewModel } from "$lib/feature/contact/contact-view-data";
-import { buildContactFilter, buildContactRequest } from "./contact-query";
-import { createMockContactList, filterMockContactList, sortContactList, toContactViewModel } from "./contact-display";
-import { getContactSortRules, getContactTableFilters } from "./contact-table-query";
+import {
+  createMockContactList,
+  filterMockContactList,
+  sortContactList,
+  toContactViewModel,
+} from "$lib/feature/contact/contact-display";
+import { buildContactFilter, buildContactRequest } from "$lib/feature/contact/contact-query";
+import {
+  contactSortFieldOptions,
+  type ContactSortField,
+  type ContactSortRule,
+  type ContactViewModel,
+} from "$lib/feature/contact/contact-view-data";
 
 const SEARCH_DEBOUNCE_MS = 250;
 
@@ -15,7 +31,6 @@ export class ContactTableState {
   tableKey = $state(0);
 
   private searchTimer: ReturnType<typeof setTimeout> | null = null;
-  private fallbackContactList = createMockContactList();
 
   constructor() {
     void this.refreshCount();
@@ -31,10 +46,8 @@ export class ContactTableState {
   };
 
   fetchRows = async (request: DataTableLoadRequest): Promise<DataTableLoadResult<ContactViewModel>> => {
-    const filters = getContactTableFilters(request.filters);
-
     if (request.cursor === null) {
-      await this.refreshCount(request.filters);
+      await this.refreshCount();
     }
 
     const pageRequest = buildContactRequest({
@@ -42,10 +55,10 @@ export class ContactTableState {
       cursor: request.cursor,
       direction: "next",
       search: this.search,
-      contactGroupIds: filters.contactGroupIds,
-      birthdayAfter: filters.birthdayAfter,
-      emailContains: filters.emailContains,
-      sortRules: getContactSortRules(request.sorting),
+      contactGroupIds: [],
+      birthdayAfter: "",
+      emailContains: "",
+      sortRules: [],
     });
 
     try {
@@ -89,16 +102,8 @@ export class ContactTableState {
   }
 
   private async refreshCount(filters: DataTableFilter[] = []): Promise<void> {
-    const tableFilters = getContactTableFilters(filters);
-    const filter = buildContactFilter({
-      search: this.search,
-      contactGroupIds: tableFilters.contactGroupIds,
-      birthdayAfter: tableFilters.birthdayAfter,
-      emailContains: tableFilters.emailContains,
-    });
-
     try {
-      const response = await countContactList(filter ?? {}, { credentials: "include" });
+      const response = await countContactList({}, { credentials: "include" });
 
       if (response.status !== 200) {
         this.handleResponseError(response.data as ErrorResponse);
@@ -112,35 +117,6 @@ export class ContactTableState {
       this.handleResponseError();
       this.totalRows = this.getFilteredMockContactList(filters, []).length;
     }
-  }
-
-  private getFilteredMockContactList(filters: DataTableFilter[], sorting: DataTableSort[]): ContactViewModel[] {
-    const tableFilters = getContactTableFilters(filters);
-    return sortContactList(
-      filterMockContactList(
-        this.fallbackContactList,
-        this.search,
-        tableFilters.contactGroupIds,
-        tableFilters.birthdayAfter,
-        tableFilters.emailContains,
-      ),
-      getContactSortRules(sorting),
-    );
-  }
-
-  private fetchMockRows(request: DataTableLoadRequest): DataTableLoadResult<ContactViewModel> {
-    const contacts = this.getFilteredMockContactList(request.filters, request.sorting);
-    const start = Number(request.cursor?.[0] ?? 0);
-    const end = start + request.limit;
-    const rows = contacts.slice(start, end);
-
-    this.totalRows = contacts.length;
-
-    return {
-      rows,
-      nextCursor: end < contacts.length ? [end] : null,
-      totalRows: contacts.length,
-    };
   }
 
   private handleResponseError(error?: ErrorResponse): void {

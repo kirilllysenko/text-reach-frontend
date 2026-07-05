@@ -8,6 +8,7 @@ export { default as Select } from "./dropdown/select/Select.svelte";
 export type { DropdownOption } from "./dropdown";
 export { default as Avatar } from "./avatar/Avatar.svelte";
 export { default as Input } from "./input/Input.svelte";
+export { default as LinkButton } from "./link-button/LinkButton.svelte";
 export { default as Field, FieldError, FieldLabel } from "./field";
 export { default as FilterPanel } from "./filter-panel/FilterPanel.svelte";
 export type { FilterPanelConfig, FilterPanelField } from "./filter-panel/filter-panel-types";

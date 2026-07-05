@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Plus from "$lib/icons/Plus.svelte";
+  import Trash from "$lib/icons/Trash.svelte";
   import type { DataTableSort, DataTableSortDirection } from "../table";
 
   interface SortFieldOption {
@@ -75,10 +77,7 @@
           title="Remove sort rule"
           onclick={() => sorting.removeAt(index)}
         >
-          <svg class="size-4 fill-current" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M9 3h6l1 2h5v2H3V5h5l1-2zm1 6h2v9h-2V9zm4 0h2v9h-2V9z" />
-            <path d="M6 9h2v11h8V9h2v13H6V9z" />
-          </svg>
+          <Trash class="size-4 fill-current" />
         </button>
       </div>
     {/each}
@@ -91,9 +90,7 @@
     type="button"
     onclick={addRule}
   >
-    <svg class="size-4 fill-current" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6V5z" />
-    </svg>
+    <Plus class="size-4 fill-current" />
     Add sort rule
   </button>
 </div>

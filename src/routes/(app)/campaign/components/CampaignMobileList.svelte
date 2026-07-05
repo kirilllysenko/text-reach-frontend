@@ -1,5 +1,7 @@
 <script lang="ts">
   import { Button, Input } from "$lib";
+  import Filter from "$lib/icons/Filter.svelte";
+  import Sort from "$lib/icons/Sort.svelte";
   import CampaignVirtualList from "./CampaignVirtualList.svelte";
   import type { CampaignState } from "$lib/feature/campaign/campaign-state.svelte";
 
@@ -32,9 +34,7 @@
         aria-label="Sort campaigns"
         onclick={state.openSort}
       >
-        <svg viewBox="0 0 24 24" class="size-5 fill-slate-700" aria-hidden="true">
-          <path d="M7 4h10v2H7V4zm-2 7h14v2H5v-2zm3 7h8v2H8v-2z" />
-        </svg>
+        <Sort class="size-5 fill-slate-700" />
       </button>
 
       <button
@@ -44,9 +44,7 @@
         aria-label="Filter campaigns"
         onclick={state.openFilters}
       >
-        <svg viewBox="0 0 24 24" class="size-5 fill-slate-700" aria-hidden="true">
-          <path d="M3 5h18l-7 8v5l-4 2v-7L3 5z" />
-        </svg>
+        <Filter class="size-5 fill-slate-700" />
       </button>
     </div>
   </header>

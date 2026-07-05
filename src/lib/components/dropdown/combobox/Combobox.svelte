@@ -2,6 +2,7 @@
   import { tick } from "svelte";
   import type { Snippet } from "svelte";
   import type { ClassValue, HTMLInputAttributes } from "svelte/elements";
+  import ChevronDown from "$lib/icons/ChevronDown.svelte";
   import DropdownPopup from "../components/DropdownPopup.svelte";
   import type { DropdownOption } from "../components/dropdown-types";
 
@@ -252,9 +253,7 @@
     {@render rightAddon?.()}
 
     {#if !disabled}
-      <svg class="size-5 fill-slate-500" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="m7 10 5 5 5-5z" />
-      </svg>
+      <ChevronDown class="size-5 fill-slate-500" />
     {/if}
   </div>
 

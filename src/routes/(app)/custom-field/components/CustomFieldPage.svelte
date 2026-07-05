@@ -14,6 +14,7 @@
   } from "$lib";
   import { PATH_CUSTOM_FIELD_ADD } from "$lib/app/paths";
   import { CustomFieldState } from "$lib/feature/custom-field/custom-field-state.svelte";
+  import Sort from "$lib/icons/Sort.svelte";
   import type { CustomFieldViewModel } from "$lib/feature/custom-field/custom-field-view-data";
   import CustomFieldActionCell from "./CustomFieldActionCell.svelte";
   import CustomFieldOverlay from "./CustomFieldOverlay.svelte";
@@ -164,13 +165,7 @@
           type="button"
           onclick={customFieldsState.openSort}
         >
-          <svg
-            viewBox="0 0 24 24"
-            class={["size-5", customFieldsState.sortOpen ? "fill-sky-700" : "fill-slate-700"]}
-            aria-hidden="true"
-          >
-            <path d="M7 4h10v2H7V4zm-2 7h14v2H5v-2zm3 7h8v2H8v-2z" />
-          </svg>
+          <Sort class={["size-5", customFieldsState.sortOpen ? "fill-sky-700" : "fill-slate-700"]} />
           Sort
           <span
             class="flex h-4 min-w-4 items-center justify-center rounded-full bg-slate-700 px-1 text-[10px]

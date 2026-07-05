@@ -14,6 +14,8 @@
   } from "$lib";
   import { PATH_PAYMENT } from "$lib/app/paths";
   import { WalletTransactionState } from "$lib/feature/payment/payment-state.svelte";
+  import Filter from "$lib/icons/Filter.svelte";
+  import Sort from "$lib/icons/Sort.svelte";
   import type { WalletTransactionViewModel } from "$lib/feature/payment/payment-view-data";
   import TransactionOverlay from "./TransactionOverlay.svelte";
 
@@ -184,13 +186,7 @@
           type="button"
           onclick={transactionState.openFilters}
         >
-          <svg
-            viewBox="0 0 24 24"
-            class={["size-5", transactionState.filtersOpen ? "fill-sky-700" : "fill-slate-700"]}
-            aria-hidden="true"
-          >
-            <path d="M3 5h18l-7 8v5l-4 2v-7L3 5z" />
-          </svg>
+          <Filter class={["size-5", transactionState.filtersOpen ? "fill-sky-700" : "fill-slate-700"]} />
           Filters
           <span
             class="flex h-4 min-w-4 items-center justify-center rounded-full bg-slate-700 px-1 text-[10px]
@@ -209,13 +205,7 @@
           type="button"
           onclick={transactionState.openSort}
         >
-          <svg
-            viewBox="0 0 24 24"
-            class={["size-5", transactionState.sortOpen ? "fill-sky-700" : "fill-slate-700"]}
-            aria-hidden="true"
-          >
-            <path d="M7 4h10v2H7V4zm-2 7h14v2H5v-2zm3 7h8v2H8v-2z" />
-          </svg>
+          <Sort class={["size-5", transactionState.sortOpen ? "fill-sky-700" : "fill-slate-700"]} />
           Sort
           <span
             class="flex h-4 min-w-4 items-center justify-center rounded-full bg-slate-700 px-1 text-[10px]

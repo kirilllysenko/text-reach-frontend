@@ -21,7 +21,7 @@
 </script>
 
 {#if render}
-  <div class="min-h-dvh bg-gradient-to-br from-slate-100 via-slate-50 to-stone-100">
+  <div class="min-h-dvh bg-linear-to-br from-slate-100 via-slate-50 to-stone-100">
     <div class="min-h-dvh sm:ml-70 sm:p-6">
       {@render children()}
     </div>
@@ -48,5 +48,5 @@
     </aside>
   </div>
 {:else}
-  <div class="h-dvh bg-gradient-to-br from-slate-100 via-slate-50 to-stone-100"></div>
+  <div class="h-dvh bg-linear-to-br from-slate-100 via-slate-50 to-stone-100"></div>
 {/if}

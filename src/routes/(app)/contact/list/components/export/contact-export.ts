@@ -1,9 +1,14 @@
 import { fetchContacts as fetchContactList } from "$lib/api/contact/contact";
 import type { DataTableFilter, DataTableSort } from "$lib/components/table";
+import {
+  createMockContactList,
+  filterMockContactList,
+  sortContactList,
+  toContactViewModel,
+} from "$lib/feature/contact/contact-display";
+import { buildContactRequest } from "$lib/feature/contact/contact-query";
 import type { ContactViewModel } from "$lib/feature/contact/contact-view-data";
-import { buildContactRequest } from "./contact-query";
-import { createMockContactList, filterMockContactList, sortContactList, toContactViewModel } from "./contact-display";
-import { getContactSortRules, getContactTableFilters } from "./contact-table-query";
+import { getContactSortRules, getContactTableFilters } from "../table/table.svelte";
 
 const EXPORT_PAGE_SIZE = 500;
 const MAX_EXPORT_PAGES = 200;

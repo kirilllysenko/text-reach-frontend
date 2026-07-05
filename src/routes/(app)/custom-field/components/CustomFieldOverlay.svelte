@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ResponsiveDialog, SortPanel, createSortController } from "$lib";
+  import { Button, ResponsiveDialog, SortPanel, createSortController } from "$lib";
   import type { CustomFieldState } from "$lib/feature/custom-field/custom-field-state.svelte";
   import { customFieldSortFieldLabelMap } from "$lib/feature/custom-field/custom-field-view-data";
 
@@ -27,13 +27,6 @@
   <SortPanel {sorting} fieldOptions={sortFieldOptions} compact />
 
   {#snippet mobileFooter()}
-    <button
-      class="h-10 w-full rounded-xl bg-slate-700 text-sm font-medium text-white shadow-sm
-        hover:cursor-pointer hover:bg-slate-800"
-      type="button"
-      onclick={state.closeOverlays}
-    >
-      Apply sorting
-    </button>
+    <Button class="w-full" onclick={state.closeOverlays}>Apply sorting</Button>
   {/snippet}
 </ResponsiveDialog>

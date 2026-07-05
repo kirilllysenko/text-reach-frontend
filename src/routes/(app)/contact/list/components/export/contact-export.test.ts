@@ -8,7 +8,7 @@ import {
 } from "$lib/api/index.schemas";
 import type { DataTableFilter, DataTableSort } from "$lib/components/table";
 import type { ContactViewModel } from "$lib/feature/contact/contact-view-data";
-import { buildContactExportRequest, getFallbackContactExportList, toContactCsv } from "./contact-transfer";
+import { buildContactExportRequest, getFallbackContactExportList, toContactCsv } from "./contact-export";
 
 const filteredSnapshot = {
   filters: [
@@ -76,7 +76,7 @@ const contacts = [
   },
 ] satisfies ContactViewModel[];
 
-describe("contact transfer helpers", () => {
+describe("contact export helpers", () => {
   it("builds export requests from the visible table snapshot", () => {
     expect(buildContactExportRequest(filteredSnapshot, ["cursor"])).toEqual({
       filter: {

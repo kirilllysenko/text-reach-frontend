@@ -1,5 +1,6 @@
 <script lang="ts">
   import {
+    Button,
     FilterPanel,
     ResponsiveDialog,
     SortPanel,
@@ -7,8 +8,8 @@
     createSortController,
     type FilterPanelConfig,
   } from "$lib";
-  import type { ContactGroupOption } from "$lib/feature/contact/contact-group-lookup-state.svelte";
   import { contactSortFieldLabelMap, type ContactSortField } from "$lib/feature/contact/contact-view-data";
+  import type { ContactGroupOption } from "./contact-group-lookup-state.svelte";
 
   type OpenPanel = "filters" | "sort" | null;
 
@@ -88,14 +89,7 @@
   <FilterPanel filtering={filterController} config={filtering} compact />
 
   {#snippet mobileFooter()}
-    <button
-      class="h-10 w-full rounded-xl bg-slate-700 text-sm font-medium text-white shadow-sm
-        hover:cursor-pointer hover:bg-slate-800"
-      type="button"
-      onclick={onClose}
-    >
-      Apply filters
-    </button>
+    <Button class="w-full" onclick={onClose}>Apply filters</Button>
   {/snippet}
 </ResponsiveDialog>
 
@@ -108,13 +102,6 @@
   <SortPanel {sorting} fieldOptions={sortFieldOptions} compact />
 
   {#snippet mobileFooter()}
-    <button
-      class="h-10 w-full rounded-xl bg-slate-700 text-sm font-medium text-white shadow-sm
-        hover:cursor-pointer hover:bg-slate-800"
-      type="button"
-      onclick={onClose}
-    >
-      Apply sorting
-    </button>
+    <Button class="w-full" onclick={onClose}>Apply sorting</Button>
   {/snippet}
 </ResponsiveDialog>

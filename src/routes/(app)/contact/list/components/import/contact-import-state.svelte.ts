@@ -1,52 +1,19 @@
 import type { ErrorResponse } from "$lib/api/index.schemas";
 import { getContactUploadUrl } from "$lib/api/contact/contact";
-import type { ContactGroupLookupState } from "./contact-group-lookup-state.svelte";
-import { loadContactExportList, toContactCsv, type ContactExportSnapshot } from "./contact-transfer";
 
-interface ContactTransferStateOptions {
-  groups: ContactGroupLookupState;
+interface ContactImportStateOptions {
   refreshTable: () => Promise<void> | void;
 }
 
-export class ContactTransferState {
+export class ContactImportState {
   actionMessage = $state<string | null>(null);
   importing = $state(false);
-  exporting = $state(false);
 
-  private options: ContactTransferStateOptions;
+  private options: ContactImportStateOptions;
 
-  constructor(options: ContactTransferStateOptions) {
+  constructor(options: ContactImportStateOptions) {
     this.options = options;
   }
-
-  exportContact = async (snapshot: ContactExportSnapshot): Promise<void> => {
-    if (this.exporting) {
-      return;
-    }
-
-    this.exporting = true;
-    this.actionMessage = null;
-
-    try {
-      const contacts = await loadContactExportList(snapshot);
-      const blob = new Blob([toContactCsv(contacts, this.options.groups.contactGroupNameById)], {
-        type: "text/csv;charset=utf-8",
-      });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-
-      link.href = url;
-      link.download = `contact-${new Date().toISOString().slice(0, 10)}.csv`;
-      link.click();
-      URL.revokeObjectURL(url);
-
-      this.actionMessage = `Exported ${contacts.length} contacts with current filters.`;
-    } catch {
-      this.actionMessage = "Could not export contacts.";
-    } finally {
-      this.exporting = false;
-    }
-  };
 
   importContact = async (file: File): Promise<void> => {
     if (this.importing) {

@@ -15,6 +15,8 @@
   } from "$lib";
   import { PATH_CONTACT_GROUP_ADD } from "$lib/app/paths";
   import { ContactGroupState } from "$lib/feature/contact-group/contact-group-state.svelte";
+  import Filter from "$lib/icons/Filter.svelte";
+  import Sort from "$lib/icons/Sort.svelte";
   import type { ContactGroupViewModel } from "$lib/feature/contact-group/contact-group-view-data";
   import ContactGroupActionCell from "./ContactGroupActionCell.svelte";
   import ContactGroupOverlay from "./ContactGroupOverlay.svelte";
@@ -189,13 +191,7 @@
           type="button"
           onclick={contactGroupState.openFilters}
         >
-          <svg
-            viewBox="0 0 24 24"
-            class={["size-5", contactGroupState.filtersOpen ? "fill-sky-700" : "fill-slate-700"]}
-            aria-hidden="true"
-          >
-            <path d="M3 5h18l-7 8v5l-4 2v-7L3 5z" />
-          </svg>
+          <Filter class={["size-5", contactGroupState.filtersOpen ? "fill-sky-700" : "fill-slate-700"]} />
           Filters
           <span
             class="flex h-4 min-w-4 items-center justify-center rounded-full bg-slate-700 px-1 text-[10px]
@@ -214,13 +210,7 @@
           type="button"
           onclick={contactGroupState.openSort}
         >
-          <svg
-            viewBox="0 0 24 24"
-            class={["size-5", contactGroupState.sortOpen ? "fill-sky-700" : "fill-slate-700"]}
-            aria-hidden="true"
-          >
-            <path d="M7 4h10v2H7V4zm-2 7h14v2H5v-2zm3 7h8v2H8v-2z" />
-          </svg>
+          <Sort class={["size-5", contactGroupState.sortOpen ? "fill-sky-700" : "fill-slate-700"]} />
           Sort
           <span
             class="flex h-4 min-w-4 items-center justify-center rounded-full bg-slate-700 px-1 text-[10px]

@@ -1,5 +1,7 @@
 <script lang="ts">
   import { Input } from "$lib";
+  import Filter from "$lib/icons/Filter.svelte";
+  import Sort from "$lib/icons/Sort.svelte";
   import CampaignVirtualList from "./CampaignVirtualList.svelte";
   import type { CampaignState } from "$lib/feature/campaign/campaign-state.svelte";
 
@@ -35,13 +37,7 @@
         aria-label="Toggle filters"
         onclick={state.openFilters}
       >
-        <svg
-          viewBox="0 0 24 24"
-          class={["size-5", state.filtersOpen ? "fill-sky-700" : "fill-slate-700"]}
-          aria-hidden="true"
-        >
-          <path d="M3 5h18l-7 8v5l-4 2v-7L3 5z" />
-        </svg>
+        <Filter class={["size-5", state.filtersOpen ? "fill-sky-700" : "fill-slate-700"]} />
         <span
           class="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-slate-700
             px-1 text-[10px] leading-4 text-white"
@@ -60,13 +56,7 @@
         aria-label="Toggle sorting"
         onclick={state.openSort}
       >
-        <svg
-          viewBox="0 0 24 24"
-          class={["size-5", state.sortOpen ? "fill-sky-700" : "fill-slate-700"]}
-          aria-hidden="true"
-        >
-          <path d="M7 4h10v2H7V4zm-2 7h14v2H5v-2zm3 7h8v2H8v-2z" />
-        </svg>
+        <Sort class={["size-5", state.sortOpen ? "fill-sky-700" : "fill-slate-700"]} />
         <span
           class="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-slate-700
             px-1 text-[10px] leading-4 text-white"

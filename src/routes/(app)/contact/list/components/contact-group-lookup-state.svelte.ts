@@ -1,6 +1,6 @@
 import { SortDirection, type ContactGroupDto } from "$lib/api/index.schemas";
 import { fetchContactGroups as fetchContactGroupList } from "$lib/api/contact-group/contact-group";
-import { defaultContactGroupNameById, mergeContactGroupNames } from "./contact-display";
+import { defaultContactGroupNameById, mergeContactGroupNames } from "$lib/feature/contact/contact-display";
 
 export interface ContactGroupOption {
   value: string;

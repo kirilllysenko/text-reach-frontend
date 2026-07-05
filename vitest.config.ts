@@ -6,7 +6,7 @@ export default mergeConfig(
   defineConfig({
     test: {
       environment: "node",
-      include: ["src/lib/components/table/test/**/*.test.ts"],
+      include: ["src/lib/**/*.test.ts"],
     },
   }),
 );

@@ -2,30 +2,30 @@ export const PATH_SIGN_IN = "/sign-in";
 export const PATH_SIGN_UP = "/sign-up";
 export const PATH_RESET_PASSWORD = "/reset-password";
 export const PATH_DASHBOARD = "/dashboard";
-export const PATH_CONTACTS = "/contacts";
-export const PATH_CONTACT_ADD = "/contacts/add";
-export const PATH_CUSTOM_FIELDS = "/custom-fields";
-export const PATH_CUSTOM_FIELD_ADD = "/custom-fields/add";
-export const PATH_GROUPS = "/groups";
-export const PATH_GROUP_ADD = "/groups/add";
-export const PATH_SMART_GROUPS = "/smart-groups";
-export const PATH_CAMPAIGNS = "/campaigns";
-export const PATH_CONVERSATIONS = "/conversations";
-export const PATH_PAYMENTS = "/payments";
-export const PATH_PAYMENT_TOP_UP = "/payments/top-up";
-export const PATH_PAYMENT_TRANSACTIONS = "/payments/transactions";
+export const PATH_CONTACT = "/contact";
+export const PATH_CONTACT_ADD = "/contact/add";
+export const PATH_CONTACT_GROUP = "/contact-group";
+export const PATH_CONTACT_GROUP_ADD = "/contact-group/add";
+export const PATH_CUSTOM_FIELD = "/custom-field";
+export const PATH_CUSTOM_FIELD_ADD = "/custom-field/add";
+export const PATH_SMART_GROUP = "/smart-group";
+export const PATH_CAMPAIGN = "/campaign";
+export const PATH_CONVERSATION = "/conversation";
+export const PATH_PAYMENT = "/payment";
+export const PATH_PAYMENT_TOP_UP = "/payment/top-up";
+export const PATH_PAYMENT_TRANSACTION = "/payment/transaction";
 export const PATH_PROFILE = "/profile";
 
-export const CONTACT_SECTION_PATHS = [PATH_CONTACTS, PATH_GROUPS, PATH_SMART_GROUPS, PATH_CUSTOM_FIELDS];
+export const CONTACT_SECTION_PATH = [PATH_CONTACT, PATH_CONTACT_GROUP, PATH_SMART_GROUP, PATH_CUSTOM_FIELD];
 
 export function buildCustomFieldEditPath(id: string): string {
-  return `/custom-fields/${id}/edit`;
+  return `/custom-field/${id}/edit`;
 }
 
 export function buildContactEditPath(id: string): string {
-  return `/contacts/${id}/edit`;
+  return `/contact/${id}/edit`;
 }
 
-export function buildGroupEditPath(id: string): string {
-  return `/groups/${id}/edit`;
+export function buildContactGroupEditPath(id: string): string {
+  return `/contact-group/${id}/edit`;
 }

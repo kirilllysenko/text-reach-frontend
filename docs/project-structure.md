@@ -8,12 +8,12 @@ Use the existing structure as the default map. New code should make the current 
 - Keep `+page.svelte` and `+layout.svelte` thin. They should wire feature components together, not contain large workflows.
 - Page-specific components must live inside that page's route folder, usually under `components/` for larger pages or beside the page for small auth flows.
 - Route-only helpers may live beside the route when they are not reused, such as `src/routes/sign-in/PasswordInput.svelte`.
-- Move code into `src/lib/features/<feature>` only when it is reused outside a single page or represents shared feature state/business logic.
+- Move code into `src/lib/feature/<feature>` only when it is reused outside a single page or represents shared feature state/business logic.
 - Do not import from one route directory into another route directory. Promote shared code to `src/lib`.
 
 ## Feature Modules
 
-- Put reusable feature state, display mapping, and business logic in `src/lib/features/<feature>`.
+- Put reusable feature state, display mapping, and business logic in `src/lib/feature/<feature>`.
 - Use clear suffixes that match the current codebase:
   - `<feature>-state.svelte.ts` for Svelte rune state and derived feature state.
   - `<feature>-view-data.ts` for view-only types, labels, and local UI options.

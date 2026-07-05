@@ -9,6 +9,7 @@
     LeafColumn,
   } from "../core/types";
   import { getCellContent, isCellComponent } from "../core/utils.svelte";
+  import { getColumnSizeStyle } from "./column-size-style";
 
   interface Props {
     column: LeafColumn<TData>;
@@ -51,9 +52,10 @@
     `min-h-11 overflow-hidden border-r border-slate-100 px-3 py-2 text-sm text-ellipsis whitespace-nowrap
     text-slate-700`,
     "shrink-0",
+    "grow-0",
     "last:border-r-0",
   ]}
-  style={`width:${column.state.size.width}px;min-width:${column.state.size.minWidth}px;max-width:${column.state.size.maxWidth}px`}
+  style={getColumnSizeStyle(column)}
 >
   {#if CellComponent}
     <CellComponent datagrid={table} {column} {row} {...cellProps} />

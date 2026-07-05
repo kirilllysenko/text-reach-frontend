@@ -36,6 +36,7 @@ export default defineConfig({
       "^/contact(?:/|$)": createApiProxy("http://localhost:8083"),
       "/phone": createApiProxy("http://localhost:8088"),
       "/campaign": createApiProxy("http://localhost:8082"),
+      "/payment": createApiProxy("http://localhost:8091"),
     },
   },
 });

@@ -2,6 +2,7 @@
   import { onDestroy } from "svelte";
   import type { DatagridCore } from "../core/index.svelte";
   import type { LeafColumn } from "../core/types";
+  import { getColumnSizeStyle, setColumnSizeStyleProperty } from "./column-size-style";
 
   interface Props {
     table: DatagridCore<TData>;
@@ -10,8 +11,12 @@
   let { table }: Props = $props();
   let activeResizeColumn = $state<LeafColumn<TData> | null>(null);
   let activeResizePointerId = $state<number | null>(null);
+  let activeResizeRoot: HTMLElement | null = null;
   let resizeStartX = 0;
   let resizeStartWidth = 0;
+  let resizeFrame = 0;
+  let pendingResizeWidth = 0;
+  let latestResizeWidth = 0;
 
   const visibleColumns = $derived(table.columns.getLeafColumnsInOrder().filter((column) => column.isVisible()));
 
@@ -24,12 +29,49 @@
   }
 
   function resizeColumn(column: LeafColumn<TData>, width: number): void {
+    if (column.options.resizable === false) {
+      return;
+    }
+
     table.handlers.column.updateColumnSize(column.columnId, Math.round(width));
   }
 
+  function getClampedColumnWidth(column: LeafColumn<TData>, width: number): number {
+    const { maxWidth, minWidth } = column.state.size;
+
+    return Math.max(minWidth || 0, Math.min(width, maxWidth || Number.MAX_SAFE_INTEGER));
+  }
+
+  function flushVisualResize(): void {
+    resizeFrame = 0;
+
+    if (!activeResizeColumn || !activeResizeRoot) {
+      return;
+    }
+
+    setColumnSizeStyleProperty(activeResizeRoot, activeResizeColumn, pendingResizeWidth);
+  }
+
+  function resizeColumnVisually(column: LeafColumn<TData>, width: number): void {
+    pendingResizeWidth = getClampedColumnWidth(column, Math.round(width));
+    latestResizeWidth = pendingResizeWidth;
+
+    if (resizeFrame) {
+      return;
+    }
+
+    resizeFrame = requestAnimationFrame(flushVisualResize);
+  }
+
   function stopResize(): void {
+    if (resizeFrame) {
+      cancelAnimationFrame(resizeFrame);
+      resizeFrame = 0;
+    }
+
     activeResizeColumn = null;
     activeResizePointerId = null;
+    activeResizeRoot = null;
     if (typeof document === "undefined") {
       return;
     }
@@ -43,11 +85,11 @@
     }
 
     event.preventDefault();
-    resizeColumn(activeResizeColumn, resizeStartWidth + event.clientX - resizeStartX);
+    resizeColumnVisually(activeResizeColumn, resizeStartWidth + event.clientX - resizeStartX);
   }
 
   function startResize(event: PointerEvent, column: LeafColumn<TData>): void {
-    if (event.button !== 0) {
+    if (event.button !== 0 || column.options.resizable === false) {
       return;
     }
 
@@ -58,7 +100,10 @@
     activeResizePointerId = event.pointerId;
     resizeStartX = event.clientX;
     resizeStartWidth = column.state.size.width;
+    pendingResizeWidth = resizeStartWidth;
+    latestResizeWidth = resizeStartWidth;
     const handle = event.currentTarget as HTMLElement;
+    activeResizeRoot = handle.closest("[data-table-root]") as HTMLElement | null;
     handle.setPointerCapture(event.pointerId);
     document.body.classList.add("resizing");
   }
@@ -71,6 +116,14 @@
     const handle = event.currentTarget as HTMLElement;
     if (handle.hasPointerCapture(event.pointerId)) {
       handle.releasePointerCapture(event.pointerId);
+    }
+
+    if (activeResizeColumn) {
+      if (activeResizeRoot) {
+        setColumnSizeStyleProperty(activeResizeRoot, activeResizeColumn, latestResizeWidth);
+      }
+
+      resizeColumn(activeResizeColumn, latestResizeWidth);
     }
 
     stopResize();
@@ -96,9 +149,10 @@
           `relative flex min-h-11 items-center gap-2 border-r border-slate-200 px-3 pr-5 text-left text-xs font-semibold
           tracking-wide text-slate-600 uppercase`,
           "shrink-0",
+          "grow-0",
           "last:border-r-0",
         ]}
-        style={`width:${column.state.size.width}px;min-width:${column.state.size.minWidth}px;max-width:${column.state.size.maxWidth}px`}
+        style={getColumnSizeStyle(column)}
       >
         {#if column.isSortable()}
           <button
@@ -121,23 +175,25 @@
         {:else}
           <span class="max-w-full min-w-0 truncate">{column.header}</span>
         {/if}
-        <!-- svelte-ignore a11y_no_noninteractive_tabindex, a11y_no_noninteractive_element_interactions -->
-        <div
-          class="absolute top-0 right-0 h-full w-2 cursor-col-resize touch-none rounded-none border-0 bg-transparent
-            hover:bg-sky-200/70 focus-visible:bg-sky-200/70 focus-visible:outline-2 focus-visible:outline-sky-500"
-          role="separator"
-          tabindex="0"
-          aria-orientation="vertical"
-          aria-label={`Resize ${column.header} column`}
-          aria-valuemin={column.state.size.minWidth}
-          aria-valuemax={column.state.size.maxWidth}
-          aria-valuenow={column.state.size.width}
-          onpointerdown={(event) => startResize(event, column)}
-          onpointermove={handleResizeMove}
-          onpointerup={finishResize}
-          onpointercancel={finishResize}
-          onkeydown={(event) => handleResizeKeydown(event, column)}
-        ></div>
+        {#if column.options.resizable !== false}
+          <!-- svelte-ignore a11y_no_noninteractive_tabindex, a11y_no_noninteractive_element_interactions -->
+          <div
+            class="absolute top-0 right-0 h-full w-2 cursor-col-resize touch-none rounded-none border-0 bg-transparent
+              hover:bg-sky-200/70 focus-visible:bg-sky-200/70 focus-visible:outline-2 focus-visible:outline-sky-500"
+            role="separator"
+            tabindex="0"
+            aria-orientation="vertical"
+            aria-label={`Resize ${column.header} column`}
+            aria-valuemin={column.state.size.minWidth}
+            aria-valuemax={column.state.size.maxWidth}
+            aria-valuenow={column.state.size.width}
+            onpointerdown={(event) => startResize(event, column)}
+            onpointermove={handleResizeMove}
+            onpointerup={finishResize}
+            onpointercancel={finishResize}
+            onkeydown={(event) => handleResizeKeydown(event, column)}
+          ></div>
+        {/if}
       </div>
     {/each}
   </div>

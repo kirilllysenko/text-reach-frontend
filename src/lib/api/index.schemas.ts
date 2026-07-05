@@ -154,6 +154,11 @@ export interface ChangeUserNameDto {
   name?: string | null;
 }
 
+export interface ComparisonFilterI64 {
+  operator: ComparisonOperator;
+  value?: number;
+}
+
 export type Ulid = string;
 
 export interface CustomFieldValueInputDto {
@@ -347,6 +352,10 @@ export const CustomFieldType = {
 export interface CreateCustomFieldDto {
   name: string;
   type: CustomFieldType;
+}
+
+export interface CreateTopupCheckoutSessionRequest {
+  amountUsdMicros: number;
 }
 
 export interface CustomFieldDto {
@@ -579,6 +588,43 @@ export type PageRequestMessageFilterDtoMessageSortDto = PageWindow & {
   sort?: PageRequestMessageFilterDtoMessageSortDtoSort;
 };
 
+export interface WalletTransactionFilterDto {
+  amountUsdMicros?: null | ComparisonFilterI64;
+  createdAt?: null | ComparisonFilterString;
+  currency?: null | TextFilter;
+  entryType?: null | TextFilter;
+  id?: null | ContainmentFilterUlid;
+  nested?: WalletTransactionFilterDto[];
+  operator?: NestedOperator;
+  sourceId?: null | ContainmentFilterUlid;
+  sourceType?: null | TextFilter;
+}
+
+export type PageRequestWalletTransactionFilterDtoWalletTransactionSortDtoFilter = {
+  amountUsdMicros?: null | ComparisonFilterI64;
+  createdAt?: null | ComparisonFilterString;
+  currency?: null | TextFilter;
+  entryType?: null | TextFilter;
+  id?: null | ContainmentFilterUlid;
+  nested?: WalletTransactionFilterDto[];
+  operator?: NestedOperator;
+  sourceId?: null | ContainmentFilterUlid;
+  sourceType?: null | TextFilter;
+};
+
+export type PageRequestWalletTransactionFilterDtoWalletTransactionSortDtoSort = {
+  amountUsdMicros?: null | Sort;
+  createdAt?: null | Sort;
+  currency?: null | Sort;
+  entryType?: null | Sort;
+  sourceType?: null | Sort;
+};
+
+export type PageRequestWalletTransactionFilterDtoWalletTransactionSortDto = PageWindow & {
+  filter?: PageRequestWalletTransactionFilterDtoWalletTransactionSortDtoFilter;
+  sort?: PageRequestWalletTransactionFilterDtoWalletTransactionSortDtoSort;
+};
+
 export type PageCampaignDtoItemsItem = {
   contactGroupIds: string[];
   id: string;
@@ -668,6 +714,33 @@ export interface PageMessageDto {
   size: number;
 }
 
+export type PageWalletTransactionDtoItemsItem = {
+  amountUsdMicros: number;
+  createdAt: string;
+  currency: string;
+  entryType: string;
+  id: Ulid;
+  sourceId: Ulid;
+  sourceType: string;
+};
+
+export interface PageWalletTransactionDto {
+  items: PageWalletTransactionDtoItemsItem[];
+  /** @nullable */
+  nextCursor?: Value[] | null;
+  /** @nullable */
+  prevCursor?: Value[] | null;
+  /** @minimum 0 */
+  size: number;
+}
+
+export interface PaymentConfigDto {
+  currency: string;
+  maxTopupUsdMicros: number;
+  minTopupUsdMicros: number;
+  stripePublishableKey: string;
+}
+
 export type PhoneType = (typeof PhoneType)[keyof typeof PhoneType];
 
 export const PhoneType = {
@@ -738,6 +811,14 @@ export interface TenantPhoneDto {
   phoneType: PhoneType;
 }
 
+export interface TopupCheckoutSessionDto {
+  amountUsdMicros: number;
+  clientSecret: string;
+  currency: string;
+  stripeAmountCents: number;
+  topupId: Ulid;
+}
+
 export interface UpdateCustomFieldNameDto {
   name: string;
 }
@@ -749,6 +830,29 @@ export interface UpdateCustomFieldPositionDto {
 export interface UploadUrlDto {
   newFilename: string;
   url: string;
+}
+
+export interface WalletBalanceDto {
+  balanceUsdMicros: number;
+  currency: string;
+}
+
+export interface WalletTransactionDto {
+  amountUsdMicros: number;
+  createdAt: string;
+  currency: string;
+  entryType: string;
+  id: Ulid;
+  sourceId: Ulid;
+  sourceType: string;
+}
+
+export interface WalletTransactionSortDto {
+  amountUsdMicros?: null | Sort;
+  createdAt?: null | Sort;
+  currency?: null | Sort;
+  entryType?: null | Sort;
+  sourceType?: null | Sort;
 }
 
 export type GetContactUploadUrlParams = {

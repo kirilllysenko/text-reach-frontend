@@ -10,6 +10,7 @@
     PATH_CUSTOM_FIELDS,
     PATH_DASHBOARD,
     PATH_GROUPS,
+    PATH_PAYMENTS,
     PATH_PROFILE,
     PATH_SMART_GROUPS,
   } from "$lib/app/paths";
@@ -19,6 +20,7 @@
   import Conversation from "$lib/icons/Conversation.svelte";
   import Dashboard from "$lib/icons/Dashboard.svelte";
   import Logo from "$lib/icons/Logo.svelte";
+  import Payments from "$lib/icons/Payments.svelte";
   import { sessionState } from "$lib/state/session.svelte";
 
   interface Props {
@@ -31,6 +33,7 @@
   const currentPath = $derived(page.url.pathname);
   const contactsSectionActive = $derived(CONTACT_SECTION_PATHS.includes(currentPath));
   const contactsSubmenuOpen = $derived(showContactsSubmenu || contactsSectionActive);
+  const paymentsSectionActive = $derived(currentPath === PATH_PAYMENTS || currentPath.startsWith(`${PATH_PAYMENTS}/`));
 
   function notifyItemClick(): void {
     onItemClicked?.();
@@ -114,6 +117,26 @@
         class={["size-6", isActive(PATH_CAMPAIGNS) ? "fill-sky-700" : "fill-slate-500 group-hover:fill-sky-700"]}
       />
       <span>Campaigns</span>
+    </a>
+  </li>
+
+  <li>
+    <a
+      href={PATH_PAYMENTS}
+      class={[
+        `group flex w-full items-center gap-3 rounded-xl border px-2 py-3 font-medium
+          transition-colors`,
+        paymentsSectionActive
+          ? "active border-white/80 bg-white/75 text-sky-700 shadow-sm"
+          : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
+             hover:bg-white/70 hover:text-slate-800`,
+      ]}
+      onclick={notifyItemClick}
+    >
+      <Payments
+        class={["size-6", paymentsSectionActive ? "fill-sky-700" : "fill-slate-500 group-hover:fill-sky-700"]}
+      />
+      <span>Payments</span>
     </a>
   </li>
 

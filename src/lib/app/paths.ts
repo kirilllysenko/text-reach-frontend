@@ -11,6 +11,9 @@ export const PATH_GROUP_ADD = "/groups/add";
 export const PATH_SMART_GROUPS = "/smart-groups";
 export const PATH_CAMPAIGNS = "/campaigns";
 export const PATH_CONVERSATIONS = "/conversations";
+export const PATH_PAYMENTS = "/payments";
+export const PATH_PAYMENT_TOP_UP = "/payments/top-up";
+export const PATH_PAYMENT_TRANSACTIONS = "/payments/transactions";
 export const PATH_PROFILE = "/profile";
 
 export const CONTACT_SECTION_PATHS = [PATH_CONTACTS, PATH_GROUPS, PATH_SMART_GROUPS, PATH_CUSTOM_FIELDS];

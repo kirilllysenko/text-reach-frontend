@@ -1361,6 +1361,262 @@
         }
       }
     },
+    "/payment/config": {
+      "get": {
+        "operationId": "get_config",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentConfigDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payment/stripe/webhook": {
+      "post": {
+        "operationId": "stripe_webhook",
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payment/top-up/checkout-session": {
+      "post": {
+        "operationId": "create_checkout_session",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTopupCheckoutSessionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopupCheckoutSessionDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payment/wallet/balance": {
+      "get": {
+        "operationId": "get_balance",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletBalanceDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payment/wallet/transactions/count": {
+      "post": {
+        "operationId": "count_transactions",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WalletTransactionFilterDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payment/wallet/transactions/fetch": {
+      "post": {
+        "operationId": "list_transactions",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PageRequest_WalletTransactionFilterDto_WalletTransactionSortDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_WalletTransactionDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/phone/ten-dlc-brand": {
       "get": {
         "tags": ["ten_dlc_brand"],
@@ -2306,6 +2562,19 @@
           }
         }
       },
+      "ComparisonFilter_i64": {
+        "type": "object",
+        "required": ["operator"],
+        "properties": {
+          "operator": {
+            "$ref": "#/components/schemas/ComparisonOperator"
+          },
+          "value": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "ComparisonOperator": {
         "type": "string",
         "enum": ["EQUAL", "NOT_EQUAL", "GREATER_THAN", "LESS_THAN", "GREATER_OR_EQUAL", "LESS_OR_EQUAL"]
@@ -2803,6 +3072,16 @@
           },
           "type": {
             "$ref": "#/components/schemas/CustomFieldType"
+          }
+        }
+      },
+      "CreateTopupCheckoutSessionRequest": {
+        "type": "object",
+        "required": ["amountUsdMicros"],
+        "properties": {
+          "amountUsdMicros": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },
@@ -3813,6 +4092,157 @@
           }
         ]
       },
+      "PageRequest_WalletTransactionFilterDto_WalletTransactionSortDto": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PageWindow"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "filter": {
+                "type": "object",
+                "properties": {
+                  "amountUsdMicros": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/ComparisonFilter_i64"
+                      }
+                    ]
+                  },
+                  "createdAt": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/ComparisonFilter_String"
+                      }
+                    ]
+                  },
+                  "currency": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/TextFilter"
+                      }
+                    ]
+                  },
+                  "entryType": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/TextFilter"
+                      }
+                    ]
+                  },
+                  "id": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/ContainmentFilter_Ulid"
+                      }
+                    ]
+                  },
+                  "nested": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/WalletTransactionFilterDto"
+                    }
+                  },
+                  "operator": {
+                    "$ref": "#/components/schemas/NestedOperator"
+                  },
+                  "sourceId": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/ContainmentFilter_Ulid"
+                      }
+                    ]
+                  },
+                  "sourceType": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/TextFilter"
+                      }
+                    ]
+                  }
+                }
+              },
+              "sort": {
+                "type": "object",
+                "properties": {
+                  "amountUsdMicros": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/Sort"
+                      }
+                    ]
+                  },
+                  "createdAt": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/Sort"
+                      }
+                    ]
+                  },
+                  "currency": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/Sort"
+                      }
+                    ]
+                  },
+                  "entryType": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/Sort"
+                      }
+                    ]
+                  },
+                  "sourceType": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/components/schemas/Sort"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
       "PageWindow": {
         "type": "object",
         "properties": {
@@ -4055,6 +4485,80 @@
           }
         }
       },
+      "Page_WalletTransactionDto": {
+        "type": "object",
+        "required": ["items", "size"],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "amountUsdMicros", "currency", "entryType", "sourceType", "sourceId", "createdAt"],
+              "properties": {
+                "amountUsdMicros": {
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "currency": {
+                  "type": "string"
+                },
+                "entryType": {
+                  "type": "string"
+                },
+                "id": {
+                  "$ref": "#/components/schemas/Ulid"
+                },
+                "sourceId": {
+                  "$ref": "#/components/schemas/Ulid"
+                },
+                "sourceType": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "nextCursor": {
+            "type": ["array", "null"],
+            "items": {
+              "$ref": "#/components/schemas/Value"
+            }
+          },
+          "prevCursor": {
+            "type": ["array", "null"],
+            "items": {
+              "$ref": "#/components/schemas/Value"
+            }
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "PaymentConfigDto": {
+        "type": "object",
+        "required": ["stripePublishableKey", "currency", "minTopupUsdMicros", "maxTopupUsdMicros"],
+        "properties": {
+          "currency": {
+            "type": "string"
+          },
+          "maxTopupUsdMicros": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "minTopupUsdMicros": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "stripePublishableKey": {
+            "type": "string"
+          }
+        }
+      },
       "PhoneType": {
         "type": "string",
         "enum": ["TEN_DLC", "SHORT_CODE", "TOLL_FREE"]
@@ -4259,6 +4763,29 @@
         "type": "string",
         "enum": ["CONTAINS", "NOT_CONTAINS", "STARTS_WITH", "ENDS_WITH", "EQUAL", "NOT_EQUAL"]
       },
+      "TopupCheckoutSessionDto": {
+        "type": "object",
+        "required": ["topupId", "clientSecret", "amountUsdMicros", "currency", "stripeAmountCents"],
+        "properties": {
+          "amountUsdMicros": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "clientSecret": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "stripeAmountCents": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "topupId": {
+            "$ref": "#/components/schemas/Ulid"
+          }
+        }
+      },
       "Ulid": {
         "type": "string"
       },
@@ -4292,7 +4819,188 @@
           }
         }
       },
-      "Value": {}
+      "Value": {},
+      "WalletBalanceDto": {
+        "type": "object",
+        "required": ["currency", "balanceUsdMicros"],
+        "properties": {
+          "balanceUsdMicros": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "currency": {
+            "type": "string"
+          }
+        }
+      },
+      "WalletTransactionDto": {
+        "type": "object",
+        "required": ["id", "amountUsdMicros", "currency", "entryType", "sourceType", "sourceId", "createdAt"],
+        "properties": {
+          "amountUsdMicros": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "entryType": {
+            "type": "string"
+          },
+          "id": {
+            "$ref": "#/components/schemas/Ulid"
+          },
+          "sourceId": {
+            "$ref": "#/components/schemas/Ulid"
+          },
+          "sourceType": {
+            "type": "string"
+          }
+        }
+      },
+      "WalletTransactionFilterDto": {
+        "type": "object",
+        "properties": {
+          "amountUsdMicros": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ComparisonFilter_i64"
+              }
+            ]
+          },
+          "createdAt": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ComparisonFilter_String"
+              }
+            ]
+          },
+          "currency": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/TextFilter"
+              }
+            ]
+          },
+          "entryType": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/TextFilter"
+              }
+            ]
+          },
+          "id": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ContainmentFilter_Ulid"
+              }
+            ]
+          },
+          "nested": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WalletTransactionFilterDto"
+            }
+          },
+          "operator": {
+            "$ref": "#/components/schemas/NestedOperator"
+          },
+          "sourceId": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ContainmentFilter_Ulid"
+              }
+            ]
+          },
+          "sourceType": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/TextFilter"
+              }
+            ]
+          }
+        }
+      },
+      "WalletTransactionSortDto": {
+        "type": "object",
+        "properties": {
+          "amountUsdMicros": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Sort"
+              }
+            ]
+          },
+          "createdAt": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Sort"
+              }
+            ]
+          },
+          "currency": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Sort"
+              }
+            ]
+          },
+          "entryType": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Sort"
+              }
+            ]
+          },
+          "sourceType": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Sort"
+              }
+            ]
+          }
+        }
+      }
     }
   }
 }

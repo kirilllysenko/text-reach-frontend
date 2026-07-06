@@ -7,6 +7,7 @@ export { default as Combobox } from "./dropdown/combobox/Combobox.svelte";
 export { default as Select } from "./dropdown/select/Select.svelte";
 export type { DropdownOption } from "./dropdown";
 export { default as Avatar } from "./avatar/Avatar.svelte";
+export { default as BackButton } from "./back-button/BackButton.svelte";
 export { default as Input } from "./input/Input.svelte";
 export { default as LinkButton } from "./link-button/LinkButton.svelte";
 export { default as Field, FieldError, FieldLabel } from "./field";

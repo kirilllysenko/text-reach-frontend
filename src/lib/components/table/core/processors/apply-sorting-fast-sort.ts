@@ -1,6 +1,6 @@
 import { inPlaceSort } from "fast-sort";
 import type { DatagridCore } from "../index.svelte";
-import type { SortingDirection } from "../types";
+import type { DataTableActiveSortDirection } from "../types";
 
 /**
  * Applies sorting to the given data based on the sort configurations in the datagrid using the fast-sort library.
@@ -16,47 +16,45 @@ import type { SortingDirection } from "../types";
  *
  * @remarks
  * - If manual sorting is enabled or if there are no sorting configurations, the data is returned without any changes.
- * - Sorting is applied based on the direction specified in the `sortConfigs`, handling ascending or descending order.
+ * - Sorting is applied based on active sort directions, handling ascending or descending order.
  * - The Schwartzian Transform is used to precompute the sort keys, which improves performance when sorting large datasets.
  * - The sorting operation uses the fast-sort library's in-place sort mechanism, which efficiently sorts the data by comparing precomputed keys.
  */
 export function applySorting<TOriginalRow>(datagrid: DatagridCore<TOriginalRow>, data: TOriginalRow[]): TOriginalRow[] {
   data = datagrid.lifecycleHooks.executePreSort(data);
 
-  const isManualSortingEnabled = datagrid.features.globalSearch.isManual;
-  const noSorting = datagrid.features.sorting.sortConfigs.length === 0;
+  const isManualSortingEnabled = datagrid.features.sorting.isManual;
+  const noSorting = datagrid.features.sorting.sorts.length === 0;
   if (isManualSortingEnabled || noSorting) return data;
 
-  // Build sortConfigs and precompute keys.
-  const sortConfigs = datagrid.features.sorting.sortConfigs
-    .map((config) => {
-      const fieldId = datagrid.dataFields.getSortFieldId(config);
+  // Build active sorts and precompute keys.
+  const sorts = datagrid.features.sorting.sorts
+    .map((sort) => {
+      const fieldId = datagrid.features.sorting.getSortFieldId(sort);
       const field = datagrid.dataFields.findFieldByIdOrThrow(fieldId);
       if (field.sortable === false) {
         return null;
       }
       return {
         getValue: (row: TOriginalRow) => field.getValueFn(row),
-        direction: config.direction,
+        direction: sort.direction,
       };
     })
-    .filter(Boolean) as { getValue: (row: TOriginalRow) => any; direction: SortingDirection }[];
+    .filter(Boolean) as { getValue: (row: TOriginalRow) => any; direction: DataTableActiveSortDirection }[];
 
   // Decorate each row with its precomputed sort keys.
   const decorated = data.map((row) => ({
     row,
-    keys: sortConfigs.map((cfg) => cfg.getValue(row)),
+    keys: sorts.map((sort) => sort.getValue(row)),
   }));
 
   // Create fast-sort instructions that operate on the decorated keys.
   // (Precompute the instruction array once, using the key index.)
-  const instructions = sortConfigs
-    .filter((cfg) => cfg.direction !== "intermediate") // Ignore intermediate state for sorting
-    .map((cfg, i) =>
-      cfg.direction === "descending"
-        ? { desc: (d: { keys: any[] }) => d.keys[i] }
-        : { asc: (d: { keys: any[] }) => d.keys[i] },
-    );
+  const instructions = sorts.map((sort, i) =>
+    sort.direction === "descending"
+      ? { desc: (d: { keys: any[] }) => d.keys[i] }
+      : { asc: (d: { keys: any[] }) => d.keys[i] },
+  );
 
   datagrid.processors.data.metrics.measure("Sorting", () => {
     // Use fast-sort to sort the decorated array.

@@ -1,167 +1,149 @@
 import type { DatagridCore } from "../index.svelte";
-import type { ColumnId, Sorting, SortingDirection } from "../types";
+import type {
+  DataTableActiveSortDirection,
+  DataTableSort,
+  DataTableSortDefinition,
+  DataTableSortDirection,
+} from "../types";
 
 /**
  * Represents the state of the sorting feature in the datagrid.
  */
-export type SortingFeatureState = {
-  sortConfigs: Sorting[]; // List of sort configurations for each sorted column
-  isManual: boolean; // Indicates if sorting is manual or automatic
-  allowMultiSort: boolean; // Whether multiple column sorting is allowed
-  maxMultiSortColumns: number; // Maximum number of columns that can be sorted simultaneously
+export type SortingFeatureState<TSort extends DataTableSort = DataTableSort> = {
+  sortDefinitions: readonly DataTableSortDefinition[];
+  sorts: TSort[];
+  isManual: boolean;
+  allowMultiSort: boolean;
+  maxMultiSortColumns: number;
+  onSortingChange: (config: SortingFeature) => void;
 };
 
 /**
  * Interface for methods related to the sorting feature.
  */
 export type ISortingFeature = {
-  clearSortConfigs(): void; // Clears all sort configurations
-  removeSortConfig(fieldId: ColumnId): void; // Removes the sort configuration for a specific field
-  changeSortConfigDirection(fieldId: ColumnId, direction: SortingDirection): void; // Changes the sort direction for a field
-  addSortConfig(fieldId: ColumnId, direction: SortingDirection): void; // Adds a new sort configuration for a field
-  isColumnSorted(fieldId: ColumnId, direction?: SortingDirection): boolean; // Checks if a field is sorted, optionally with a specific direction
-  findSortConfigIndex(fieldId: ColumnId): number; // Finds the index of the sort configuration for a field
-  findSortConfigByColumnId(fieldId: ColumnId): Sorting | undefined; // Finds the sort configuration for a field by its ID
+  addSort(sortId: string, direction?: DataTableActiveSortDirection): void;
+  clearSorts(): void;
+  getSort(sortId: string): DataTableSort | undefined;
+  getSortDirection(sortId: string): DataTableSortDirection;
+  getSortFieldId(sort: DataTableSort): string;
+  getSortIndex(sortId: string): number | null;
+  isSorted(sortId: string, direction?: DataTableSortDirection): boolean;
+  removeSort(sortId: string): void;
+  setSorts(sorts: DataTableSort[]): void;
+  updateSort(sortId: string, direction: DataTableActiveSortDirection): void;
 } & SortingFeatureState;
 
 /**
  * Configuration options for the sorting feature.
  */
-export type SortingFeatureConfig = Partial<SortingFeatureState>;
+export type SortingFeatureConfig<TSort extends DataTableSort = DataTableSort> = Partial<SortingFeatureState<TSort>>;
 
 /**
- * Manages sorting configurations for the datagrid, allowing sorting by one or more columns.
+ * Manages ordered sorting rules for the datagrid.
  */
-export class SortingFeature implements ISortingFeature {
-  datagrid: DatagridCore<any>; // The datagrid instance associated with the sorting feature
-  sortConfigs: Sorting[] = $state([]); // List of sort configurations, each representing a column's sort state
-  isManual: boolean = $state(false); // Whether sorting is manual or automatic
-  allowMultiSort: boolean = $state(true); // Whether multi-column sorting is allowed
-  maxMultiSortColumns: number = $state(Infinity); // Maximum number of sortable columns
-  onSortingChange: (config: SortingFeature) => void = () => {}; // Callback for sorting changes
+export class SortingFeature<TSort extends DataTableSort = DataTableSort> implements ISortingFeature {
+  datagrid: DatagridCore<any>;
+  sortDefinitions: readonly DataTableSortDefinition[] = [];
+  sorts: TSort[] = $state([]);
+  isManual: boolean = $state(false);
+  allowMultiSort: boolean = $state(true);
+  maxMultiSortColumns: number = $state(Infinity);
+  onSortingChange: (config: SortingFeature) => void = () => {};
 
-  /**
-   * Initializes the sorting feature for a given datagrid.
-   * @param datagrid The datagrid instance.
-   * @param config Optional configuration for the sorting feature.
-   */
-  constructor(datagrid: DatagridCore<any>, config?: SortingFeatureConfig) {
+  constructor(datagrid: DatagridCore<any>, config: SortingFeatureConfig<TSort> = {}) {
     this.datagrid = datagrid;
-    Object.assign(this, config);
+    this.sortDefinitions = config.sortDefinitions ?? [];
+    this.sorts = config.sorts ?? [];
+    this.isManual = config.isManual ?? false;
+    this.allowMultiSort = config.allowMultiSort ?? true;
+    this.maxMultiSortColumns = config.maxMultiSortColumns ?? Infinity;
+    this.onSortingChange = config.onSortingChange ?? (() => {});
   }
 
-  /**
-   * Retrieves the sort configuration for a column by its ID.
-   * @param columnId The column ID to retrieve the sort configuration for.
-   * @returns The sort configuration or undefined if not found.
-   */
-  getSortConfigByColumnId(fieldId: ColumnId): Sorting | undefined {
-    return this.findSortConfigByFieldId(fieldId);
+  getSort(sortId: string): TSort | undefined {
+    return this.sorts.find((sort) => sort.sortId === sortId);
   }
 
-  getSortConfigByFieldId(fieldId: ColumnId): Sorting | undefined {
-    return this.findSortConfigByFieldId(fieldId);
+  getSortByFieldId(fieldId: string): TSort | undefined {
+    return this.sorts.find((sort) => this.getSortFieldId(sort) === fieldId);
   }
 
-  /**
-   * Finds the sort configuration for a column by its ID.
-   * @param columnId The column ID to find the sort configuration for.
-   * @returns The sort configuration or undefined if not found.
-   */
-  findSortConfigByColumnId(fieldId: ColumnId): Sorting | undefined {
-    return this.findSortConfigByFieldId(fieldId);
+  getSortIndex(sortId: string): number | null {
+    const index = this.findSortIndex(sortId);
+    return index === -1 ? null : index + 1;
   }
 
-  findSortConfigByFieldId(fieldId: ColumnId): Sorting | undefined {
-    return this.sortConfigs.find((config) => this.getSortConfigFieldId(config) === fieldId);
+  getSortConfigIndex(sortId: string): number | null {
+    return this.getSortIndex(sortId);
   }
 
-  /**
-   * Finds the index of the sort configuration for a column.
-   * @param columnId The column ID to find the index for.
-   * @returns The index of the sort configuration, or -1 if not found.
-   */
-  findSortConfigIndex(fieldId: ColumnId): number {
-    return this.sortConfigs.findIndex((config) => this.getSortConfigFieldId(config) === fieldId);
+  getSortDirection(sortId: string): DataTableSortDirection {
+    return this.getSort(sortId)?.direction ?? "intermediate";
   }
 
-  /**
-   * Retrieves the index of the sort configuration in the datagrid.
-   * @param columnId The column ID to get the sort configuration index for.
-   * @returns The index of the sort configuration or null if not found.
-   */
-  getSortConfigIndex = (fieldId: ColumnId): number | null => {
-    const sortConfig = this.getSortConfigByFieldId(fieldId);
-    return sortConfig ? this.datagrid.features.sorting.sortConfigs.indexOf(sortConfig) + 1 : null;
-  };
-
-  /**
-   * Retrieves the sort direction for a column.
-   * @param columnId The column ID to get the sort direction for.
-   * @returns The sort direction, or 'intermediate' if no direction is set.
-   */
-  getSortDirection = (fieldId: ColumnId): SortingDirection => {
-    const sortConfig = this.getSortConfigByFieldId(fieldId);
-    if (!sortConfig) return "intermediate";
-    return sortConfig.direction;
-  };
-
-  /**
-   * Clears all sort configurations.
-   */
-  clearSortConfigs() {
-    this.sortConfigs = [];
+  getSortDirectionByFieldId(fieldId: string): DataTableSortDirection {
+    return this.getSortByFieldId(fieldId)?.direction ?? "intermediate";
   }
 
-  /**
-   * Removes the sort configuration for a specific column.
-   * @param columnId The column ID to remove the sort configuration for.
-   */
-  removeSortConfig(fieldId: ColumnId) {
-    this.sortConfigs = this.sortConfigs.filter((config) => this.getSortConfigFieldId(config) !== fieldId);
+  setSorts(sorts: TSort[]): void {
+    this.sorts = this.normalizeSorts(sorts);
   }
 
-  /**
-   * Changes the sort direction for a specific column.
-   * @param columnId The column ID to change the sort direction for.
-   * @param direction The new sort direction.
-   */
-  changeSortConfigDirection(fieldId: ColumnId, direction: SortingDirection) {
-    const index = this.findSortConfigIndex(fieldId);
-    if (index === -1) return; // If the column is not sorted, do nothing
-
-    // Update the sort direction for the specified column
-    this.sortConfigs = this.sortConfigs.map((config, i) => (i === index ? { ...config, direction } : config));
+  clearSorts(): void {
+    this.sorts = [];
   }
 
-  /**
-   * Adds a new sort configuration for a column.
-   * @param columnId The column ID to add the sort configuration for.
-   * @param direction The sort direction.
-   */
-  addSortConfig(fieldId: ColumnId, direction: SortingDirection) {
-    const field = this.datagrid.dataFields.findFieldByIdOrThrow(fieldId);
-    if (field.sortable === false) return;
-    if (this.sortConfigs.length >= this.maxMultiSortColumns) return;
-    this.sortConfigs = [...this.sortConfigs, { fieldId, direction }];
+  removeSort(sortId: string): void {
+    this.sorts = this.sorts.filter((sort) => sort.sortId !== sortId);
   }
 
-  /**
-   * Checks if a column is sorted, optionally with a specific direction.
-   * @param columnId The column ID to check.
-   * @param direction The direction to check for (optional).
-   * @returns True if the column is sorted with the specified direction, otherwise false.
-   */
-  isColumnSorted(fieldId: ColumnId, direction?: SortingDirection): boolean {
-    if (!direction) return this.sortConfigs.some((config) => this.getSortConfigFieldId(config) === fieldId);
-
-    // Return true if the column is sorted with the specified direction
-    return this.sortConfigs.some(
-      (config) => this.getSortConfigFieldId(config) === fieldId && config.direction === direction,
-    );
+  updateSort(sortId: string, direction: DataTableActiveSortDirection): void {
+    this.sorts = this.sorts.map((sort) => (sort.sortId === sortId ? { ...sort, direction } : sort));
   }
 
-  getSortConfigFieldId(config: Sorting): string {
-    return this.datagrid.dataFields.getSortFieldId(config);
+  addSort(sortId: string, direction: DataTableActiveSortDirection = "ascending"): void {
+    if (this.getSort(sortId)) {
+      this.updateSort(sortId, direction);
+      return;
+    }
+
+    if (this.sorts.length >= this.maxMultiSortColumns) {
+      return;
+    }
+
+    this.sorts = [...this.sorts, { direction, sortId } as TSort];
+  }
+
+  isSorted(sortId: string, direction?: DataTableSortDirection): boolean {
+    const sort = this.getSort(sortId);
+    if (!direction) return Boolean(sort);
+
+    return sort?.direction === direction;
+  }
+
+  getSortFieldId(sort: DataTableSort): string {
+    return this.sortDefinitions.find((definition) => definition.sortId === sort.sortId)?.fieldId ?? sort.sortId;
+  }
+
+  // Compatibility aliases for existing column-header call sites.
+  isColumnSorted(sortId: string, direction?: DataTableSortDirection): boolean {
+    return this.isSorted(sortId, direction);
+  }
+
+  findSortConfigIndex(sortId: string): number {
+    return this.findSortIndex(sortId);
+  }
+
+  private findSortIndex(sortId: string): number {
+    return this.sorts.findIndex((sort) => sort.sortId === sortId);
+  }
+
+  private normalizeSorts(sorts: TSort[]): TSort[] {
+    if (this.allowMultiSort) {
+      return sorts.slice(0, this.maxMultiSortColumns);
+    }
+
+    return sorts.slice(0, 1);
   }
 }

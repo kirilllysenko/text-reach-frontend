@@ -1,162 +1,180 @@
 import type { DatagridCore } from "../index.svelte";
-import type { FilterCondition, FilterOperator } from "../types";
+import type { DataTableFilter, DataTableFilterDefinition } from "../types";
 
-export type ColumnFilteringState = {
-  conditions: FilterCondition<any>[]; // List of filter conditions for columns
-  isManual: boolean; // Indicates if filters are applied manually
+export type ColumnFilteringState<TFilter extends DataTableFilter = DataTableFilter> = {
+  filterDefinitions: readonly DataTableFilterDefinition[];
+  filters: Map<string, TFilter> | TFilter[];
+  isManual: boolean;
 };
 
-export type ColumnFilteringFeatureConfig = Partial<ColumnFilteringState>;
+export type ColumnFilteringFeatureConfig<TFilter extends DataTableFilter = DataTableFilter> = Partial<
+  ColumnFilteringState<TFilter>
+>;
 export type IColumnFilteringFeature = ColumnFilteringFeature;
 
 /**
- * Manages column filtering functionality for a data grid.
- * Provides utilities for evaluating filter conditions and toggling the visibility of filters.
+ * Manages active table filters using the shared DataTableFilter shape.
  */
-export class ColumnFilteringFeature<TOriginalRow = any> implements IColumnFilteringFeature {
-  datagrid: DatagridCore; // Reference to the parent DataGrid
+export class ColumnFilteringFeature<
+  TOriginalRow = any,
+  TFilter extends DataTableFilter = DataTableFilter,
+> implements IColumnFilteringFeature {
+  datagrid: DatagridCore;
 
-  // Stores all filter conditions for the columns
-  filterConditions: FilterCondition<TOriginalRow>[] = $state([]);
+  filterDefinitions: readonly DataTableFilterDefinition[] = [];
   isManual: boolean = $state(false);
 
-  /**
-   * Creates an instance of ColumnFilteringFeature.
-   * @param datagrid - The DataGrid instance to manage filters for.
-   * @param config - Optional configuration to initialize the feature with.
-   */
-  constructor(datagrid: DatagridCore, config: ColumnFilteringFeatureConfig) {
+  private filtersById = $state.raw(new Map<string, TFilter>());
+
+  constructor(datagrid: DatagridCore, config: ColumnFilteringFeatureConfig<TFilter> = {}) {
     this.datagrid = datagrid;
-    Object.assign(this, config);
-    if (config?.conditions) this.filterConditions = config.conditions;
+    this.filterDefinitions = config.filterDefinitions ?? [];
+    this.isManual = config.isManual ?? false;
+
+    if (config.filters) {
+      this.replaceFilters(config.filters);
+    }
   }
 
-  /**
-   * Retrieves the filter condition value for a given column.
-   * @param columnId - The ID of the column to get the filter condition value for.
-   * @returns The filter condition value or `null` if no condition exists for the column.
-   */
-  getConditionValue(fieldId: string): any {
-    const condition = this.filterConditions.find((c) => this.getConditionFieldId(c) === fieldId);
-    return condition ? condition.value : null;
+  get filters(): TFilter[] {
+    return Array.from(this.filtersById.values());
   }
 
-  /**
-   * Retrieves the 'to' value for a range filter condition for a given column.
-   * @param columnId - The ID of the column to get the range filter 'to' value for.
-   * @returns The 'to' filter condition value or `null` if no condition exists for the column.
-   */
-  getConditionValueTo(fieldId: string): any {
-    const condition = this.filterConditions.find((c) => this.getConditionFieldId(c) === fieldId);
-    return condition ? condition.valueTo : null;
+  get filterMap(): ReadonlyMap<string, TFilter> {
+    return this.filtersById;
   }
 
-  /**
-   * Retrieves the filter operator for a given column.
-   * @param columnId - The ID of the column to get the filter operator for.
-   * @returns The filter operator or `undefined` if no condition exists for the column.
-   */
-  getConditionOperator(fieldId: string): FilterOperator | undefined {
-    const condition = this.filterConditions.find((c) => this.getConditionFieldId(c) === fieldId);
-    return condition?.operator;
+  getFilter<TCurrentFilter extends TFilter = TFilter>(filterId: string): TCurrentFilter | null {
+    return (this.filtersById.get(filterId) as TCurrentFilter | undefined) ?? null;
   }
 
-  /**
-   * Updates the filter operator for a given column.
-   * If no condition exists, a new one is created.
-   * @param columnId - The ID of the column to update the filter operator for.
-   * @param operator - The new filter operator to set.
-   */
-  changeConditionOperator(fieldId: string, operator: FilterOperator) {
-    const field = this.datagrid.dataFields.findFieldByIdOrThrow(fieldId);
-    if (field.filterable === false) return;
+  getFilterValue(filterId: string): TFilter["value"] | null {
+    return this.getFilter(filterId)?.value ?? null;
+  }
 
-    let condition = this.filterConditions.find((c) => this.getConditionFieldId(c) === fieldId);
-    if (!condition) {
-      this.filterConditions.push({
-        fieldId,
-        operator,
-        value: null,
-        valueTo: undefined,
+  getFilterOperator(filterId: string): TFilter["operator"] | null {
+    return this.getFilter(filterId)?.operator ?? null;
+  }
+
+  setFilter(filterId: string, filter: TFilter): void {
+    this.assertFilterDefinition(filterId, filter);
+
+    const nextFilters = new Map(this.filtersById);
+    nextFilters.set(filterId, { ...filter, filterId });
+    this.filtersById = nextFilters;
+  }
+
+  removeFilter(filterId: string): void {
+    if (!this.filtersById.has(filterId)) {
+      return;
+    }
+
+    const nextFilters = new Map(this.filtersById);
+    nextFilters.delete(filterId);
+    this.filtersById = nextFilters;
+  }
+
+  clearFilters(): void {
+    if (this.filtersById.size === 0) {
+      return;
+    }
+
+    this.filtersById = new Map();
+  }
+
+  replaceFilters(filters: Map<string, TFilter> | TFilter[]): void {
+    const nextFilters = new Map<string, TFilter>();
+
+    if (Array.isArray(filters)) {
+      filters.forEach((filter) => {
+        this.assertFilterDefinition(filter.filterId, filter);
+        nextFilters.set(filter.filterId, filter);
+      });
+    } else {
+      filters.forEach((filter, filterId) => {
+        this.assertFilterDefinition(filterId, filter);
+        nextFilters.set(filterId, { ...filter, filterId });
       });
     }
-    condition = this.filterConditions.find((c) => this.getConditionFieldId(c) === fieldId);
-    if (!condition) throw new Error(`Condition for field ${fieldId} not found`);
-    condition.operator = operator;
+
+    this.filtersById = nextFilters;
   }
 
-  getConditionFieldId(condition: FilterCondition<TOriginalRow>): string {
-    return this.datagrid.dataFields.getConditionFieldId(condition);
+  getFilterFieldId(filter: DataTableFilter): string {
+    return (
+      this.filterDefinitions.find((definition) => definition.filterId === filter.filterId)?.fieldId ?? filter.filterId
+    );
   }
 
-  /**
-   * Evaluates a cell value against a filter condition.
-   * @param cellValue - The value of the cell to evaluate.
-   * @param condition - The filter condition to evaluate against.
-   * @returns `true` if the cell value satisfies the condition, otherwise `false`.
-   */
-  evaluateCondition(cellValue: any, condition: FilterCondition<TOriginalRow>): boolean {
-    const { value, valueTo, operator } = condition;
+  evaluateFilter(cellValue: unknown, filter: DataTableFilter): boolean {
+    if (filter.type === "text") {
+      const value = filter.value?.toLowerCase() ?? "";
+      const textValue = String(cellValue ?? "").toLowerCase();
 
-    // Handle null/undefined cell values
-    if (cellValue === null || cellValue === undefined) {
-      return operator === "empty";
+      switch (filter.operator) {
+        case "CONTAINS":
+          return textValue.includes(value);
+        case "NOT_CONTAINS":
+          return !textValue.includes(value);
+        case "STARTS_WITH":
+          return textValue.startsWith(value);
+        case "ENDS_WITH":
+          return textValue.endsWith(value);
+        case "EQUAL":
+          return textValue === value;
+        case "NOT_EQUAL":
+          return textValue !== value;
+      }
     }
 
-    // Convert to string for string operations
-    const stringCellValue = String(cellValue).toLowerCase();
-    const stringValue = String(value).toLowerCase();
+    if (filter.type === "comparison") {
+      const value = filter.value;
+      const comparableCellValue = cellValue as string | number;
+      const comparableValue = value as string | number;
 
-    switch (operator) {
-      case "equals":
-        return cellValue === value;
+      switch (filter.operator) {
+        case "EQUAL":
+          return cellValue === value;
+        case "NOT_EQUAL":
+          return cellValue !== value;
+        case "GREATER_THAN":
+          return comparableCellValue > comparableValue;
+        case "LESS_THAN":
+          return comparableCellValue < comparableValue;
+        case "GREATER_OR_EQUAL":
+          return comparableCellValue >= comparableValue;
+        case "LESS_OR_EQUAL":
+          return comparableCellValue <= comparableValue;
+      }
+    }
 
-      case "notEquals":
-        return cellValue !== value;
+    const selectedValues = new Set(filter.value);
+    const cellValues = Array.isArray(cellValue) ? cellValue : [cellValue];
+    const matches = cellValues.some((value) => selectedValues.has(String(value)));
 
-      case "contains":
-        return stringCellValue.includes(stringValue);
+    return filter.operator === "IN" ? matches : !matches;
+  }
 
-      case "notContains":
-        return !stringCellValue.includes(stringValue);
+  isFilterActive(filter: DataTableFilter): boolean {
+    if (filter.type === "text") {
+      return Boolean(filter.value?.trim());
+    }
 
-      case "startsWith":
-        return stringCellValue.startsWith(stringValue);
+    if (filter.type === "comparison") {
+      return typeof filter.value !== "undefined";
+    }
 
-      case "endsWith":
-        return stringCellValue.endsWith(stringValue);
+    return filter.value.length > 0;
+  }
 
-      case "greaterThan":
-        return cellValue > value;
+  private assertFilterDefinition(filterId: string, filter: DataTableFilter): void {
+    if (filter.filterId !== filterId) {
+      throw new Error(`Filter id ${filter.filterId} does not match target filter id ${filterId}`);
+    }
 
-      case "lessThan":
-        return cellValue < value;
-
-      case "greaterThanOrEqual":
-        return cellValue >= value;
-
-      case "lessThanOrEqual":
-        return cellValue <= value;
-
-      case "between":
-        if (valueTo === undefined) throw new Error("Between filter requires a second value");
-        return cellValue >= value && cellValue <= valueTo;
-
-      case "inList":
-        return Array.isArray(value) && value.includes(cellValue);
-
-      case "notInList":
-        return Array.isArray(value) && !value.includes(cellValue);
-
-      case "empty":
-        return cellValue === "" || cellValue === null || cellValue === undefined;
-
-      case "notEmpty":
-        return cellValue !== "" && cellValue !== null && cellValue !== undefined;
-
-      default:
-        // Default behavior: always return true
-        return true;
+    const definition = this.filterDefinitions.find((current) => current.filterId === filterId);
+    if (definition && definition.type !== filter.type) {
+      throw new Error(`Filter ${filterId} must be a ${definition.type} filter`);
     }
   }
 }

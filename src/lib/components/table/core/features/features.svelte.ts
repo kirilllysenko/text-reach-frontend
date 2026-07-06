@@ -1,8 +1,19 @@
 import {
-    ColumnFacetingFeature, ColumnFilteringFeature, ColumnGroupingFeature, ColumnOrderingFeature,
-    ColumnPinningFeature, ColumnSizingFeature, ColumnVisibilityFeature, GlobalSearchFeature,
-    GroupingFeature, RowExpandingFeature, RowPinningFeature, RowSelectionFeature, SortingFeature,
-    PaginationFeature
+  ColumnFacetingFeature,
+  ColumnFilteringFeature,
+  ColumnGroupingFeature,
+  ColumnOrderingFeature,
+  ColumnPinningFeature,
+  ColumnSizingFeature,
+  ColumnVisibilityFeature,
+  GlobalSearchFeature,
+  GroupingFeature,
+  RowExpandingFeature,
+  RowPinningFeature,
+  RowSelectionFeature,
+  SortingFeature,
+  PaginationFeature,
+  DataLoadingFeature,
 } from "../features";
 import type { DatagridCore } from "../index.svelte";
 import type { DatagridCoreConfig } from "../types";
@@ -12,105 +23,156 @@ import type { DatagridCoreConfig } from "../types";
  * It allows for the dynamic configuration and initialization of features, enabling an extensible and customizable DataGrid.
  */
 export class DatagridFeatures<TOriginalRow = any> {
-    /**
-     * The DataGrid instance that this feature set is operating on.
-     */
-    datagrid: DatagridCore<any>;
+  /**
+   * The DataGrid instance that this feature set is operating on.
+   */
+  datagrid: DatagridCore<any>;
 
-    /**
-     * Pagination feature for the DataGrid, enabling pagination controls.
-     */
-    pagination: PaginationFeature;
+  /**
+   * Data loading feature for server-backed DataGrid rows.
+   */
+  dataLoading: DataLoadingFeature;
 
-    /**
-     * Sorting feature for the DataGrid, allowing columns to be sorted in ascending or descending order.
-     */
-    sorting: SortingFeature;
+  /**
+   * Pagination feature for the DataGrid, enabling pagination controls.
+   */
+  pagination: PaginationFeature;
 
-    /**
-     * Grouping feature for the DataGrid, enabling the grouping of rows based on specified column values.
-     */
-    grouping: GroupingFeature;
+  /**
+   * Sorting feature for the DataGrid, allowing columns to be sorted in ascending or descending order.
+   */
+  sorting: SortingFeature;
 
-    /**
-     * Filtering feature for the DataGrid, allowing rows to be filtered based on column values.
-     */
-    filtering: ColumnFilteringFeature;
+  /**
+   * Grouping feature for the DataGrid, enabling the grouping of rows based on specified column values.
+   */
+  grouping: GroupingFeature;
 
-    /**
-     * Global search feature for the DataGrid, allowing for a search across multiple columns.
-     */
-    globalSearch: GlobalSearchFeature;
+  /**
+   * Filtering feature for the DataGrid, allowing rows to be filtered based on column values.
+   */
+  filtering: ColumnFilteringFeature;
 
-    /**
-     * Column sizing feature for the DataGrid, enabling the resizing of columns.
-     */
-    columnSizing: ColumnSizingFeature;
+  /**
+   * Global search feature for the DataGrid, allowing for a search across multiple columns.
+   */
+  globalSearch: GlobalSearchFeature;
 
-    /**
-     * Column visibility feature for the DataGrid, allowing columns to be shown or hidden dynamically.
-     */
-    columnVisibility: ColumnVisibilityFeature;
+  /**
+   * Column sizing feature for the DataGrid, enabling the resizing of columns.
+   */
+  columnSizing: ColumnSizingFeature;
 
-    /**
-     * Column pinning feature for the DataGrid, allowing columns to be pinned to the left or right.
-     */
-    columnPinning: ColumnPinningFeature;
+  /**
+   * Column visibility feature for the DataGrid, allowing columns to be shown or hidden dynamically.
+   */
+  columnVisibility: ColumnVisibilityFeature;
 
-    /**
-     * Column faceting feature for the DataGrid, enabling the grouping of data by column facets.
-     */
-    columnFaceting: ColumnFacetingFeature;
+  /**
+   * Column pinning feature for the DataGrid, allowing columns to be pinned to the left or right.
+   */
+  columnPinning: ColumnPinningFeature;
 
-    /**
-     * Column ordering feature for the DataGrid, allowing the reordering of columns.
-     */
-    columnOrdering: ColumnOrderingFeature;
+  /**
+   * Column faceting feature for the DataGrid, enabling the grouping of data by column facets.
+   */
+  columnFaceting: ColumnFacetingFeature;
 
-    /**
-     * Column grouping feature for the DataGrid, enabling the grouping of columns.
-     */
-    columnGrouping: ColumnGroupingFeature;
+  /**
+   * Column ordering feature for the DataGrid, allowing the reordering of columns.
+   */
+  columnOrdering: ColumnOrderingFeature;
 
-    /**
-     * Row expanding feature for the DataGrid, allowing rows to be expanded to show additional details.
-     */
-    rowExpanding: RowExpandingFeature;
+  /**
+   * Column grouping feature for the DataGrid, enabling the grouping of columns.
+   */
+  columnGrouping: ColumnGroupingFeature;
 
-    /**
-     * Row selection feature for the DataGrid, enabling the selection of rows for batch actions.
-     */
-    rowSelection: RowSelectionFeature;
+  /**
+   * Row expanding feature for the DataGrid, allowing rows to be expanded to show additional details.
+   */
+  rowExpanding: RowExpandingFeature;
 
-    /**
-     * Row pinning feature for the DataGrid, allowing rows to be pinned at the top or bottom.
-     */
-    rowPinning: RowPinningFeature;
+  /**
+   * Row selection feature for the DataGrid, enabling the selection of rows for batch actions.
+   */
+  rowSelection: RowSelectionFeature;
 
-    /**
-     * Initializes the DataGrid features with the provided DataGrid instance and optional configuration.
-     * This constructor sets up all the core features for sorting, filtering, pagination, and more based on the provided configuration.
-     * 
-     * @param {DatagridCore<any>} datagrid - The DataGrid instance that these features will operate on.
-     * @param {DatagridCoreConfig<TOriginalRow>} [config] - Optional configuration for the features, including initial states and feature overrides.
-     */
-    constructor(datagrid: DatagridCore<any>, config?: DatagridCoreConfig<TOriginalRow>) {
-        this.datagrid = datagrid;
+  /**
+   * Row pinning feature for the DataGrid, allowing rows to be pinned at the top or bottom.
+   */
+  rowPinning: RowPinningFeature;
 
-        // Initialize features with provided config or fallback to default features
-        this.sorting = new (config?.features?.sorting || SortingFeature)(this.datagrid, config?.initialState?.sorting || {});
-        this.rowSelection = new (config?.features?.rowSelection || RowSelectionFeature)(this.datagrid, config?.initialState?.rowSelection || {});
-        this.rowPinning = new (config?.features?.rowPinning || RowPinningFeature)(this.datagrid, config?.initialState?.rowPinning || {});
-        this.rowExpanding = new (config?.features?.rowExpanding || RowExpandingFeature)(this.datagrid, config?.initialState?.rowExpanding || {});
-        this.pagination = new (config?.features?.pagination || PaginationFeature)(this.datagrid, config?.initialState?.pagination || {});
-        this.grouping = new (config?.features?.grouping || GroupingFeature)(this.datagrid, config?.initialState?.grouping || {});
-        this.globalSearch = new (config?.features?.globalSearch || GlobalSearchFeature)(this.datagrid, config?.initialState?.globalSearch || {});
-        this.columnGrouping = new (config?.features?.columnGrouping || ColumnGroupingFeature)(this.datagrid, config?.initialState?.columnGrouping || {});
-        this.columnPinning = new (config?.features?.columnPinning || ColumnPinningFeature)(this.datagrid, config?.initialState?.columnPinning || {});
-        this.columnSizing = new (config?.features?.columnSizing || ColumnSizingFeature)(this.datagrid, config?.initialState?.columnSizing || {});
-        this.columnVisibility = new (config?.features?.columnVisibility || ColumnVisibilityFeature)(this.datagrid, config?.initialState?.columnVisibility || {});
-        this.columnOrdering = new (config?.features?.columnOrdering || ColumnOrderingFeature)(this.datagrid, config?.initialState?.columnOrdering || {});
-        this.filtering = new (config?.features?.filtering || ColumnFilteringFeature)(this.datagrid, config?.initialState?.filtering || {});
-        this.columnFaceting = new (config?.features?.faceting || ColumnFacetingFeature)(this.datagrid, config?.initialState?.faceting || {});
-    }
+  /**
+   * Initializes the DataGrid features with the provided DataGrid instance and optional configuration.
+   * This constructor sets up all the core features for sorting, filtering, pagination, and more based on the provided configuration.
+   *
+   * @param {DatagridCore<any>} datagrid - The DataGrid instance that these features will operate on.
+   * @param {DatagridCoreConfig<TOriginalRow>} [config] - Optional configuration for the features, including initial states and feature overrides.
+   */
+  constructor(datagrid: DatagridCore<any>, config?: DatagridCoreConfig<TOriginalRow>) {
+    this.datagrid = datagrid;
+
+    // Initialize features with provided config or fallback to default features
+    this.sorting = new (config?.features?.sorting || SortingFeature)(
+      this.datagrid,
+      config?.initialState?.sorting || {},
+    );
+    this.dataLoading = new (config?.features?.dataLoading || DataLoadingFeature)(
+      this.datagrid,
+      config?.initialState?.dataLoading || {},
+    );
+    this.rowSelection = new (config?.features?.rowSelection || RowSelectionFeature)(
+      this.datagrid,
+      config?.initialState?.rowSelection || {},
+    );
+    this.rowPinning = new (config?.features?.rowPinning || RowPinningFeature)(
+      this.datagrid,
+      config?.initialState?.rowPinning || {},
+    );
+    this.rowExpanding = new (config?.features?.rowExpanding || RowExpandingFeature)(
+      this.datagrid,
+      config?.initialState?.rowExpanding || {},
+    );
+    this.pagination = new (config?.features?.pagination || PaginationFeature)(
+      this.datagrid,
+      config?.initialState?.pagination || {},
+    );
+    this.grouping = new (config?.features?.grouping || GroupingFeature)(
+      this.datagrid,
+      config?.initialState?.grouping || {},
+    );
+    this.globalSearch = new (config?.features?.globalSearch || GlobalSearchFeature)(
+      this.datagrid,
+      config?.initialState?.globalSearch || {},
+    );
+    this.columnGrouping = new (config?.features?.columnGrouping || ColumnGroupingFeature)(
+      this.datagrid,
+      config?.initialState?.columnGrouping || {},
+    );
+    this.columnPinning = new (config?.features?.columnPinning || ColumnPinningFeature)(
+      this.datagrid,
+      config?.initialState?.columnPinning || {},
+    );
+    this.columnSizing = new (config?.features?.columnSizing || ColumnSizingFeature)(
+      this.datagrid,
+      config?.initialState?.columnSizing || {},
+    );
+    this.columnVisibility = new (config?.features?.columnVisibility || ColumnVisibilityFeature)(
+      this.datagrid,
+      config?.initialState?.columnVisibility || {},
+    );
+    this.columnOrdering = new (config?.features?.columnOrdering || ColumnOrderingFeature)(
+      this.datagrid,
+      config?.initialState?.columnOrdering || {},
+    );
+    this.filtering = new (config?.features?.filtering || ColumnFilteringFeature)(
+      this.datagrid,
+      config?.initialState?.filtering || {},
+    );
+    this.columnFaceting = new (config?.features?.faceting || ColumnFacetingFeature)(
+      this.datagrid,
+      config?.initialState?.faceting || {},
+    );
+  }
 }

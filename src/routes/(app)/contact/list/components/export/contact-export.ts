@@ -8,7 +8,8 @@ import {
 } from "$lib/feature/contact/contact-display";
 import { buildContactRequest } from "$lib/feature/contact/contact-query";
 import type { ContactViewModel } from "$lib/feature/contact/contact-view-data";
-import { getContactSortRules, getContactTableFilters } from "../table/table.svelte";
+import { getContactTableFilters } from "../table/filter.svelte";
+import { getContactSortRules } from "../table/sort.svelte";
 
 const EXPORT_PAGE_SIZE = 500;
 const MAX_EXPORT_PAGES = 200;

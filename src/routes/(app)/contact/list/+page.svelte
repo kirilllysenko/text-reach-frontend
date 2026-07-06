@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Input, LinkButton, PageTitle, createFilterController, createSortController, type DataTableSort } from "$lib";
+  import { LinkButton, PageTitle, createFilterController, createSortController, type DataTableSort } from "$lib";
   import Alert from "$lib/components/alert/Alert.svelte";
   import { PATH_CONTACT_ADD } from "$lib/app/paths";
   import { contactSortFieldOptions } from "$lib/feature/contact/contact-view-data";
@@ -7,17 +7,24 @@
   import Sort from "$lib/icons/Sort.svelte";
   import ContactOverlay from "./components/ContactOverlay.svelte";
   import { ContactGroupLookupState } from "./components/contact-group-lookup-state.svelte";
+  import ContactSearchInput from "./components/ContactSearchInput.svelte";
   import ContactExportButton from "./components/export/ContactExportButton.svelte";
   import { ContactExportState } from "./components/export/contact-export-state.svelte";
   import ContactImportButton from "./components/import/ContactImportButton.svelte";
   import { ContactImportState } from "./components/import/contact-import-state.svelte";
   import ContactTable from "./components/table/ContactTable.svelte";
-  import { ContactTableState } from "./components/table/table.svelte";
+  import { createContactTable } from "./components/table/table.svelte";
 
   const groups = new ContactGroupLookupState();
-  const tableState = new ContactTableState();
+  let search = $state("");
+
+  const table = createContactTable({ groups });
   const contactExport = new ContactExportState({ groups });
-  const contactImport = new ContactImportState({ refreshTable: tableState.refresh });
+  const contactImport = new ContactImportState({
+    refreshTable: () => {
+      void table.handlers.dataLoading.reload();
+    },
+  });
   const initialSorting = [
     { sortId: "lastName", direction: "ascending" },
     { sortId: "firstName", direction: "ascending" },
@@ -28,10 +35,7 @@
 
   const filtering = createFilterController(() => {});
   const sorting = createSortController(initialSorting, () => {});
-  const contactActionMessage = $derived(
-    tableState.loadingError ?? contactImport.actionMessage ?? contactExport.actionMessage,
-  );
-  const contactActionAlertType = $derived(tableState.loadingError ? "warning" : "success");
+  const contactActionMessage = $derived(contactImport.actionMessage ?? contactExport.actionMessage);
 
   function togglePanel(panel: Exclude<OpenPanel, null>): void {
     openPanel = openPanel === panel ? null : panel;
@@ -39,6 +43,23 @@
 
   function closeOverlays(): void {
     openPanel = null;
+  }
+
+  function updateSearchFilter(nextSearch: string): void {
+    search = nextSearch;
+    const normalizedSearch = nextSearch.trim();
+
+    if (!normalizedSearch) {
+      table.handlers.filtering.removeFilter("search");
+      return;
+    }
+
+    table.handlers.filtering.setFilter("search", {
+      filterId: "search",
+      operator: "CONTAINS",
+      type: "text",
+      value: normalizedSearch,
+    });
   }
 </script>
 
@@ -64,7 +85,7 @@
         {contactExport}
         snapshot={{
           filters: filtering.filters,
-          search: tableState.search,
+          search,
           sorting: sorting.sorts,
         }}
       />
@@ -76,12 +97,7 @@
       shadow-[0_20px_45px_-25px_rgba(30,41,59,0.45)] backdrop-blur-md"
   >
     <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
-      <Input
-        class="min-w-0 grow"
-        placeholder="Search contacts"
-        value={tableState.search}
-        oninput={(event) => tableState.updateSearch(event.currentTarget.value)}
-      />
+      <ContactSearchInput bind:value={search} onSearchChange={updateSearchFilter} />
 
       <div class="flex items-center gap-2">
         <button
@@ -125,13 +141,13 @@
     </div>
 
     {#if contactActionMessage}
-      <Alert layout="inline" type={contactActionAlertType}>
+      <Alert layout="inline" type="success">
         {contactActionMessage}
       </Alert>
     {/if}
   </div>
 
-  <ContactTable {groups} {tableState} />
+  <ContactTable {table} />
 </div>
 
 <ContactOverlay

@@ -1,127 +1,146 @@
-import {
-  SortDirection,
-  type ErrorResponse,
-  type ComparisonFilterString,
-  type ContainmentFilterUlid,
-  type TextFilter,
-  NestedOperator,
-} from "$lib/api/index.schemas";
+import type { ErrorResponse } from "$lib/api/index.schemas";
 import { countContacts as countContactList, fetchContacts as fetchContactList } from "$lib/api/contact/contact";
-import type { DataTableFilter, DataTableLoadRequest, DataTableLoadResult, DataTableSort } from "$lib/components/table";
 import {
-  createMockContactList,
-  filterMockContactList,
-  sortContactList,
-  toContactViewModel,
-} from "$lib/feature/contact/contact-display";
+  DatagridCore,
+  type DataField,
+  type DataTableLoadRequest,
+  type DataTableLoadResult,
+} from "$lib/components/table";
+import { toContactViewModel } from "$lib/feature/contact/contact-display";
 import { buildContactFilter, buildContactRequest } from "$lib/feature/contact/contact-query";
-import {
-  contactSortFieldOptions,
-  type ContactSortField,
-  type ContactSortRule,
-  type ContactViewModel,
-} from "$lib/feature/contact/contact-view-data";
+import type { ContactViewModel } from "$lib/feature/contact/contact-view-data";
+import type { ContactGroupLookupState } from "../contact-group-lookup-state.svelte";
+import { createContactColumns } from "./column.svelte";
+import { contactFilterDefinitions, getContactTableFilters, type ContactTableFilters } from "./filter.svelte";
+import { contactSortDefinitions, getContactSortRules } from "./sort.svelte";
 
-const SEARCH_DEBOUNCE_MS = 250;
+const PAGE_SIZE = 500;
 
-export class ContactTableState {
-  totalRows = $state(0);
-  loadingError = $state<string | null>(null);
-  search = $state("");
-  tableKey = $state(0);
+interface ContactTableOptions {
+  groups: ContactGroupLookupState;
+}
 
-  private searchTimer: ReturnType<typeof setTimeout> | null = null;
+export function createContactTable(props: ContactTableOptions): DatagridCore<ContactViewModel> {
+  return new DatagridCore<ContactViewModel>({
+    columns: createContactColumns(props.groups),
+    data: [],
+    dataFields: createContactDataFields(),
+    initialState: {
+      dataLoading: {
+        loader: fetchContactRows,
+      },
+      filtering: {
+        filterDefinitions: contactFilterDefinitions,
+      },
+      pagination: {
+        manual: true,
+        pageSize: PAGE_SIZE,
+      },
+      sorting: {
+        sortDefinitions: contactSortDefinitions,
+      },
+    },
+    rowIdGetter: (contact: ContactViewModel) => contact.id,
+  });
+}
 
-  constructor() {
-    void this.refreshCount();
+async function fetchContactRows(request: DataTableLoadRequest): Promise<DataTableLoadResult<ContactViewModel>> {
+  const filters = getContactTableFilters(request.filters);
+  const totalRows = await fetchContactCount(filters, request.signal);
+
+  const pageRequest = buildContactRequest({
+    pageSize: request.limit,
+    cursor: request.cursor,
+    direction: request.direction ?? "next",
+    offset: request.offset,
+    search: filters.search,
+    contactGroupIds: filters.contactGroupIds,
+    birthdayAfter: filters.birthdayAfter,
+    emailContains: filters.emailContains,
+    sortRules: getContactSortRules(request.sorting),
+  });
+
+  try {
+    const response = await fetchContactList(pageRequest, { credentials: "include", signal: request.signal });
+
+    if (response.status !== 200) {
+      throw new Error(getContactErrorMessage(response.data as ErrorResponse));
+    }
+
+    return {
+      rows: (response.data.items ?? []).map((item, index) => toContactViewModel(item, index)),
+      nextCursor: response.data.nextCursor ?? null,
+      totalRows,
+    };
+  } catch (error) {
+    throw error instanceof Error ? error : new Error("Could not load contacts from API.");
   }
+}
 
-  updateSearch = (value: string): void => {
-    this.search = value;
-    this.scheduleRefresh();
-  };
+async function fetchContactCount(filters: ContactTableFilters, signal?: AbortSignal): Promise<number> {
+  const filter = buildContactFilter({
+    search: filters.search,
+    contactGroupIds: filters.contactGroupIds,
+    birthdayAfter: filters.birthdayAfter,
+    emailContains: filters.emailContains,
+  });
 
-  refresh = (): void => {
-    this.tableKey += 1;
-  };
+  try {
+    const response = await countContactList(filter ?? {}, { credentials: "include", signal });
 
-  fetchRows = async (request: DataTableLoadRequest): Promise<DataTableLoadResult<ContactViewModel>> => {
-    if (request.cursor === null) {
-      await this.refreshCount();
+    if (response.status !== 200) {
+      throw new Error(getContactErrorMessage(response.data as ErrorResponse, "Could not count contacts."));
     }
 
-    const pageRequest = buildContactRequest({
-      pageSize: request.limit,
-      cursor: request.cursor,
-      direction: "next",
-      search: this.search,
-      contactGroupIds: [],
-      birthdayAfter: "",
-      emailContains: "",
-      sortRules: [],
-    });
-
-    try {
-      const response = await fetchContactList(pageRequest, { credentials: "include", signal: request.signal });
-
-      if (response.status !== 200) {
-        this.handleResponseError(response.data as ErrorResponse);
-        return this.fetchMockRows(request);
-      }
-
-      this.loadingError = null;
-
-      return {
-        rows: (response.data.items ?? []).map((item, index) => toContactViewModel(item, index)),
-        nextCursor: response.data.nextCursor ?? null,
-        totalRows: this.totalRows,
-      };
-    } catch {
-      this.handleResponseError();
-      return this.fetchMockRows(request);
-    }
-  };
-
-  dispose = (): void => {
-    if (!this.searchTimer) {
-      return;
-    }
-
-    clearTimeout(this.searchTimer);
-    this.searchTimer = null;
-  };
-
-  private scheduleRefresh(): void {
-    if (this.searchTimer) {
-      clearTimeout(this.searchTimer);
-    }
-
-    this.searchTimer = setTimeout(() => {
-      this.refresh();
-    }, SEARCH_DEBOUNCE_MS);
+    return response.data;
+  } catch (error) {
+    throw error instanceof Error ? error : new Error("Could not count contacts.");
   }
+}
 
-  private async refreshCount(filters: DataTableFilter[] = []): Promise<void> {
-    try {
-      const response = await countContactList({}, { credentials: "include" });
+function getContactErrorMessage(error?: ErrorResponse, fallback = "Could not load contacts from API."): string {
+  return error?.errorDescription ?? fallback;
+}
 
-      if (response.status !== 200) {
-        this.handleResponseError(response.data as ErrorResponse);
-        this.totalRows = this.getFilteredMockContactList(filters, []).length;
-        return;
-      }
-
-      this.loadingError = null;
-      this.totalRows = response.data;
-    } catch {
-      this.handleResponseError();
-      this.totalRows = this.getFilteredMockContactList(filters, []).length;
-    }
-  }
-
-  private handleResponseError(error?: ErrorResponse): void {
-    this.loadingError =
-      error?.errorDescription ??
-      "Could not load contacts from API. The page is showing local preview data until the backend responds.";
-  }
+function createContactDataFields(): DataField<ContactViewModel>[] {
+  return [
+    {
+      fieldId: "firstName",
+      getValueFn: (contact) => contact.firstName,
+      sortable: true,
+    },
+    {
+      fieldId: "lastName",
+      getValueFn: (contact) => contact.lastName,
+      sortable: true,
+    },
+    {
+      fieldId: "phoneNumber",
+      getValueFn: (contact) => contact.phoneNumber,
+      sortable: true,
+    },
+    {
+      fieldId: "search",
+      getValueFn: (contact) =>
+        [contact.fullName, contact.phoneNumber, contact.email, contact.notes].filter(Boolean).join(" "),
+      filterable: true,
+    },
+    {
+      fieldId: "email",
+      getValueFn: (contact) => contact.email,
+      filterable: true,
+      sortable: true,
+    },
+    {
+      fieldId: "birthday",
+      getValueFn: (contact) => contact.birthday,
+      filterable: true,
+      sortable: true,
+    },
+    {
+      fieldId: "contactGroupIds",
+      getValueFn: (contact) => contact.contactGroupIds,
+      filterable: true,
+    },
+  ];
 }

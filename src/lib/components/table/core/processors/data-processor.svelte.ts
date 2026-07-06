@@ -1,6 +1,6 @@
 import { isGroupColumn } from "../helpers/column-guards";
 import type { DatagridCore } from "../index.svelte";
-import type { Aggregation, AggregationFn, FilterCondition, GridGroupRow, GridRow } from "../types";
+import type { Aggregation, AggregationFn, DataTableFilter, GridGroupRow, GridRow } from "../types";
 import type { PerformanceMetrics } from "../helpers/performance-metrics.svelte";
 import type { AccessorColumn, ComputedColumn } from "../types";
 import { aggregationFunctions } from "../helpers/aggregation-functions";
@@ -154,33 +154,35 @@ export class DataDataProcessor<TOriginalRow> {
   applyColumnFilters(data: TOriginalRow[]): TOriginalRow[] {
     data = this.datagrid.lifecycleHooks.executePreFilter(data);
 
-    const isMnualSortingEnabled = this.datagrid.features.globalSearch.isManual;
-    const noFilters = this.datagrid.features.filtering.filterConditions.length === 0;
+    const isManualFilteringEnabled = this.datagrid.features.filtering.isManual;
+    const activeFilters = this.datagrid.features.filtering.filters.filter((filter) =>
+      this.datagrid.features.filtering.isFilterActive(filter),
+    );
+    const noFilters = activeFilters.length === 0;
 
-    if (isMnualSortingEnabled || noFilters) return data;
+    if (isManualFilteringEnabled || noFilters) return data;
 
     const filterData = (
       data: TOriginalRow[],
-      activeFilters: { condition: FilterCondition<any>; getValue: (row: TOriginalRow) => any }[],
+      activeFilters: { filter: DataTableFilter; getValue: (row: TOriginalRow) => any }[],
     ) => {
       return data.filter((row) =>
         activeFilters.every((filter) =>
-          this.datagrid.features.filtering.evaluateCondition(filter.getValue(row), filter.condition),
+          this.datagrid.features.filtering.evaluateFilter(filter.getValue(row), filter.filter),
         ),
       );
     };
 
     const getActiveFilters = () => {
-      return this.datagrid.features.filtering.filterConditions
-        .filter((condition) => condition.value !== null)
-        .map((condition) => {
-          const fieldId = this.datagrid.dataFields.getConditionFieldId(condition);
+      return activeFilters
+        .map((filter) => {
+          const fieldId = this.datagrid.features.filtering.getFilterFieldId(filter);
           const field = this.datagrid.dataFields.findFieldByIdOrThrow(fieldId);
 
           if (field.filterable === false) return null;
 
           return {
-            condition,
+            filter,
             getValue: field.getValueFn,
           };
         })

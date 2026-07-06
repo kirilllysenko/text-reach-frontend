@@ -8,7 +8,9 @@
   let { table }: Props = $props();
 
   const visibleRows = $derived(table.rows.getVisibleBasicRows().length);
-  const totalRows = $derived(table.originalState.data.length);
+  const totalRows = $derived(
+    table.features.pagination.manual ? table.features.pagination.totalCount : table.originalState.data.length,
+  );
 </script>
 
 <div

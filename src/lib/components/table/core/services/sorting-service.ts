@@ -1,189 +1,137 @@
-import type { LeafColumn } from "../types";
+import type { DataTableActiveSortDirection, DataTableSort, LeafColumn } from "../types";
 import { BaseService } from "./base-service";
 
 /**
  * Interface for sorting-related services in a data grid.
  */
 export type ISortingService = {
-  /**
-   * Toggles the sorting of a column.
-   *
-   * @param {LeafColumn<any>} column The column to toggle sort for.
-   * @param {boolean} multisort Whether to apply multi-column sorting.
-   */
   toggleColumnSort(column: LeafColumn<any>, multisort: boolean): void;
-
-  /**
-   * Applies an ascending sort to a column.
-   *
-   * @param {LeafColumn<any>} column The column to apply ascending sort to.
-   */
+  toggleSort(sortId: string, multisort: boolean): void;
   applyAscendingSort(column: LeafColumn<any>): void;
-
-  /**
-   * Applies a descending sort to a column.
-   *
-   * @param {LeafColumn<any>} column The column to apply descending sort to.
-   */
   applyDescendingSort(column: LeafColumn<any>): void;
-
-  /**
-   * Clears the sort for a given column.
-   *
-   * @param {LeafColumn<any>} column The column to clear the sort for.
-   */
   clearColumnSort(column: LeafColumn<any>): void;
-
-  toggleFieldSort(fieldId: string, multisort: boolean): void;
-
   applyAscendingSortByField(fieldId: string): void;
-
   applyDescendingSortByField(fieldId: string): void;
-
   clearFieldSort(fieldId: string): void;
+  removeSort(sortId: string): void;
+  clearSorts(): void;
 };
 
 /**
- * Class responsible for managing column sorting in a data grid.
- *
- * @extends BaseService
+ * Class responsible for managing ordered sorting rules in a data grid.
  */
 export class SortingService extends BaseService {
-  /**
-   * Toggles the sorting direction of a column (ascending/descending) or clears the sort.
-   *
-   * @param {LeafColumn<any>} column The column to toggle sort for.
-   * @param {boolean} multisort Whether to apply multi-column sorting.
-   */
-  toggleColumnSort(column: LeafColumn<any>, multisort: boolean) {
+  toggleColumnSort(column: LeafColumn<any>, multisort: boolean): void {
     this.datagrid.events.emit("onColumnSort", { column, multisort });
-    this.toggleFieldSort(column.columnId, multisort);
+    this.toggleSort(column.columnId, multisort, column);
   }
 
-  /**
-   * Toggles sorting for a data field, including fields that do not have a rendered column.
-   *
-   * @param {string} fieldId The field to toggle sort for.
-   * @param {boolean} multisort Whether to apply multi-field sorting.
-   */
-  toggleFieldSort(fieldId: string, multisort: boolean) {
-    const datagrid = this.datagrid;
-    const field = datagrid.dataFields.findFieldByIdOrThrow(fieldId);
+  toggleSort(sortId: string, multisort: boolean, column?: LeafColumn<any>): void {
+    if (!this.isSortable(sortId)) {
+      return;
+    }
 
-    if (field.sortable === false) return;
+    const sorting = this.datagrid.features.sorting;
+    const sort = sorting.getSort(sortId);
+    const useMultiSort = multisort && sorting.allowMultiSort;
 
-    const isFieldSorted = datagrid.features.sorting.isColumnSorted(fieldId);
-    const isFieldSortedAscending = datagrid.features.sorting.isColumnSorted(fieldId, "ascending");
-
-    const applySingleFieldSort = () => {
-      if (!isFieldSorted) {
-        this.datagrid.features.sorting.clearSortConfigs();
-        this.datagrid.features.sorting.addSortConfig(fieldId, "ascending");
-      } else if (isFieldSortedAscending) {
-        this.datagrid.features.sorting.clearSortConfigs();
-        datagrid.features.sorting.addSortConfig(fieldId, "descending");
-      } else this.datagrid.features.sorting.clearSortConfigs();
-    };
-
-    const applyMultiFieldSort = () => {
-      if (!isFieldSorted) {
-        const isOverMaxColCount =
-          datagrid.features.sorting.sortConfigs.length >= datagrid.features.sorting.maxMultiSortColumns;
-        if (isOverMaxColCount) {
-          // remove first sorting config
-          if (datagrid.features.sorting.sortConfigs.length > 0) {
-            datagrid.features.sorting.removeSortConfig(
-              datagrid.features.sorting.getSortConfigFieldId(datagrid.features.sorting.sortConfigs[0]!),
-            );
-          }
-        }
-
-        datagrid.features.sorting.addSortConfig(fieldId, "ascending");
-      } else if (isFieldSortedAscending) {
-        datagrid.features.sorting.changeSortConfigDirection(fieldId, "descending");
+    if (!useMultiSort) {
+      if (!sort) {
+        sorting.setSorts([{ direction: "ascending", sortId }]);
+      } else if (sort.direction === "ascending") {
+        sorting.setSorts([{ direction: "descending", sortId }]);
       } else {
-        datagrid.features.sorting.removeSortConfig(fieldId);
+        sorting.clearSorts();
       }
-    };
 
-    if (multisort) applyMultiFieldSort();
-    else applySingleFieldSort();
+      this.refreshSorting(sortId, column, multisort);
+      return;
+    }
 
-    datagrid.cacheManager.invalidate("sortedData");
-    datagrid.processors.data.executeFullDataTransformation();
-    datagrid.features.sorting.onSortingChange(datagrid.features.sorting);
+    if (!sort) {
+      const nextSorts = sorting.sorts.slice();
+      if (nextSorts.length >= sorting.maxMultiSortColumns) {
+        nextSorts.shift();
+      }
+
+      sorting.setSorts([...nextSorts, { direction: "ascending", sortId }]);
+    } else if (sort.direction === "ascending") {
+      sorting.updateSort(sortId, "descending");
+    } else {
+      sorting.removeSort(sortId);
+    }
+
+    this.refreshSorting(sortId, column, multisort);
   }
 
-  /**
-   * Applies an ascending sort to the specified column.
-   *
-   * @param {LeafColumn<any>} column The column to apply ascending sort to.
-   */
-  applyAscendingSort(column: LeafColumn<any>) {
+  applyAscendingSort(column: LeafColumn<any>): void {
     this.datagrid.events.emit("onColumnSort", { column });
-    this.applyAscendingSortByField(column.columnId);
+    this.applySort(column.columnId, "ascending", column);
   }
 
-  /**
-   * Applies an ascending sort to the specified data field.
-   *
-   * @param {string} fieldId The field to apply ascending sort to.
-   */
-  applyAscendingSortByField(fieldId: string) {
-    const field = this.datagrid.dataFields.findFieldByIdOrThrow(fieldId);
-    if (field.sortable === false) return;
-
-    const isFieldSorted = this.datagrid.features.sorting.isColumnSorted(fieldId);
-    if (isFieldSorted) this.datagrid.features.sorting.changeSortConfigDirection(fieldId, "ascending");
-    else this.datagrid.features.sorting.addSortConfig(fieldId, "ascending");
-
-    this.datagrid.processors.data.executeFullDataTransformation();
-  }
-
-  /**
-   * Applies a descending sort to the specified column.
-   *
-   * @param {LeafColumn<any>} column The column to apply descending sort to.
-   */
-  applyDescendingSort(column: LeafColumn<any>) {
+  applyDescendingSort(column: LeafColumn<any>): void {
     this.datagrid.events.emit("onColumnSort", { column });
-    this.applyDescendingSortByField(column.columnId);
+    this.applySort(column.columnId, "descending", column);
   }
 
-  /**
-   * Applies a descending sort to the specified data field.
-   *
-   * @param {string} fieldId The field to apply descending sort to.
-   */
-  applyDescendingSortByField(fieldId: string) {
-    const field = this.datagrid.dataFields.findFieldByIdOrThrow(fieldId);
-    if (field.sortable === false) return;
-
-    const isFieldSorted = this.datagrid.features.sorting.isColumnSorted(fieldId);
-    if (isFieldSorted) this.datagrid.features.sorting.changeSortConfigDirection(fieldId, "descending");
-    else this.datagrid.features.sorting.addSortConfig(fieldId, "descending");
-
-    this.datagrid.processors.data.executeFullDataTransformation();
-  }
-
-  /**
-   * Clears the sort configuration for a specified column.
-   *
-   * @param {LeafColumn<any>} column The column to clear the sort for.
-   */
-  clearColumnSort(column: LeafColumn<any>) {
+  clearColumnSort(column: LeafColumn<any>): void {
     this.datagrid.events.emit("onColumnSort", { column });
-    this.clearFieldSort(column.columnId);
+    this.removeSort(column.columnId, column);
   }
 
-  /**
-   * Clears the sort configuration for a specified data field.
-   *
-   * @param {string} fieldId The field to clear sort for.
-   */
-  clearFieldSort(fieldId: string) {
-    this.datagrid.dataFields.findFieldByIdOrThrow(fieldId);
-    this.datagrid.features.sorting.removeSortConfig(fieldId);
+  applyAscendingSortByField(fieldId: string): void {
+    this.applySort(fieldId, "ascending");
+  }
+
+  applyDescendingSortByField(fieldId: string): void {
+    this.applySort(fieldId, "descending");
+  }
+
+  clearFieldSort(fieldId: string): void {
+    this.removeSort(fieldId);
+  }
+
+  removeSort(sortId: string, column?: LeafColumn<any>): void {
+    this.validateSort(sortId);
+    this.datagrid.features.sorting.removeSort(sortId);
+    this.refreshSorting(sortId, column);
+  }
+
+  clearSorts(): void {
+    this.datagrid.features.sorting.clearSorts();
+    this.refreshSorting();
+  }
+
+  private applySort(sortId: string, direction: DataTableActiveSortDirection, column?: LeafColumn<any>): void {
+    if (!this.isSortable(sortId)) {
+      return;
+    }
+
+    const sorting = this.datagrid.features.sorting;
+    if (sorting.getSort(sortId)) {
+      sorting.updateSort(sortId, direction);
+    } else {
+      sorting.addSort(sortId, direction);
+    }
+
+    this.refreshSorting(sortId, column);
+  }
+
+  private isSortable(sortId: string): boolean {
+    const field = this.validateSort(sortId);
+    return field.sortable !== false;
+  }
+
+  private validateSort(sortId: string) {
+    const sort = { direction: "ascending", sortId } satisfies DataTableSort;
+    const fieldId = this.datagrid.features.sorting.getSortFieldId(sort);
+    return this.datagrid.dataFields.findFieldByIdOrThrow(fieldId);
+  }
+
+  private refreshSorting(sortId?: string, column?: LeafColumn<any>, multisort?: boolean): void {
+    this.datagrid.cacheManager.invalidate("sortedData");
     this.datagrid.processors.data.executeFullDataTransformation();
+    this.datagrid.features.sorting.onSortingChange(this.datagrid.features.sorting);
+    this.datagrid.events.emit("onSortingChange", { column, multisort, sortId });
   }
 }

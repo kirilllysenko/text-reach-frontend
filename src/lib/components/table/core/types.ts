@@ -20,6 +20,7 @@ import type { ColumnPinningFeature, ColumnPinningFeatureConfig } from "./feature
 import type { ColumnSizingFeature, ColumnSizingFeatureConfig } from "./features/column-sizing.svelte";
 import type { ColumnVisibilityFeature, ColumnVisibilityPluginConfig } from "./features/column-visibility.svelte";
 import type { SortingFeatureConfig } from "./features/sorting.svelte";
+import type { DataLoadingFeature, DataLoadingFeatureConfig } from "./features/data-loading.svelte";
 
 // Specific interfaces for different column types
 
@@ -186,17 +187,31 @@ export type HeaderCell = (props: HeaderCellProps) => string | HTMLElement | Cust
  */
 
 export type SortingDirection = "ascending" | "descending" | "intermediate";
-export interface Sorting {
-  fieldId?: string;
-  columnId?: ColumnId;
-  direction: SortingDirection;
+export type DataTableSortDirection = SortingDirection;
+export type DataTableActiveSortDirection = Exclude<DataTableSortDirection, "intermediate">;
+
+export interface DataTableSort<TSortId extends string = string> {
+  direction: DataTableActiveSortDirection;
+  sortId: TSortId;
 }
 
-export type DataTableSortDirection = SortingDirection;
+export interface DataTableSortDefinition<TSortId extends string = string> {
+  defaultDirection?: DataTableActiveSortDirection;
+  fieldId?: string;
+  label?: string;
+  sortId: TSortId;
+}
 
-export interface DataTableSort {
-  direction: Exclude<DataTableSortDirection, "intermediate">;
-  sortId: string;
+export type DataTableSortFromDefinition<TDefinition> =
+  TDefinition extends DataTableSortDefinition<infer TSortId> ? DataTableSort<TSortId> : never;
+
+export type DataTableSortFromDefinitions<TDefinitions extends readonly DataTableSortDefinition[]> =
+  DataTableSortFromDefinition<TDefinitions[number]>;
+
+export function sortDefinition<const TSortId extends string>(
+  definition: DataTableSortDefinition<TSortId>,
+): DataTableSortDefinition<TSortId> {
+  return definition;
 }
 
 /**
@@ -207,23 +222,6 @@ export type PinningPosition = "left" | "right" | "none";
 /**
  * Filtering Types
  */
-export type FilterOperator =
-  | "equals"
-  | "notEquals"
-  | "contains"
-  | "notContains"
-  | "startsWith"
-  | "endsWith"
-  | "greaterThan"
-  | "lessThan"
-  | "greaterThanOrEqual"
-  | "lessThanOrEqual"
-  | "between"
-  | "inList"
-  | "notInList"
-  | "empty"
-  | "notEmpty";
-
 export type DataTableTextOperator = "CONTAINS" | "NOT_CONTAINS" | "STARTS_WITH" | "ENDS_WITH" | "EQUAL" | "NOT_EQUAL";
 
 export type DataTableComparisonOperator =
@@ -236,58 +234,140 @@ export type DataTableComparisonOperator =
 
 export type DataTableContainmentOperator = "IN" | "NOT_IN";
 
-export interface DataTableBaseFilter {
-  filterId: string;
+export interface DataTableBaseFilter<TFilterId extends string = string> {
+  filterId: TFilterId;
 }
 
-export interface DataTableTextFilter extends DataTableBaseFilter {
+export interface DataTableTextFilter<TFilterId extends string = string> extends DataTableBaseFilter<TFilterId> {
   type: "text";
   operator: DataTableTextOperator;
   value: string | null;
 }
 
-export interface DataTableComparisonFilter extends DataTableBaseFilter {
+export interface DataTableComparisonFilter<TFilterId extends string = string> extends DataTableBaseFilter<TFilterId> {
   type: "comparison";
   operator: DataTableComparisonOperator;
   value?: string | number;
 }
 
-export interface DataTableContainmentFilter extends DataTableBaseFilter {
+export interface DataTableContainmentFilter<TFilterId extends string = string> extends DataTableBaseFilter<TFilterId> {
   type: "containment";
   operator: DataTableContainmentOperator;
   value: string[];
 }
 
-export type DataTableFilter = DataTableTextFilter | DataTableComparisonFilter | DataTableContainmentFilter;
+export type DataTableFilter<TFilterId extends string = string> =
+  | DataTableTextFilter<TFilterId>
+  | DataTableComparisonFilter<TFilterId>
+  | DataTableContainmentFilter<TFilterId>;
+
+export interface DataTableBaseFilterDefinition<TFilterId extends string = string> {
+  filterId: TFilterId;
+  fieldId?: string;
+  hidden?: boolean;
+  label?: string;
+}
+
+export interface DataTableTextFilterDefinition<
+  TFilterId extends string = string,
+> extends DataTableBaseFilterDefinition<TFilterId> {
+  type: "text";
+  defaultOperator?: DataTableTextOperator;
+  operators?: readonly DataTableTextOperator[];
+}
+
+export interface DataTableComparisonFilterDefinition<
+  TFilterId extends string = string,
+> extends DataTableBaseFilterDefinition<TFilterId> {
+  type: "comparison";
+  defaultOperator?: DataTableComparisonOperator;
+  operators?: readonly DataTableComparisonOperator[];
+}
+
+export interface DataTableContainmentFilterDefinition<
+  TFilterId extends string = string,
+> extends DataTableBaseFilterDefinition<TFilterId> {
+  type: "containment";
+  defaultOperator?: DataTableContainmentOperator;
+  operators?: readonly DataTableContainmentOperator[];
+}
+
+export type DataTableFilterDefinition<TFilterId extends string = string> =
+  | DataTableTextFilterDefinition<TFilterId>
+  | DataTableComparisonFilterDefinition<TFilterId>
+  | DataTableContainmentFilterDefinition<TFilterId>;
+
+export type DataTableFilterFromDefinition<TDefinition> =
+  TDefinition extends DataTableTextFilterDefinition<infer TFilterId>
+    ? DataTableTextFilter<TFilterId>
+    : TDefinition extends DataTableComparisonFilterDefinition<infer TFilterId>
+      ? DataTableComparisonFilter<TFilterId>
+      : TDefinition extends DataTableContainmentFilterDefinition<infer TFilterId>
+        ? DataTableContainmentFilter<TFilterId>
+        : never;
+
+export type DataTableFilterFromDefinitions<TDefinitions extends readonly DataTableFilterDefinition[]> =
+  DataTableFilterFromDefinition<TDefinitions[number]>;
+
+export function textFilter<const TFilterId extends string>(
+  definition: Omit<DataTableTextFilterDefinition<TFilterId>, "type">,
+): DataTableTextFilterDefinition<TFilterId> {
+  return { ...definition, type: "text" };
+}
+
+export function comparisonFilter<const TFilterId extends string>(
+  definition: Omit<DataTableComparisonFilterDefinition<TFilterId>, "type">,
+): DataTableComparisonFilterDefinition<TFilterId> {
+  return { ...definition, type: "comparison" };
+}
+
+export function containmentFilter<const TFilterId extends string>(
+  definition: Omit<DataTableContainmentFilterDefinition<TFilterId>, "type">,
+): DataTableContainmentFilterDefinition<TFilterId> {
+  return { ...definition, type: "containment" };
+}
 
 export type DataTableCursor = unknown[] | null;
+export type DataTablePageDirection = "next" | "previous";
+
+export interface DataTablePageRequest {
+  cursor: DataTableCursor;
+  direction: DataTablePageDirection;
+  limit: number;
+  offset?: number;
+  page: number;
+}
 
 export interface DataTableLoadRequest {
   cursor: DataTableCursor;
+  direction?: DataTablePageDirection;
   filters: DataTableFilter[];
   limit: number;
+  offset?: number;
+  page?: number;
   signal?: AbortSignal;
   sorting: DataTableSort[];
 }
 
 export interface DataTableLoadResult<TData> {
   nextCursor: DataTableCursor;
+  previousCursor?: DataTableCursor;
   rows: TData[];
   totalRows: number;
 }
 
-export interface FilterCondition<TOriginalRow> {
-  fieldId?: string;
-  columnId?: ColumnId;
-  getValueFn?: GetValueFn<TOriginalRow>;
-  operator: FilterOperator;
-  value: any;
-  valueTo?: number; // For 'between' operator
-}
+export type DataTableLoadReason =
+  | "filtering"
+  | "initial"
+  | "pagination"
+  | "pagination-size"
+  | "reload"
+  | "search"
+  | "sorting";
 
-export type FilteringState<TOriginalRow> = {
-  conditions: FilterCondition<TOriginalRow>[];
-};
+export type DataTableLoader<TData> = (
+  request: DataTableLoadRequest,
+) => DataTableLoadResult<TData> | Promise<DataTableLoadResult<TData>>;
 
 /**
  * Search State
@@ -297,50 +377,6 @@ export interface SearchState {
   fuzzy: boolean;
   delay: number;
 }
-
-/**
- * Filter Operators
- */
-export const filterOperators: FilterOperator[] = [
-  "equals",
-  "notEquals",
-  "contains",
-  "notContains",
-  "startsWith",
-  "endsWith",
-  "greaterThan",
-  "lessThan",
-  "greaterThanOrEqual",
-  "lessThanOrEqual",
-  "between",
-  "inList",
-  "notInList",
-  "empty",
-  "notEmpty",
-];
-
-export const numberFilterOperators: FilterOperator[] = [
-  "equals",
-  "notEquals",
-  "greaterThan",
-  "lessThan",
-  "greaterThanOrEqual",
-  "lessThanOrEqual",
-  "between",
-  "empty",
-  "notEmpty",
-];
-
-export const stringFilterOperators: FilterOperator[] = [
-  "equals",
-  "notEquals",
-  "contains",
-  "notContains",
-  "startsWith",
-  "endsWith",
-  "empty",
-  "notEmpty",
-];
 
 // Columns
 type DotPrefix<T extends string> = T extends "" ? "" : `.${T}`;
@@ -505,6 +541,7 @@ export type FeatureConstructor<T> = {
 };
 
 export type InitialState = {
+  dataLoading?: DataLoadingFeatureConfig;
   sorting?: SortingFeatureConfig;
   pagination?: PaginationFeatureConfig;
   filtering?: ColumnFilteringFeatureConfig;
@@ -548,6 +585,7 @@ export type DatagridCoreConfig<TOriginalRow, C extends ColumnDef<TOriginalRow> =
   rowIndexGetter?: (row: TOriginalRow) => string;
 
   features?: {
+    dataLoading?: FeatureConstructor<DataLoadingFeature>;
     sorting?: FeatureConstructor<SortingFeature>;
     pagination?: FeatureConstructor<PaginationFeature>;
     filtering?: FeatureConstructor<ColumnFilteringFeature>;
@@ -583,6 +621,7 @@ export type OnPageChangePayload = { prevPage: number; newPage: number };
 
 export type EventPayloadMap = {
   onColumnSort: { column: LeafColumn<any>; multisort?: boolean };
+  onSortingChange: { column?: LeafColumn<any>; multisort?: boolean; sortId?: string };
 
   onRowPin: { rowId: GridRowIdentifier };
   onRowUnpin: { rowIdentifier: GridRowIdentifier };
@@ -607,7 +646,7 @@ export type EventPayloadMap = {
 
   onSearchQueryChange: { prevQuery: string; newQuery: string };
 
-  onFilterChange: { column?: LeafColumn<any>; fieldId?: string };
+  onFilterChange: { column?: LeafColumn<any>; filterId?: string };
   onColumnResize: { column: LeafColumn<any> };
   onColumnVisibilityChange: { column: LeafColumn<any> };
 

@@ -202,6 +202,15 @@ export class DatagridCore<TOriginalRow = any, TMeta = any> {
   }
 
   /**
+   * Replaces the source rows while preserving the current table instance, columns, handlers, and feature state.
+   */
+  replaceData(data: TOriginalRow[]): void {
+    this.initializeSourceData(data);
+    this.cacheManager.invalidate("everything");
+    this.processors.data.executeFullDataTransformation();
+  }
+
+  /**
    * Refreshes the datagrid with optional recalculations.
    * @param updateOperation - The update function.
    * @param options - The recalculation options.
@@ -288,18 +297,6 @@ export class DataFields<TOriginalRow> {
     const field = this.findFieldById(fieldId);
     if (!field) throw new Error(`Data field ${fieldId} not found`);
     return field;
-  }
-
-  getConditionFieldId(condition: { fieldId?: string; columnId?: string }): string {
-    const fieldId = condition.fieldId ?? condition.columnId;
-    if (!fieldId) throw new Error("Filter condition requires a fieldId");
-    return fieldId;
-  }
-
-  getSortFieldId(sortConfig: { fieldId?: string; columnId?: string }): string {
-    const fieldId = sortConfig.fieldId ?? sortConfig.columnId;
-    if (!fieldId) throw new Error("Sort config requires a fieldId");
-    return fieldId;
   }
 
   private createColumnDataField(

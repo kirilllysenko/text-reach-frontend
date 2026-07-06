@@ -5,6 +5,7 @@ import { ColumnPinningFeature } from "./column-pinning.svelte";
 import { ColumnSizingFeature } from "./column-sizing.svelte";
 import { ColumnVisibilityFeature } from "./column-visibility.svelte";
 import { ColumnFacetingFeature } from "./column-faceting.svelte";
+import { DataLoadingFeature } from "./data-loading.svelte";
 import { SortingFeature } from "./sorting.svelte";
 import { GlobalSearchFeature } from "./global-search.svelte";
 import { GroupingFeature } from "./grouping.svelte";
@@ -14,18 +15,19 @@ import { RowPinningFeature } from "./row-pinning.svelte";
 import { RowSelectionFeature } from "./row-selection.svelte";
 
 export {
-    ColumnFilteringFeature,
-    ColumnGroupingFeature,
-    ColumnOrderingFeature,
-    ColumnPinningFeature,
-    ColumnSizingFeature,
-    ColumnVisibilityFeature,
-    ColumnFacetingFeature,
-    SortingFeature,
-    GlobalSearchFeature,
-    GroupingFeature,
-    PaginationFeature,
-    RowExpansionFeature as RowExpandingFeature,
-    RowPinningFeature as RowPinningFeature,
-    RowSelectionFeature as RowSelectionFeature
-}
+  ColumnFilteringFeature,
+  ColumnGroupingFeature,
+  ColumnOrderingFeature,
+  ColumnPinningFeature,
+  ColumnSizingFeature,
+  ColumnVisibilityFeature,
+  ColumnFacetingFeature,
+  DataLoadingFeature,
+  SortingFeature,
+  GlobalSearchFeature,
+  GroupingFeature,
+  PaginationFeature,
+  RowExpansionFeature as RowExpandingFeature,
+  RowPinningFeature as RowPinningFeature,
+  RowSelectionFeature as RowSelectionFeature,
+};

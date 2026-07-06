@@ -1,32 +1,28 @@
-import type { ColumnType, FilterOperator } from "./types";
-export const columnsWithGetters = ['accessor', 'computed'] satisfies ColumnType[];
-export const numberFilterOperators: FilterOperator[] = [
-    'equals',
-    'notEquals',
-    'greaterThan',
-    'lessThan',
-    'greaterThanOrEqual',
-    'lessThanOrEqual',
-    'between',
-    'empty',
-    'notEmpty'
-];export const stringFilterOperators: FilterOperator[] = [
-    'equals',
-    'notEquals',
-    'contains',
-    'startsWith',
-    'endsWith',
-    'empty',
-    'notEmpty'
-];
+import type {
+  ColumnType,
+  DataTableComparisonOperator,
+  DataTableContainmentOperator,
+  DataTableTextOperator,
+} from "./types";
 
-export const selectFilterOperators: FilterOperator[] = [
-    'equals',
-    'notEquals',
-    'contains',
-    'startsWith',
-    'endsWith',
-    'empty',
-    'notEmpty'
-];
+export const columnsWithGetters = ["accessor", "computed"] satisfies ColumnType[];
 
+export const textFilterOperators = [
+  "CONTAINS",
+  "NOT_CONTAINS",
+  "STARTS_WITH",
+  "ENDS_WITH",
+  "EQUAL",
+  "NOT_EQUAL",
+] satisfies DataTableTextOperator[];
+
+export const comparisonFilterOperators = [
+  "EQUAL",
+  "NOT_EQUAL",
+  "GREATER_THAN",
+  "LESS_THAN",
+  "GREATER_OR_EQUAL",
+  "LESS_OR_EQUAL",
+] satisfies DataTableComparisonOperator[];
+
+export const containmentFilterOperators = ["IN", "NOT_IN"] satisfies DataTableContainmentOperator[];

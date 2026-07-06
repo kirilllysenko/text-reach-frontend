@@ -91,10 +91,7 @@
       initialState: {
         pagination: { pageSize: PAGE_SIZE },
         sorting: {
-          sortConfigs: sorting.sorts.map((sort) => ({
-            direction: sort.direction,
-            fieldId: sort.sortId,
-          })),
+          sorts: sorting.sorts,
         },
       },
       rowIdGetter: (field) => field.id,

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { onMount } from "svelte";
-  import { Button, Field, FieldError, FieldLabel, Input, PageTitle } from "$lib";
+  import { BackButton, Button, Field, FieldError, FieldLabel, Input, PageTitle } from "$lib";
   import { PATH_CONTACT_GROUP } from "$lib/app/paths";
   import type { ErrorResponse, Ulid } from "$lib/api/index.schemas";
   import { createContactGroup, getContactGroup, updateContactGroup } from "$lib/api/contact-group/contact-group";
@@ -133,13 +133,7 @@
     to-stone-100 p-2 sm:h-[calc(100dvh-3rem)] sm:p-3"
 >
   <PageTitle {title}>
-    <a
-      href={PATH_CONTACT_GROUP}
-      class="flex h-9 items-center justify-center rounded-xl border border-white/80 bg-white/80 px-3
-        text-base font-medium text-slate-700 shadow-sm backdrop-blur-sm hover:bg-white"
-    >
-      Back
-    </a>
+    <BackButton href={PATH_CONTACT_GROUP} />
   </PageTitle>
 
   <div class="flex min-h-0 grow items-center justify-center pb-18">

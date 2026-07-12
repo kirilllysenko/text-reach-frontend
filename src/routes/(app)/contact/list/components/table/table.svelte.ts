@@ -5,24 +5,26 @@ import {
   type DataField,
   type DataTableLoadRequest,
   type DataTableLoadResult,
+  type DataTableSort,
 } from "$lib/components/table";
 import { toContactViewModel } from "$lib/feature/contact/contact-display";
 import { buildContactFilter, buildContactRequest } from "$lib/feature/contact/contact-query";
 import type { ContactViewModel } from "$lib/feature/contact/contact-view-data";
-import type { ContactGroupLookupState } from "../contact-group-lookup-state.svelte";
+import { createContactFilterDefinitions, getContactTableFilters, type ContactTableFilters } from "../filter/filter.svelte";
+import { contactSortDefinitions, getContactSortRules } from "../sort/sort.svelte";
 import { createContactColumns } from "./column.svelte";
-import { contactFilterDefinitions, getContactTableFilters, type ContactTableFilters } from "./filter.svelte";
-import { contactSortDefinitions, getContactSortRules } from "./sort.svelte";
 
 const PAGE_SIZE = 500;
+const initialSorting = [
+  { sortId: "lastName", direction: "ascending" },
+  { sortId: "firstName", direction: "ascending" },
+] satisfies DataTableSort[];
 
-interface ContactTableOptions {
-  groups: ContactGroupLookupState;
-}
+export const table = createContactTable();
 
-export function createContactTable(props: ContactTableOptions): DatagridCore<ContactViewModel> {
+function createContactTable(): DatagridCore<ContactViewModel> {
   return new DatagridCore<ContactViewModel>({
-    columns: createContactColumns(props.groups),
+    columns: createContactColumns(),
     data: [],
     dataFields: createContactDataFields(),
     initialState: {
@@ -30,7 +32,7 @@ export function createContactTable(props: ContactTableOptions): DatagridCore<Con
         loader: fetchContactRows,
       },
       filtering: {
-        filterDefinitions: contactFilterDefinitions,
+        filterDefinitions: createContactFilterDefinitions(),
       },
       pagination: {
         manual: true,
@@ -38,6 +40,7 @@ export function createContactTable(props: ContactTableOptions): DatagridCore<Con
       },
       sorting: {
         sortDefinitions: contactSortDefinitions,
+        sorts: initialSorting,
       },
     },
     rowIdGetter: (contact: ContactViewModel) => contact.id,
@@ -57,7 +60,7 @@ async function fetchContactRows(request: DataTableLoadRequest): Promise<DataTabl
     contactGroupIds: filters.contactGroupIds,
     birthdayAfter: filters.birthdayAfter,
     emailContains: filters.emailContains,
-    sortRules: getContactSortRules(request.sorting),
+    sortRules: getContactSortRules(request.sorts),
   });
 
   try {

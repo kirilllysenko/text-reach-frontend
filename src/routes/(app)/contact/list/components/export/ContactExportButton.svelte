@@ -2,21 +2,20 @@
   import { Button } from "$lib";
   import Download from "$lib/icons/Download.svelte";
   import type { ContactExportSnapshot } from "./contact-export";
-  import type { ContactExportState } from "./contact-export-state.svelte";
+  import { createContactExportState } from "./contact-export-state.svelte";
 
   interface Props {
-    contactExport: ContactExportState;
     snapshot: ContactExportSnapshot;
   }
 
-  let { contactExport, snapshot }: Props = $props();
+  let { snapshot }: Props = $props();
+  const contactExport = createContactExportState();
 
   function exportContact(): void {
     void contactExport.exportContact(snapshot);
   }
 </script>
 
-<Button secondary small disabled={contactExport.exporting} onclick={exportContact}>
-  <Download class="size-4 fill-slate-700" />
+<Button variant="secondary" small icon={Download} disabled={contactExport.exporting} onclick={exportContact}>
   <span class="hidden sm:inline">{contactExport.exporting ? "Exporting" : "Export"}</span>
 </Button>

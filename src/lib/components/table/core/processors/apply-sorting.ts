@@ -8,7 +8,7 @@ import type { DataTableActiveSortDirection } from "../types";
  *
  * @template TOriginalRow - The type of the rows in the data array.
  *
- * @param {DatagridCore<TOriginalRow>} datagrid - The datagrid instance containing the sorting configuration and lifecycle hooks.
+ * @param {DatagridCore<TOriginalRow, any, any>} datagrid - The datagrid instance containing the sorting configuration and lifecycle hooks.
  * @param {TOriginalRow[]} data - The data array to be sorted.
  *
  * @returns {TOriginalRow[]} - The sorted data array.
@@ -18,7 +18,7 @@ import type { DataTableActiveSortDirection } from "../types";
  * - The sorting respects the direction specified in the active sorts and handles cases for null or undefined values.
  * - The Schwartzian Transform is used for precomputing the values to be sorted, which improves performance when sorting large datasets.
  */
-export function applySorting<TOriginalRow>(datagrid: DatagridCore<TOriginalRow>, data: TOriginalRow[]): TOriginalRow[] {
+export function applySorting<TOriginalRow>(datagrid: DatagridCore<TOriginalRow, any, any>, data: TOriginalRow[]): TOriginalRow[] {
   data = datagrid.lifecycleHooks.executePreSort(data);
 
   const isManualSortingEnabled = datagrid.features.sorting.isManual;

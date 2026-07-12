@@ -27,7 +27,7 @@ export class ColumnSizingFeature<TOriginalRow = any> implements IColumnSizingFea
   /**
    * A reference to the DataGrid instance that manages the columns and their resizing.
    */
-  datagrid: DatagridCore<TOriginalRow>;
+  datagrid: DatagridCore<TOriginalRow, any, any>;
 
   /**
    * Callback function triggered when a column's size is changed.
@@ -42,10 +42,10 @@ export class ColumnSizingFeature<TOriginalRow = any> implements IColumnSizingFea
    * Initializes the ColumnSizingFeature with a reference to the DataGrid and optional configuration.
    * This feature helps manage column widths and their constraints, such as min and max width.
    *
-   * @param {DatagridCore<TOriginalRow>} datagrid - The DataGrid instance that this feature will operate on.
+   * @param {DatagridCore<TOriginalRow, any, any>} datagrid - The DataGrid instance that this feature will operate on.
    * @param {ColumnSizingFeatureConfig} [config] - Optional configuration for column sizing, such as default sizes.
    */
-  constructor(datagrid: DatagridCore<TOriginalRow>, config?: ColumnSizingFeatureConfig) {
+  constructor(datagrid: DatagridCore<TOriginalRow, any, any>, config?: ColumnSizingFeatureConfig) {
     this.datagrid = datagrid;
     Object.assign(this, config);
   }

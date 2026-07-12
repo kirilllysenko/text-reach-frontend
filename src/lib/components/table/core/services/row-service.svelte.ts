@@ -75,7 +75,7 @@ export type RowOperations = {
  * 
  * @extends BaseService
  */
-export class RowService extends BaseService implements RowOperations {
+export class RowService<TSortId extends string = string> extends BaseService<TSortId> implements RowOperations {
 
     /**
      * Selects all rows on the current page.

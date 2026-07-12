@@ -3,6 +3,8 @@ import type {
   ColumnDef,
   ColumnId,
   ComputedColumn,
+  DataTableSortDefinition,
+  DataTableSortIdFromDefinitions,
   DataField,
   DatagridCoreConfig,
   DefaultColumnConfig,
@@ -11,7 +13,9 @@ import type {
   GridRowIdentifier,
   ColumnGroup,
   LeafColumn,
+  InitialState,
 } from "./types";
+import type { SortingFeatureConfig } from "./features/sorting.svelte";
 import { PerformanceMetrics } from "./helpers/performance-metrics.svelte";
 import { DataProcessor, ColumnProcessor } from "./processors";
 import { DatagridCacheManager } from "./managers";
@@ -31,7 +35,7 @@ import { flattenColumnStructureAndClearGroups, flattenColumnStructurePreservingG
  * @example
  * const datagrid = new DatagridCore({ columns: myColumns, data: myData });
  */
-export class DatagridCore<TOriginalRow = any, TMeta = any> {
+export class DatagridCore<TOriginalRow = any, TMeta = any, TSortId extends string = string> {
   /**
    * Event service for managing event subscriptions and emissions.
    */
@@ -45,7 +49,7 @@ export class DatagridCore<TOriginalRow = any, TMeta = any> {
   /**
    * Manages event handlers for the grid.
    */
-  readonly handlers: HandlersManager;
+  readonly handlers: HandlersManager<TSortId>;
 
   /**
    * Unique identifier for the grid instance.
@@ -122,7 +126,7 @@ export class DatagridCore<TOriginalRow = any, TMeta = any> {
   /**
    * Feature manager for enabling/disabling specific datagrid features.
    */
-  features: DatagridFeatures<TOriginalRow> = new DatagridFeatures(this);
+  features: DatagridFeatures<TOriginalRow, TMeta, TSortId> = new DatagridFeatures(this);
 
   /**
    * Lifecycle hooks for pre/post processing operations.
@@ -138,7 +142,7 @@ export class DatagridCore<TOriginalRow = any, TMeta = any> {
    * const grid = new DatagridCore({ columns: [...], data: [...] });
    * ```
    */
-  constructor(config: DatagridCoreConfig<TOriginalRow>, lazyInitialization: boolean = false) {
+  constructor(config: DatagridCoreConfig<TOriginalRow, ColumnDef<TOriginalRow, TMeta>, TSortId>, lazyInitialization: boolean = false) {
     this.events = new EventService();
     this.handlers = new HandlersManager(this, this.events);
     this.features = new DatagridFeatures(this, config);
@@ -156,7 +160,7 @@ export class DatagridCore<TOriginalRow = any, TMeta = any> {
    * Initializes the grid state based on the provided configuration.
    * @param config - The datagrid configuration.
    */
-  initializeGridState(config: DatagridCoreConfig<TOriginalRow>) {
+  initializeGridState(config: DatagridCoreConfig<TOriginalRow, ColumnDef<TOriginalRow, TMeta>, TSortId>) {
     this.validateConfiguration(config);
 
     // !!! IMPORTANT !!!
@@ -251,7 +255,7 @@ export class DatagridCore<TOriginalRow = any, TMeta = any> {
    * @param config - The datagrid configuration.
    * @throws Will throw an error if the configuration is invalid.
    */
-  private validateConfiguration({ columns, data }: DatagridCoreConfig<TOriginalRow>) {
+  private validateConfiguration({ columns, data }: DatagridCoreConfig<TOriginalRow, ColumnDef<TOriginalRow, TMeta>, TSortId>) {
     if (!columns) throw new Error("Columns are required");
     if (!data) throw new Error("Data is required");
     if (!Array.isArray(data)) throw new Error("Data must be an array");
@@ -260,10 +264,35 @@ export class DatagridCore<TOriginalRow = any, TMeta = any> {
   }
 }
 
+type DatagridFactoryConfig<
+  TOriginalRow,
+  TMeta,
+  TDefinitions extends readonly DataTableSortDefinition[],
+> = Omit<
+  DatagridCoreConfig<TOriginalRow, ColumnDef<TOriginalRow, TMeta>, DataTableSortIdFromDefinitions<TDefinitions>>,
+  "initialState"
+> & {
+  initialState: Omit<InitialState<TOriginalRow, NoInfer<DataTableSortIdFromDefinitions<TDefinitions>>>, "sorting"> & {
+    sorting: Omit<
+      SortingFeatureConfig<NoInfer<DataTableSortIdFromDefinitions<TDefinitions>>>,
+      "sortDefinitions"
+    > & {
+      sortDefinitions: TDefinitions;
+    };
+  };
+};
+
+export function createDatagrid<TOriginalRow, TMeta = unknown>() {
+  return <const TDefinitions extends readonly DataTableSortDefinition[]>(
+    config: DatagridFactoryConfig<TOriginalRow, TMeta, TDefinitions>,
+  ): DatagridCore<TOriginalRow, TMeta, DataTableSortIdFromDefinitions<TDefinitions>> =>
+    new DatagridCore<TOriginalRow, TMeta, DataTableSortIdFromDefinitions<TDefinitions>>(config);
+}
+
 export class DataFields<TOriginalRow> {
   private registry = $state.raw(new Map<string, DataField<TOriginalRow>>());
 
-  constructor(private readonly datagrid: DatagridCore<TOriginalRow>) {}
+  constructor(private readonly datagrid: DatagridCore<TOriginalRow, any, any>) {}
 
   initialize(explicitFields: DataField<TOriginalRow>[] = []): void {
     const fields = new Map<string, DataField<TOriginalRow>>();
@@ -343,9 +372,9 @@ class Rows<TOriginalRow> implements IRows<TOriginalRow> {
   /**
    * Creates an instance of the Rows class.
    *
-   * @param {DatagridCore<TOriginalRow>} datagrid The datagrid instance to manage rows for.
+   * @param {DatagridCore<TOriginalRow, any, any>} datagrid The datagrid instance to manage rows for.
    */
-  constructor(private readonly datagrid: DatagridCore<TOriginalRow>) {}
+  constructor(private readonly datagrid: DatagridCore<TOriginalRow, any, any>) {}
 
   /**
    * Retrieves the basic visible rows of the data grid, excluding group rows.
@@ -418,9 +447,9 @@ class Columns<TOriginalRow> {
   /**
    * Creates an instance of the Columns class.
    *
-   * @param {DatagridCore<TOriginalRow>} datagrid The datagrid instance to manage columns for.
+   * @param {DatagridCore<TOriginalRow, any, any>} datagrid The datagrid instance to manage columns for.
    */
-  constructor(private readonly datagrid: DatagridCore<TOriginalRow>) {}
+  constructor(private readonly datagrid: DatagridCore<TOriginalRow, any, any>) {}
 
   /**
    * Retrieves a list of all columns without considering column pinning.

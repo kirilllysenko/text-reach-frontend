@@ -28,7 +28,7 @@ export class ColumnPinningFeature implements IColumnPinningFeature {
     /**
      * Reference to the DataGrid instance to manage pinning operations.
      */
-    datagrid: DatagridCore<any>;
+    datagrid: DatagridCore<any, any, any>;
 
     /**
      * Callback function triggered when the column pinning state changes.
@@ -42,10 +42,10 @@ export class ColumnPinningFeature implements IColumnPinningFeature {
      * Creates an instance of the ColumnPinningFeature.
      * The feature is initialized with a reference to the data grid and an optional configuration object.
      *
-     * @param {DatagridCore<any>} datagrid - The data grid instance managing the columns.
+     * @param {DatagridCore<any, any, any>} datagrid - The data grid instance managing the columns.
      * @param {ColumnPinningFeatureConfig} [config] - Optional configuration to initialize the pinning feature.
      */
-    constructor(datagrid: DatagridCore<any>, config?: ColumnPinningFeatureConfig) {
+    constructor(datagrid: DatagridCore<any, any, any>, config?: ColumnPinningFeatureConfig) {
         this.datagrid = datagrid;
         Object.assign(this, config);
     }

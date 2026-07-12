@@ -5,6 +5,7 @@ import {
   listTransactions as listTransactionList,
 } from "$lib/api/default/default";
 import type { DataTableFilter, DataTableLoadRequest, DataTableLoadResult, DataTableSort } from "$lib/components/table";
+import { debounce } from "$lib/utils/debounce";
 import { toWalletTransactionViewModel } from "./payment-display";
 import { buildWalletTransactionFilter, buildWalletTransactionRequest, isUlid } from "./payment-query";
 import {
@@ -58,7 +59,9 @@ export class WalletTransactionState {
   sortOpen = $state(false);
   tableKey = $state(0);
 
-  private searchTimer: ReturnType<typeof setTimeout> | null = null;
+  private readonly scheduleRefresh = debounce(() => {
+    this.refreshTable();
+  }, SEARCH_DEBOUNCE_MS);
 
   sortFieldOptions = walletTransactionSortFieldOptions;
 
@@ -95,7 +98,7 @@ export class WalletTransactionState {
   };
 
   fetchRows = async (request: DataTableLoadRequest): Promise<DataTableLoadResult<WalletTransactionViewModel>> => {
-    const sortRules = this.getSortRules(request.sorting);
+    const sortRules = this.getSortRules(request.sorts);
     const filter = buildWalletTransactionFilter(this.idSearch, request.filters);
 
     if (request.cursor === null) {
@@ -133,23 +136,8 @@ export class WalletTransactionState {
   };
 
   dispose = (): void => {
-    if (!this.searchTimer) {
-      return;
-    }
-
-    clearTimeout(this.searchTimer);
-    this.searchTimer = null;
+    this.scheduleRefresh.cancel();
   };
-
-  private scheduleRefresh(): void {
-    if (this.searchTimer) {
-      clearTimeout(this.searchTimer);
-    }
-
-    this.searchTimer = setTimeout(() => {
-      this.refreshTable();
-    }, SEARCH_DEBOUNCE_MS);
-  }
 
   private refreshTable(): void {
     this.totalRows = 0;

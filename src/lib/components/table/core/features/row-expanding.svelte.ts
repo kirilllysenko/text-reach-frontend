@@ -41,7 +41,7 @@ export type IRowExpandingFeature = {} & RowExpansionState;
  */
 export class RowExpansionFeature<TOriginalRow = any> implements IRowExpandingFeature {
     /** The data grid instance this feature belongs to */
-    datagrid: DatagridCore<TOriginalRow>;
+    datagrid: DatagridCore<TOriginalRow, any, any>;
 
     /** Set containing the IDs of currently expanded rows */
     expandedRowIds: SvelteSet<GridRowIdentifier> = new SvelteSet();
@@ -55,10 +55,10 @@ export class RowExpansionFeature<TOriginalRow = any> implements IRowExpandingFea
     /**
      * Creates an instance of the RowExpansionFeature.
      * 
-     * @param {DatagridCore<TOriginalRow>} datagrid The data grid instance.
+     * @param {DatagridCore<TOriginalRow, any, any>} datagrid The data grid instance.
      * @param {RowExpansionConfig} [config] Optional configuration to initialize the state.
      */
-    constructor(datagrid: DatagridCore<TOriginalRow>, config?: RowExpansionConfig) {
+    constructor(datagrid: DatagridCore<TOriginalRow, any, any>, config?: RowExpansionConfig) {
         this.datagrid = datagrid;
         Object.assign(this, config);
     }

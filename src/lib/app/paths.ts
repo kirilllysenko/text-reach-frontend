@@ -29,3 +29,7 @@ export function buildContactEditPath(id: string): string {
 export function buildContactGroupEditPath(id: string): string {
   return `/contact-group/${id}/edit`;
 }
+
+export function buildCampaignMessagesPath(id: string): string {
+  return `/campaign/${id}/messages`;
+}

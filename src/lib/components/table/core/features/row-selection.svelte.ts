@@ -40,7 +40,7 @@ export type RowSelectionFeatureConfig = Partial<RowSelectionFeatureState>
  * Manages row selection for a datagrid, including selection, deselection, and toggling.
  */
 export class RowSelectionFeature<TOriginalRow = any> implements IRowSelectionFeature<TOriginalRow> {
-    datagrid: DatagridCore<TOriginalRow>;
+    datagrid: DatagridCore<TOriginalRow, any, any>;
     selectedRowIds: SvelteSet<GridRowIdentifier> = $state(new SvelteSet());
     maxSelectableRows: number = $state(Infinity);
     selectionMode: RowSelectionMode = $state('multiple');
@@ -50,7 +50,7 @@ export class RowSelectionFeature<TOriginalRow = any> implements IRowSelectionFea
      * @param datagrid The datagrid instance.
      * @param config Optional configuration for the feature.
      */
-    constructor(datagrid: DatagridCore<TOriginalRow>, config?: RowSelectionFeatureConfig) {
+    constructor(datagrid: DatagridCore<TOriginalRow, any, any>, config?: RowSelectionFeatureConfig) {
         this.datagrid = datagrid;
         Object.assign(this, config);
     }

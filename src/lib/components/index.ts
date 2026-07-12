@@ -1,11 +1,18 @@
 export { default as Button } from "./button/Button.svelte";
 export { default as ButtonEye } from "./button-eye/ButtonEye.svelte";
+export { default as Card } from "./card/Card.svelte";
 export { default as Dialog } from "./dialog/Dialog.svelte";
 export { default as ConfirmDialog } from "./confirm-dialog/ConfirmDialog.svelte";
 export { default as ResponsiveDialog } from "./responsive-dialog/ResponsiveDialog.svelte";
 export { default as Combobox } from "./dropdown/combobox/Combobox.svelte";
+export { default as MultiCombobox } from "./dropdown/multi-combobox/MultiCombobox.svelte";
 export { default as Select } from "./dropdown/select/Select.svelte";
-export type { DropdownOption } from "./dropdown";
+export type {
+  DropdownOption,
+  MultiComboboxLoadRequest,
+  MultiComboboxLoadResult,
+  MultiComboboxOption,
+} from "./dropdown";
 export { default as Avatar } from "./avatar/Avatar.svelte";
 export { default as BackButton } from "./back-button/BackButton.svelte";
 export { default as Input } from "./input/Input.svelte";

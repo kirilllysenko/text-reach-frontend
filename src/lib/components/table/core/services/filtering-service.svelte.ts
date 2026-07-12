@@ -1,10 +1,18 @@
-import type { DataTableFilter, LeafColumn } from "../types";
+import type { DataTableFilter, DataTableFilterDefinition, LeafColumn } from "../types";
 import { BaseService } from "./base-service";
 
 /**
  * Service for mutating active filters in the data grid.
  */
-export class FilteringService extends BaseService {
+export class FilteringService<TSortId extends string = string> extends BaseService<TSortId> {
+  get filters(): DataTableFilter[] {
+    return this.datagrid.features.filtering.filters;
+  }
+
+  get filterDefinitions(): readonly DataTableFilterDefinition[] {
+    return this.datagrid.features.filtering.filterDefinitions;
+  }
+
   setColumnFilter(column: LeafColumn<any>, filter: DataTableFilter): void {
     this.setFilter(column.columnId, filter, column);
   }

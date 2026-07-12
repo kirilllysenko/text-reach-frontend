@@ -11,14 +11,14 @@ import { DEFAULT_COLUMN_SIZE } from "../defaults";
  * grouping, pinning, and generating column hierarchies.
  */
 export class ColumnProcessor<TOriginalRow> {
-    datagrid: DatagridCore<TOriginalRow>;
+    datagrid: DatagridCore<TOriginalRow, any, any>;
 
     /**
      * Initializes a new ColumnProcessor instance.
      * 
-     * @param {DatagridCore<TOriginalRow>} datagrid - The datagrid instance this processor will operate on.
+     * @param {DatagridCore<TOriginalRow, any, any>} datagrid - The datagrid instance this processor will operate on.
      */
-    constructor(datagrid: DatagridCore<TOriginalRow>) {
+    constructor(datagrid: DatagridCore<TOriginalRow, any, any>) {
         this.datagrid = datagrid;
     }
 

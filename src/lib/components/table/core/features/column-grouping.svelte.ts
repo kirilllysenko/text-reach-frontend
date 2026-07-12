@@ -41,14 +41,14 @@ export type ColumnGroupingPluginConfig = object;
  * It allows grouping columns, moving columns into groups, and emitting events related to column group creation and deletion.
  */
 export class ColumnGroupingFeature<TOriginalRow = any> implements IColumnGroupingFeature {
-    private datagrid: DatagridCore<TOriginalRow>;
+    private datagrid: DatagridCore<TOriginalRow, any, any>;
 
     /**
      * Constructs the ColumnGroupingFeature instance.
      * @param datagrid - The datagrid instance that this feature will operate on.
      * @param config - Configuration options for the column grouping feature.
      */
-    constructor(datagrid: DatagridCore<TOriginalRow>, config?: ColumnGroupingPluginConfig) {
+    constructor(datagrid: DatagridCore<TOriginalRow, any, any>, config?: ColumnGroupingPluginConfig) {
         this.datagrid = datagrid;
         Object.assign(this, config);
     }

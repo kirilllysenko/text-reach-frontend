@@ -1,35 +1,30 @@
 <script lang="ts">
-  import { Button } from "$lib";
+  import { table } from "../table/table.svelte";
+  import ContactImportDialog from "./ContactImportDialog.svelte";
+  import { createContactImportState } from "./contact-import-state.svelte";
   import Upload from "$lib/icons/Upload.svelte";
-  import type { ContactImportState } from "./contact-import-state.svelte";
+  import { Button } from "$lib";
 
-  interface Props {
-    contactImport: ContactImportState;
+  const contactImport = createContactImportState(table);
+  let open = $state(false);
+
+  function openImportDialog(): void {
+    open = true;
+    void contactImport.loadCustomFields();
   }
 
-  let { contactImport }: Props = $props();
-  let fileInput = $state<HTMLInputElement | null>(null);
-
-  function openImportPicker(): void {
-    fileInput?.click();
-  }
-
-  function handleImportChange(event: Event): void {
-    const input = event.currentTarget as HTMLInputElement;
-    const file = input.files?.[0];
-
-    if (!file) {
+  function closeImportDialog(): void {
+    if (contactImport.setupSubmitting || contactImport.importSubmitting) {
       return;
     }
 
-    void contactImport.importContact(file);
-    input.value = "";
+    open = false;
+    contactImport.reset();
   }
 </script>
 
-<input bind:this={fileInput} class="hidden" type="file" accept=".csv,text/csv" onchange={handleImportChange} />
-
-<Button secondary small disabled={contactImport.importing} onclick={openImportPicker}>
-  <Upload class="size-4 fill-slate-700" />
-  <span class="hidden sm:inline">{contactImport.importing ? "Importing" : "Import"}</span>
+<Button variant="secondary" small icon={Upload} active={open} onclick={openImportDialog}>
+  <span class="hidden sm:inline">Import</span>
 </Button>
+
+<ContactImportDialog {open} {contactImport} onClose={closeImportDialog} />

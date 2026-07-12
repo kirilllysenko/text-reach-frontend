@@ -1,25 +1,16 @@
-<script lang="ts">
+<script lang="ts" generics="TSortId extends string">
   import Plus from "$lib/icons/Plus.svelte";
   import Trash from "$lib/icons/Trash.svelte";
-  import type { DataTableSort, DataTableSortDirection } from "../table";
+  import type { DataTableSortDirection, SortPanelController } from "../table";
 
-  interface SortFieldOption {
-    value: string;
+  interface SortFieldOption<TSortId extends string = string> {
+    value: TSortId;
     label: string;
   }
 
-  export interface SortController {
-    sorts: DataTableSort[];
-    add: (sortId: string, direction?: Exclude<DataTableSortDirection, "intermediate">) => void;
-    clear: () => void;
-    removeAt: (index: number) => void;
-    updateDirection: (index: number, direction: Exclude<DataTableSortDirection, "intermediate">) => void;
-    updateSortId: (index: number, sortId: string) => void;
-  }
-
   interface Props {
-    sorting: SortController;
-    fieldOptions: SortFieldOption[];
+    sorting: SortPanelController<TSortId>;
+    fieldOptions: readonly SortFieldOption<TSortId>[];
     compact?: boolean;
     directionOptions?: Exclude<DataTableSortDirection, "intermediate">[];
   }
@@ -31,7 +22,21 @@
     const field = fieldOptions.find((option) => !usedFields.has(option.value)) ?? fieldOptions[0];
 
     if (field) {
-      sorting.add(field.value);
+      sorting.addSort(field.value);
+    }
+  }
+
+  function updateSortId(index: number, value: string): void {
+    const sortId = fieldOptions.find((option) => option.value === value)?.value;
+    if (sortId) {
+      sorting.updateSortId(index, sortId);
+    }
+  }
+
+  function updateSortDirection(index: number, value: string): void {
+    const direction = directionOptions.find((option) => option === value);
+    if (direction) {
+      sorting.updateSortDirection(index, direction);
     }
   }
 </script>
@@ -47,7 +52,7 @@
         <select
           class="min-w-0 rounded-xl border border-white/80 bg-white/90 px-3 py-2 text-sm text-slate-700 shadow-sm"
           value={rule.sortId}
-          onchange={(event) => sorting.updateSortId(index, event.currentTarget.value)}
+          onchange={(event) => updateSortId(index, event.currentTarget.value)}
         >
           {#each fieldOptions as field (field.value)}
             <option value={field.value}>{field.label}</option>
@@ -57,11 +62,7 @@
         <select
           class="min-w-0 rounded-xl border border-white/80 bg-white/90 px-3 py-2 text-sm text-slate-700 shadow-sm"
           value={rule.direction}
-          onchange={(event) =>
-            sorting.updateDirection(
-              index,
-              event.currentTarget.value as Exclude<DataTableSortDirection, "intermediate">,
-            )}
+          onchange={(event) => updateSortDirection(index, event.currentTarget.value)}
         >
           {#each directionOptions as direction (direction)}
             <option value={direction}>{direction}</option>
@@ -75,7 +76,7 @@
           aria-label={`Remove sort rule ${index + 1}`}
           disabled={sorting.sorts.length <= 1}
           title="Remove sort rule"
-          onclick={() => sorting.removeAt(index)}
+          onclick={() => sorting.removeSortAt(index)}
         >
           <Trash class="size-4 fill-current" />
         </button>

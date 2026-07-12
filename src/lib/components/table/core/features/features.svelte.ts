@@ -22,16 +22,16 @@ import type { DatagridCoreConfig } from "../types";
  * A class that manages the various features of a DataGrid, including sorting, filtering, pagination, row selection, column visibility, and more.
  * It allows for the dynamic configuration and initialization of features, enabling an extensible and customizable DataGrid.
  */
-export class DatagridFeatures<TOriginalRow = any> {
+export class DatagridFeatures<TOriginalRow = any, TMeta = any, TSortId extends string = string> {
   /**
    * The DataGrid instance that this feature set is operating on.
    */
-  datagrid: DatagridCore<any>;
+  datagrid: DatagridCore<TOriginalRow, TMeta, TSortId>;
 
   /**
    * Data loading feature for server-backed DataGrid rows.
    */
-  dataLoading: DataLoadingFeature;
+  dataLoading: DataLoadingFeature<TOriginalRow, TSortId>;
 
   /**
    * Pagination feature for the DataGrid, enabling pagination controls.
@@ -41,7 +41,7 @@ export class DatagridFeatures<TOriginalRow = any> {
   /**
    * Sorting feature for the DataGrid, allowing columns to be sorted in ascending or descending order.
    */
-  sorting: SortingFeature;
+  sorting: SortingFeature<TSortId>;
 
   /**
    * Grouping feature for the DataGrid, enabling the grouping of rows based on specified column values.
@@ -107,10 +107,13 @@ export class DatagridFeatures<TOriginalRow = any> {
    * Initializes the DataGrid features with the provided DataGrid instance and optional configuration.
    * This constructor sets up all the core features for sorting, filtering, pagination, and more based on the provided configuration.
    *
-   * @param {DatagridCore<any>} datagrid - The DataGrid instance that these features will operate on.
+   * @param {DatagridCore<any, any, any>} datagrid - The DataGrid instance that these features will operate on.
    * @param {DatagridCoreConfig<TOriginalRow>} [config] - Optional configuration for the features, including initial states and feature overrides.
    */
-  constructor(datagrid: DatagridCore<any>, config?: DatagridCoreConfig<TOriginalRow>) {
+  constructor(
+    datagrid: DatagridCore<TOriginalRow, TMeta, TSortId>,
+    config?: DatagridCoreConfig<TOriginalRow, any, TSortId>,
+  ) {
     this.datagrid = datagrid;
 
     // Initialize features with provided config or fallback to default features

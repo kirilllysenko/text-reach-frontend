@@ -8,7 +8,7 @@ import { BaseService } from "./base-service";
  * 
  * @extends BaseService
  */
-export class GroupingService extends BaseService {
+export class GroupingService<TSortId extends string = string> extends BaseService<TSortId> {
 
     /**
      * Updates the active grouping columns based on the provided values.

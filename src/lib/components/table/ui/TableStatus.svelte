@@ -1,8 +1,8 @@
-<script lang="ts" generics="TData">
+<script lang="ts" generics="TData, TSortId extends string = string">
   import type { DatagridCore } from "../core/index.svelte";
 
   interface Props {
-    table: DatagridCore<TData>;
+    table: DatagridCore<TData, any, TSortId>;
   }
 
   let { table }: Props = $props();

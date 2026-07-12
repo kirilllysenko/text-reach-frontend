@@ -1,8 +1,8 @@
 import { accessorColumn, computedColumn, displayColumn, columnGroup } from "./core/column-creation";
-import { DatagridCore } from "./core/index.svelte";
-import { createFilterController, createSortController } from "./core/panel-controllers.svelte";
+import { createDatagrid, DatagridCore } from "./core/index.svelte";
 import { comparisonFilter, containmentFilter, sortDefinition, textFilter } from "./core/types";
 import { getCellContent } from "./core/utils.svelte";
+import { FilteringService } from "./core/services/filtering-service.svelte";
 import Table from "./ui/Table.svelte";
 import type {
   ColumnDef,
@@ -17,6 +17,7 @@ import type {
   DataTableCursor,
   DataTableFilter,
   DataTableFilterDefinition,
+  FilterDefinitionSnippetProps,
   DataTableFilterFromDefinition,
   DataTableFilterFromDefinitions,
   DataTableLoadRequest,
@@ -28,8 +29,10 @@ import type {
   DataTableSort,
   DataTableSortDefinition,
   DataTableSortDirection,
+  DataTableSortIdFromDefinitions,
   DataTableSortFromDefinition,
   DataTableSortFromDefinitions,
+  SortPanelController,
   DataTableTextFilter,
   DataTableTextFilterDefinition,
   DataTableTextOperator,
@@ -37,6 +40,7 @@ import type {
 
 export {
   DatagridCore,
+  createDatagrid,
   getCellContent,
   Table,
   accessorColumn,
@@ -44,11 +48,10 @@ export {
   comparisonFilter,
   containmentFilter,
   computedColumn,
-  createFilterController,
-  createSortController,
   displayColumn,
   sortDefinition,
   textFilter,
+  FilteringService,
 };
 
 export type {
@@ -64,6 +67,7 @@ export type {
   DataTableCursor,
   DataTableFilter,
   DataTableFilterDefinition,
+  FilterDefinitionSnippetProps,
   DataTableFilterFromDefinition,
   DataTableFilterFromDefinitions,
   DataTableLoadRequest,
@@ -75,9 +79,11 @@ export type {
   DataTableSort,
   DataTableSortDefinition,
   DataTableSortDirection,
+  DataTableSortIdFromDefinitions,
   DataTableSortFromDefinition,
   DataTableSortFromDefinitions,
   DataTableTextFilter,
   DataTableTextFilterDefinition,
   DataTableTextOperator,
+  SortPanelController,
 };

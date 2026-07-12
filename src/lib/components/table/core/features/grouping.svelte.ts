@@ -29,7 +29,7 @@ export type GroupingFeatureConfig = Partial<GroupingFeatureState>;
  * A class that provides grouping functionality for the datagrid, allowing columns to be grouped and expanded/collapsed.
  */
 export class GroupingFeature implements GroupingFeatureState {
-    private readonly datagrid: DatagridCore;
+    private readonly datagrid: DatagridCore<any, any, any>;
 
     /** Whether grouping is manually controlled. */
     manual: boolean = $state(false);
@@ -54,7 +54,7 @@ export class GroupingFeature implements GroupingFeatureState {
      * @param {DatagridCore} datagrid - The datagrid instance to associate with the grouping feature.
      * @param {GroupingFeatureConfig} [config] - Optional configuration for the grouping feature.
      */
-    constructor(datagrid: DatagridCore, config?: GroupingFeatureConfig) {
+    constructor(datagrid: DatagridCore<any, any, any>, config?: GroupingFeatureConfig) {
         this.datagrid = datagrid;
         Object.assign(this, config);
     }

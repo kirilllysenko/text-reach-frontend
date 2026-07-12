@@ -65,7 +65,7 @@ export type IRowPinningFeature = {} & PaginationFeatureState;
  */
 export class PaginationFeature<TOriginalRow = any> implements IRowPinningFeature {
   /** The instance of the data grid associated with this feature. */
-  datagrid: DatagridCore<TOriginalRow>;
+  datagrid: DatagridCore<TOriginalRow, any, any>;
 
   /** Flag indicating whether page resets automatically. */
   autoResetPage = $state(false);
@@ -105,7 +105,7 @@ export class PaginationFeature<TOriginalRow = any> implements IRowPinningFeature
    * @param datagrid The data grid instance to which pagination will be applied.
    * @param config Optional configuration to initialize the feature.
    */
-  constructor(datagrid: DatagridCore<TOriginalRow>, config?: PaginationFeatureConfig) {
+  constructor(datagrid: DatagridCore<TOriginalRow, any, any>, config?: PaginationFeatureConfig) {
     this.datagrid = datagrid;
     Object.assign(this, config);
 

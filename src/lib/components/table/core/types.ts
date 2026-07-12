@@ -1,4 +1,4 @@
-import type { Component } from "svelte";
+import type { Component, Snippet } from "svelte";
 import type { DatagridCore } from "./index.svelte";
 import type { LifecycleHooks } from "./managers/lifecycle-hooks-manager.svelte";
 import type { SortingFeature } from "./features";
@@ -144,7 +144,7 @@ export type CustomCellComponentWithProps = {
 
 // Cell
 export type CustomCellProps<TOriginalRow> = {
-  datagrid: DatagridCore<any>;
+  datagrid: DatagridCore<any, any, any>;
   column: LeafColumn<any>;
   row: GridBasicRow<TOriginalRow>;
 };
@@ -155,7 +155,7 @@ export type CustomCell<TOriginalRow> = (
 
 // Aggregated Cell
 export type AggregateCellProps<TOriginalRow> = {
-  datagrid: DatagridCore<any>;
+  datagrid: DatagridCore<any, any, any>;
   column: LeafColumn<any>;
   row: GridGroupRow<TOriginalRow>;
 };
@@ -165,7 +165,7 @@ export type AggregatedCell<TOriginalRow> = (
 
 // Grouped Cell
 export type GroupedCellProps<TOriginalRow> = {
-  datagrid: DatagridCore<any>;
+  datagrid: DatagridCore<any, any, any>;
   column: LeafColumn<any>;
   row: GridGroupRow<TOriginalRow>;
 };
@@ -177,7 +177,7 @@ export type GroupedCell<TOriginalRow> = (
 // Header Cell
 export type HeaderCellProps = {
   column: ColumnDef<any>;
-  datagrid: DatagridCore<any>;
+  datagrid: DatagridCore<any, any, any>;
 };
 
 export type HeaderCell = (props: HeaderCellProps) => string | HTMLElement | CustomCellComponentWithProps;
@@ -195,6 +195,15 @@ export interface DataTableSort<TSortId extends string = string> {
   sortId: TSortId;
 }
 
+export interface SortPanelController<TSortId extends string = string> {
+  sorts: DataTableSort<TSortId>[];
+  addSort: (sortId: TSortId, direction?: DataTableActiveSortDirection) => void;
+  clearSorts: () => void;
+  removeSortAt: (index: number) => void;
+  updateSortDirection: (index: number, direction: DataTableActiveSortDirection) => void;
+  updateSortId: (index: number, sortId: TSortId) => void;
+}
+
 export interface DataTableSortDefinition<TSortId extends string = string> {
   defaultDirection?: DataTableActiveSortDirection;
   fieldId?: string;
@@ -202,16 +211,23 @@ export interface DataTableSortDefinition<TSortId extends string = string> {
   sortId: TSortId;
 }
 
+export type DataTableSortDefinitionWithDefault<TSortId extends string = string> = DataTableSortDefinition<TSortId> & {
+  defaultDirection: DataTableActiveSortDirection;
+};
+
 export type DataTableSortFromDefinition<TDefinition> =
   TDefinition extends DataTableSortDefinition<infer TSortId> ? DataTableSort<TSortId> : never;
 
 export type DataTableSortFromDefinitions<TDefinitions extends readonly DataTableSortDefinition[]> =
   DataTableSortFromDefinition<TDefinitions[number]>;
 
+export type DataTableSortIdFromDefinitions<TDefinitions extends readonly DataTableSortDefinition[]> =
+  TDefinitions[number]["sortId"];
+
 export function sortDefinition<const TSortId extends string>(
   definition: DataTableSortDefinition<TSortId>,
-): DataTableSortDefinition<TSortId> {
-  return definition;
+): DataTableSortDefinitionWithDefault<TSortId> {
+  return { defaultDirection: "ascending", ...definition };
 }
 
 /**
@@ -261,11 +277,21 @@ export type DataTableFilter<TFilterId extends string = string> =
   | DataTableComparisonFilter<TFilterId>
   | DataTableContainmentFilter<TFilterId>;
 
+export interface FilterDefinitionSnippetProps {
+  filter: DataTableFilter | null;
+  value: DataTableFilter["value"] | null;
+  getValue: () => DataTableFilter["value"] | null;
+  setValue: (nextValue: DataTableFilter["value"] | null | undefined) => void;
+  clear: () => void;
+}
+
 export interface DataTableBaseFilterDefinition<TFilterId extends string = string> {
   filterId: TFilterId;
+  formatValue?: (value: DataTableFilter["value"], filter: DataTableFilter) => string;
   fieldId?: string;
   hidden?: boolean;
   label?: string;
+  snippet?: Snippet<[FilterDefinitionSnippetProps]>;
 }
 
 export interface DataTableTextFilterDefinition<
@@ -338,7 +364,7 @@ export interface DataTablePageRequest {
   page: number;
 }
 
-export interface DataTableLoadRequest {
+export interface DataTableLoadRequest<TSortId extends string = string> {
   cursor: DataTableCursor;
   direction?: DataTablePageDirection;
   filters: DataTableFilter[];
@@ -346,7 +372,7 @@ export interface DataTableLoadRequest {
   offset?: number;
   page?: number;
   signal?: AbortSignal;
-  sorting: DataTableSort[];
+  sorts: DataTableSort<TSortId>[];
 }
 
 export interface DataTableLoadResult<TData> {
@@ -365,8 +391,8 @@ export type DataTableLoadReason =
   | "search"
   | "sorting";
 
-export type DataTableLoader<TData> = (
-  request: DataTableLoadRequest,
+export type DataTableLoader<TData, TSortId extends string = string> = (
+  request: DataTableLoadRequest<TSortId>,
 ) => DataTableLoadResult<TData> | Promise<DataTableLoadResult<TData>>;
 
 /**
@@ -537,12 +563,12 @@ export type ColumnDef<TOriginalRow, TMeta = any> =
 export type ParentColumnId = string | null;
 
 export type FeatureConstructor<T> = {
-  new (datagrid: DatagridCore<any>, config?: any): T; // Class signature
+  new (datagrid: DatagridCore<any, any, any>, config?: any): T; // Class signature
 };
 
-export type InitialState = {
-  dataLoading?: DataLoadingFeatureConfig;
-  sorting?: SortingFeatureConfig;
+export type InitialState<TOriginalRow = any, TSortId extends string = string> = {
+  dataLoading?: DataLoadingFeatureConfig<TOriginalRow, TSortId>;
+  sorting?: SortingFeatureConfig<TSortId>;
   pagination?: PaginationFeatureConfig;
   filtering?: ColumnFilteringFeatureConfig;
   faceting?: ColumnFacetingFeatureConfig;
@@ -572,21 +598,25 @@ export type DatagridCoreConfigDefaults = {
   column?: DefaultColumnConfig;
 };
 
-export type DatagridCoreConfig<TOriginalRow, C extends ColumnDef<TOriginalRow> = ColumnDef<TOriginalRow>> = {
+export type DatagridCoreConfig<
+  TOriginalRow,
+  C extends ColumnDef<TOriginalRow> = ColumnDef<TOriginalRow>,
+  TSortId extends string = string,
+> = {
   columns: C[];
   data: TOriginalRow[];
   dataFields?: DataField<TOriginalRow>[];
   lifecycleHooks?: LifecycleHooks<TOriginalRow>;
 
-  initialState?: InitialState;
+  initialState?: InitialState<TOriginalRow, TSortId>;
 
   measurePerformance?: boolean;
   rowIdGetter?: (row: TOriginalRow) => string;
   rowIndexGetter?: (row: TOriginalRow) => string;
 
   features?: {
-    dataLoading?: FeatureConstructor<DataLoadingFeature>;
-    sorting?: FeatureConstructor<SortingFeature>;
+    dataLoading?: FeatureConstructor<DataLoadingFeature<TOriginalRow, TSortId>>;
+    sorting?: FeatureConstructor<SortingFeature<TSortId>>;
     pagination?: FeatureConstructor<PaginationFeature>;
     filtering?: FeatureConstructor<ColumnFilteringFeature>;
     faceting?: FeatureConstructor<ColumnFacetingFeature>;

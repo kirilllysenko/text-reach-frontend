@@ -1,10 +1,10 @@
-<script lang="ts" generics="TData">
+<script lang="ts" generics="TData, TSortId extends string = string">
   import type { DatagridCore } from "../core/index.svelte";
   import TableVirtualBody from "./TableVirtualBody.svelte";
   import TableRow from "./TableRow.svelte";
 
   interface Props {
-    table: DatagridCore<TData>;
+    table: DatagridCore<TData, any, TSortId>;
     error?: string | null;
     loading?: boolean;
   }

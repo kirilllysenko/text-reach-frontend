@@ -29,7 +29,7 @@
   {#if state.selectedCampaign}
     <header class="sticky top-0 z-10 border-b border-white/80 bg-white/60 px-3 pt-3 pb-2 backdrop-blur-md">
       <div class="flex items-center gap-2">
-        <Button secondary onclick={state.backToMobileList}>← Back</Button>
+        <Button variant="secondary" onclick={state.backToMobileList}>← Back</Button>
         <div class="min-w-0 grow">
           <h2 class="truncate text-base font-semibold text-slate-800">{state.selectedCampaign.name}</h2>
           <p class="truncate text-xs text-slate-500">Created {createdAtHeaderLabel}</p>

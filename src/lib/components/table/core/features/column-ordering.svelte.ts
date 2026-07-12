@@ -29,17 +29,17 @@ export class ColumnOrderingFeature<TOriginalRow = any> implements IColumnOrderin
     /**
      * The data grid instance to which this feature is attached.
      * @private
-     * @type {DatagridCore<TOriginalRow>}
+     * @type {DatagridCore<TOriginalRow, any, any>}
      */
-    private readonly datagrid: DatagridCore<TOriginalRow>;
+    private readonly datagrid: DatagridCore<TOriginalRow, any, any>;
 
     /**
      * Initializes the column ordering feature with the provided data grid instance and optional configuration.
      * 
-     * @param {DatagridCore<TOriginalRow>} datagrid - The data grid instance.
+     * @param {DatagridCore<TOriginalRow, any, any>} datagrid - The data grid instance.
      * @param {ColumnOrderingFeatureConfig} [config] - Optional configuration for the feature.
      */
-    constructor(datagrid: DatagridCore<TOriginalRow>, config?: ColumnOrderingFeatureConfig) {
+    constructor(datagrid: DatagridCore<TOriginalRow, any, any>, config?: ColumnOrderingFeatureConfig) {
         this.datagrid = datagrid;
         Object.assign(this, config);
     }

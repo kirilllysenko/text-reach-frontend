@@ -1,19 +1,12 @@
-import type { ContactGroupLookupState } from "../contact-group-lookup-state.svelte";
+import { notificationsState } from "$lib/state/notifications.svelte";
 import { loadContactExportList, toContactCsv, type ContactExportSnapshot } from "./contact-export";
 
-interface ContactExportStateOptions {
-  groups: ContactGroupLookupState;
+export function createContactExportState(): ContactExportState {
+  return new ContactExportState();
 }
 
-export class ContactExportState {
-  actionMessage = $state<string | null>(null);
+class ContactExportState {
   exporting = $state(false);
-
-  private options: ContactExportStateOptions;
-
-  constructor(options: ContactExportStateOptions) {
-    this.options = options;
-  }
 
   exportContact = async (snapshot: ContactExportSnapshot): Promise<void> => {
     if (this.exporting) {
@@ -21,11 +14,10 @@ export class ContactExportState {
     }
 
     this.exporting = true;
-    this.actionMessage = null;
 
     try {
       const contacts = await loadContactExportList(snapshot);
-      const blob = new Blob([toContactCsv(contacts, this.options.groups.contactGroupNameById)], {
+      const blob = new Blob([toContactCsv(contacts)], {
         type: "text/csv;charset=utf-8",
       });
       const url = URL.createObjectURL(blob);
@@ -36,11 +28,13 @@ export class ContactExportState {
       link.click();
       URL.revokeObjectURL(url);
 
-      this.actionMessage = `Exported ${contacts.length} contacts with current filters.`;
+      notificationsState.showInfo(`Exported ${contacts.length} contacts with current filters.`);
     } catch {
-      this.actionMessage = "Could not export contacts.";
+      notificationsState.showError("Could not export contacts.");
     } finally {
       this.exporting = false;
     }
   };
 }
+
+export type { ContactExportState };

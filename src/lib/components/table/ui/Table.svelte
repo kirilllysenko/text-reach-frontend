@@ -1,4 +1,4 @@
-<script lang="ts" generics="TData">
+<script lang="ts" generics="TData, TSortId extends string = string">
   import type { DatagridCore } from "../core/index.svelte";
   import TableBody from "./TableBody.svelte";
   import TableHeader from "./TableHeader.svelte";
@@ -6,7 +6,7 @@
   import { getColumnSizeRootStyle } from "./column-size-style";
 
   interface Props {
-    table: DatagridCore<TData>;
+    table: DatagridCore<TData, any, TSortId>;
     error?: string | null;
     loading?: boolean;
   }

@@ -1,15 +1,16 @@
 <script lang="ts">
   import { onDestroy, onMount } from "svelte";
   import {
+    Button,
     DatagridCore,
+    Card,
     Input,
     PageTitle,
     Table,
     accessorColumn,
-    createFilterController,
-    createSortController,
+    comparisonFilter,
+    textFilter,
     type ColumnDef,
-    type DataTableLoadRequest,
     type DataTableSort,
   } from "$lib";
   import { PATH_PAYMENT } from "$lib/app/paths";
@@ -24,11 +25,6 @@
   const initialSorting = [{ sortId: "createdAt", direction: "descending" }] satisfies DataTableSort[];
 
   let tableKey = transactionState.tableKey;
-  let rows = $state<WalletTransactionViewModel[]>([]);
-  let loadingRows = $state(false);
-
-  const filtering = createFilterController(() => void reloadRows());
-  const sorting = createSortController(initialSorting, () => void reloadRows());
 
   function size(width: number, maxWidth: number) {
     return {
@@ -85,7 +81,7 @@
     }),
   ] satisfies ColumnDef<WalletTransactionViewModel>[];
 
-  let table = $state<DatagridCore<WalletTransactionViewModel>>(createTransactionTable([]));
+  const table = createTransactionTable();
 
   $effect(() => {
     if (transactionState.tableKey === tableKey) {
@@ -93,57 +89,109 @@
     }
 
     tableKey = transactionState.tableKey;
-    void reloadRows();
+    void table.handlers.dataLoading.reload("search");
   });
 
-  onDestroy(() => transactionState.dispose());
   onMount(() => {
-    void reloadRows();
+    table.handlers.dataLoading.start();
   });
 
-  function createTransactionTable(data: WalletTransactionViewModel[]) {
+  onDestroy(() => {
+    table.handlers.dataLoading.dispose();
+    transactionState.dispose();
+  });
+
+  function createTransactionTable() {
     return new DatagridCore<WalletTransactionViewModel>({
       columns,
-      data,
+      data: [],
       dataFields: [
         {
           fieldId: "createdAt",
           getValueFn: (transaction) => transaction.createdAt,
+          filterable: true,
           sortable: true,
         },
         {
           fieldId: "amountUsdMicros",
           getValueFn: (transaction) => transaction.amountUsdMicros,
+          filterable: true,
+          sortable: true,
+        },
+        {
+          fieldId: "currency",
+          getValueFn: (transaction) => transaction.currency,
+          filterable: true,
+          sortable: true,
+        },
+        {
+          fieldId: "entryType",
+          getValueFn: (transaction) => transaction.entryType,
+          filterable: true,
+          sortable: true,
+        },
+        {
+          fieldId: "sourceType",
+          getValueFn: (transaction) => transaction.sourceType,
+          filterable: true,
           sortable: true,
         },
       ],
       initialState: {
-        pagination: { pageSize: PAGE_SIZE },
+        dataLoading: {
+          loader: (request) => transactionState.fetchRows(request),
+        },
+        filtering: {
+          filterDefinitions: [
+            comparisonFilter({
+              filterId: "minAmount",
+              fieldId: "amountUsdMicros",
+              label: "Min amount",
+              defaultOperator: "GREATER_OR_EQUAL",
+            }),
+            comparisonFilter({
+              filterId: "maxAmount",
+              fieldId: "amountUsdMicros",
+              label: "Max amount",
+              defaultOperator: "LESS_OR_EQUAL",
+            }),
+            comparisonFilter({
+              filterId: "createdFrom",
+              fieldId: "createdAt",
+              label: "Created from",
+              defaultOperator: "GREATER_OR_EQUAL",
+            }),
+            comparisonFilter({
+              filterId: "createdTo",
+              fieldId: "createdAt",
+              label: "Created to",
+              defaultOperator: "LESS_OR_EQUAL",
+            }),
+            textFilter({ filterId: "currency", fieldId: "currency", label: "Currency", defaultOperator: "CONTAINS" }),
+            textFilter({
+              filterId: "entryType",
+              fieldId: "entryType",
+              label: "Entry type",
+              defaultOperator: "CONTAINS",
+            }),
+            textFilter({
+              filterId: "sourceType",
+              fieldId: "sourceType",
+              label: "Source type",
+              defaultOperator: "CONTAINS",
+            }),
+          ],
+        },
+        pagination: {
+          manual: true,
+          pageSize: PAGE_SIZE,
+        },
         sorting: {
-          sorts: sorting.sorts,
+          sorts: initialSorting,
         },
       },
       rowIdGetter: (transaction) => transaction.id,
     });
-  }
-
-  async function reloadRows(): Promise<void> {
-    loadingRows = true;
-
-    const request = {
-      cursor: null,
-      filters: filtering.filters,
-      limit: PAGE_SIZE,
-      sorting: sorting.sorts,
-    } satisfies DataTableLoadRequest;
-
-    try {
-      const result = await transactionState.fetchRows(request);
-      rows = result.rows;
-      table = createTransactionTable(rows);
-    } finally {
-      loadingRows = false;
-    }
   }
 </script>
 
@@ -161,10 +209,7 @@
     </a>
   </PageTitle>
 
-  <div
-    class="shrink-0 space-y-3 rounded-2xl border border-white/70 bg-white/70 p-3
-      shadow-[0_20px_45px_-25px_rgba(30,41,59,0.45)] backdrop-blur-md"
-  >
+  <Card variant="panel" class="shrink-0 space-y-3">
     <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
       <Input
         class="min-w-0 grow"
@@ -174,43 +219,41 @@
       />
 
       <div class="flex items-center gap-2">
-        <button
-          class={[
-            `relative flex h-9 items-center gap-2 rounded-xl border bg-white/90 px-3 text-sm font-medium
-              text-slate-700 shadow-sm hover:cursor-pointer hover:bg-white`,
-            transactionState.filtersOpen ? "border-sky-300 bg-sky-50/90" : "border-white/80",
-          ]}
-          type="button"
+        <Button
+          variant="secondary"
+          active={transactionState.filtersOpen}
+          icon={Filter}
+          class="relative gap-2 text-sm"
           onclick={transactionState.openFilters}
         >
-          <Filter class={["size-5", transactionState.filtersOpen ? "fill-sky-700" : "fill-slate-700"]} />
-          Filters
-          <span
-            class="flex h-4 min-w-4 items-center justify-center rounded-full bg-slate-700 px-1 text-[10px]
-              leading-4 text-white"
-          >
-            {filtering.filters.length}
+          <span class="flex items-center gap-2">
+            Filters
+            <span
+              class="flex h-4 min-w-4 items-center justify-center rounded-full bg-slate-700 px-1 text-[10px]
+                leading-4 text-white"
+            >
+              {table.features.filtering.filters.length}
+            </span>
           </span>
-        </button>
+        </Button>
 
-        <button
-          class={[
-            `relative flex h-9 items-center gap-2 rounded-xl border bg-white/90 px-3 text-sm font-medium
-              text-slate-700 shadow-sm hover:cursor-pointer hover:bg-white`,
-            transactionState.sortOpen ? "border-sky-300 bg-sky-50/90" : "border-white/80",
-          ]}
-          type="button"
+        <Button
+          variant="secondary"
+          active={transactionState.sortOpen}
+          icon={Sort}
+          class="relative gap-2 text-sm"
           onclick={transactionState.openSort}
         >
-          <Sort class={["size-5", transactionState.sortOpen ? "fill-sky-700" : "fill-slate-700"]} />
-          Sort
-          <span
-            class="flex h-4 min-w-4 items-center justify-center rounded-full bg-slate-700 px-1 text-[10px]
-              leading-4 text-white"
-          >
-            {sorting.sorts.length}
+          <span class="flex items-center gap-2">
+            Sort
+            <span
+              class="flex h-4 min-w-4 items-center justify-center rounded-full bg-slate-700 px-1 text-[10px]
+                leading-4 text-white"
+            >
+              {table.features.sorting.sorts.length}
+            </span>
           </span>
-        </button>
+        </Button>
       </div>
     </div>
 
@@ -225,16 +268,11 @@
         {transactionState.loadingError}
       </div>
     {/if}
-  </div>
+  </Card>
 
-  <div
-    class="flex min-h-0 grow flex-col overflow-hidden rounded-2xl border border-white/70 bg-white/70 p-0
-      shadow-[0_20px_45px_-25px_rgba(30,41,59,0.45)] backdrop-blur-md"
-  >
-    {#key table}
-      <Table {table} loading={loadingRows} />
-    {/key}
-  </div>
+  <Card variant="table">
+    <Table {table} loading={table.features.dataLoading.loading} />
+  </Card>
 </div>
 
-<TransactionOverlay state={transactionState} {filtering} {sorting} />
+<TransactionOverlay state={transactionState} filtering={table.handlers.filtering} sorting={table.handlers.sorting} />

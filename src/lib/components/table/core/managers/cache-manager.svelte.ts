@@ -11,9 +11,9 @@ import type { GridRow } from "../types";
 export class DatagridCacheManager<TOriginalRow> {
     /**
      * The core datagrid instance that the cache manager is associated with.
-     * @type {DatagridCore<TOriginalRow>}
+     * @type {DatagridCore<TOriginalRow, any, any>}
      */
-    datagrid: DatagridCore<TOriginalRow>;
+    datagrid: DatagridCore<TOriginalRow, any, any>;
 
     /**
      * Cached sorted data. Null if the cache is invalid.
@@ -92,7 +92,7 @@ export class DatagridCacheManager<TOriginalRow> {
      * Creates an instance of DatagridCacheManager for a specific datagrid.
      * @param datagrid The core datagrid instance.
      */
-    constructor(datagrid: DatagridCore<TOriginalRow>) {
+    constructor(datagrid: DatagridCore<TOriginalRow, any, any>) {
         this.datagrid = datagrid;
     }
 

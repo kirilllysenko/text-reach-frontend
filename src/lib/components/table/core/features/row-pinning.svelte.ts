@@ -24,9 +24,9 @@ export type IRowPinningFeature = {} & RowPinningFeatureState
 export class RowPinningFeature<TOriginalRow = any> implements IRowPinningFeature {
     /**
      * The reference to the data grid core.
-     * @type {DatagridCore<TOriginalRow>}
+     * @type {DatagridCore<TOriginalRow, any, any>}
      */
-    datagrid: DatagridCore<TOriginalRow>;
+    datagrid: DatagridCore<TOriginalRow, any, any>;
 
     /**
      * The set of row identifiers pinned to the top of the grid.
@@ -57,10 +57,10 @@ export class RowPinningFeature<TOriginalRow = any> implements IRowPinningFeature
     /**
      * Creates an instance of the row pinning feature.
      *
-     * @param {DatagridCore<TOriginalRow>} datagrid - The data grid core instance.
+     * @param {DatagridCore<TOriginalRow, any, any>} datagrid - The data grid core instance.
      * @param {RowPinningFeatureConfig} [config] - Optional configuration for the row pinning feature.
      */
-    constructor(datagrid: DatagridCore<TOriginalRow>, config?: RowPinningFeatureConfig) {
+    constructor(datagrid: DatagridCore<TOriginalRow, any, any>, config?: RowPinningFeatureConfig) {
         this.datagrid = datagrid;
         Object.assign(this, config);
     }

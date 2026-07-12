@@ -1,10 +1,10 @@
-<script lang="ts" generics="TData">
+<script lang="ts" generics="TData, TSortId extends string = string">
   import type { DatagridCore } from "../core/index.svelte";
   import type { LeafColumn } from "../core/types";
 
   interface Props {
     column: LeafColumn<TData>;
-    table: DatagridCore<TData>;
+    table: DatagridCore<TData, any, TSortId>;
   }
 
   let { column, table }: Props = $props();

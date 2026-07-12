@@ -4,16 +4,16 @@
     FilterPanel,
     ResponsiveDialog,
     SortPanel,
-    createFilterController,
-    createSortController,
+    type FilteringService,
     type FilterPanelConfig,
+    type SortPanelController,
   } from "$lib";
   import type { WalletTransactionState } from "$lib/feature/payment/payment-state.svelte";
   import { walletTransactionSortFieldLabelMap } from "$lib/feature/payment/payment-view-data";
 
   interface Props {
-    filtering: ReturnType<typeof createFilterController>;
-    sorting: ReturnType<typeof createSortController>;
+    filtering: FilteringService;
+    sorting: SortPanelController;
     state: WalletTransactionState;
   }
 

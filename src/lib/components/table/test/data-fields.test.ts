@@ -3,12 +3,14 @@ import {
   accessorColumn,
   comparisonFilter,
   containmentFilter,
+  createDatagrid,
   DatagridCore,
   sortDefinition,
   textFilter,
   type ColumnDef,
   type DataField,
   type DataTableFilterFromDefinitions,
+  type DataTableSort,
   type DataTableSortFromDefinitions,
 } from "../index";
 import type { DatagridCoreConfig, LeafColumn } from "../core/types";
@@ -44,11 +46,12 @@ const contactFilterDefinitions = [
 type ContactFilter = DataTableFilterFromDefinitions<typeof contactFilterDefinitions>;
 
 const contactSortDefinitions = [
-  sortDefinition({ sortId: "fullName", fieldId: "fullName", defaultDirection: "ascending" }),
+  sortDefinition({ sortId: "fullName", fieldId: "fullName" }),
   sortDefinition({ sortId: "birthYear", fieldId: "birthYear", defaultDirection: "descending" }),
 ] as const;
 
 type ContactSort = DataTableSortFromDefinitions<typeof contactSortDefinitions>;
+type ContactSortId = ContactSort["sortId"];
 
 const typedFilterExamples = [
   { filterId: "fullName", type: "text", operator: "CONTAINS", value: "ada" },
@@ -123,6 +126,64 @@ async function flushMicrotasks(): Promise<void> {
 }
 
 describe("datagrid data fields", () => {
+  it("infers loader sorts from literal definitions and rejects unknown sort IDs", () => {
+    const createContactDatagrid = createDatagrid<ContactRow>();
+    const table = createContactDatagrid({
+      columns: createColumns(),
+      data: contacts,
+      dataFields: [fullNameField, birthYearField, groupIdsField],
+      initialState: {
+        dataLoading: {
+          loader: (request) => {
+            const exactSorts: DataTableSort<ContactSortId>[] = request.sorts;
+            void exactSorts;
+
+            return { nextCursor: null, rows: contacts, totalRows: contacts.length };
+          },
+        },
+        sorting: {
+          sortDefinitions: contactSortDefinitions,
+          sorts: [{ direction: "ascending", sortId: "fullName" }],
+        },
+      },
+    });
+
+    expect(table.features.sorting.sorts).toEqual([{ direction: "ascending", sortId: "fullName" }]);
+
+    if (false) {
+      createContactDatagrid({
+        columns: createColumns(),
+        data: contacts,
+        initialState: {
+          sorting: {
+            sortDefinitions: contactSortDefinitions,
+            sorts: [
+              // @ts-expect-error Sort IDs are inferred from the definitions tuple.
+              { direction: "ascending", sortId: "notDefined" },
+            ],
+          },
+        },
+      });
+    }
+  });
+
+  it("ignores raw sort IDs that do not resolve to a sortable data field", () => {
+    const table = createDatagrid<ContactRow>()({
+      columns: createColumns(),
+      data: contacts,
+      dataFields: [fullNameField, birthYearField, groupIdsField],
+      initialState: {
+        sorting: {
+          sortDefinitions: contactSortDefinitions,
+        },
+      },
+    });
+
+    table.handlers.sorting.toggleSort("notDefined", false);
+
+    expect(table.features.sorting.sorts).toEqual([]);
+  });
+
   it("filters by a data field that has no rendered column", () => {
     const table = createContactsTable({
       initialState: {
@@ -159,6 +220,35 @@ describe("datagrid data fields", () => {
     });
 
     expect(visibleRowIds(table)).toEqual(["1", "3", "2"]);
+  });
+
+  it("defaults omitted sort definition directions to ascending", () => {
+    const table = createContactsTable({
+      initialState: {
+        sorting: {
+          sortDefinitions: contactSortDefinitions,
+        },
+      },
+    });
+
+    table.handlers.sorting.addSort("fullName");
+
+    expect(contactSortDefinitions[0].defaultDirection).toBe("ascending");
+    expect(table.features.sorting.sorts).toEqual([{ sortId: "fullName", direction: "ascending" }]);
+  });
+
+  it("uses configured sort definition defaults when adding a sort rule", () => {
+    const table = createContactsTable({
+      initialState: {
+        sorting: {
+          sortDefinitions: contactSortDefinitions,
+        },
+      },
+    });
+
+    table.handlers.sorting.addSort("birthYear");
+
+    expect(table.features.sorting.sorts).toEqual([{ sortId: "birthYear", direction: "descending" }]);
   });
 
   it("skips local sorting when sorting is manual", () => {
@@ -221,6 +311,10 @@ describe("datagrid data fields", () => {
     const table = createContactsTable();
 
     expect(() => table.handlers.sorting.applyAscendingSortByField("missing")).toThrow("Data field missing not found");
+    expect(() => table.handlers.sorting.applyDescendingSortByField("missing")).toThrow(
+      "Data field missing not found",
+    );
+    expect(() => table.handlers.sorting.clearFieldSort("missing")).toThrow("Data field missing not found");
     expect(() =>
       table.handlers.filtering.setFilter("missing", {
         filterId: "missing",
@@ -355,7 +449,7 @@ describe("datagrid pagination cursors", () => {
 describe("datagrid data loading", () => {
   it("loads rows through the configured loader and registers pagination cursors", async () => {
     const loader = vi.fn((request) => ({
-      rows: [{ id: request.page === 2 ? "2" : "1", firstName: "Ada", lastName: "Lovelace" }],
+      rows: [request.page === 2 ? contacts[0] : contacts[1]],
       nextCursor: request.page === 1 ? ["page-2"] : null,
       totalRows: 2,
     }));
@@ -382,7 +476,7 @@ describe("datagrid data loading", () => {
         filters: [],
         limit: 1,
         page: 1,
-        sorting: [],
+        sorts: [],
       }),
     );
     expect(visibleRowIds(table)).toEqual(["1"]);
@@ -433,14 +527,14 @@ describe("datagrid data loading", () => {
 
     expect(loader).toHaveBeenCalledWith(
       expect.objectContaining({
-        sorting: [{ sortId: "fullName", direction: "descending" }],
+        sorts: [{ sortId: "fullName", direction: "descending" }],
       }),
     );
   });
 
   it("reloads with active filters when filtering changes", async () => {
     const loader = vi.fn(() => ({
-      rows: [{ id: "1", firstName: "Ada", lastName: "Lovelace" }],
+      rows: [contacts[1]],
       nextCursor: null,
       totalRows: 1,
     }));
@@ -483,7 +577,7 @@ describe("datagrid data loading", () => {
 
   it("reloads with active sorting when sorting changes", async () => {
     const loader = vi.fn(() => ({
-      rows: [{ id: "1", firstName: "Ada", lastName: "Lovelace" }],
+      rows: [contacts[1]],
       nextCursor: null,
       totalRows: 1,
     }));
@@ -514,7 +608,130 @@ describe("datagrid data loading", () => {
       expect.objectContaining({
         cursor: null,
         page: 1,
-        sorting: [{ sortId: "fullName", direction: "descending" }],
+        sorts: [{ sortId: "fullName", direction: "descending" }],
+      }),
+    );
+  });
+
+  it("reloads with panel-style filter service methods", async () => {
+    const loader = vi.fn(() => ({
+      rows: [contacts[1]],
+      nextCursor: null,
+      totalRows: 1,
+    }));
+    const table = createContactsTable({
+      data: [],
+      initialState: {
+        dataLoading: {
+          loader,
+        },
+        pagination: {
+          manual: true,
+          pageSize: 1,
+        },
+        filtering: {
+          filterDefinitions: contactFilterDefinitions,
+        },
+      },
+    });
+
+    table.handlers.dataLoading.start();
+    await flushMicrotasks();
+    loader.mockClear();
+
+    table.handlers.filtering.setFilter("fullName", {
+      filterId: "fullName",
+      operator: "CONTAINS",
+      type: "text",
+      value: "ada",
+    });
+    await flushMicrotasks();
+
+    expect(table.features.filtering.filters).toEqual([
+      { filterId: "fullName", operator: "CONTAINS", type: "text", value: "ada" },
+    ]);
+    expect(loader).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        filters: [{ filterId: "fullName", operator: "CONTAINS", type: "text", value: "ada" }],
+      }),
+    );
+
+    table.handlers.filtering.clearFilters();
+    await flushMicrotasks();
+
+    expect(table.features.filtering.filters).toEqual([]);
+    expect(loader).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        filters: [],
+      }),
+    );
+  });
+
+  it("keeps panel-style sorting service methods and header sorting state synchronized", async () => {
+    const loader = vi.fn(() => ({
+      rows: [contacts[1]],
+      nextCursor: null,
+      totalRows: 1,
+    }));
+    const table = createContactsTable({
+      data: [],
+      initialState: {
+        dataLoading: {
+          loader,
+        },
+        pagination: {
+          manual: true,
+          pageSize: 1,
+        },
+        sorting: {
+          sortDefinitions: contactSortDefinitions,
+        },
+      },
+    });
+
+    table.handlers.dataLoading.start();
+    await flushMicrotasks();
+    loader.mockClear();
+
+    table.handlers.sorting.addSort("fullName", "ascending");
+    await flushMicrotasks();
+
+    expect(table.features.sorting.sorts).toEqual([{ sortId: "fullName", direction: "ascending" }]);
+    expect(table.features.sorting.getSortDirection("fullName")).toBe("ascending");
+    expect(loader).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        sorts: [{ sortId: "fullName", direction: "ascending" }],
+      }),
+    );
+
+    table.handlers.sorting.updateSortDirection(0, "descending");
+    await flushMicrotasks();
+
+    expect(table.features.sorting.getSortDirection("fullName")).toBe("descending");
+    expect(loader).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        sorts: [{ sortId: "fullName", direction: "descending" }],
+      }),
+    );
+
+    table.handlers.sorting.updateSortId(0, "birthYear");
+    await flushMicrotasks();
+
+    expect(table.features.sorting.getSortDirection("fullName")).toBe("intermediate");
+    expect(table.features.sorting.getSortDirection("birthYear")).toBe("descending");
+    expect(loader).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        sorts: [{ sortId: "birthYear", direction: "descending" }],
+      }),
+    );
+
+    table.handlers.sorting.removeSortAt(0);
+    await flushMicrotasks();
+
+    expect(table.features.sorting.sorts).toEqual([]);
+    expect(loader).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        sorts: [],
       }),
     );
   });
@@ -524,7 +741,7 @@ describe("datagrid data loading", () => {
     const loader = vi.fn((request) => {
       signals.push(request.signal!);
       return Promise.resolve({
-        rows: [{ id: "1", firstName: "Ada", lastName: "Lovelace" }],
+        rows: [contacts[1]],
         nextCursor: null,
         totalRows: 1,
       });

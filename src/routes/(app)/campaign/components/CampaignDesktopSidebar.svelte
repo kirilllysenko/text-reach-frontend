@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Input } from "$lib";
+  import { Button, Input } from "$lib";
   import Filter from "$lib/icons/Filter.svelte";
   import Sort from "$lib/icons/Sort.svelte";
   import CampaignVirtualList from "./CampaignVirtualList.svelte";
@@ -27,43 +27,37 @@
         oninput={(event) => state.updateSearch(event.currentTarget.value)}
       />
 
-      <button
-        class={[
-          `relative flex size-9 items-center justify-center rounded-xl border bg-white/90 shadow-sm
-            hover:cursor-pointer hover:bg-white`,
-          state.filtersOpen ? "border-sky-300 bg-sky-50/90" : "border-white/80",
-        ]}
-        type="button"
+      <Button
+        variant="secondary"
+        active={state.filtersOpen}
+        icon={Filter}
+        class="relative size-9 p-0"
         aria-label="Toggle filters"
         onclick={state.openFilters}
       >
-        <Filter class={["size-5", state.filtersOpen ? "fill-sky-700" : "fill-slate-700"]} />
         <span
           class="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-slate-700
             px-1 text-[10px] leading-4 text-white"
         >
           {state.activeFilterCount}
         </span>
-      </button>
+      </Button>
 
-      <button
-        class={[
-          `relative flex size-9 items-center justify-center rounded-xl border bg-white/90 shadow-sm
-            hover:cursor-pointer hover:bg-white`,
-          state.sortOpen ? "border-sky-300 bg-sky-50/90" : "border-white/80",
-        ]}
-        type="button"
+      <Button
+        variant="secondary"
+        active={state.sortOpen}
+        icon={Sort}
+        class="relative size-9 p-0"
         aria-label="Toggle sorting"
         onclick={state.openSort}
       >
-        <Sort class={["size-5", state.sortOpen ? "fill-sky-700" : "fill-slate-700"]} />
         <span
           class="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-slate-700
             px-1 text-[10px] leading-4 text-white"
         >
           {state.activeSortCount}
         </span>
-      </button>
+      </Button>
     </div>
   </div>
 
@@ -79,13 +73,13 @@
     />
   </div>
 
-  <button
-    class="absolute top-1/2 right-0 z-10 size-8 translate-x-1/2 -translate-y-1/2 rounded-full border
-      border-white/80 bg-white/90 text-slate-600 shadow-md backdrop-blur-sm hover:cursor-pointer hover:bg-white"
-    type="button"
+  <Button
+    variant="secondary"
+    class="absolute top-1/2 right-0 z-10 size-8 translate-x-1/2 -translate-y-1/2 rounded-full
+      p-0 shadow-md backdrop-blur-sm"
     aria-label={state.desktopExpanded ? "Collapse campaign list" : "Expand campaign list"}
     onclick={state.toggleDesktopExpanded}
   >
     {state.desktopExpanded ? "→" : "←"}
-  </button>
+  </Button>
 </aside>

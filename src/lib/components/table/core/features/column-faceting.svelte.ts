@@ -29,7 +29,7 @@ export type IColumnFacetingFeature = ColumnFacetingFeatureState;
  */
 export class ColumnFacetingFeature<TOriginalRow = any> implements IColumnFacetingFeature {
     // Reference to the parent DataGrid
-    private datagrid: DatagridCore<TOriginalRow>;
+    private datagrid: DatagridCore<TOriginalRow, any, any>;
 
     /** Stores numeric facets (min and max values) for each column */
     _numericFacets: Record<ColumnId, { min: number; max: number }> = $state({});
@@ -49,7 +49,7 @@ export class ColumnFacetingFeature<TOriginalRow = any> implements IColumnFacetin
      * @param datagrid - The parent datagrid instance.
      * @param config - Optional configuration to override the default facet feature state.
      */
-    constructor(datagrid: DatagridCore<TOriginalRow>, config?: ColumnFacetingFeatureConfig) {
+    constructor(datagrid: DatagridCore<TOriginalRow, any, any>, config?: ColumnFacetingFeatureConfig) {
         this.datagrid = datagrid;
         Object.assign(this, config);
     }

@@ -24,9 +24,9 @@ export class DataDataProcessor<TOriginalRow> {
   /**
    * Constructs an instance of the DataDataProcessor.
    *
-   * @param {DatagridCore<TOriginalRow>} datagrid - The core datagrid instance to which this processor belongs.
+   * @param {DatagridCore<TOriginalRow, any, any>} datagrid - The core datagrid instance to which this processor belongs.
    */
-  constructor(private readonly datagrid: DatagridCore<TOriginalRow>) {
+  constructor(private readonly datagrid: DatagridCore<TOriginalRow, any, any>) {
     this.metrics = datagrid.performanceMetrics;
     this.customAggregationFns = new Map();
   }

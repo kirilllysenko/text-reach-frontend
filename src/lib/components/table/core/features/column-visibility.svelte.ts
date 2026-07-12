@@ -36,7 +36,7 @@ export class ColumnVisibilityFeature<TOriginalRow = any> implements IColumnVisib
     /**
      * A reference to the DataGrid instance that this feature operates on.
      */
-    datagrid: DatagridCore<TOriginalRow>;
+    datagrid: DatagridCore<TOriginalRow, any, any>;
 
     /**
      * Callback function triggered when the visibility of columns changes.
@@ -50,10 +50,10 @@ export class ColumnVisibilityFeature<TOriginalRow = any> implements IColumnVisib
      * Initializes the ColumnVisibilityFeature with a reference to the DataGrid and optional configuration.
      * This feature helps manage the visibility of columns, allowing for toggling, showing, and hiding columns.
      * 
-     * @param {DatagridCore<TOriginalRow>} datagrid - The DataGrid instance that this feature will operate on.
+     * @param {DatagridCore<TOriginalRow, any, any>} datagrid - The DataGrid instance that this feature will operate on.
      * @param {ColumnVisibilityPluginConfig} [config] - Optional configuration for column visibility, such as a custom visibility change handler.
      */
-    constructor(datagrid: DatagridCore<TOriginalRow>, config?: ColumnVisibilityPluginConfig) {
+    constructor(datagrid: DatagridCore<TOriginalRow, any, any>, config?: ColumnVisibilityPluginConfig) {
         this.datagrid = datagrid;
         Object.assign(this, config);
     }

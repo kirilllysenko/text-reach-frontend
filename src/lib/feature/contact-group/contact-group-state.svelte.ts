@@ -8,6 +8,7 @@ import {
   type ContactGroupSortRule,
   type ContactGroupViewModel,
 } from "$lib/feature/contact-group/contact-group-view-data";
+import { debounce } from "$lib/utils/debounce";
 import {
   createMockContactGroupList,
   filterMockContactGroupList,
@@ -37,7 +38,9 @@ export class ContactGroupState {
   sortOpen = $state(false);
   tableKey = $state(0);
 
-  private searchTimer: ReturnType<typeof setTimeout> | null = null;
+  private readonly scheduleRefresh = debounce(() => {
+    void this.refreshTable();
+  }, SEARCH_DEBOUNCE_MS);
   private loadedRowEstimate = 0;
   private fallbackGroupList = createMockContactGroupList();
 
@@ -153,7 +156,7 @@ export class ContactGroupState {
       search: this.search,
       minContactCount: filters.minContactCount,
       maxContactCount: filters.maxContactCount,
-      sortRules: this.getSortRules(request.sorting),
+      sortRules: this.getSortRules(request.sorts),
     });
 
     try {
@@ -187,23 +190,8 @@ export class ContactGroupState {
   };
 
   dispose = (): void => {
-    if (!this.searchTimer) {
-      return;
-    }
-
-    clearTimeout(this.searchTimer);
-    this.searchTimer = null;
+    this.scheduleRefresh.cancel();
   };
-
-  private scheduleRefresh(): void {
-    if (this.searchTimer) {
-      clearTimeout(this.searchTimer);
-    }
-
-    this.searchTimer = setTimeout(() => {
-      void this.refreshTable();
-    }, SEARCH_DEBOUNCE_MS);
-  }
 
   private refreshTable(): void {
     this.loadedRowEstimate = 0;

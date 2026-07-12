@@ -1,4 +1,4 @@
-<script lang="ts" generics="TData">
+<script lang="ts" generics="TData, TSortId extends string = string">
   import type { DatagridCore } from "../core/index.svelte";
   import type { GridBasicRow } from "../core/types";
   import TableCell from "./TableCell.svelte";
@@ -6,7 +6,7 @@
   interface Props {
     row: GridBasicRow<TData>;
     rowIndex: number;
-    table: DatagridCore<TData>;
+    table: DatagridCore<TData, any, TSortId>;
   }
 
   let { row, rowIndex, table }: Props = $props();

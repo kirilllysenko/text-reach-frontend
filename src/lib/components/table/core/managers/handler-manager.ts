@@ -17,69 +17,69 @@ import { SortingService } from "../services/sorting-service";
  *
  * @class HandlersManager
  */
-export class HandlersManager {
+export class HandlersManager<TSortId extends string = string> {
   /**
    * Service to manage column controls such as visibility, ordering, etc.
    * @readonly
    * @type {ColumnControlService}
    */
-  readonly column: ColumnControlService;
+  readonly column: ColumnControlService<TSortId>;
 
   /**
    * Service to manage server-backed data loading.
    * @readonly
    * @type {DataLoadingService}
    */
-  readonly dataLoading: DataLoadingService;
+  readonly dataLoading: DataLoadingService<any, TSortId>;
 
   /**
    * Service to manage filtering functionality within the datagrid.
    * @readonly
    * @type {FilteringService}
    */
-  readonly filtering: FilteringService;
+  readonly filtering: FilteringService<TSortId>;
 
   /**
    * Service to manage global search functionality.
    * @readonly
    * @type {SearchService}
    */
-  readonly globalSearch: SearchService;
+  readonly globalSearch: SearchService<TSortId>;
 
   /**
    * Service to manage grouping functionality within the datagrid.
    * @readonly
    * @type {GroupingService}
    */
-  readonly grouping: GroupingService;
+  readonly grouping: GroupingService<TSortId>;
 
   /**
    * Service to manage pagination functionality within the datagrid.
    * @readonly
    * @type {PaginationService}
    */
-  readonly pagination: PaginationService;
+  readonly pagination: PaginationService<TSortId>;
 
   /**
    * Service to manage row operations such as selection, expansion, etc.
    * @readonly
    * @type {RowService}
    */
-  readonly rows: RowService;
+  readonly rows: RowService<TSortId>;
 
   /**
    * Service to manage sorting functionality within the datagrid.
    * @readonly
    * @type {SortingService}
    */
-  readonly sorting: SortingService;
+  readonly sorting: SortingService<TSortId>;
 
   /**
    * Service to manage editing functionality for rows within the datagrid.
    * @readonly
    * @type {EditingService}
    */
-  readonly editing: EditingService;
+  readonly editing: EditingService<TSortId>;
 
   /**
    * Creates an instance of the HandlersManager, initializing all the necessary services.
@@ -87,15 +87,15 @@ export class HandlersManager {
    * @param {DatagridCore} datagrid - The core datagrid instance to which services will be bound.
    * @param {EventService} eventService - The event service used for event-driven interactions between services.
    */
-  constructor(datagrid: DatagridCore<any>, eventService: EventService) {
+  constructor(datagrid: DatagridCore<any, any, TSortId>, eventService: EventService) {
     this.sorting = new SortingService(datagrid, eventService);
-    this.dataLoading = new DataLoadingService(datagrid, eventService);
-    this.column = new ColumnControlService(datagrid, eventService);
-    this.filtering = new FilteringService(datagrid, eventService);
-    this.globalSearch = new SearchService(datagrid, eventService);
-    this.grouping = new GroupingService(datagrid, eventService);
-    this.pagination = new PaginationService(datagrid, eventService);
-    this.rows = new RowService(datagrid, eventService);
-    this.editing = new EditingService(datagrid, eventService);
+    this.dataLoading = new DataLoadingService<any, TSortId>(datagrid, eventService);
+    this.column = new ColumnControlService<TSortId>(datagrid, eventService);
+    this.filtering = new FilteringService<TSortId>(datagrid, eventService);
+    this.globalSearch = new SearchService<TSortId>(datagrid, eventService);
+    this.grouping = new GroupingService<TSortId>(datagrid, eventService);
+    this.pagination = new PaginationService<TSortId>(datagrid, eventService);
+    this.rows = new RowService<TSortId>(datagrid, eventService);
+    this.editing = new EditingService<TSortId>(datagrid, eventService);
   }
 }

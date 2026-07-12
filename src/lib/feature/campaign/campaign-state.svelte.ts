@@ -6,12 +6,8 @@ import {
 } from "$lib/api/index.schemas";
 import { fetchContactGroups as fetchContactGroupList } from "$lib/api/contact-group/contact-group";
 import { listCampaigns as listCampaignList } from "$lib/api/campaign/campaign";
-import {
-  createFilterController,
-  createSortController,
-  type DataTableFilter,
-  type DataTableSort,
-} from "$lib/components/table";
+import type { DataTableActiveSortDirection, DataTableFilter, DataTableSort } from "$lib/components/table";
+import { debounce } from "$lib/utils/debounce";
 import {
   campaignSortFieldOptions,
   campaignStatusOptions,
@@ -61,13 +57,13 @@ export class CampaignState {
   sortOpen = $state(false);
 
   mobileView = $state<MobileView>("list");
-  readonly filters: ReturnType<typeof createFilterController>;
-  readonly sorting: ReturnType<typeof createSortController>;
 
   hasNextPage = $state(true);
   private nextCursor = $state<unknown[] | null>(null);
   private requestVersion = 0;
-  private searchTimer: ReturnType<typeof setTimeout> | null = null;
+  private readonly scheduleRefresh = debounce(() => {
+    void this.resetAndLoadCampaignList();
+  }, SEARCH_DEBOUNCE_MS);
 
   statusOptions = campaignStatusOptions;
   sortFieldOptions = campaignSortFieldOptions;
@@ -120,29 +116,56 @@ export class CampaignState {
   });
 
   constructor() {
-    this.filters = createFilterController(() => {
-      this.applyFeatureFilters(this.filters.filters);
-      void this.resetAndLoadCampaignList();
-    });
-    this.sorting = createSortController(
-      [
-        {
-          direction: "descending",
-          sortId: "createdAt",
-        },
-      ],
-      () => {
-        this.applyFeatureSorts(this.sorting.sorts);
-        void this.resetAndLoadCampaignList();
-      },
-    );
-    this.applyFeatureSorts([
-      {
-        direction: "descending",
-        sortId: "createdAt",
-      },
-    ]);
     void this.load();
+  }
+
+  get filters(): DataTableFilter[] {
+    const filters: DataTableFilter[] = [];
+
+    if (this.statusFilters.length > 0) {
+      filters.push({
+        filterId: "status",
+        operator: "IN",
+        type: "containment",
+        value: this.statusFilters,
+      });
+    }
+
+    if (this.createdAfter) {
+      filters.push({
+        filterId: "createdAfter",
+        operator: "GREATER_OR_EQUAL",
+        type: "comparison",
+        value: this.createdAfter,
+      });
+    }
+
+    if (this.minSentMessageCount) {
+      filters.push({
+        filterId: "minSentMessageCount",
+        operator: "GREATER_OR_EQUAL",
+        type: "comparison",
+        value: Number(this.minSentMessageCount),
+      });
+    }
+
+    if (this.minMessageCount) {
+      filters.push({
+        filterId: "minMessageCount",
+        operator: "GREATER_OR_EQUAL",
+        type: "comparison",
+        value: Number(this.minMessageCount),
+      });
+    }
+
+    return filters;
+  }
+
+  get sorts(): DataTableSort[] {
+    return this.sortRules.map((rule) => ({
+      direction: rule.direction === SortDirection.ASC ? "ascending" : "descending",
+      sortId: rule.field,
+    }));
   }
 
   load = async (): Promise<void> => {
@@ -154,75 +177,54 @@ export class CampaignState {
     this.scheduleRefresh();
   };
 
-  toggleStatusFilter = (status: NonNullable<CampaignStatus>): void => {
-    this.statusFilters = this.statusFilters.includes(status)
-      ? this.statusFilters.filter((value) => value !== status)
-      : [...this.statusFilters, status];
-
-    void this.resetAndLoadCampaignList();
+  setFilter = (filterId: string, filter: DataTableFilter): void => {
+    this.setFilters([...this.filters.filter((current) => current.filterId !== filterId), { ...filter, filterId }]);
   };
 
-  updateCreatedAfter = (value: string): void => {
-    this.createdAfter = value;
-    void this.resetAndLoadCampaignList();
-  };
-
-  updateMinSentMessageCount = (value: string): void => {
-    this.minSentMessageCount = value;
-    void this.resetAndLoadCampaignList();
-  };
-
-  updateMinMessageCount = (value: string): void => {
-    this.minMessageCount = value;
-    void this.resetAndLoadCampaignList();
+  removeFilter = (filterId: string): void => {
+    this.setFilters(this.filters.filter((filter) => filter.filterId !== filterId));
   };
 
   clearFilters = (): void => {
-    this.statusFilters = [];
-    this.createdAfter = "";
-    this.minSentMessageCount = "";
-    this.minMessageCount = "";
-    void this.resetAndLoadCampaignList();
+    this.setFilters([]);
   };
 
-  addSortRule = (): void => {
-    const usedFields = new Set(this.sortRules.map((rule) => rule.field));
-    const field = this.sortFieldOptions.find((option) => !usedFields.has(option)) ?? this.sortFieldOptions[0];
+  addSort = (sortId: string, direction: DataTableActiveSortDirection = "ascending"): void => {
+    if (!this.isCampaignSortField(sortId)) {
+      return;
+    }
 
-    this.sortRules = [
-      ...this.sortRules,
+    this.setSorts([
+      ...this.sorts.filter((sort) => sort.sortId !== sortId),
       {
-        id: crypto.randomUUID(),
-        field,
-        direction: SortDirection.DESC,
+        direction,
+        sortId,
       },
-    ];
-
-    void this.resetAndLoadCampaignList();
+    ]);
   };
 
-  removeSortRule = (ruleId: string): void => {
-    const remaining = this.sortRules.filter((rule) => rule.id !== ruleId);
-    this.sortRules =
-      remaining.length > 0
-        ? remaining
-        : [{ id: crypto.randomUUID(), field: "createdAt", direction: SortDirection.DESC }];
-
-    void this.resetAndLoadCampaignList();
+  removeSortAt = (index: number): void => {
+    this.setSorts(this.sorts.filter((_, currentIndex) => currentIndex !== index));
   };
 
-  updateSortRuleField = (ruleId: string, field: CampaignSortField): void => {
-    this.sortRules = this.sortRules.map((rule) => (rule.id === ruleId ? { ...rule, field } : rule));
-    void this.resetAndLoadCampaignList();
+  updateSortDirection = (index: number, direction: DataTableActiveSortDirection): void => {
+    this.setSorts(this.sorts.map((sort, currentIndex) => (currentIndex === index ? { ...sort, direction } : sort)));
   };
 
-  updateSortRuleDirection = (ruleId: string, direction: SortDirection): void => {
-    this.sortRules = this.sortRules.map((rule) => (rule.id === ruleId ? { ...rule, direction } : rule));
-    void this.resetAndLoadCampaignList();
+  updateSortId = (index: number, sortId: string): void => {
+    if (!this.isCampaignSortField(sortId)) {
+      return;
+    }
+
+    this.setSorts(this.sorts.map((sort, currentIndex) => (currentIndex === index ? { ...sort, sortId } : sort)));
   };
 
-  clearSortRules = (): void => {
-    this.sortRules = [{ id: crypto.randomUUID(), field: "createdAt", direction: SortDirection.DESC }];
+  clearSorts = (): void => {
+    this.setSorts([]);
+  };
+
+  setSorts = (sorts: DataTableSort[]): void => {
+    this.applyFeatureSorts(sorts);
     void this.resetAndLoadCampaignList();
   };
 
@@ -286,22 +288,16 @@ export class CampaignState {
   statusLabel = (status: NonNullable<CampaignStatus>): string => statusLabelMap[status];
 
   dispose = (): void => {
-    if (!this.searchTimer) {
-      return;
-    }
-
-    clearTimeout(this.searchTimer);
-    this.searchTimer = null;
+    this.scheduleRefresh.cancel();
   };
 
-  private scheduleRefresh(): void {
-    if (this.searchTimer) {
-      clearTimeout(this.searchTimer);
-    }
+  private setFilters(filters: DataTableFilter[]): void {
+    this.applyFeatureFilters(filters);
+    void this.resetAndLoadCampaignList();
+  }
 
-    this.searchTimer = setTimeout(() => {
-      void this.resetAndLoadCampaignList();
-    }, SEARCH_DEBOUNCE_MS);
+  private isCampaignSortField(sortId: string): sortId is CampaignSortField {
+    return this.sortFieldOptions.includes(sortId as CampaignSortField);
   }
 
   private applyFeatureFilters(filters: DataTableFilter[]): void {

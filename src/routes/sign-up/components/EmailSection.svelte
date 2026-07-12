@@ -72,7 +72,7 @@
     {#snippet rightAddon()}
       <Button
         class="min-w-24 px-3 text-xs tracking-[0.02em]"
-        secondary
+        variant="secondary"
         small
         spinner={codeLoading}
         disabled={codeLoading || countdown.remainingSeconds > 0}

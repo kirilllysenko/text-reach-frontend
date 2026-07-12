@@ -19,14 +19,14 @@ export class ColumnFilteringFeature<
   TOriginalRow = any,
   TFilter extends DataTableFilter = DataTableFilter,
 > implements IColumnFilteringFeature {
-  datagrid: DatagridCore;
+  datagrid: DatagridCore<any, any, any>;
 
   filterDefinitions: readonly DataTableFilterDefinition[] = [];
   isManual: boolean = $state(false);
 
   private filtersById = $state.raw(new Map<string, TFilter>());
 
-  constructor(datagrid: DatagridCore, config: ColumnFilteringFeatureConfig<TFilter> = {}) {
+  constructor(datagrid: DatagridCore<any, any, any>, config: ColumnFilteringFeatureConfig<TFilter> = {}) {
     this.datagrid = datagrid;
     this.filterDefinitions = config.filterDefinitions ?? [];
     this.isManual = config.isManual ?? false;

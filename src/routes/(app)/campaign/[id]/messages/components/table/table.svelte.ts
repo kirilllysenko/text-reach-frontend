@@ -1,22 +1,26 @@
 import {
-  DatagridCore,
   comparisonFilter,
   containmentFilter,
-  sortDefinition,
   textFilter,
+  createDatagrid,
   type DataField,
   type DataTableLoadRequest,
   type DataTableLoadResult,
 } from "$lib/components/table";
 import type { CampaignMessagesState } from "$lib/feature/message/message-state.svelte";
-import type { MessageViewModel } from "$lib/feature/message/message-view-data";
+import {
+  defaultMessageSorts,
+  messageSortDefinitions,
+  type MessageSortId,
+  type MessageViewModel,
+} from "$lib/feature/message/message-view-data";
 import { createMessageColumns } from "./column.svelte";
 
 const PAGE_SIZE = 500;
-const initialSorting = [{ sortId: "sentAt", direction: "descending" }] as const;
+const createMessageDatagrid = createDatagrid<MessageViewModel>();
 
-export function createMessageTable(state: CampaignMessagesState): DatagridCore<MessageViewModel> {
-  return new DatagridCore<MessageViewModel>({
+export function createMessageTable(state: CampaignMessagesState) {
+  return createMessageDatagrid({
     columns: createMessageColumns(),
     data: [],
     dataFields: createMessageDataFields(),
@@ -52,17 +56,8 @@ export function createMessageTable(state: CampaignMessagesState): DatagridCore<M
         pageSize: PAGE_SIZE,
       },
       sorting: {
-        sortDefinitions: [
-          sortDefinition({ sortId: "sentAt", fieldId: "sentAt", label: "Sent At", defaultDirection: "descending" }),
-          sortDefinition({ sortId: "status", fieldId: "status", label: "Status" }),
-          sortDefinition({
-            sortId: "tenantPhoneNumber",
-            fieldId: "tenantPhoneNumber",
-            label: "Tenant Phone",
-          }),
-          sortDefinition({ sortId: "text", fieldId: "text", label: "Text" }),
-        ],
-        sorts: [...initialSorting],
+        sortDefinitions: messageSortDefinitions,
+        sorts: [...defaultMessageSorts],
       },
     },
     rowIdGetter: (message) => message.id,
@@ -71,7 +66,7 @@ export function createMessageTable(state: CampaignMessagesState): DatagridCore<M
 
 function fetchMessageRows(
   state: CampaignMessagesState,
-  request: DataTableLoadRequest,
+  request: DataTableLoadRequest<MessageSortId>,
 ): Promise<DataTableLoadResult<MessageViewModel>> {
   return state.fetchRows(request);
 }

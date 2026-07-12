@@ -6,11 +6,14 @@
 import type {
   ChangePasswordDto,
   ChangeUserNameDto,
+  CreateUserDto,
   ErrorResponse,
   ProfileDto,
   SendEmailOtpDto,
   SendPhoneOtpDto,
   SignUpDto,
+  TenantUserDto,
+  UpdateUserDto,
 } from "../index.schemas";
 
 export type GetProfileResponse200 = {
@@ -310,4 +313,197 @@ export const sendPhoneCode = async (
 
   const data: SendPhoneCodeResponse["data"] = body ? JSON.parse(body) : {};
   return { data, status: res.status, headers: res.headers } as SendPhoneCodeResponse;
+};
+
+export type ListUsersResponse200 = {
+  data: TenantUserDto[];
+  status: 200;
+};
+
+export type ListUsersResponse403 = {
+  data: ErrorResponse;
+  status: 403;
+};
+
+export type ListUsersResponse500 = {
+  data: ErrorResponse;
+  status: 500;
+};
+
+export type ListUsersResponseSuccess = ListUsersResponse200 & {
+  headers: Headers;
+};
+export type ListUsersResponseError = (ListUsersResponse403 | ListUsersResponse500) & {
+  headers: Headers;
+};
+
+export type ListUsersResponse = ListUsersResponseSuccess | ListUsersResponseError;
+
+export const getListUsersUrl = () => {
+  return `/tenant/users`;
+};
+
+export const listUsers = async (options?: RequestInit): Promise<ListUsersResponse> => {
+  const res = await fetch(getListUsersUrl(), {
+    ...options,
+    method: "GET",
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: ListUsersResponse["data"] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as ListUsersResponse;
+};
+
+export type CreateUserResponse200 = {
+  data: void;
+  status: 200;
+};
+
+export type CreateUserResponse400 = {
+  data: ErrorResponse;
+  status: 400;
+};
+
+export type CreateUserResponse403 = {
+  data: ErrorResponse;
+  status: 403;
+};
+
+export type CreateUserResponse500 = {
+  data: ErrorResponse;
+  status: 500;
+};
+
+export type CreateUserResponseSuccess = CreateUserResponse200 & {
+  headers: Headers;
+};
+export type CreateUserResponseError = (CreateUserResponse400 | CreateUserResponse403 | CreateUserResponse500) & {
+  headers: Headers;
+};
+
+export type CreateUserResponse = CreateUserResponseSuccess | CreateUserResponseError;
+
+export const getCreateUserUrl = () => {
+  return `/tenant/users`;
+};
+
+export const createUser = async (createUserDto: CreateUserDto, options?: RequestInit): Promise<CreateUserResponse> => {
+  const res = await fetch(getCreateUserUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createUserDto),
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: CreateUserResponse["data"] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as CreateUserResponse;
+};
+
+export type UpdateUserResponse200 = {
+  data: void;
+  status: 200;
+};
+
+export type UpdateUserResponse400 = {
+  data: ErrorResponse;
+  status: 400;
+};
+
+export type UpdateUserResponse403 = {
+  data: ErrorResponse;
+  status: 403;
+};
+
+export type UpdateUserResponse404 = {
+  data: ErrorResponse;
+  status: 404;
+};
+
+export type UpdateUserResponse500 = {
+  data: ErrorResponse;
+  status: 500;
+};
+
+export type UpdateUserResponseSuccess = UpdateUserResponse200 & {
+  headers: Headers;
+};
+export type UpdateUserResponseError = (
+  | UpdateUserResponse400
+  | UpdateUserResponse403
+  | UpdateUserResponse404
+  | UpdateUserResponse500
+) & {
+  headers: Headers;
+};
+
+export type UpdateUserResponse = UpdateUserResponseSuccess | UpdateUserResponseError;
+
+export const getUpdateUserUrl = (id: string) => {
+  return `/tenant/users/${id}`;
+};
+
+export const updateUser = async (
+  id: string,
+  updateUserDto: UpdateUserDto,
+  options?: RequestInit,
+): Promise<UpdateUserResponse> => {
+  const res = await fetch(getUpdateUserUrl(id), {
+    ...options,
+    method: "PUT",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(updateUserDto),
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: UpdateUserResponse["data"] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as UpdateUserResponse;
+};
+
+export type DeleteUserResponse200 = {
+  data: void;
+  status: 200;
+};
+
+export type DeleteUserResponse403 = {
+  data: ErrorResponse;
+  status: 403;
+};
+
+export type DeleteUserResponse404 = {
+  data: ErrorResponse;
+  status: 404;
+};
+
+export type DeleteUserResponse500 = {
+  data: ErrorResponse;
+  status: 500;
+};
+
+export type DeleteUserResponseSuccess = DeleteUserResponse200 & {
+  headers: Headers;
+};
+export type DeleteUserResponseError = (DeleteUserResponse403 | DeleteUserResponse404 | DeleteUserResponse500) & {
+  headers: Headers;
+};
+
+export type DeleteUserResponse = DeleteUserResponseSuccess | DeleteUserResponseError;
+
+export const getDeleteUserUrl = (id: string) => {
+  return `/tenant/users/${id}`;
+};
+
+export const deleteUser = async (id: string, options?: RequestInit): Promise<DeleteUserResponse> => {
+  const res = await fetch(getDeleteUserUrl(id), {
+    ...options,
+    method: "DELETE",
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: DeleteUserResponse["data"] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as DeleteUserResponse;
 };

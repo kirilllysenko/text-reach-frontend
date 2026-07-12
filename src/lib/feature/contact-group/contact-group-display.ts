@@ -1,9 +1,5 @@
-import type {
-  ContactGroupDtoLike,
-  ContactGroupSortField,
-  ContactGroupSortRule,
-  ContactGroupViewModel,
-} from "$lib/feature/contact-group/contact-group-view-data";
+import type { ContactGroupDtoLike, ContactGroupViewModel } from "$lib/feature/contact-group/contact-group-view-data";
+import type { ContactGroupTableSort } from "$lib/feature/contact-group/contact-group-sorting";
 
 export function toContactGroupViewModel(dto: ContactGroupDtoLike, index: number): ContactGroupViewModel {
   return {
@@ -63,14 +59,14 @@ export function filterMockContactGroupList(
 
 export function sortContactGroupList(
   groups: ContactGroupViewModel[],
-  sortRules: ContactGroupSortRule[],
+  sorts: readonly ContactGroupTableSort[],
 ): ContactGroupViewModel[] {
   return [...groups].sort((left, right) => {
-    for (const rule of sortRules) {
-      const result = compareContactGroupField(left, right, rule.field);
+    for (const sort of sorts) {
+      const result = compareContactGroupField(left, right, sort.sortId);
 
       if (result !== 0) {
-        return rule.direction === "ASC" ? result : -result;
+        return sort.direction === "ascending" ? result : -result;
       }
     }
 
@@ -90,7 +86,7 @@ function parseCountFilter(value: string): number | null {
 function compareContactGroupField(
   left: ContactGroupViewModel,
   right: ContactGroupViewModel,
-  field: ContactGroupSortField,
+  field: ContactGroupTableSort["sortId"],
 ): number {
   if (field === "contactCount") {
     return left.contactCount - right.contactCount;

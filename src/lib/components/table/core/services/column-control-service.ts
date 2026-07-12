@@ -8,7 +8,7 @@ import { BaseService } from "./base-service";
  * 
  * @extends BaseService
  */
-export class ColumnControlService<TSortId extends string = string> extends BaseService<TSortId> {
+export class ColumnControlService<TSortId extends string = string> extends BaseService<any, TSortId> {
 
     /**
      * Updates the size of a specified column.

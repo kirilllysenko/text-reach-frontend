@@ -1,7 +1,7 @@
 import { fetchContactGroups as fetchContactGroupList } from "$lib/api/contact-group/contact-group";
-import { SortDirection } from "$lib/api/index.schemas";
 import type { MultiComboboxLoadRequest, MultiComboboxLoadResult, MultiComboboxOption } from "$lib/components/dropdown";
 import { buildContactGroupRequest } from "./contact-group-query";
+import { defaultContactGroupSorts } from "./contact-group-sorting";
 
 export async function loadContactGroupComboboxOptions(
   request: MultiComboboxLoadRequest,
@@ -15,13 +15,7 @@ export async function loadContactGroupComboboxOptions(
         search: request.search,
         minContactCount: "",
         maxContactCount: "",
-        sortRules: [
-          {
-            id: "name",
-            field: "name",
-            direction: SortDirection.ASC,
-          },
-        ],
+        sorts: defaultContactGroupSorts,
       }),
       { credentials: "include", signal: request.signal },
     );

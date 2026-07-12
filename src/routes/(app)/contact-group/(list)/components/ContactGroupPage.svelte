@@ -1,7 +1,8 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
-  import { Button, Card, Input, PageTitle } from "$lib";
+  import { AccessGate, Button, Card, Input, PageTitle } from "$lib";
   import { PATH_CONTACT_GROUP_ADD } from "$lib/app/paths";
+  import { AccessGroup } from "$lib/api/index.schemas";
   import { ContactGroupState } from "$lib/feature/contact-group/contact-group-state.svelte";
   import Filter from "$lib/icons/Filter.svelte";
   import Sort from "$lib/icons/Sort.svelte";
@@ -38,13 +39,15 @@
     to-stone-100 p-2 sm:h-[calc(100dvh-3rem)] sm:p-3"
 >
   <PageTitle title="Contact Groups">
-    <a
-      href={PATH_CONTACT_GROUP_ADD}
-      class="flex h-9 items-center justify-center rounded-xl border border-slate-700 bg-slate-700 px-3
-        text-base font-medium text-white shadow-sm hover:bg-slate-800"
-    >
-      Add contact group
-    </a>
+    <AccessGate access={AccessGroup.CONTACT_WRITE}>
+      <a
+        href={PATH_CONTACT_GROUP_ADD}
+        class="flex h-9 items-center justify-center rounded-xl border border-slate-700 bg-slate-700 px-3
+          text-base font-medium text-white shadow-sm hover:bg-slate-800"
+      >
+        Add contact group
+      </a>
+    </AccessGate>
   </PageTitle>
 
   <Card variant="panel" class="shrink-0 space-y-3">

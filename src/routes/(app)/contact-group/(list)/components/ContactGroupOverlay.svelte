@@ -9,11 +9,14 @@
     type SortPanelController,
   } from "$lib";
   import type { ContactGroupState } from "$lib/feature/contact-group/contact-group-state.svelte";
-  import { contactGroupSortFieldLabelMap } from "$lib/feature/contact-group/contact-group-view-data";
+  import {
+    contactGroupSortDefinitions,
+    type ContactGroupTableSort,
+  } from "$lib/feature/contact-group/contact-group-sorting";
 
   interface Props {
     filtering: FilteringService;
-    sorting: SortPanelController;
+    sorting: SortPanelController<ContactGroupTableSort["sortId"]>;
     state: ContactGroupState;
   }
 
@@ -57,12 +60,10 @@
     ],
   }));
 
-  const sortFieldOptions = $derived(
-    state.sortFieldOptions.map((field) => ({
-      value: field,
-      label: contactGroupSortFieldLabelMap[field],
-    })),
-  );
+  const sortFieldOptions = contactGroupSortDefinitions.map((definition) => ({
+    value: definition.sortId,
+    label: definition.label ?? definition.sortId,
+  }));
 </script>
 
 <ResponsiveDialog

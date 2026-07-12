@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { Card, LinkButton, PageTitle } from "$lib";
+  import { AccessGate, Card, LinkButton, PageTitle } from "$lib";
+  import { AccessGroup } from "$lib/api/index.schemas";
   import { PATH_CONTACT_ADD } from "$lib/app/paths";
   import ContactSearchInput from "./components/ContactSearchInput.svelte";
   import ContactExportButton from "./components/export/ContactExportButton.svelte";
@@ -43,9 +44,13 @@
 >
   <PageTitle title="Contacts">
     <div class="flex items-center gap-2">
-      <LinkButton href={PATH_CONTACT_ADD}>Add contact</LinkButton>
+      <AccessGate access={AccessGroup.CONTACT_WRITE}>
+        <LinkButton href={PATH_CONTACT_ADD}>Add contact</LinkButton>
+      </AccessGate>
 
-      <ContactImportButton />
+      <AccessGate access={AccessGroup.CONTACT_WRITE}>
+        <ContactImportButton />
+      </AccessGate>
 
       <ContactExportButton
         snapshot={{

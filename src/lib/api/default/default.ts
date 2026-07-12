@@ -14,6 +14,55 @@ import type {
   WalletTransactionFilterDto,
 } from "../index.schemas";
 
+export type TelnyxWebhookResponse200 = {
+  data: void;
+  status: 200;
+};
+
+export type TelnyxWebhookResponse400 = {
+  data: ErrorResponse;
+  status: 400;
+};
+
+export type TelnyxWebhookResponse403 = {
+  data: ErrorResponse;
+  status: 403;
+};
+
+export type TelnyxWebhookResponse500 = {
+  data: ErrorResponse;
+  status: 500;
+};
+
+export type TelnyxWebhookResponseSuccess = TelnyxWebhookResponse200 & {
+  headers: Headers;
+};
+export type TelnyxWebhookResponseError = (
+  | TelnyxWebhookResponse400
+  | TelnyxWebhookResponse403
+  | TelnyxWebhookResponse500
+) & {
+  headers: Headers;
+};
+
+export type TelnyxWebhookResponse = TelnyxWebhookResponseSuccess | TelnyxWebhookResponseError;
+
+export const getTelnyxWebhookUrl = () => {
+  return `/message-sender/webhooks/telnyx`;
+};
+
+export const telnyxWebhook = async (options?: RequestInit): Promise<TelnyxWebhookResponse> => {
+  const res = await fetch(getTelnyxWebhookUrl(), {
+    ...options,
+    method: "POST",
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: TelnyxWebhookResponse["data"] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as TelnyxWebhookResponse;
+};
+
 export type GetConfigResponse200 = {
   data: PaymentConfigDto;
   status: 200;

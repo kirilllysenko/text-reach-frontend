@@ -1,6 +1,8 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { page } from "$app/state";
+  import AccessGate from "$lib/components/access-gate/AccessGate.svelte";
+  import { AccessGroup } from "$lib/api/index.schemas";
   import ProfileButton from "$lib/components/profile-button/ProfileButton.svelte";
   import {
     CONTACT_SECTION_PATH,
@@ -21,6 +23,7 @@
   import Dashboard from "$lib/icons/Dashboard.svelte";
   import Logo from "$lib/icons/Logo.svelte";
   import Payment from "$lib/icons/Payment.svelte";
+  import { currentUserState } from "$lib/state/current-user.svelte";
   import { sessionState } from "$lib/state/session.svelte";
 
   interface Props {
@@ -86,152 +89,167 @@
     </a>
   </li>
 
-  <li>
-    <a
-      href={PATH_CONVERSATION}
-      class={[
-        `group flex w-full items-center gap-3 rounded-xl border px-2 py-3 font-medium
-          transition-colors`,
-        isActive(PATH_CONVERSATION)
-          ? "active text-sky-800 border-sky-200/90 bg-sky-100/90 shadow-sm"
-          : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
-             hover:bg-white/70 hover:text-slate-800`,
-      ]}
-      onclick={notifyItemClick}
-    >
-      <Conversation
-        class={["size-6", isActive(PATH_CONVERSATION) ? "fill-sky-700" : "fill-slate-500 group-hover:fill-sky-700"]}
-      />
-      <span>Conversations</span>
-    </a>
-  </li>
-
-  <li>
-    <a
-      href={PATH_CAMPAIGN}
-      class={[
-        `group flex w-full items-center gap-3 rounded-xl border px-2 py-3 font-medium
-          transition-colors`,
-        isActive(PATH_CAMPAIGN)
-          ? "active text-sky-800 border-sky-200/90 bg-sky-100/90 shadow-sm"
-          : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
-             hover:bg-white/70 hover:text-slate-800`,
-      ]}
-      onclick={notifyItemClick}
-    >
-      <Campaign
-        class={["size-6", isActive(PATH_CAMPAIGN) ? "fill-sky-700" : "fill-slate-500 group-hover:fill-sky-700"]}
-      />
-      <span>Campaigns</span>
-    </a>
-  </li>
-
-  <li>
-    <a
-      href={PATH_PAYMENT}
-      class={[
-        `group flex w-full items-center gap-3 rounded-xl border px-2 py-3 font-medium
-          transition-colors`,
-        paymentSectionActive
-          ? "active text-sky-800 border-sky-200/90 bg-sky-100/90 shadow-sm"
-          : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
-             hover:bg-white/70 hover:text-slate-800`,
-      ]}
-      onclick={notifyItemClick}
-    >
-      <Payment class={["size-6", paymentSectionActive ? "fill-sky-700" : "fill-slate-500 group-hover:fill-sky-700"]} />
-      <span>Payments</span>
-    </a>
-  </li>
-
-  <li>
-    <div
-      class={[
-        `group flex items-center gap-3 rounded-xl border px-2 py-3 font-medium
-          transition-colors`,
-        contactSectionActive
-          ? "active text-sky-800 border-sky-200/90 bg-sky-100/90 shadow-sm"
-          : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
-             hover:bg-white/70 hover:text-slate-800`,
-      ]}
-    >
-      <a href={PATH_CONTACT} class="flex min-w-0 grow items-center gap-3" onclick={notifyItemClick}>
-        <Contact
-          class={["size-6 shrink-0", contactSectionActive ? "fill-sky-700" : "fill-slate-500 group-hover:fill-sky-700"]}
+  <AccessGate access={AccessGroup.MESSAGE_READ}>
+    <li>
+      <a
+        href={PATH_CONVERSATION}
+        class={[
+          `group flex w-full items-center gap-3 rounded-xl border px-2 py-3 font-medium
+            transition-colors`,
+          isActive(PATH_CONVERSATION)
+            ? "active text-sky-800 border-sky-200/90 bg-sky-100/90 shadow-sm"
+            : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
+               hover:bg-white/70 hover:text-slate-800`,
+        ]}
+        onclick={notifyItemClick}
+      >
+        <Conversation
+          class={["size-6", isActive(PATH_CONVERSATION) ? "fill-sky-700" : "fill-slate-500 group-hover:fill-sky-700"]}
         />
-        <span class="grow">Contacts</span>
+        <span>Conversations</span>
       </a>
+    </li>
+  </AccessGate>
 
-      <button
-        class="rounded-full p-0.5 hover:cursor-pointer hover:bg-white/80"
-        type="button"
-        onclick={() => (showContactSubmenu = !showContactSubmenu)}
-        aria-expanded={contactSubmenuOpen}
-        aria-label={contactSubmenuOpen ? "Collapse contacts submenu" : "Expand contacts submenu"}
+  <AccessGate access={AccessGroup.CAMPAIGN_READ}>
+    <li>
+      <a
+        href={PATH_CAMPAIGN}
+        class={[
+          `group flex w-full items-center gap-3 rounded-xl border px-2 py-3 font-medium
+            transition-colors`,
+          isActive(PATH_CAMPAIGN)
+            ? "active text-sky-800 border-sky-200/90 bg-sky-100/90 shadow-sm"
+            : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
+               hover:bg-white/70 hover:text-slate-800`,
+        ]}
+        onclick={notifyItemClick}
       >
-        <ChevronDown
-          class={["size-6 fill-slate-600 transition-transform", contactSubmenuOpen ? "rotate-180" : "rotate-0"]}
+        <Campaign
+          class={["size-6", isActive(PATH_CAMPAIGN) ? "fill-sky-700" : "fill-slate-500 group-hover:fill-sky-700"]}
         />
-      </button>
-    </div>
-  </li>
+        <span>Campaigns</span>
+      </a>
+    </li>
+  </AccessGate>
 
-  <ul class={["overflow-hidden transition-all", contactSubmenuOpen ? "h-36" : "h-0"]}>
+  <AccessGate access={AccessGroup.BILLING_READ}>
     <li>
       <a
-        href={PATH_CONTACT_GROUP}
+        href={PATH_PAYMENT}
         class={[
-          `block rounded-xl border py-3 pl-11 font-medium transition-colors`,
-          isActive(PATH_CONTACT_GROUP)
+          `group flex w-full items-center gap-3 rounded-xl border px-2 py-3 font-medium
+            transition-colors`,
+          paymentSectionActive
             ? "active text-sky-800 border-sky-200/90 bg-sky-100/90 shadow-sm"
             : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
                hover:bg-white/70 hover:text-slate-800`,
         ]}
         onclick={notifyItemClick}
       >
-        Contact Groups
+        <Payment
+          class={["size-6", paymentSectionActive ? "fill-sky-700" : "fill-slate-500 group-hover:fill-sky-700"]}
+        />
+        <span>Payments</span>
       </a>
     </li>
+  </AccessGate>
 
+  <AccessGate access={AccessGroup.CONTACT_READ}>
     <li>
-      <a
-        href={PATH_SMART_GROUP}
+      <div
         class={[
-          `block rounded-xl border py-3 pl-11 font-medium transition-colors`,
-          isActive(PATH_SMART_GROUP)
+          `group flex items-center gap-3 rounded-xl border px-2 py-3 font-medium
+            transition-colors`,
+          contactSectionActive
             ? "active text-sky-800 border-sky-200/90 bg-sky-100/90 shadow-sm"
             : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
                hover:bg-white/70 hover:text-slate-800`,
         ]}
-        onclick={notifyItemClick}
       >
-        Smart Groups
-      </a>
+        <a href={PATH_CONTACT} class="flex min-w-0 grow items-center gap-3" onclick={notifyItemClick}>
+          <Contact
+            class={[
+              "size-6 shrink-0",
+              contactSectionActive ? "fill-sky-700" : "fill-slate-500 group-hover:fill-sky-700",
+            ]}
+          />
+          <span class="grow">Contacts</span>
+        </a>
+
+        <button
+          class="rounded-full p-0.5 hover:cursor-pointer hover:bg-white/80"
+          type="button"
+          onclick={() => (showContactSubmenu = !showContactSubmenu)}
+          aria-expanded={contactSubmenuOpen}
+          aria-label={contactSubmenuOpen ? "Collapse contacts submenu" : "Expand contacts submenu"}
+        >
+          <ChevronDown
+            class={["size-6 fill-slate-600 transition-transform", contactSubmenuOpen ? "rotate-180" : "rotate-0"]}
+          />
+        </button>
+      </div>
     </li>
 
-    <li>
-      <a
-        href={PATH_CUSTOM_FIELD}
-        class={[
-          `block rounded-xl border py-3 pl-11 font-medium transition-colors`,
-          isActive(PATH_CUSTOM_FIELD)
-            ? "active text-sky-800 border-sky-200/90 bg-sky-100/90 shadow-sm"
-            : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
-               hover:bg-white/70 hover:text-slate-800`,
-        ]}
-        onclick={notifyItemClick}
-      >
-        Custom Fields
-      </a>
-    </li>
-  </ul>
+    <ul class={["overflow-hidden transition-all", contactSubmenuOpen ? "h-36" : "h-0"]}>
+      <li>
+        <a
+          href={PATH_CONTACT_GROUP}
+          class={[
+            `block rounded-xl border py-3 pl-11 font-medium transition-colors`,
+            isActive(PATH_CONTACT_GROUP)
+              ? "active text-sky-800 border-sky-200/90 bg-sky-100/90 shadow-sm"
+              : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
+                 hover:bg-white/70 hover:text-slate-800`,
+          ]}
+          onclick={notifyItemClick}
+        >
+          Contact Groups
+        </a>
+      </li>
+
+      <li>
+        <a
+          href={PATH_SMART_GROUP}
+          class={[
+            `block rounded-xl border py-3 pl-11 font-medium transition-colors`,
+            isActive(PATH_SMART_GROUP)
+              ? "active text-sky-800 border-sky-200/90 bg-sky-100/90 shadow-sm"
+              : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
+                 hover:bg-white/70 hover:text-slate-800`,
+          ]}
+          onclick={notifyItemClick}
+        >
+          Smart Groups
+        </a>
+      </li>
+
+      <AccessGate access={AccessGroup.CUSTOM_FIELDS_READ}>
+        <li>
+          <a
+            href={PATH_CUSTOM_FIELD}
+            class={[
+              `block rounded-xl border py-3 pl-11 font-medium transition-colors`,
+              isActive(PATH_CUSTOM_FIELD)
+                ? "active text-sky-800 border-sky-200/90 bg-sky-100/90 shadow-sm"
+                : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
+                   hover:bg-white/70 hover:text-slate-800`,
+            ]}
+            onclick={notifyItemClick}
+          >
+            Custom Fields
+          </a>
+        </li>
+      </AccessGate>
+    </ul>
+  </AccessGate>
 
   <li class="grow"></li>
 
   <li class="pt-5">
     <ProfileButton
       class="w-full rounded-xl border border-transparent px-2 py-2 hover:bg-white/60"
-      profile={sessionState.profile ?? undefined}
+      profile={currentUserState.user ?? undefined}
       onProfileClick={goToProfile}
       onSignOutClick={signOutClick}
       onPopupItemClicked={notifyItemClick}

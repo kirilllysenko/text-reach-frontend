@@ -17,7 +17,7 @@ import { SortingService } from "../services/sorting-service";
  *
  * @class HandlersManager
  */
-export class HandlersManager<TSortId extends string = string> {
+export class HandlersManager<TOriginalRow = any, TSortId extends string = string> {
   /**
    * Service to manage column controls such as visibility, ordering, etc.
    * @readonly
@@ -30,7 +30,7 @@ export class HandlersManager<TSortId extends string = string> {
    * @readonly
    * @type {DataLoadingService}
    */
-  readonly dataLoading: DataLoadingService<any, TSortId>;
+  readonly dataLoading: DataLoadingService<TOriginalRow, TSortId>;
 
   /**
    * Service to manage filtering functionality within the datagrid.
@@ -87,9 +87,9 @@ export class HandlersManager<TSortId extends string = string> {
    * @param {DatagridCore} datagrid - The core datagrid instance to which services will be bound.
    * @param {EventService} eventService - The event service used for event-driven interactions between services.
    */
-  constructor(datagrid: DatagridCore<any, any, TSortId>, eventService: EventService) {
+  constructor(datagrid: DatagridCore<TOriginalRow, any, TSortId>, eventService: EventService) {
     this.sorting = new SortingService(datagrid, eventService);
-    this.dataLoading = new DataLoadingService<any, TSortId>(datagrid, eventService);
+    this.dataLoading = new DataLoadingService<TOriginalRow, TSortId>(datagrid, eventService);
     this.column = new ColumnControlService<TSortId>(datagrid, eventService);
     this.filtering = new FilteringService<TSortId>(datagrid, eventService);
     this.globalSearch = new SearchService<TSortId>(datagrid, eventService);

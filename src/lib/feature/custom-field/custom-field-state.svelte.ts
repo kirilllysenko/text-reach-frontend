@@ -1,13 +1,10 @@
-import { SortDirection, type CustomFieldType, type ErrorResponse } from "$lib/api/index.schemas";
+import type { CustomFieldType, ErrorResponse } from "$lib/api/index.schemas";
 import { listCustomFields as listCustomFieldList } from "$lib/api/custom-field/custom-field";
-import type { DataTableFilter, DataTableLoadRequest, DataTableLoadResult, DataTableSort } from "$lib/components/table";
+import type { DataTableFilter, DataTableLoadRequest, DataTableLoadResult } from "$lib/components/table";
 import {
-  customFieldSortFieldLabelMap,
-  customFieldSortFieldOptions,
   customFieldTypeLabelMap,
   customFieldTypeOptions,
-  type CustomFieldSortField,
-  type CustomFieldSortRule,
+  type CustomFieldTableSort,
   type CustomFieldViewModel,
 } from "$lib/feature/custom-field/custom-field-view-data";
 import { debounce } from "$lib/utils/debounce";
@@ -26,13 +23,6 @@ export class CustomFieldState {
 
   search = $state("");
   typeFilters = $state<CustomFieldType[]>([]);
-  sortRules = $state<CustomFieldSortRule[]>([
-    {
-      id: crypto.randomUUID(),
-      field: "name",
-      direction: SortDirection.ASC,
-    },
-  ]);
 
   filtersOpen = $state(false);
   sortOpen = $state(false);
@@ -45,7 +35,6 @@ export class CustomFieldState {
   private fields = $state<CustomFieldViewModel[]>([]);
 
   typeOptions = customFieldTypeOptions;
-  sortFieldOptions = customFieldSortFieldOptions;
 
   activeFilterChips = $derived.by(() => {
     const chips: string[] = [];
@@ -58,12 +47,6 @@ export class CustomFieldState {
   });
 
   activeFilterCount = $derived(this.activeFilterChips.length);
-
-  sortChips = $derived.by(() =>
-    this.sortRules.map((rule, index) => `#${index + 1} ${customFieldSortFieldLabelMap[rule.field]} ${rule.direction}`),
-  );
-
-  activeSortCount = $derived(this.sortRules.length);
 
   updateSearch = (value: string): void => {
     this.search = value;
@@ -80,45 +63,6 @@ export class CustomFieldState {
 
   clearFilters = (): void => {
     this.typeFilters = [];
-    this.refreshTable();
-  };
-
-  addSortRule = (): void => {
-    const usedFields = new Set(this.sortRules.map((rule) => rule.field));
-    const field = this.sortFieldOptions.find((option) => !usedFields.has(option)) ?? this.sortFieldOptions[0];
-
-    this.sortRules = [
-      ...this.sortRules,
-      {
-        id: crypto.randomUUID(),
-        field,
-        direction: SortDirection.ASC,
-      },
-    ];
-
-    this.refreshTable();
-  };
-
-  removeSortRule = (ruleId: string): void => {
-    const remaining = this.sortRules.filter((rule) => rule.id !== ruleId);
-    this.sortRules =
-      remaining.length > 0 ? remaining : [{ id: crypto.randomUUID(), field: "name", direction: SortDirection.ASC }];
-
-    this.refreshTable();
-  };
-
-  updateSortRuleField = (ruleId: string, field: CustomFieldSortField): void => {
-    this.sortRules = this.sortRules.map((rule) => (rule.id === ruleId ? { ...rule, field } : rule));
-    this.refreshTable();
-  };
-
-  updateSortRuleDirection = (ruleId: string, direction: SortDirection): void => {
-    this.sortRules = this.sortRules.map((rule) => (rule.id === ruleId ? { ...rule, direction } : rule));
-    this.refreshTable();
-  };
-
-  clearSortRules = (): void => {
-    this.sortRules = [{ id: crypto.randomUUID(), field: "name", direction: SortDirection.ASC }];
     this.refreshTable();
   };
 
@@ -141,7 +85,9 @@ export class CustomFieldState {
     this.sortOpen = false;
   };
 
-  fetchRows = async (request: DataTableLoadRequest): Promise<DataTableLoadResult<CustomFieldViewModel>> => {
+  fetchRows = async (
+    request: DataTableLoadRequest<CustomFieldTableSort["sortId"]>,
+  ): Promise<DataTableLoadResult<CustomFieldViewModel>> => {
     if (!this.loaded) {
       await this.load();
     }
@@ -168,28 +114,10 @@ export class CustomFieldState {
     this.tableKey += 1;
   }
 
-  private get filteredFields(): CustomFieldViewModel[] {
-    return this.getFilteredFields([], []);
-  }
-
-  private getFilteredFields(sorting: DataTableSort[], filters: DataTableFilter[]): CustomFieldViewModel[] {
-    const sortableFields = new Set<CustomFieldSortField>(this.sortFieldOptions);
-    const tableSortRules = sorting
-      .filter((sort): sort is DataTableSort & { sortId: CustomFieldSortField } =>
-        sortableFields.has(sort.sortId as CustomFieldSortField),
-      )
-      .map((sort) => ({
-        id: sort.sortId,
-        field: sort.sortId,
-        direction: sort.direction === "ascending" ? SortDirection.ASC : SortDirection.DESC,
-      }));
-
+  private getFilteredFields(sorting: CustomFieldTableSort[], filters: DataTableFilter[]): CustomFieldViewModel[] {
     const typeFilters = getCustomFieldTypeFilters(filters);
 
-    return sortCustomFieldList(
-      filterCustomFieldList(this.fields, this.search, typeFilters),
-      tableSortRules.length > 0 ? tableSortRules : this.sortRules,
-    );
+    return sortCustomFieldList(filterCustomFieldList(this.fields, this.search, typeFilters), sorting);
   }
 
   private async load(): Promise<void> {

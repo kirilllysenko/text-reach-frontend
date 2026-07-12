@@ -3,8 +3,37 @@
  * Do not edit manually.
  * OpenAPI spec version: 0.0.1
  */
+export type AccessGroup = (typeof AccessGroup)[keyof typeof AccessGroup];
+
+export const AccessGroup = {
+  CONTACT_READ: "CONTACT_READ",
+  CONTACT_WRITE: "CONTACT_WRITE",
+  CUSTOM_FIELDS_READ: "CUSTOM_FIELDS_READ",
+  CUSTOM_FIELDS_WRITE: "CUSTOM_FIELDS_WRITE",
+  CAMPAIGN_READ: "CAMPAIGN_READ",
+  CAMPAIGN_WRITE: "CAMPAIGN_WRITE",
+  MESSAGE_READ: "MESSAGE_READ",
+  PHONE_READ: "PHONE_READ",
+  PHONE_WRITE: "PHONE_WRITE",
+  BILLING_READ: "BILLING_READ",
+  BILLING_WRITE: "BILLING_WRITE",
+  USER_READ: "USER_READ",
+  USER_WRITE: "USER_WRITE",
+} as const;
+
+export interface CampaignMediaDto {
+  contentType: string;
+  /**
+   * @minimum 0
+   * @nullable
+   */
+  sizeBytes?: number | null;
+  url: string;
+}
+
 export interface CampaignCreateDto {
   contactGroupIds?: string[];
+  media?: CampaignMediaDto[];
   /** @nullable */
   messageTemplate?: string | null;
   /** @nullable */
@@ -28,6 +57,7 @@ export const CampaignStatus = {
 export interface CampaignDto {
   contactGroupIds: string[];
   id: string;
+  media: CampaignMediaDto[];
   messageCount: number;
   messageTemplate: string;
   name: string;
@@ -121,6 +151,12 @@ export interface CampaignFilterDto {
   operator?: NestedOperator;
   sentMessageCount?: null | ComparisonFilterI32;
   status?: null | ContainmentFilterCampaignStatus;
+}
+
+export interface CampaignMediaUploadUrlDto {
+  mediaUrl: string;
+  newFilename: string;
+  uploadUrl: string;
 }
 
 export type SortDirection = (typeof SortDirection)[keyof typeof SortDirection];
@@ -332,6 +368,7 @@ export type ContainmentFilterMessageStatusValueItem =
 
 export const ContainmentFilterMessageStatusValueItem = {
   PENDING: "PENDING",
+  QUEUED: "QUEUED",
   SENT: "SENT",
   FAILED: "FAILED",
 } as const;
@@ -358,6 +395,23 @@ export interface CreateTopupCheckoutSessionRequest {
   amountUsdMicros: number;
 }
 
+export type Role = (typeof Role)[keyof typeof Role];
+
+export const Role = {
+  ADMIN: "ADMIN",
+  MANAGER: "MANAGER",
+  EMPLOYEE: "EMPLOYEE",
+} as const;
+
+export interface CreateUserDto {
+  /** @nullable */
+  email?: string | null;
+  /** @nullable */
+  name?: string | null;
+  password: string;
+  role: Role;
+}
+
 export interface CustomFieldDto {
   id: Ulid;
   name: string;
@@ -378,6 +432,7 @@ export const ErrorCode = {
   SESSION_EXPIRED: "SESSION_EXPIRED",
   SESSION_CLIENT_CHANGED: "SESSION_CLIENT_CHANGED",
   SESSION_INVALID_USER: "SESSION_INVALID_USER",
+  ACCESS_DENIED: "ACCESS_DENIED",
   TEN_DLC_BRAND_REQUIRED: "TEN_DLC_BRAND_REQUIRED",
 } as const;
 
@@ -395,10 +450,21 @@ export interface IdDto {
   id: Ulid;
 }
 
+export interface MessageMediaDto {
+  contentType: string;
+  /**
+   * @minimum 0
+   * @nullable
+   */
+  sizeBytes?: number | null;
+  url: string;
+}
+
 export type MessageStatus = (typeof MessageStatus)[keyof typeof MessageStatus];
 
 export const MessageStatus = {
   PENDING: "PENDING",
+  QUEUED: "QUEUED",
   SENT: "SENT",
   FAILED: "FAILED",
 } as const;
@@ -411,6 +477,7 @@ export interface MessageDto {
   /** @nullable */
   conversationId?: string | null;
   id: string;
+  media: MessageMediaDto[];
   /** @nullable */
   sentAt?: string | null;
   status: MessageStatus;
@@ -628,6 +695,7 @@ export type PageRequestWalletTransactionFilterDtoWalletTransactionSortDto = Page
 export type PageCampaignDtoItemsItem = {
   contactGroupIds: string[];
   id: string;
+  media: CampaignMediaDto[];
   messageCount: number;
   messageTemplate: string;
   name: string;
@@ -696,6 +764,7 @@ export type PageMessageDtoItemsItem = {
   /** @nullable */
   conversationId?: string | null;
   id: string;
+  media: MessageMediaDto[];
   /** @nullable */
   sentAt?: string | null;
   status: MessageStatus;
@@ -750,6 +819,7 @@ export const PhoneType = {
 } as const;
 
 export interface ProfileDto {
+  accessGroups: AccessGroup[];
   email: string;
   /** @nullable */
   name?: string | null;
@@ -811,6 +881,14 @@ export interface TenantPhoneDto {
   phoneType: PhoneType;
 }
 
+export interface TenantUserDto {
+  email: string;
+  id: Ulid;
+  /** @nullable */
+  name?: string | null;
+  role: Role;
+}
+
 export interface TopupCheckoutSessionDto {
   amountUsdMicros: number;
   clientSecret: string;
@@ -825,6 +903,12 @@ export interface UpdateCustomFieldNameDto {
 
 export interface UpdateCustomFieldPositionDto {
   position: string;
+}
+
+export interface UpdateUserDto {
+  /** @nullable */
+  name?: string | null;
+  role: Role;
 }
 
 export interface UploadUrlDto {
@@ -854,6 +938,10 @@ export interface WalletTransactionSortDto {
   entryType?: null | Sort;
   sourceType?: null | Sort;
 }
+
+export type GetCampaignMediaUploadUrlParams = {
+  filename: string;
+};
 
 export type GetContactUploadUrlParams = {
   filename: string;

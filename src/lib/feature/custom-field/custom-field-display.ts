@@ -1,10 +1,9 @@
 import type {
   CustomFieldDtoLike,
-  CustomFieldSortField,
-  CustomFieldSortRule,
+  CustomFieldTableSort,
   CustomFieldViewModel,
 } from "$lib/feature/custom-field/custom-field-view-data";
-import { customFieldTypeLabelMap } from "$lib/feature/custom-field/custom-field-view-data";
+import { customFieldTypeLabelMap, defaultCustomFieldSorts } from "$lib/feature/custom-field/custom-field-view-data";
 import type { CustomFieldType } from "$lib/api/index.schemas";
 
 export function toCustomFieldViewModel(dto: CustomFieldDtoLike, index: number): CustomFieldViewModel {
@@ -61,14 +60,16 @@ export function filterCustomFieldList(
 
 export function sortCustomFieldList(
   fields: CustomFieldViewModel[],
-  sortRules: CustomFieldSortRule[],
+  sorting: CustomFieldTableSort[],
 ): CustomFieldViewModel[] {
+  const appliedSorting = sorting.length > 0 ? sorting : defaultCustomFieldSorts;
+
   return [...fields].sort((left, right) => {
-    for (const rule of sortRules) {
-      const result = compareCustomField(left, right, rule.field);
+    for (const sort of appliedSorting) {
+      const result = compareCustomField(left, right, sort.sortId);
 
       if (result !== 0) {
-        return rule.direction === "ASC" ? result : -result;
+        return sort.direction === "ascending" ? result : -result;
       }
     }
 
@@ -79,7 +80,7 @@ export function sortCustomFieldList(
 function compareCustomField(
   left: CustomFieldViewModel,
   right: CustomFieldViewModel,
-  field: CustomFieldSortField,
+  field: CustomFieldTableSort["sortId"],
 ): number {
   if (field === "type") {
     return left.typeLabel.localeCompare(right.typeLabel, undefined, {

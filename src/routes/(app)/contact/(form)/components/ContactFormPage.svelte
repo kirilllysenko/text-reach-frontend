@@ -2,18 +2,15 @@
   import { onMount } from "svelte";
   import { BackButton, Button, Field, FieldError, FieldLabel, Input, PageTitle } from "$lib";
   import { PATH_CONTACT } from "$lib/app/paths";
-  import {
-    SortDirection,
-    type ContactGroupDto,
-    type CustomFieldDto,
-    type CustomFieldType,
-  } from "$lib/api/index.schemas";
+  import type { ContactGroupDto, CustomFieldDto, CustomFieldType } from "$lib/api/index.schemas";
   import { getContact } from "$lib/api/contact/contact";
   import { fetchContactGroups as fetchContactGroupList } from "$lib/api/contact-group/contact-group";
   import { listCustomFields as listCustomFieldList } from "$lib/api/custom-field/custom-field";
   import type { ErrorResponse, Ulid } from "$lib/api/index.schemas";
   import { networkErrorText, toErrorText } from "$lib/form/errors";
+  import { defaultContactGroupSorts } from "$lib/feature/contact-group/contact-group-sorting";
   import { customFieldTypeLabelMap } from "$lib/feature/custom-field/custom-field-view-data";
+  import { tableSortsToDto } from "$lib/utils/table-sort";
   import {
     configureContactForm,
     form,
@@ -103,12 +100,7 @@
       const response = await fetchContactGroupList(
         {
           pageSize: 300,
-          sort: {
-            name: {
-              order: 0,
-              direction: SortDirection.ASC,
-            },
-          },
+          sort: tableSortsToDto(defaultContactGroupSorts),
         },
         { credentials: "include" },
       );

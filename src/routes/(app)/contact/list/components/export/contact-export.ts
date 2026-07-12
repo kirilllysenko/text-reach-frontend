@@ -1,5 +1,5 @@
 import { fetchContacts as fetchContactList } from "$lib/api/contact/contact";
-import type { DataTableFilter, DataTableSort } from "$lib/components/table";
+import type { DataTableFilter } from "$lib/components/table";
 import {
   createMockContactList,
   filterMockContactList,
@@ -7,9 +7,9 @@ import {
   toContactViewModel,
 } from "$lib/feature/contact/contact-display";
 import { buildContactRequest } from "$lib/feature/contact/contact-query";
+import type { ContactTableSort } from "$lib/feature/contact/contact-sorting";
 import type { ContactViewModel } from "$lib/feature/contact/contact-view-data";
 import { getContactTableFilters } from "../filter/filter.svelte";
-import { getContactSortRules } from "../sort/sort.svelte";
 
 const EXPORT_PAGE_SIZE = 500;
 const MAX_EXPORT_PAGES = 200;
@@ -17,7 +17,7 @@ const MAX_EXPORT_PAGES = 200;
 export interface ContactExportSnapshot {
   filters: DataTableFilter[];
   search: string;
-  sorting: DataTableSort[];
+  sorting: ContactTableSort[];
 }
 
 export function buildContactExportRequest(snapshot: ContactExportSnapshot, cursor: unknown[] | null) {
@@ -30,7 +30,7 @@ export function buildContactExportRequest(snapshot: ContactExportSnapshot, curso
     contactGroupIds: filters.contactGroupIds,
     birthdayAfter: filters.birthdayAfter,
     emailContains: filters.emailContains,
-    sortRules: getContactSortRules(snapshot.sorting),
+    sorts: snapshot.sorting,
   });
 }
 
@@ -75,7 +75,7 @@ export function getFallbackContactExportList(
       filters.birthdayAfter,
       filters.emailContains,
     ),
-    getContactSortRules(snapshot.sorting),
+    snapshot.sorting,
   );
 }
 

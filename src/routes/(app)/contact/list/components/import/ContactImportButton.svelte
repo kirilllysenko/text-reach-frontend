@@ -5,26 +5,15 @@
   import Upload from "$lib/icons/Upload.svelte";
   import { Button } from "$lib";
 
-  const contactImport = createContactImportState(table);
-  let open = $state(false);
-
-  function openImportDialog(): void {
-    open = true;
-    void contactImport.loadCustomFields();
-  }
-
-  function closeImportDialog(): void {
-    if (contactImport.setupSubmitting || contactImport.importSubmitting) {
-      return;
-    }
-
-    open = false;
-    contactImport.reset();
-  }
+  const contactImport = createContactImportState({
+    async onImported() {
+      await table.handlers.dataLoading.reload();
+    },
+  });
 </script>
 
-<Button variant="secondary" small icon={Upload} active={open} onclick={openImportDialog}>
+<Button variant="secondary" small icon={Upload} active={contactImport.open} onclick={contactImport.openDialog}>
   <span class="hidden sm:inline">Import</span>
 </Button>
 
-<ContactImportDialog {open} {contactImport} onClose={closeImportDialog} />
+<ContactImportDialog {contactImport} />

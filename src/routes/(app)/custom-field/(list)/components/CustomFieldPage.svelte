@@ -1,7 +1,8 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
-  import { Button, Card, Input, PageTitle } from "$lib";
+  import { AccessGate, Button, Card, Input, PageTitle } from "$lib";
   import { PATH_CUSTOM_FIELD_ADD } from "$lib/app/paths";
+  import { AccessGroup } from "$lib/api/index.schemas";
   import { CustomFieldState } from "$lib/feature/custom-field/custom-field-state.svelte";
   import Sort from "$lib/icons/Sort.svelte";
   import CustomFieldOverlay from "./CustomFieldOverlay.svelte";
@@ -37,13 +38,15 @@
     to-stone-100 p-2 sm:h-[calc(100dvh-3rem)] sm:p-3"
 >
   <PageTitle title="Custom Fields">
-    <a
-      href={PATH_CUSTOM_FIELD_ADD}
-      class="flex h-9 items-center justify-center rounded-xl border border-slate-700 bg-slate-700 px-3
-        text-base font-medium text-white shadow-sm hover:bg-slate-800"
-    >
-      Add custom field
-    </a>
+    <AccessGate access={AccessGroup.CUSTOM_FIELDS_WRITE}>
+      <a
+        href={PATH_CUSTOM_FIELD_ADD}
+        class="flex h-9 items-center justify-center rounded-xl border border-slate-700 bg-slate-700 px-3
+          text-base font-medium text-white shadow-sm hover:bg-slate-800"
+      >
+        Add custom field
+      </a>
+    </AccessGate>
   </PageTitle>
 
   <Card variant="panel" class="shrink-0 space-y-3">

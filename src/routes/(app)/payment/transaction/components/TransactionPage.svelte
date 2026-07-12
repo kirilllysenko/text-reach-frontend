@@ -2,28 +2,29 @@
   import { onDestroy, onMount } from "svelte";
   import {
     Button,
-    DatagridCore,
     Card,
     Input,
     PageTitle,
     Table,
     accessorColumn,
     comparisonFilter,
+    createDatagrid,
     textFilter,
     type ColumnDef,
-    type DataTableSort,
   } from "$lib";
   import { PATH_PAYMENT } from "$lib/app/paths";
   import { WalletTransactionState } from "$lib/feature/payment/payment-state.svelte";
   import Filter from "$lib/icons/Filter.svelte";
   import Sort from "$lib/icons/Sort.svelte";
-  import type { WalletTransactionViewModel } from "$lib/feature/payment/payment-view-data";
+  import {
+    defaultWalletTransactionSorts,
+    walletTransactionSortDefinitions,
+    type WalletTransactionViewModel,
+  } from "$lib/feature/payment/payment-view-data";
   import TransactionOverlay from "./TransactionOverlay.svelte";
 
   const PAGE_SIZE = 500;
   const transactionState = new WalletTransactionState();
-  const initialSorting = [{ sortId: "createdAt", direction: "descending" }] satisfies DataTableSort[];
-
   let tableKey = transactionState.tableKey;
 
   function size(width: number, maxWidth: number) {
@@ -102,7 +103,7 @@
   });
 
   function createTransactionTable() {
-    return new DatagridCore<WalletTransactionViewModel>({
+    return createDatagrid<WalletTransactionViewModel>()({
       columns,
       data: [],
       dataFields: [
@@ -187,7 +188,8 @@
           pageSize: PAGE_SIZE,
         },
         sorting: {
-          sorts: initialSorting,
+          sortDefinitions: walletTransactionSortDefinitions,
+          sorts: defaultWalletTransactionSorts,
         },
       },
       rowIdGetter: (transaction) => transaction.id,

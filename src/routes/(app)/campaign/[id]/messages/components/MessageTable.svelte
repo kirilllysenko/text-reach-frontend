@@ -1,10 +1,10 @@
 <script lang="ts">
   import { onDestroy, onMount } from "svelte";
   import { Card, Table, type DatagridCore } from "$lib";
-  import type { MessageViewModel } from "$lib/feature/message/message-view-data";
+  import type { MessageSortId, MessageViewModel } from "$lib/feature/message/message-view-data";
 
   interface Props {
-    table: DatagridCore<MessageViewModel>;
+    table: DatagridCore<MessageViewModel, unknown, MessageSortId>;
   }
 
   let { table }: Props = $props();

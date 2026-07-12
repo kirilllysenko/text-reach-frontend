@@ -1,7 +1,10 @@
 import type { DataTableLoadReason, DataTableLoadResult } from "../types";
 import { BaseService } from "./base-service";
 
-export class DataLoadingService<TOriginalRow = any, TSortId extends string = string> extends BaseService<TSortId> {
+export class DataLoadingService<TOriginalRow = any, TSortId extends string = string> extends BaseService<
+  TOriginalRow,
+  TSortId
+> {
   start(): void {
     this.datagrid.features.dataLoading.start();
   }

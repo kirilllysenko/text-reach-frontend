@@ -5,11 +5,10 @@ import {
   PageDirection,
   TextOperator,
   type ContactFilterDto,
-  type ContactSortDto,
   type PageRequestContactFilterDtoContactSortDto,
-  type Sort,
 } from "$lib/api/index.schemas";
-import type { ContactSortRule } from "$lib/feature/contact/contact-view-data";
+import type { ContactTableSort } from "$lib/feature/contact/contact-sorting";
+import { tableSortsToDto } from "$lib/utils/table-sort";
 
 interface ContactRequestOptions {
   pageSize: number;
@@ -20,7 +19,7 @@ interface ContactRequestOptions {
   contactGroupIds: string[];
   birthdayAfter: string;
   emailContains: string;
-  sortRules: ContactSortRule[];
+  sorts: ContactTableSort[];
 }
 
 export interface ContactFilterOptions {
@@ -35,7 +34,7 @@ export function buildContactRequest(options: ContactRequestOptions): PageRequest
     pageSize: options.pageSize,
     position: buildPosition(options),
     filter: buildContactFilter(options),
-    sort: buildContactSort(options.sortRules),
+    sort: tableSortsToDto(options.sorts),
   };
 }
 
@@ -104,14 +103,4 @@ function buildPosition(options: ContactRequestOptions): PageRequestContactFilter
   }
 
   return undefined;
-}
-
-function buildContactSort(sortRules: ContactSortRule[]): ContactSortDto {
-  return sortRules.reduce<ContactSortDto>((acc, rule, index) => {
-    acc[rule.field] = {
-      order: index + 1,
-      direction: rule.direction,
-    } satisfies Sort;
-    return acc;
-  }, {});
 }

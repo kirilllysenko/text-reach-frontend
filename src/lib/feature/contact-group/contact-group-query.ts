@@ -4,11 +4,10 @@ import {
   PageDirection,
   TextOperator,
   type ContactGroupFilterDto,
-  type ContactGroupSortDto,
   type PageRequestContactGroupFilterDtoContactGroupSortDto,
-  type Sort,
 } from "$lib/api/index.schemas";
-import type { ContactGroupSortRule } from "$lib/feature/contact-group/contact-group-view-data";
+import type { ContactGroupTableSort } from "$lib/feature/contact-group/contact-group-sorting";
+import { tableSortsToDto } from "$lib/utils/table-sort";
 
 interface ContactGroupRequestOptions {
   pageSize: number;
@@ -18,7 +17,7 @@ interface ContactGroupRequestOptions {
   search: string;
   minContactCount: string;
   maxContactCount: string;
-  sortRules: ContactGroupSortRule[];
+  sorts: ContactGroupTableSort[];
 }
 
 export interface ContactGroupFilterOptions {
@@ -34,7 +33,7 @@ export function buildContactGroupRequest(
     pageSize: options.pageSize,
     position: buildPosition(options),
     filter: buildContactGroupFilter(options),
-    sort: buildContactGroupSort(options.sortRules),
+    sort: tableSortsToDto(options.sorts),
   };
 }
 
@@ -100,14 +99,4 @@ function buildPosition(
   }
 
   return undefined;
-}
-
-function buildContactGroupSort(sortRules: ContactGroupSortRule[]): ContactGroupSortDto {
-  return sortRules.reduce<ContactGroupSortDto>((acc, rule, index) => {
-    acc[rule.field] = {
-      order: index + 1,
-      direction: rule.direction,
-    } satisfies Sort;
-    return acc;
-  }, {});
 }

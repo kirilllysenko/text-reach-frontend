@@ -9,11 +9,14 @@
     type SortPanelController,
   } from "$lib";
   import type { WalletTransactionState } from "$lib/feature/payment/payment-state.svelte";
-  import { walletTransactionSortFieldLabelMap } from "$lib/feature/payment/payment-view-data";
+  import {
+    walletTransactionSortDefinitions,
+    type WalletTransactionTableSort,
+  } from "$lib/feature/payment/payment-view-data";
 
   interface Props {
     filtering: FilteringService;
-    sorting: SortPanelController;
+    sorting: SortPanelController<WalletTransactionTableSort["sortId"]>;
     state: WalletTransactionState;
   }
 
@@ -119,12 +122,10 @@
     ],
   }));
 
-  const sortFieldOptions = $derived(
-    state.sortFieldOptions.map((field) => ({
-      value: field,
-      label: walletTransactionSortFieldLabelMap[field],
-    })),
-  );
+  const sortFieldOptions = walletTransactionSortDefinitions.map(({ label, sortId }) => ({
+    value: sortId,
+    label: label ?? sortId,
+  }));
 </script>
 
 <ResponsiveDialog

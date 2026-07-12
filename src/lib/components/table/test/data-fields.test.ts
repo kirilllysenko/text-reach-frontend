@@ -10,6 +10,7 @@ import {
   type ColumnDef,
   type DataField,
   type DataTableFilterFromDefinitions,
+  type DataTableLoadResult,
   type DataTableSort,
   type DataTableSortFromDefinitions,
 } from "../index";
@@ -150,7 +151,21 @@ describe("datagrid data fields", () => {
 
     expect(table.features.sorting.sorts).toEqual([{ direction: "ascending", sortId: "fullName" }]);
 
+    const loadResult: Promise<DataTableLoadResult<ContactRow> | null> = table.handlers.dataLoading.load();
+    void loadResult;
+
     if (false) {
+      void table.handlers.dataLoading.load().then((result) => {
+        if (!result) {
+          return;
+        }
+
+        const contact: ContactRow = result.rows[0]!;
+        void contact;
+        // @ts-expect-error Loader rows retain the DatagridCore row type.
+        result.rows[0]!.notAContactProperty;
+      });
+
       createContactDatagrid({
         columns: createColumns(),
         data: contacts,

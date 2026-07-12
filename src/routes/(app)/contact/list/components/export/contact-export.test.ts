@@ -6,7 +6,8 @@ import {
   SortDirection,
   TextOperator,
 } from "$lib/api/index.schemas";
-import type { DataTableFilter, DataTableSort } from "$lib/components/table";
+import type { DataTableFilter } from "$lib/components/table";
+import type { ContactTableSort } from "$lib/feature/contact/contact-sorting";
 import type { ContactViewModel } from "$lib/feature/contact/contact-view-data";
 import { buildContactExportRequest, getFallbackContactExportList, toContactCsv } from "./contact-export";
 
@@ -37,7 +38,7 @@ const filteredSnapshot = {
       direction: "descending",
       sortId: "firstName",
     },
-  ] satisfies DataTableSort[],
+  ] satisfies ContactTableSort[],
 };
 
 const contacts = [

@@ -1,18 +1,23 @@
-import { DatagridCore, type DataField, type DataTableSort } from "$lib/components/table";
+import { createDatagrid, type DataField, type DatagridCore } from "$lib/components/table";
 import type { CustomFieldState } from "$lib/feature/custom-field/custom-field-state.svelte";
-import type { CustomFieldViewModel } from "$lib/feature/custom-field/custom-field-view-data";
+import {
+  customFieldSortDefinitions,
+  defaultCustomFieldSorts,
+  type CustomFieldTableSort,
+  type CustomFieldViewModel,
+} from "$lib/feature/custom-field/custom-field-view-data";
 import { createCustomFieldColumns } from "./column.svelte";
-import { customFieldSortDefinitions } from "./sort.svelte";
 
 const PAGE_SIZE = 500;
-const initialSorting = [{ sortId: "name", direction: "ascending" }] satisfies DataTableSort[];
 
 interface CustomFieldTableOptions {
   customFieldsState: CustomFieldState;
 }
 
-export function createCustomFieldTable(props: CustomFieldTableOptions): DatagridCore<CustomFieldViewModel> {
-  return new DatagridCore<CustomFieldViewModel>({
+export function createCustomFieldTable(
+  props: CustomFieldTableOptions,
+): DatagridCore<CustomFieldViewModel, unknown, CustomFieldTableSort["sortId"]> {
+  return createDatagrid<CustomFieldViewModel>()({
     columns: createCustomFieldColumns(),
     data: [],
     dataFields: createCustomFieldDataFields(),
@@ -26,7 +31,7 @@ export function createCustomFieldTable(props: CustomFieldTableOptions): Datagrid
       },
       sorting: {
         sortDefinitions: customFieldSortDefinitions,
-        sorts: initialSorting,
+        sorts: defaultCustomFieldSorts,
       },
     },
     rowIdGetter: (field) => field.id,

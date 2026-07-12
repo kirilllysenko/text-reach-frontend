@@ -1,21 +1,22 @@
 <script lang="ts">
   import { Button, ResponsiveDialog, SortPanel, type SortPanelController } from "$lib";
   import type { CustomFieldState } from "$lib/feature/custom-field/custom-field-state.svelte";
-  import { customFieldSortFieldLabelMap } from "$lib/feature/custom-field/custom-field-view-data";
+  import {
+    customFieldSortDefinitions,
+    type CustomFieldTableSort,
+  } from "$lib/feature/custom-field/custom-field-view-data";
 
   interface Props {
-    sorting: SortPanelController;
+    sorting: SortPanelController<CustomFieldTableSort["sortId"]>;
     state: CustomFieldState;
   }
 
   let { sorting, state }: Props = $props();
 
-  const sortFieldOptions = $derived(
-    state.sortFieldOptions.map((field) => ({
-      value: field,
-      label: customFieldSortFieldLabelMap[field],
-    })),
-  );
+  const sortFieldOptions = customFieldSortDefinitions.map(({ label, sortId }) => ({
+    value: sortId,
+    label: label ?? sortId,
+  }));
 </script>
 
 <ResponsiveDialog

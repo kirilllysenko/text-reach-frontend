@@ -1,22 +1,23 @@
 import {
-  SortDirection,
   type CampaignDto,
   type ErrorResponse,
   type PageRequestContactGroupFilterDtoContactGroupSortDto,
 } from "$lib/api/index.schemas";
 import { fetchContactGroups as fetchContactGroupList } from "$lib/api/contact-group/contact-group";
 import { listCampaigns as listCampaignList } from "$lib/api/campaign/campaign";
-import type { DataTableActiveSortDirection, DataTableFilter, DataTableSort } from "$lib/components/table";
+import type { DataTableActiveSortDirection, DataTableFilter, SortPanelController } from "$lib/components/table";
+import { defaultContactGroupSorts } from "$lib/feature/contact-group/contact-group-sorting";
 import { debounce } from "$lib/utils/debounce";
+import { tableSortsToDto } from "$lib/utils/table-sort";
 import {
-  campaignSortFieldOptions,
+  campaignSortDefinitions,
   campaignStatusOptions,
-  sortFieldLabelMap,
   statusLabelMap,
-  type CampaignSortField,
+  defaultCampaignSorts,
+  type CampaignSortId,
   type CampaignStatus,
+  type CampaignTableSort,
   type CampaignViewModel,
-  type SortRule,
 } from "$lib/feature/campaign/campaign-view-data";
 import { buildCampaignRequest } from "./campaign-query";
 import {
@@ -31,7 +32,14 @@ type MobileView = "list" | "details";
 const DEFAULT_PAGE_SIZE = 50;
 const SEARCH_DEBOUNCE_MS = 250;
 
-export class CampaignState {
+export function buildContactGroupListRequest(): PageRequestContactGroupFilterDtoContactGroupSortDto {
+  return {
+    pageSize: 300,
+    sort: tableSortsToDto(defaultContactGroupSorts),
+  };
+}
+
+export class CampaignState implements SortPanelController<CampaignSortId> {
   loading = $state(true);
   loadingMore = $state(false);
   loadingError = $state<string | null>(null);
@@ -44,13 +52,7 @@ export class CampaignState {
   createdAfter = $state("");
   minSentMessageCount = $state("");
   minMessageCount = $state("");
-  sortRules = $state<SortRule[]>([
-    {
-      id: crypto.randomUUID(),
-      field: "createdAt",
-      direction: SortDirection.DESC,
-    },
-  ]);
+  sorts = $state<CampaignTableSort[]>([...defaultCampaignSorts]);
 
   desktopExpanded = $state(false);
   filtersOpen = $state(false);
@@ -66,7 +68,6 @@ export class CampaignState {
   }, SEARCH_DEBOUNCE_MS);
 
   statusOptions = campaignStatusOptions;
-  sortFieldOptions = campaignSortFieldOptions;
 
   selectedCampaign = $derived.by(() => {
     const selectedCampaignId = this.selectedCampaignId;
@@ -102,10 +103,13 @@ export class CampaignState {
   activeFilterCount = $derived(this.activeFilterChips.length);
 
   sortChips = $derived.by(() =>
-    this.sortRules.map((rule, index) => `#${index + 1} ${sortFieldLabelMap[rule.field]} ${rule.direction}`),
+    this.sorts.map((sort, index) => {
+      const label = campaignSortDefinitions.find((definition) => definition.sortId === sort.sortId)?.label;
+      return `#${index + 1} ${label ?? sort.sortId} ${sort.direction}`;
+    }),
   );
 
-  activeSortCount = $derived(this.sortRules.length);
+  activeSortCount = $derived(this.sorts.length);
 
   selectedCampaignGroupNames = $derived.by(() => {
     if (!this.selectedCampaign) {
@@ -161,13 +165,6 @@ export class CampaignState {
     return filters;
   }
 
-  get sorts(): DataTableSort[] {
-    return this.sortRules.map((rule) => ({
-      direction: rule.direction === SortDirection.ASC ? "ascending" : "descending",
-      sortId: rule.field,
-    }));
-  }
-
   load = async (): Promise<void> => {
     await Promise.all([this.loadContactGroupList(), this.resetAndLoadCampaignList()]);
   };
@@ -189,11 +186,7 @@ export class CampaignState {
     this.setFilters([]);
   };
 
-  addSort = (sortId: string, direction: DataTableActiveSortDirection = "ascending"): void => {
-    if (!this.isCampaignSortField(sortId)) {
-      return;
-    }
-
+  addSort = (sortId: CampaignSortId, direction: DataTableActiveSortDirection = "ascending"): void => {
     this.setSorts([
       ...this.sorts.filter((sort) => sort.sortId !== sortId),
       {
@@ -211,11 +204,7 @@ export class CampaignState {
     this.setSorts(this.sorts.map((sort, currentIndex) => (currentIndex === index ? { ...sort, direction } : sort)));
   };
 
-  updateSortId = (index: number, sortId: string): void => {
-    if (!this.isCampaignSortField(sortId)) {
-      return;
-    }
-
+  updateSortId = (index: number, sortId: CampaignSortId): void => {
     this.setSorts(this.sorts.map((sort, currentIndex) => (currentIndex === index ? { ...sort, sortId } : sort)));
   };
 
@@ -223,8 +212,8 @@ export class CampaignState {
     this.setSorts([]);
   };
 
-  setSorts = (sorts: DataTableSort[]): void => {
-    this.applyFeatureSorts(sorts);
+  setSorts = (sorts: CampaignTableSort[]): void => {
+    this.sorts = sorts.length > 0 ? sorts : [...defaultCampaignSorts];
     void this.resetAndLoadCampaignList();
   };
 
@@ -296,10 +285,6 @@ export class CampaignState {
     void this.resetAndLoadCampaignList();
   }
 
-  private isCampaignSortField(sortId: string): sortId is CampaignSortField {
-    return this.sortFieldOptions.includes(sortId as CampaignSortField);
-  }
-
   private applyFeatureFilters(filters: DataTableFilter[]): void {
     const statusFilter = filters.find(
       (filter) => filter.type === "containment" && filter.filterId === "status" && filter.operator === "IN",
@@ -335,24 +320,6 @@ export class CampaignState {
         : "";
   }
 
-  private applyFeatureSorts(sorts: DataTableSort[]): void {
-    const sortableFields = new Set<CampaignSortField>(this.sortFieldOptions);
-    const sortRules = sorts
-      .filter((sort): sort is DataTableSort & { sortId: CampaignSortField } =>
-        sortableFields.has(sort.sortId as CampaignSortField),
-      )
-      .map((sort) => ({
-        id: sort.sortId,
-        field: sort.sortId,
-        direction: sort.direction === "ascending" ? SortDirection.ASC : SortDirection.DESC,
-      }));
-
-    this.sortRules =
-      sortRules.length > 0
-        ? sortRules
-        : [{ id: crypto.randomUUID(), field: "createdAt", direction: SortDirection.DESC }];
-  }
-
   private async resetAndLoadCampaignList(): Promise<void> {
     this.requestVersion += 1;
     this.loading = true;
@@ -386,7 +353,7 @@ export class CampaignState {
           createdAfter: this.createdAfter,
           minSentMessageCount: this.minSentMessageCount,
           minMessageCount: this.minMessageCount,
-          sortRules: this.sortRules,
+          sorts: this.sorts,
         }),
       );
       if (version !== this.requestVersion) {
@@ -444,15 +411,7 @@ export class CampaignState {
   }
 
   private async loadContactGroupList(): Promise<void> {
-    const request: PageRequestContactGroupFilterDtoContactGroupSortDto = {
-      pageSize: 300,
-      sort: {
-        name: {
-          order: 0,
-          direction: SortDirection.ASC,
-        },
-      },
-    };
+    const request = buildContactGroupListRequest();
 
     const response = await fetchContactGroupList(request, { credentials: "include" });
     if (response.status !== 200) {

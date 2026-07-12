@@ -31,7 +31,7 @@ export type ISortingService<TSortId extends string = string> = {
  * Class responsible for managing ordered sorting rules in a data grid.
  */
 export class SortingService<TSortId extends string = string>
-  extends BaseService<TSortId>
+  extends BaseService<any, TSortId>
   implements ISortingService<TSortId>, SortPanelController<TSortId>
 {
   get sorts(): DataTableSort<TSortId>[] {

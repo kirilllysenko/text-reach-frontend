@@ -5,12 +5,11 @@ import {
   PageDirection,
   TextOperator,
   type MessageFilterDto,
-  type MessageSortDto,
   type PageRequestMessageFilterDtoMessageSortDto,
-  type Sort,
 } from "$lib/api/index.schemas";
 import type { DataTableFilter } from "$lib/components/table";
-import type { MessageSortRule, MessageStatusValue } from "$lib/feature/message/message-view-data";
+import type { MessageStatusValue, MessageTableSort } from "$lib/feature/message/message-view-data";
+import { tableSortsToDto } from "$lib/utils/table-sort";
 
 interface MessageRequestOptions {
   campaignId: string;
@@ -19,7 +18,7 @@ interface MessageRequestOptions {
   filters: DataTableFilter[];
   pageSize: number;
   search: string;
-  sortRules: MessageSortRule[];
+  sorts: readonly MessageTableSort[];
 }
 
 export function buildMessageRequest(options: MessageRequestOptions): PageRequestMessageFilterDtoMessageSortDto {
@@ -27,7 +26,7 @@ export function buildMessageRequest(options: MessageRequestOptions): PageRequest
     pageSize: options.pageSize,
     position: buildPosition(options),
     filter: buildMessageFilter(options.campaignId, options.search, options.filters),
-    sort: buildMessageSort(options.sortRules),
+    sort: tableSortsToDto(options.sorts),
   };
 }
 
@@ -86,16 +85,6 @@ function buildMessageFilter(campaignId: string, search: string, filters: DataTab
     operator: NestedOperator.AND,
     nested,
   };
-}
-
-function buildMessageSort(sortRules: MessageSortRule[]): MessageSortDto {
-  return sortRules.reduce<MessageSortDto>((acc, rule, index) => {
-    acc[rule.field] = {
-      order: index + 1,
-      direction: rule.direction,
-    } satisfies Sort;
-    return acc;
-  }, {});
 }
 
 function toMessageFilter(filter: DataTableFilter): MessageFilterDto | null {

@@ -1,10 +1,10 @@
 <script lang="ts">
   import { onDestroy, onMount } from "svelte";
   import { Card, Table, type DatagridCore } from "$lib";
-  import type { CustomFieldViewModel } from "$lib/feature/custom-field/custom-field-view-data";
+  import type { CustomFieldTableSort, CustomFieldViewModel } from "$lib/feature/custom-field/custom-field-view-data";
 
   interface Props {
-    table: DatagridCore<CustomFieldViewModel>;
+    table: DatagridCore<CustomFieldViewModel, unknown, CustomFieldTableSort["sortId"]>;
   }
 
   let { table }: Props = $props();

@@ -1,8 +1,8 @@
 <script lang="ts">
   import { Button, Field, FieldError, FieldLabel, Input } from "$lib";
   import { changeName } from "$lib/api/tenant/tenant";
+  import { currentUserState } from "$lib/state/current-user.svelte";
   import { notificationsState } from "$lib/state/notifications.svelte";
-  import { sessionState } from "$lib/state/session.svelte";
   import { setProfileResponseErrors } from "./profile-errors";
 
   let name = $state("");
@@ -13,11 +13,11 @@
   let nameFormError = $state<string | null>(null);
 
   $effect(() => {
-    if (initialized || !sessionState.profile) {
+    if (initialized || !currentUserState.user) {
       return;
     }
 
-    name = sessionState.profile.name ?? "";
+    name = currentUserState.user.name ?? "";
     initialName = name;
     initialized = true;
   });
@@ -36,16 +36,16 @@
     savingName = false;
 
     if (response.status === 200) {
-      if (!sessionState.profile) {
+      if (!currentUserState.user) {
         return;
       }
 
       const nextProfile = {
-        ...sessionState.profile,
+        ...currentUserState.user,
         name: name.trim(),
       };
 
-      sessionState.applyProfile(nextProfile);
+      currentUserState.applyProfile(nextProfile);
       name = nextProfile.name ?? "";
       initialName = name;
       notificationsState.showInfo("Your name has been changed");

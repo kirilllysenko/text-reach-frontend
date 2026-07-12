@@ -1,10 +1,11 @@
 <script lang="ts">
   import { onDestroy, onMount } from "svelte";
   import { Card, Table, type DatagridCore } from "$lib";
+  import type { ContactGroupTableSort } from "$lib/feature/contact-group/contact-group-sorting";
   import type { ContactGroupViewModel } from "$lib/feature/contact-group/contact-group-view-data";
 
   interface Props {
-    table: DatagridCore<ContactGroupViewModel>;
+    table: DatagridCore<ContactGroupViewModel, unknown, ContactGroupTableSort["sortId"]>;
   }
 
   let { table }: Props = $props();

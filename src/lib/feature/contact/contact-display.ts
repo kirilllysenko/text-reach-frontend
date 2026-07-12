@@ -1,10 +1,6 @@
 import type { ContactGroupDto } from "$lib/api/index.schemas";
-import type {
-  ContactDtoLike,
-  ContactSortField,
-  ContactSortRule,
-  ContactViewModel,
-} from "$lib/feature/contact/contact-view-data";
+import type { ContactDtoLike, ContactViewModel } from "$lib/feature/contact/contact-view-data";
+import type { ContactTableSort } from "$lib/feature/contact/contact-sorting";
 
 export const defaultContactGroupNameById: Record<string, string> = {
   "mock-group-1": "High Value Customers",
@@ -130,13 +126,13 @@ export function filterMockContactList(
   });
 }
 
-export function sortContactList(contacts: ContactViewModel[], sortRules: ContactSortRule[]): ContactViewModel[] {
+export function sortContactList(contacts: ContactViewModel[], sorts: readonly ContactTableSort[]): ContactViewModel[] {
   return [...contacts].sort((left, right) => {
-    for (const rule of sortRules) {
-      const result = compareContactField(left, right, rule.field);
+    for (const sort of sorts) {
+      const result = compareContactField(left, right, sort.sortId);
 
       if (result !== 0) {
-        return rule.direction === "ASC" ? result : -result;
+        return sort.direction === "ascending" ? result : -result;
       }
     }
 
@@ -144,7 +140,11 @@ export function sortContactList(contacts: ContactViewModel[], sortRules: Contact
   });
 }
 
-function compareContactField(left: ContactViewModel, right: ContactViewModel, field: ContactSortField): number {
+function compareContactField(
+  left: ContactViewModel,
+  right: ContactViewModel,
+  field: ContactTableSort["sortId"],
+): number {
   return String(left[field] ?? "").localeCompare(String(right[field] ?? ""), undefined, {
     numeric: true,
     sensitivity: "base",

@@ -3,21 +3,25 @@
   import {
     CONTACT_IMPORT_IGNORE,
     type ContactImportMappingValue,
-    type ContactImportPreviewColumn,
-  } from "./contact-import";
-  import type { ContactImportState } from "./contact-import-state.svelte";
+    type ContactImportMappingState,
+  } from "./contact-import-mapping.svelte";
+  import type { ContactImportPreviewColumn } from "./contact-import-file";
 
   interface Props {
-    contactImport: ContactImportState;
+    mapping: ContactImportMappingState;
+    options: DropdownOption<ContactImportMappingValue>[];
     column: ContactImportPreviewColumn;
+    onChange: () => void;
   }
 
-  let { contactImport, column }: Props = $props();
+  let { mapping, options, column, onChange }: Props = $props();
 
-  const mapping = $derived(contactImport.mappings[column.index] ?? CONTACT_IMPORT_IGNORE);
+  const selectedMapping = $derived(mapping.mappings[column.index] ?? CONTACT_IMPORT_IGNORE);
+  const selectedOption = $derived(options.find((option) => option.id === selectedMapping) ?? options[0]);
 
   function updateMapping(option: DropdownOption<ContactImportMappingValue>): void {
-    contactImport.updateMapping(column.index, option.id);
+    mapping.updateMapping(column.index, option.id);
+    onChange();
   }
 </script>
 
@@ -30,8 +34,8 @@
   </div>
 
   <Select
-    options={contactImport.mappingOptions}
-    value={contactImport.getMappingOption(mapping)}
+    {options}
+    value={selectedOption}
     inputId={`contact-import-column-${column.index}`}
     popupVisibleItems={7}
     onChange={updateMapping}

@@ -1,29 +1,31 @@
 import type { ErrorResponse } from "$lib/api/index.schemas";
 import { countContacts as countContactList, fetchContacts as fetchContactList } from "$lib/api/contact/contact";
 import {
-  DatagridCore,
+  createDatagrid,
   type DataField,
   type DataTableLoadRequest,
   type DataTableLoadResult,
-  type DataTableSort,
 } from "$lib/components/table";
 import { toContactViewModel } from "$lib/feature/contact/contact-display";
 import { buildContactFilter, buildContactRequest } from "$lib/feature/contact/contact-query";
+import {
+  contactSortDefinitions,
+  defaultContactSorts,
+  type ContactTableSort,
+} from "$lib/feature/contact/contact-sorting";
 import type { ContactViewModel } from "$lib/feature/contact/contact-view-data";
-import { createContactFilterDefinitions, getContactTableFilters, type ContactTableFilters } from "../filter/filter.svelte";
-import { contactSortDefinitions, getContactSortRules } from "../sort/sort.svelte";
+import {
+  createContactFilterDefinitions,
+  getContactTableFilters,
+  type ContactTableFilters,
+} from "../filter/filter.svelte";
 import { createContactColumns } from "./column.svelte";
 
 const PAGE_SIZE = 500;
-const initialSorting = [
-  { sortId: "lastName", direction: "ascending" },
-  { sortId: "firstName", direction: "ascending" },
-] satisfies DataTableSort[];
-
 export const table = createContactTable();
 
-function createContactTable(): DatagridCore<ContactViewModel> {
-  return new DatagridCore<ContactViewModel>({
+function createContactTable() {
+  return createDatagrid<ContactViewModel>()({
     columns: createContactColumns(),
     data: [],
     dataFields: createContactDataFields(),
@@ -40,14 +42,16 @@ function createContactTable(): DatagridCore<ContactViewModel> {
       },
       sorting: {
         sortDefinitions: contactSortDefinitions,
-        sorts: initialSorting,
+        sorts: defaultContactSorts,
       },
     },
     rowIdGetter: (contact: ContactViewModel) => contact.id,
   });
 }
 
-async function fetchContactRows(request: DataTableLoadRequest): Promise<DataTableLoadResult<ContactViewModel>> {
+async function fetchContactRows(
+  request: DataTableLoadRequest<ContactTableSort["sortId"]>,
+): Promise<DataTableLoadResult<ContactViewModel>> {
   const filters = getContactTableFilters(request.filters);
   const totalRows = await fetchContactCount(filters, request.signal);
 
@@ -60,7 +64,7 @@ async function fetchContactRows(request: DataTableLoadRequest): Promise<DataTabl
     contactGroupIds: filters.contactGroupIds,
     birthdayAfter: filters.birthdayAfter,
     emailContains: filters.emailContains,
-    sortRules: getContactSortRules(request.sorts),
+    sorts: request.sorts,
   });
 
   try {

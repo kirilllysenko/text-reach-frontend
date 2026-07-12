@@ -7,7 +7,7 @@ import { BaseService } from './base-service';
  *
  * @extends BaseService
  */
-export class EditingService<TSortId extends string = string> extends BaseService<TSortId> {
+export class EditingService<TSortId extends string = string> extends BaseService<any, TSortId> {
 	/**
 	 * Updates the value of a specific cell in the grid and triggers necessary actions, such as refreshing the grid or invalidating caches.
 	 *

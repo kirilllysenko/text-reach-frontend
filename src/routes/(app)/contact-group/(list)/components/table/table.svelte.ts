@@ -1,19 +1,21 @@
-import { DatagridCore, type DataField, type DataTableSort } from "$lib/components/table";
+import { createDatagrid, type DataField } from "$lib/components/table";
 import type { ContactGroupState } from "$lib/feature/contact-group/contact-group-state.svelte";
+import {
+  contactGroupSortDefinitions,
+  defaultContactGroupSorts,
+  type ContactGroupTableSort,
+} from "$lib/feature/contact-group/contact-group-sorting";
 import type { ContactGroupViewModel } from "$lib/feature/contact-group/contact-group-view-data";
 import { createContactGroupColumns } from "./column.svelte";
 import { contactGroupFilterDefinitions } from "./filter.svelte";
-import { contactGroupSortDefinitions } from "./sort.svelte";
 
 const PAGE_SIZE = 500;
-const initialSorting = [{ sortId: "name", direction: "ascending" }] satisfies DataTableSort[];
-
 interface ContactGroupTableOptions {
   contactGroupState: ContactGroupState;
 }
 
-export function createContactGroupTable(props: ContactGroupTableOptions): DatagridCore<ContactGroupViewModel> {
-  return new DatagridCore<ContactGroupViewModel>({
+export function createContactGroupTable(props: ContactGroupTableOptions) {
+  return createDatagrid<ContactGroupViewModel>()({
     columns: createContactGroupColumns(),
     data: [],
     dataFields: createContactGroupDataFields(),
@@ -30,7 +32,7 @@ export function createContactGroupTable(props: ContactGroupTableOptions): Datagr
       },
       sorting: {
         sortDefinitions: contactGroupSortDefinitions,
-        sorts: initialSorting,
+        sorts: defaultContactGroupSorts,
       },
     },
     rowIdGetter: (contactGroup) => contactGroup.id,

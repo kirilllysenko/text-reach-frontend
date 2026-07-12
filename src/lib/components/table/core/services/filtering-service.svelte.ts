@@ -4,7 +4,7 @@ import { BaseService } from "./base-service";
 /**
  * Service for mutating active filters in the data grid.
  */
-export class FilteringService<TSortId extends string = string> extends BaseService<TSortId> {
+export class FilteringService<TSortId extends string = string> extends BaseService<any, TSortId> {
   get filters(): DataTableFilter[] {
     return this.datagrid.features.filtering.filters;
   }

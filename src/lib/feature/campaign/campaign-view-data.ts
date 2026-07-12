@@ -1,4 +1,11 @@
-import { CampaignStatus as CampaignStatusEnum, type CampaignDto, type SortDirection } from "$lib/api/index.schemas";
+import { CampaignStatus as CampaignStatusEnum, type CampaignDto, type CampaignSortDto } from "$lib/api/index.schemas";
+import {
+  sortDefinition,
+  type DataTableSortDefinition,
+  type DataTableSortFromDefinitions,
+  type DataTableSortIdFromDefinitions,
+} from "$lib/components/table";
+import type { SortDtoField } from "$lib/utils/table-sort";
 
 export type CampaignStatus = CampaignDto["status"];
 
@@ -16,14 +23,6 @@ export interface CampaignViewModel {
   fromPhoneNumber: string;
 }
 
-export type CampaignSortField = "createdAt" | "name" | "status" | "messageCount" | "sentMessageCount";
-
-export interface SortRule {
-  id: string;
-  field: CampaignSortField;
-  direction: SortDirection;
-}
-
 export const statusLabelMap: Record<NonNullable<CampaignStatus>, string> = {
   [CampaignStatusEnum.PENDING]: "Pending",
   [CampaignStatusEnum.SENDING]: "Sending",
@@ -32,14 +31,6 @@ export const statusLabelMap: Record<NonNullable<CampaignStatus>, string> = {
   [CampaignStatusEnum.CANCELLED_BY_USER]: "Cancelled By User",
   [CampaignStatusEnum.CANCELLED_BY_TIMEOUT]: "Cancelled By Timeout",
   [CampaignStatusEnum.SENT]: "Sent",
-};
-
-export const sortFieldLabelMap: Record<CampaignSortField, string> = {
-  createdAt: "Created Date",
-  name: "Name",
-  status: "Status",
-  messageCount: "All Messages",
-  sentMessageCount: "Sent Messages",
 };
 
 export const campaignStatusOptions: NonNullable<CampaignStatus>[] = [
@@ -52,10 +43,20 @@ export const campaignStatusOptions: NonNullable<CampaignStatus>[] = [
   CampaignStatusEnum.SENT,
 ];
 
-export const campaignSortFieldOptions: CampaignSortField[] = [
-  "createdAt",
-  "name",
-  "status",
-  "messageCount",
-  "sentMessageCount",
-];
+export const campaignSortDefinitions = [
+  sortDefinition({ sortId: "createdAt", label: "Created Date", defaultDirection: "descending" }),
+  sortDefinition({ sortId: "name", label: "Name" }),
+  sortDefinition({ sortId: "status", label: "Status" }),
+  sortDefinition({ sortId: "messageCount", label: "All Messages" }),
+  sortDefinition({ sortId: "sentMessageCount", label: "Sent Messages" }),
+] as const satisfies readonly DataTableSortDefinition<SortDtoField<CampaignSortDto>>[];
+
+export type CampaignTableSort = DataTableSortFromDefinitions<typeof campaignSortDefinitions>;
+export type CampaignSortId = DataTableSortIdFromDefinitions<typeof campaignSortDefinitions>;
+
+export const defaultCampaignSorts = [
+  {
+    sortId: campaignSortDefinitions[0].sortId,
+    direction: campaignSortDefinitions[0].defaultDirection,
+  },
+] satisfies CampaignTableSort[];

@@ -49,7 +49,7 @@ export class DatagridCore<TOriginalRow = any, TMeta = any, TSortId extends strin
   /**
    * Manages event handlers for the grid.
    */
-  readonly handlers: HandlersManager<TSortId>;
+  readonly handlers: HandlersManager<TOriginalRow, TSortId>;
 
   /**
    * Unique identifier for the grid instance.
@@ -144,7 +144,7 @@ export class DatagridCore<TOriginalRow = any, TMeta = any, TSortId extends strin
    */
   constructor(config: DatagridCoreConfig<TOriginalRow, ColumnDef<TOriginalRow, TMeta>, TSortId>, lazyInitialization: boolean = false) {
     this.events = new EventService();
-    this.handlers = new HandlersManager(this, this.events);
+    this.handlers = new HandlersManager<TOriginalRow, TSortId>(this, this.events);
     this.features = new DatagridFeatures(this, config);
 
     this.measurePerformance = config?.measurePerformance ?? this.measurePerformance;

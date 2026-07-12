@@ -4,7 +4,7 @@ import type { EventService } from "./event-service";
 /**
  * Base class for service operations related to the datagrid, providing shared functionality such as refreshing the grid.
  */
-export class BaseService<TSortId extends string = string> {
+export class BaseService<TOriginalRow = any, TSortId extends string = string> {
     /**
      * Creates an instance of the BaseService class.
      * 
@@ -12,7 +12,7 @@ export class BaseService<TSortId extends string = string> {
      * @param {EventService} events The event service used for emitting events.
      */
     constructor(
-        protected datagrid: DatagridCore<any, any, TSortId>,
+        protected datagrid: DatagridCore<TOriginalRow, any, TSortId>,
         protected events: EventService
     ) {}
 

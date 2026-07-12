@@ -1,24 +1,19 @@
 <script lang="ts">
-  import { Button, ResponsiveDialog, SortPanel, type DataTableSortDefinition, type SortPanelController } from "$lib";
+  import { Button, ResponsiveDialog, SortPanel, type SortPanelController } from "$lib";
+  import { contactSortDefinitions, type ContactTableSort } from "$lib/feature/contact/contact-sorting";
   import Sort from "$lib/icons/Sort.svelte";
 
-  interface SortingServiceController extends SortPanelController {
-    sortDefinitions: readonly DataTableSortDefinition[];
-  }
-
   interface Props {
-    sorting: SortingServiceController;
+    sorting: SortPanelController<ContactTableSort["sortId"]>;
   }
 
   let { sorting }: Props = $props();
   let open = $state(false);
 
-  const sortFieldOptions = $derived(
-    sorting.sortDefinitions.map((definition) => ({
-      value: definition.sortId,
-      label: definition.label ?? definition.sortId,
-    })),
-  );
+  const sortFieldOptions = contactSortDefinitions.map((definition) => ({
+    value: definition.sortId,
+    label: definition.label ?? definition.sortId,
+  }));
 
   function openSort(): void {
     open = true;

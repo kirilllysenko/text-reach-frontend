@@ -4,11 +4,10 @@ import {
   NestedOperator,
   PageDirection,
   type CampaignFilterDto,
-  type CampaignSortDto,
   type PageRequestCampaignFilterDtoCampaignSortDto,
-  type Sort,
 } from "$lib/api/index.schemas";
-import type { CampaignStatus, SortRule } from "$lib/feature/campaign/campaign-view-data";
+import type { CampaignStatus, CampaignTableSort } from "$lib/feature/campaign/campaign-view-data";
+import { tableSortsToDto } from "$lib/utils/table-sort";
 
 interface CampaignRequestOptions {
   pageSize: number;
@@ -18,7 +17,7 @@ interface CampaignRequestOptions {
   createdAfter: string;
   minSentMessageCount: string;
   minMessageCount: string;
-  sortRules: SortRule[];
+  sorts: readonly CampaignTableSort[];
 }
 
 export function buildCampaignRequest(options: CampaignRequestOptions): PageRequestCampaignFilterDtoCampaignSortDto {
@@ -32,7 +31,7 @@ export function buildCampaignRequest(options: CampaignRequestOptions): PageReque
         }
       : undefined,
     filter: buildCampaignFilter(options),
-    sort: buildCampaignSort(options.sortRules),
+    sort: tableSortsToDto(options.sorts),
   };
 }
 
@@ -109,14 +108,4 @@ function buildCampaignFilter(options: CampaignRequestOptions): CampaignFilterDto
     operator: NestedOperator.AND,
     nested,
   };
-}
-
-function buildCampaignSort(sortRules: SortRule[]): CampaignSortDto {
-  return sortRules.reduce<CampaignSortDto>((acc, rule, index) => {
-    acc[rule.field] = {
-      order: index + 1,
-      direction: rule.direction,
-    } satisfies Sort;
-    return acc;
-  }, {});
 }

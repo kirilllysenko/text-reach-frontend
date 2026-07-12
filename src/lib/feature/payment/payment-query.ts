@@ -5,13 +5,12 @@ import {
   PageDirection,
   TextOperator,
   type PageRequestWalletTransactionFilterDtoWalletTransactionSortDto,
-  type Sort,
   type WalletTransactionFilterDto,
-  type WalletTransactionSortDto,
 } from "$lib/api/index.schemas";
 import type { DataTableFilter } from "$lib/components/table";
+import { tableSortsToDto } from "$lib/utils/table-sort";
 import { dollarsToUsdMicros } from "./payment-display";
-import type { WalletTransactionSortRule } from "./payment-view-data";
+import { defaultWalletTransactionSorts, type WalletTransactionTableSort } from "./payment-view-data";
 
 const ULID_PATTERN = /^[0-9A-HJKMNP-TV-Z]{26}$/i;
 
@@ -21,7 +20,7 @@ interface WalletTransactionRequestOptions {
   direction?: "next" | "previous";
   idSearch: string;
   filters: DataTableFilter[];
-  sortRules: WalletTransactionSortRule[];
+  sorts: WalletTransactionTableSort[];
 }
 
 export function buildWalletTransactionRequest(
@@ -31,7 +30,7 @@ export function buildWalletTransactionRequest(
     pageSize: options.pageSize,
     position: buildPosition(options),
     filter: buildWalletTransactionFilter(options.idSearch, options.filters),
-    sort: buildWalletTransactionSort(options.sortRules),
+    sort: tableSortsToDto(options.sorts.length > 0 ? options.sorts : defaultWalletTransactionSorts),
   };
 }
 
@@ -96,16 +95,6 @@ function buildPosition(
   }
 
   return undefined;
-}
-
-function buildWalletTransactionSort(sortRules: WalletTransactionSortRule[]): WalletTransactionSortDto {
-  return sortRules.reduce<WalletTransactionSortDto>((acc, rule, index) => {
-    acc[rule.field] = {
-      order: index + 1,
-      direction: rule.direction,
-    } satisfies Sort;
-    return acc;
-  }, {});
 }
 
 function toWalletTransactionFilter(filter: DataTableFilter): WalletTransactionFilterDto | null {

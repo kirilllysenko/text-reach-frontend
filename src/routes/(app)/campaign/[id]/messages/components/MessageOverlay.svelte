@@ -10,14 +10,15 @@
   } from "$lib";
   import type { CampaignMessagesState } from "$lib/feature/message/message-state.svelte";
   import {
-    messageSortFieldLabelMap,
+    messageSortDefinitions,
     messageStatusLabelMap,
     messageStatusOptions,
+    type MessageSortId,
   } from "$lib/feature/message/message-view-data";
 
   interface Props {
     filtering: FilteringService;
-    sorting: SortPanelController;
+    sorting: SortPanelController<MessageSortId>;
     state: CampaignMessagesState;
   }
 
@@ -76,12 +77,10 @@
     ],
   }));
 
-  const sortFieldOptions = $derived(
-    state.sortFieldOptions.map((field) => ({
-      value: field,
-      label: messageSortFieldLabelMap[field],
-    })),
-  );
+  const sortFieldOptions = messageSortDefinitions.map(({ sortId, label }) => ({
+    value: sortId,
+    label: label ?? sortId,
+  }));
 </script>
 
 <ResponsiveDialog

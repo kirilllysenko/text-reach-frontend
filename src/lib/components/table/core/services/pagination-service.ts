@@ -35,7 +35,10 @@ export type PaginationOperations = {
  * 
  * @extends BaseService
  */
-export class PaginationService<TSortId extends string = string> extends BaseService<TSortId> implements PaginationOperations {
+export class PaginationService<TSortId extends string = string>
+  extends BaseService<any, TSortId>
+  implements PaginationOperations
+{
 
     /**
      * Navigates to the previous page in the data grid.

@@ -1,8 +1,9 @@
 import { isGroupColumn } from "../helpers/column-guards";
 import type { DatagridCore } from "../index.svelte";
-import type { Aggregation, AggregationFn, DataTableFilter, GridGroupRow, GridRow } from "../types";
+import type { Aggregation, GridGroupRow, GridRow } from "../row-types";
+import type { AggregationFn, AccessorColumn, ComputedColumn } from "../column-types";
+import type { DataTableFilter } from "../features/column-filtering.svelte";
 import type { PerformanceMetrics } from "../helpers/performance-metrics.svelte";
-import type { AccessorColumn, ComputedColumn } from "../types";
 import { aggregationFunctions } from "../helpers/aggregation-functions";
 import { applySorting } from "./apply-sorting";
 import { findColumnById, flattenColumnStructureAndClearGroups } from "../utils.svelte";

@@ -1,4 +1,4 @@
-import type { DataTableLoadReason, DataTableLoadResult } from "../types";
+import type { DataTableLoadReason, DataTableLoadResult } from "../features/data-loading.svelte";
 import { BaseService } from "./base-service";
 
 export class DataLoadingService extends BaseService {

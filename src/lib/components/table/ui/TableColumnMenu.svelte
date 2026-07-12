@@ -1,6 +1,6 @@
 <script lang="ts" generics="TData">
   import type { DatagridCore } from "../core/index.svelte";
-  import type { LeafColumn } from "../core/types";
+  import type { LeafColumn } from "../core/column-types";
 
   interface Props {
     column: LeafColumn<TData>;

@@ -1,5 +1,120 @@
 import type { DatagridCore } from "../index.svelte";
-import type { DataTableFilter, DataTableFilterDefinition } from "../types";
+import type { Snippet } from "svelte";
+
+export type DataTableTextOperator = "CONTAINS" | "NOT_CONTAINS" | "STARTS_WITH" | "ENDS_WITH" | "EQUAL" | "NOT_EQUAL";
+
+export type DataTableComparisonOperator =
+  | "EQUAL"
+  | "NOT_EQUAL"
+  | "GREATER_THAN"
+  | "LESS_THAN"
+  | "GREATER_OR_EQUAL"
+  | "LESS_OR_EQUAL";
+
+export type DataTableContainmentOperator = "IN" | "NOT_IN";
+
+export interface DataTableBaseFilter<TFilterId extends string = string> {
+  filterId: TFilterId;
+}
+
+export interface DataTableTextFilter<TFilterId extends string = string> extends DataTableBaseFilter<TFilterId> {
+  type: "text";
+  operator: DataTableTextOperator;
+  value: string | null;
+}
+
+export interface DataTableComparisonFilter<TFilterId extends string = string> extends DataTableBaseFilter<TFilterId> {
+  type: "comparison";
+  operator: DataTableComparisonOperator;
+  value?: string | number;
+}
+
+export interface DataTableContainmentFilter<TFilterId extends string = string> extends DataTableBaseFilter<TFilterId> {
+  type: "containment";
+  operator: DataTableContainmentOperator;
+  value: string[];
+}
+
+export type DataTableFilter<TFilterId extends string = string> =
+  | DataTableTextFilter<TFilterId>
+  | DataTableComparisonFilter<TFilterId>
+  | DataTableContainmentFilter<TFilterId>;
+
+export interface FilterDefinitionSnippetProps {
+  filter: DataTableFilter | null;
+  value: DataTableFilter["value"] | null;
+  getValue: () => DataTableFilter["value"] | null;
+  setValue: (nextValue: DataTableFilter["value"] | null | undefined) => void;
+  clear: () => void;
+}
+
+export interface DataTableBaseFilterDefinition<TFilterId extends string = string> {
+  filterId: TFilterId;
+  formatValue?: (value: DataTableFilter["value"], filter: DataTableFilter) => string;
+  fieldId?: string;
+  hidden?: boolean;
+  label?: string;
+  snippet?: Snippet<[FilterDefinitionSnippetProps]>;
+}
+
+export interface DataTableTextFilterDefinition<
+  TFilterId extends string = string,
+> extends DataTableBaseFilterDefinition<TFilterId> {
+  type: "text";
+  defaultOperator?: DataTableTextOperator;
+  operators?: readonly DataTableTextOperator[];
+}
+
+export interface DataTableComparisonFilterDefinition<
+  TFilterId extends string = string,
+> extends DataTableBaseFilterDefinition<TFilterId> {
+  type: "comparison";
+  defaultOperator?: DataTableComparisonOperator;
+  operators?: readonly DataTableComparisonOperator[];
+}
+
+export interface DataTableContainmentFilterDefinition<
+  TFilterId extends string = string,
+> extends DataTableBaseFilterDefinition<TFilterId> {
+  type: "containment";
+  defaultOperator?: DataTableContainmentOperator;
+  operators?: readonly DataTableContainmentOperator[];
+}
+
+export type DataTableFilterDefinition<TFilterId extends string = string> =
+  | DataTableTextFilterDefinition<TFilterId>
+  | DataTableComparisonFilterDefinition<TFilterId>
+  | DataTableContainmentFilterDefinition<TFilterId>;
+
+export type DataTableFilterFromDefinition<TDefinition> =
+  TDefinition extends DataTableTextFilterDefinition<infer TFilterId>
+    ? DataTableTextFilter<TFilterId>
+    : TDefinition extends DataTableComparisonFilterDefinition<infer TFilterId>
+      ? DataTableComparisonFilter<TFilterId>
+      : TDefinition extends DataTableContainmentFilterDefinition<infer TFilterId>
+        ? DataTableContainmentFilter<TFilterId>
+        : never;
+
+export type DataTableFilterFromDefinitions<TDefinitions extends readonly DataTableFilterDefinition[]> =
+  DataTableFilterFromDefinition<TDefinitions[number]>;
+
+export function textFilter<const TFilterId extends string>(
+  definition: Omit<DataTableTextFilterDefinition<TFilterId>, "type">,
+): DataTableTextFilterDefinition<TFilterId> {
+  return { ...definition, type: "text" };
+}
+
+export function comparisonFilter<const TFilterId extends string>(
+  definition: Omit<DataTableComparisonFilterDefinition<TFilterId>, "type">,
+): DataTableComparisonFilterDefinition<TFilterId> {
+  return { ...definition, type: "comparison" };
+}
+
+export function containmentFilter<const TFilterId extends string>(
+  definition: Omit<DataTableContainmentFilterDefinition<TFilterId>, "type">,
+): DataTableContainmentFilterDefinition<TFilterId> {
+  return { ...definition, type: "containment" };
+}
 
 export type ColumnFilteringState<TFilter extends DataTableFilter = DataTableFilter> = {
   filterDefinitions: readonly DataTableFilterDefinition[];

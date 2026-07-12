@@ -1,5 +1,5 @@
 import type { DatagridCore } from "../index.svelte";
-import type { ColumnId, LeafColumn } from "../types";
+import type { ColumnId, LeafColumn } from "../column-types";
 import { findColumnById, flattenColumnStructureAndClearGroups } from "../utils.svelte";
 
 /**

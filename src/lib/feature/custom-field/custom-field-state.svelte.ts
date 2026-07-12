@@ -10,6 +10,7 @@ import {
   type CustomFieldSortRule,
   type CustomFieldViewModel,
 } from "$lib/feature/custom-field/custom-field-view-data";
+import { debounce } from "$lib/utils/debounce";
 import {
   createMockCustomFieldList,
   filterCustomFieldList,
@@ -37,7 +38,9 @@ export class CustomFieldState {
   sortOpen = $state(false);
   tableKey = $state(0);
 
-  private searchTimer: ReturnType<typeof setTimeout> | null = null;
+  private readonly scheduleRefresh = debounce(() => {
+    this.refreshTable();
+  }, SEARCH_DEBOUNCE_MS);
   private loaded = false;
   private fields = $state<CustomFieldViewModel[]>([]);
 
@@ -143,7 +146,7 @@ export class CustomFieldState {
       await this.load();
     }
 
-    const fields = this.getFilteredFields(request.sorting, request.filters);
+    const fields = this.getFilteredFields(request.sorts, request.filters);
     const start = Number(request.cursor?.[0] ?? 0);
     const end = start + request.limit;
     const rows = fields.slice(start, end);
@@ -158,23 +161,8 @@ export class CustomFieldState {
   };
 
   dispose = (): void => {
-    if (!this.searchTimer) {
-      return;
-    }
-
-    clearTimeout(this.searchTimer);
-    this.searchTimer = null;
+    this.scheduleRefresh.cancel();
   };
-
-  private scheduleRefresh(): void {
-    if (this.searchTimer) {
-      clearTimeout(this.searchTimer);
-    }
-
-    this.searchTimer = setTimeout(() => {
-      this.refreshTable();
-    }, SEARCH_DEBOUNCE_MS);
-  }
 
   private refreshTable(): void {
     this.tableKey += 1;

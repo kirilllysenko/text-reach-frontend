@@ -1,13 +1,39 @@
 import type { DatagridCore } from "../index.svelte";
-import type {
-  DataTableLoadReason,
-  DataTableLoadRequest,
-  DataTableLoadResult,
-  DataTableLoader,
-  DataTablePageRequest,
-  EventPayloadMap,
-  OnPageChangePayload,
-} from "../types";
+import type { DataTableCursor, DataTablePageDirection, DataTablePageRequest } from "./pagination.svelte";
+import type { DataTableFilter } from "./column-filtering.svelte";
+import type { DataTableSort } from "./sorting.svelte";
+import type { EventPayloadMap, OnPageChangePayload } from "../services/event-service";
+
+export interface DataTableLoadRequest {
+  cursor: DataTableCursor;
+  direction?: DataTablePageDirection;
+  filters: DataTableFilter[];
+  limit: number;
+  offset?: number;
+  page?: number;
+  signal?: AbortSignal;
+  sorts: DataTableSort[];
+}
+
+export interface DataTableLoadResult<TData> {
+  nextCursor: DataTableCursor;
+  previousCursor?: DataTableCursor;
+  rows: TData[];
+  totalRows: number;
+}
+
+export type DataTableLoadReason =
+  | "filtering"
+  | "initial"
+  | "pagination"
+  | "pagination-size"
+  | "reload"
+  | "search"
+  | "sorting";
+
+export type DataTableLoader<TData> = (
+  request: DataTableLoadRequest,
+) => DataTableLoadResult<TData> | Promise<DataTableLoadResult<TData>>;
 
 /**
  * Runtime state and configuration for server-backed table rows.
@@ -243,7 +269,7 @@ export class DataLoadingFeature<TOriginalRow = any> implements DataLoadingFeatur
       ...(typeof pageRequest.offset === "number" ? { offset: pageRequest.offset } : {}),
       page: pageRequest.page,
       signal,
-      sorting: this.datagrid.features.sorting.sorts,
+      sorts: this.datagrid.features.sorting.sorts,
     } satisfies DataTableLoadRequest;
   }
 

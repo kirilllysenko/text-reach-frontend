@@ -1,5 +1,5 @@
 import { DEFAULT_COLUMN_SIZE, DEFAULT_NOT_DEFINED_COLUMN_SIZE } from "../defaults";
-import type { ComputedColumn } from "../types";
+import type { ComputedColumn } from "../column-types";
 import { isColumnFilterable, isColumnSortable, isColumnVisible } from "./column-methods";
 import type { CreateComputeColumnProps } from "./types";
 
@@ -7,28 +7,28 @@ import type { CreateComputeColumnProps } from "./types";
  * Generates a unique column ID for a computed column based on the provided `columnId` or `header`.
  * If neither is provided, an error is thrown.
  * If only `header` is provided, the header is sanitized by converting it to lowercase and replacing spaces with underscores.
- * 
+ *
  * @param {Object} params - The parameters to create the column ID.
  * @param {string} [params.columnId] - An optional explicit column ID.
  * @param {string} [params.header] - An optional header text to generate a column ID if no `columnId` is provided.
  * @throws {Error} Throws an error if neither `columnId` nor `header` is provided.
  * @returns {string} The unique column ID for the computed column.
  */
-const createComputedColumnColumnId = ({ columnId, header }: { columnId?: string, header?: string }): string => {
+const createComputedColumnColumnId = ({ columnId, header }: { columnId?: string; header?: string }): string => {
   if (columnId) return columnId;
   if (header) return header.toLowerCase().replace(/\s+/g, "_"); // Fallback to a sanitized header
   throw new Error("A valid columnId, header must be provided to create a computed column.");
-}
+};
 
 /**
  * Creates a new computed column object, which represents a column that dynamically computes its value.
  * This function constructs the computed column by validating properties, generating the column ID,
  * and setting default options and state. It includes helper methods like `isVisible`, `isSortable`,
  * and `isFilterable` to check properties of the column.
- * 
+ *
  * @template TOriginalRow - The type representing the original row data structure.
  * @template TMeta - The type for metadata associated with the computed column.
- * 
+ *
  * @param {CreateComputeColumnProps<TOriginalRow, TMeta>} props - The properties used to define the computed column.
  * @param {string} props.header - The header text for the computed column.
  * @param {string} [props.columnId] - An optional explicit column ID for the computed column.
@@ -38,18 +38,25 @@ const createComputedColumnColumnId = ({ columnId, header }: { columnId?: string,
  * @param {Object} [props.options] - Optional configuration options for the computed column.
  * @param {Object} [props.state] - Optional state for the computed column, including visibility and size.
  * @param {Object} [rest] - Any additional properties passed for further customization.
- * 
+ *
  * @returns {ComputedColumn<TOriginalRow>} The created computed column object.
  */
-export function createComputedColumn<TOriginalRow extends Record<string, any>, TMeta>(
-  { header, columnId, getValueFn, _meta , align, options, state, ...rest }: CreateComputeColumnProps<TOriginalRow, TMeta>
-): ComputedColumn<TOriginalRow> {
+export function createComputedColumn<TOriginalRow extends Record<string, any>, TMeta>({
+  header,
+  columnId,
+  getValueFn,
+  _meta,
+  align,
+  options,
+  state,
+  ...rest
+}: CreateComputeColumnProps<TOriginalRow, TMeta>): ComputedColumn<TOriginalRow> {
   // Generate the column ID for the computed column
   const computedColumnId = createComputedColumnColumnId({ header, columnId });
 
   // Return the constructed computed column object
   return {
-    type: 'computed', // This is a computed column type
+    type: "computed", // This is a computed column type
     header, // The header text for the computed column
     columnId: computedColumnId, // The unique column ID
     parentColumnId: rest.parentColumnId || null, // Optional parent column ID for nested columns
@@ -69,12 +76,12 @@ export function createComputedColumn<TOriginalRow extends Record<string, any>, T
       size: state?.size ?? DEFAULT_NOT_DEFINED_COLUMN_SIZE, // Default column size
       visible: state?.visible ?? true, // Default visibility state for the column
       pinning: {
-        position: state?.pinning?.position ?? 'none', // Default pinning position
+        position: state?.pinning?.position ?? "none", // Default pinning position
         offset: 0, // Default pinning offset
       },
     },
-    align: align ?? 'left', // Default alignment is 'left'
-    _meta: _meta as TMeta ?? {} as TMeta, // Metadata for the computed column
+    align: align ?? "left", // Default alignment is 'left'
+    _meta: (_meta as TMeta) ?? ({} as TMeta), // Metadata for the computed column
     ...rest, // Any additional custom properties
     // Helper methods to check column properties
     isVisible(): boolean {

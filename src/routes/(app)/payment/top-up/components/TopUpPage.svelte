@@ -192,18 +192,14 @@
 
       <div class="grid grid-cols-2 gap-2">
         {#each PRESET_AMOUNTS as amount (amount)}
-          <button
-            class={[
-              `h-11 rounded-xl border px-3 text-sm font-semibold shadow-sm hover:cursor-pointer`,
-              selectedPreset === amount && !customAmount
-                ? "text-sky-800 border-sky-300 bg-sky-50"
-                : "border-white/80 bg-white/90 text-slate-700 hover:bg-white",
-            ]}
-            type="button"
+          <Button
+            variant="secondary"
+            active={selectedPreset === amount && !customAmount}
+            class="h-11 rounded-xl px-3 text-sm font-semibold"
             onclick={() => selectPreset(amount)}
           >
             {formatUsdMicros(dollarsToUsdMicros(amount))}
-          </button>
+          </Button>
         {/each}
       </div>
 

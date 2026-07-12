@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
   import { onMount } from "svelte";
   import { BackButton, Button, Field, FieldError, FieldLabel, Input, PageTitle } from "$lib";
   import { PATH_CONTACT } from "$lib/app/paths";
@@ -9,15 +8,21 @@
     type CustomFieldDto,
     type CustomFieldType,
   } from "$lib/api/index.schemas";
-  import { createContact, getContact, updateContact } from "$lib/api/contact/contact";
+  import { getContact } from "$lib/api/contact/contact";
   import { fetchContactGroups as fetchContactGroupList } from "$lib/api/contact-group/contact-group";
   import { listCustomFields as listCustomFieldList } from "$lib/api/custom-field/custom-field";
-  import type { ContactCreateDto, ErrorResponse, Ulid } from "$lib/api/index.schemas";
+  import type { ErrorResponse, Ulid } from "$lib/api/index.schemas";
   import { networkErrorText, toErrorText } from "$lib/form/errors";
-  import { notificationsState } from "$lib/state/notifications.svelte";
   import { customFieldTypeLabelMap } from "$lib/feature/custom-field/custom-field-view-data";
-
-  type FormMode = "create" | "edit";
+  import {
+    configureContactForm,
+    form,
+    serializeContactPayload,
+    setContactCustomFields,
+    setContactFormValues,
+    toggleContactGroup,
+    type FormMode,
+  } from "./form.svelte";
 
   interface Props {
     id?: string;
@@ -26,29 +31,19 @@
 
   let { id, mode }: Props = $props();
 
-  let firstName = $state("");
-  let lastName = $state("");
-  let phoneNumber = $state("");
-  let email = $state("");
-  let birthday = $state("");
-  let notes = $state("");
-  let selectedContactGroupIds = $state<string[]>([]);
   let contactGroupList = $state<ContactGroupDto[]>([]);
   let customFields = $state<CustomFieldDto[]>([]);
-  let customFieldValues = $state<Record<string, string>>({});
-  let phoneNumberError = $state<string | null>(null);
-  let formError = $state<string | null>(null);
   let metadataError = $state<string | null>(null);
   let initialPayload = $state("");
   let loadingForm = $state(false);
-  let saving = $state(false);
 
   const title = $derived(mode === "create" ? "Add contact" : "Edit contact");
   const submitLabel = $derived(mode === "create" ? "Create" : "Save");
-  const formDirty = $derived(serializePayload() !== initialPayload);
-  const submitDisabled = $derived(saving || loadingForm || (mode === "edit" && !formDirty));
+  const formDirty = $derived(serializeContactPayload() !== initialPayload);
+  const submitDisabled = $derived(form.loading || loadingForm || (mode === "edit" && !formDirty));
 
   onMount(() => {
+    configureContactForm({ id, mode });
     void loadFormData();
   });
 
@@ -56,45 +51,9 @@
     return error?.errorDescription ?? toErrorText(error?.errorCode);
   }
 
-  function optionalText(value: string): string | null {
-    const normalized = value.trim();
-    return normalized || null;
-  }
-
-  function serializePayload(): string {
-    return JSON.stringify(toPayload());
-  }
-
-  function toPayload(): ContactCreateDto {
-    return {
-      birthday: optionalText(birthday),
-      contactGroupIds: selectedContactGroupIds,
-      customFields: customFields.map((field) => ({
-        id: field.id,
-        value: (customFieldValues[field.id] ?? "").trim(),
-      })),
-      email: optionalText(email),
-      firstName: optionalText(firstName),
-      lastName: optionalText(lastName),
-      notes: optionalText(notes),
-      phoneNumber: phoneNumber.trim(),
-    };
-  }
-
-  function validate(): boolean {
-    phoneNumberError = null;
-    formError = null;
-
-    if (!phoneNumber.trim()) {
-      phoneNumberError = "Required";
-      return false;
-    }
-
-    return true;
-  }
-
   async function loadFormData(): Promise<void> {
     loadingForm = true;
+    form.error = null;
 
     try {
       await Promise.all([
@@ -102,7 +61,7 @@
         loadCustomFieldList(),
         mode === "edit" ? loadContact() : Promise.resolve(),
       ]);
-      initialPayload = serializePayload();
+      initialPayload = serializeContactPayload();
     } finally {
       loadingForm = false;
     }
@@ -110,7 +69,7 @@
 
   async function loadContact(): Promise<void> {
     if (!id) {
-      formError = "Contact was not found.";
+      form.error = "Contact was not found.";
       return;
     }
 
@@ -118,22 +77,24 @@
       const response = await getContact(id as Ulid, { credentials: "include" });
 
       if (response.status !== 200) {
-        formError = getResponseError(response.data);
+        form.error = getResponseError(response.data);
         return;
       }
 
-      firstName = response.data.firstName ?? "";
-      lastName = response.data.lastName ?? "";
-      phoneNumber = response.data.phoneNumber ?? "";
-      email = response.data.email ?? "";
-      birthday = response.data.birthday?.slice(0, 10) ?? "";
-      notes = response.data.notes ?? "";
-      selectedContactGroupIds = response.data.contactGroupIds ?? [];
-      customFieldValues = Object.fromEntries(
-        (response.data.customFields ?? []).map((field) => [field.id, field.value]),
-      );
+      setContactFormValues({
+        birthday: response.data.birthday?.slice(0, 10) ?? "",
+        contactGroupIds: response.data.contactGroupIds ?? [],
+        customFieldValues: Object.fromEntries(
+          (response.data.customFields ?? []).map((field) => [field.id, field.value]),
+        ),
+        email: response.data.email ?? "",
+        firstName: response.data.firstName ?? "",
+        lastName: response.data.lastName ?? "",
+        notes: response.data.notes ?? "",
+        phoneNumber: response.data.phoneNumber ?? "",
+      });
     } catch {
-      formError = networkErrorText;
+      form.error = networkErrorText;
     }
   }
 
@@ -173,19 +134,10 @@
       }
 
       customFields = response.data;
+      setContactCustomFields(response.data);
     } catch {
       metadataError = "Could not load custom fields.";
     }
-  }
-
-  function toggleContactGroup(groupId: string): void {
-    selectedContactGroupIds = selectedContactGroupIds.includes(groupId)
-      ? selectedContactGroupIds.filter((value) => value !== groupId)
-      : [...selectedContactGroupIds, groupId];
-  }
-
-  function updateCustomFieldValue(fieldId: string, value: string): void {
-    customFieldValues = { ...customFieldValues, [fieldId]: value };
   }
 
   function getCustomFieldInputType(type: CustomFieldType): "date" | "number" | "text" {
@@ -198,57 +150,6 @@
     }
 
     return "text";
-  }
-
-  async function submit(event: SubmitEvent): Promise<void> {
-    event.preventDefault();
-
-    if (!validate()) {
-      return;
-    }
-
-    saving = true;
-
-    try {
-      if (mode === "create") {
-        await createContactFromForm();
-      } else {
-        await updateContactFromForm();
-      }
-    } catch {
-      formError = networkErrorText;
-    } finally {
-      saving = false;
-    }
-  }
-
-  async function createContactFromForm(): Promise<void> {
-    const response = await createContact(toPayload(), { credentials: "include" });
-
-    if (response.status === 200) {
-      notificationsState.showInfo("Contact has been created");
-      await goto(PATH_CONTACT);
-      return;
-    }
-
-    formError = getResponseError(response.data);
-  }
-
-  async function updateContactFromForm(): Promise<void> {
-    if (!id) {
-      formError = "Contact was not found.";
-      return;
-    }
-
-    const response = await updateContact(id as Ulid, toPayload(), { credentials: "include" });
-
-    if (response.status === 200) {
-      notificationsState.showInfo("Contact has been updated");
-      await goto(PATH_CONTACT);
-      return;
-    }
-
-    formError = getResponseError(response.data);
   }
 </script>
 
@@ -265,38 +166,44 @@
       class="w-full max-w-3xl rounded-2xl border border-white/80 bg-white/75 p-4
         shadow-[0_20px_45px_-25px_rgba(30,41,59,0.45)] backdrop-blur-md sm:p-6"
     >
-      <form onsubmit={submit} inert={saving || loadingForm || undefined}>
+      <form onsubmit={form.submit} inert={form.loading || loadingForm || undefined}>
         <div class="grid gap-4 sm:grid-cols-2">
           <Field>
             <FieldLabel for="contact-first-name">First name</FieldLabel>
-            <Input id="contact-first-name" bind:value={firstName} maxlength={100} placeholder="Avery" />
+            <Input id="contact-first-name" bind:value={form.firstName.value} maxlength={100} placeholder="Avery" />
           </Field>
 
           <Field>
             <FieldLabel for="contact-last-name">Last name</FieldLabel>
-            <Input id="contact-last-name" bind:value={lastName} maxlength={100} placeholder="Johnson" />
+            <Input id="contact-last-name" bind:value={form.lastName.value} maxlength={100} placeholder="Johnson" />
           </Field>
 
           <Field>
             <FieldLabel for="contact-phone-number">Phone</FieldLabel>
             <Input
               id="contact-phone-number"
-              bind:value={phoneNumber}
+              bind:value={form.phoneNumber.value}
               maxlength={40}
               placeholder="+1 415 555 0127"
-              error={phoneNumberError}
+              error={form.phoneNumber.error}
             />
-            <FieldError error={phoneNumberError} />
+            <FieldError error={form.phoneNumber.error} />
           </Field>
 
           <Field>
             <FieldLabel for="contact-email">Email</FieldLabel>
-            <Input id="contact-email" bind:value={email} maxlength={255} placeholder="avery@example.com" type="email" />
+            <Input
+              id="contact-email"
+              bind:value={form.email.value}
+              maxlength={255}
+              placeholder="avery@example.com"
+              type="email"
+            />
           </Field>
 
           <Field>
             <FieldLabel for="contact-birthday">Birthday</FieldLabel>
-            <Input id="contact-birthday" bind:value={birthday} type="date" />
+            <Input id="contact-birthday" bind:value={form.birthday.value} type="date" />
           </Field>
         </div>
 
@@ -304,7 +211,7 @@
           <FieldLabel for="contact-notes">Notes</FieldLabel>
           <textarea
             id="contact-notes"
-            bind:value={notes}
+            bind:value={form.notes.value}
             maxlength={1000}
             rows="4"
             class="min-h-24 w-full resize-y rounded-[1.05rem] border-none bg-white/70 px-3 py-2 text-slate-700
@@ -327,7 +234,7 @@
                   <input
                     type="checkbox"
                     class="size-4 accent-slate-700"
-                    checked={selectedContactGroupIds.includes(group.id)}
+                    checked={form.contactGroupIds.value.includes(group.id)}
                     onchange={() => toggleContactGroup(group.id)}
                   />
                   <span>{group.name}</span>
@@ -354,9 +261,8 @@
                   </FieldLabel>
                   <Input
                     id={`contact-custom-field-${field.id}`}
-                    value={customFieldValues[field.id] ?? ""}
+                    bind:value={form.customFieldValues[field.id].value}
                     type={getCustomFieldInputType(field.type)}
-                    oninput={(event) => updateCustomFieldValue(field.id, event.currentTarget.value)}
                   />
                 </Field>
               {/each}
@@ -364,9 +270,9 @@
           </section>
         {/if}
 
-        <FieldError class="mt-3" error={formError} />
+        <FieldError class="mt-3" error={form.error} />
 
-        {#if metadataError && !formError}
+        {#if metadataError && !form.error}
           <div
             class="text-amber-900 mt-3 rounded-xl border border-amber-200/80 bg-amber-100/90 px-3 py-2 text-sm shadow-sm"
           >
@@ -382,7 +288,7 @@
           >
             Cancel
           </a>
-          <Button submit spinner={saving} disabled={submitDisabled}>{submitLabel}</Button>
+          <Button submit spinner={form.loading} disabled={submitDisabled}>{submitLabel}</Button>
         </div>
       </form>
     </section>

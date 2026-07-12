@@ -1,7 +1,7 @@
 <script lang="ts" generics="TData">
   import { onDestroy } from "svelte";
   import type { DatagridCore } from "../core/index.svelte";
-  import type { LeafColumn } from "../core/types";
+  import type { LeafColumn } from "../core/column-types";
   import { getColumnSizeStyle, setColumnSizeStyleProperty } from "./column-size-style";
 
   interface Props {

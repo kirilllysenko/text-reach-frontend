@@ -1,6 +1,5 @@
 import { accessorColumn, computedColumn, displayColumn, type ColumnDef } from "$lib/components/table";
 import type { ContactViewModel } from "$lib/feature/contact/contact-view-data";
-import type { ContactGroupLookupState } from "../contact-group-lookup-state.svelte";
 import ContactActionCell from "./ContactTableActionCell.svelte";
 
 function size(width: number) {
@@ -11,7 +10,7 @@ function size(width: number) {
   };
 }
 
-export function createContactColumns(groups: ContactGroupLookupState): ColumnDef<ContactViewModel>[] {
+export function createContactColumns(): ColumnDef<ContactViewModel>[] {
   return [
     accessorColumn<ContactViewModel, "fullName", unknown>({
       accessorKey: "fullName",
@@ -41,8 +40,7 @@ export function createContactColumns(groups: ContactGroupLookupState): ColumnDef
     computedColumn<ContactViewModel, unknown>({
       columnId: "groups",
       header: "Groups",
-      getValueFn: (contact) =>
-        contact.contactGroupIds.map((groupId) => groups.contactGroupNameById[groupId] ?? groupId).join(", "),
+      getValueFn: (contact) => contact.contactGroupIds.join(", "),
       options: { filterable: false, sortable: false },
       state: { size: size(260) },
     }),

@@ -1,11 +1,15 @@
 import type { DatagridCore } from "../index.svelte";
-import type {
-  DataTableCursor,
-  DataTableLoadRequest,
-  DataTableLoadResult,
-  DataTablePageDirection,
-  DataTablePageRequest,
-} from "../types";
+
+export type DataTableCursor = unknown[] | null;
+export type DataTablePageDirection = "next" | "previous";
+
+export interface DataTablePageRequest {
+  cursor: DataTableCursor;
+  direction: DataTablePageDirection;
+  limit: number;
+  offset?: number;
+  page: number;
+}
 
 export type PageCursorMap = Record<number, DataTableCursor | undefined>;
 
@@ -223,9 +227,9 @@ export class PaginationFeature<TOriginalRow = any> implements IRowPinningFeature
   /**
    * Records cursor boundaries returned by a page load.
    */
-  registerLoadResult<TData>(
-    request: Pick<DataTableLoadRequest, "cursor" | "direction" | "limit" | "offset" | "page">,
-    result: Pick<DataTableLoadResult<TData>, "nextCursor" | "previousCursor" | "totalRows">,
+  registerLoadResult(
+    request: Pick<DataTablePageRequest, "cursor" | "direction" | "limit" | "page"> & { offset?: number },
+    result: { nextCursor: DataTableCursor; previousCursor?: DataTableCursor; totalRows: number },
   ): void {
     const page = request.page ?? this.page;
     const pageSize = request.limit || this.pageSize;
@@ -409,10 +413,10 @@ export class PaginationFeature<TOriginalRow = any> implements IRowPinningFeature
     return (page - 1) * this.pageSize;
   }
 
-  private getResultPageCursor<TData>(
+  private getResultPageCursor(
     page: number,
-    request: Pick<DataTableLoadRequest, "cursor" | "direction" | "offset">,
-    result: Pick<DataTableLoadResult<TData>, "previousCursor">,
+    request: Pick<DataTablePageRequest, "cursor" | "direction"> & { offset?: number },
+    result: { previousCursor?: DataTableCursor },
   ): DataTableCursor | undefined {
     if (typeof result.previousCursor !== "undefined") {
       return result.previousCursor;

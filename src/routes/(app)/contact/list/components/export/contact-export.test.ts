@@ -127,22 +127,17 @@ describe("contact export helpers", () => {
     ]);
   });
 
-  it("escapes CSV cells and maps contact group names", () => {
+  it("escapes CSV cells and exports contact group ids", () => {
     expect(
-      toContactCsv(
-        [
-          {
-            ...contacts[0],
-            contactGroupIds: ["group-a", "missing-group"],
-            notes: 'Line one\nLine "two"',
-          },
-        ],
+      toContactCsv([
         {
-          "group-a": "Group A",
+          ...contacts[0],
+          contactGroupIds: ["group-a", "missing-group"],
+          notes: 'Line one\nLine "two"',
         },
-      ),
+      ]),
     ).toBe(
-      'First Name,Last Name,Phone Number,Email,Birthday,Groups,Notes\nAva,One,111,ava@example.com,1992-01-01,Group A; missing-group,"Line one\nLine ""two"""',
+      'First Name,Last Name,Phone Number,Email,Birthday,Groups,Notes\nAva,One,111,ava@example.com,1992-01-01,group-a; missing-group,"Line one\nLine ""two"""',
     );
   });
 });

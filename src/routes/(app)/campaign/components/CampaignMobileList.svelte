@@ -27,25 +27,21 @@
         oninput={(event) => state.updateSearch(event.currentTarget.value)}
       />
 
-      <button
-        class="flex size-9 items-center justify-center rounded-xl border border-white/80 bg-white/90 shadow-sm
-          hover:cursor-pointer hover:bg-white"
-        type="button"
+      <Button
+        variant="secondary"
+        icon={Sort}
+        class="size-9 p-0"
         aria-label="Sort campaigns"
         onclick={state.openSort}
-      >
-        <Sort class="size-5 fill-slate-700" />
-      </button>
+      />
 
-      <button
-        class="flex size-9 items-center justify-center rounded-xl border border-white/80 bg-white/90 shadow-sm
-          hover:cursor-pointer hover:bg-white"
-        type="button"
+      <Button
+        variant="secondary"
+        icon={Filter}
+        class="size-9 p-0"
         aria-label="Filter campaigns"
         onclick={state.openFilters}
-      >
-        <Filter class="size-5 fill-slate-700" />
-      </button>
+      />
     </div>
   </header>
 

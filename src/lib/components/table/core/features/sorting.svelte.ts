@@ -1,10 +1,36 @@
 import type { DatagridCore } from "../index.svelte";
-import type {
-  DataTableActiveSortDirection,
-  DataTableSort,
-  DataTableSortDefinition,
-  DataTableSortDirection,
-} from "../types";
+
+export type SortingDirection = "ascending" | "descending" | "intermediate";
+export type DataTableSortDirection = SortingDirection;
+export type DataTableActiveSortDirection = Exclude<DataTableSortDirection, "intermediate">;
+
+export interface DataTableSort<TSortId extends string = string> {
+  direction: DataTableActiveSortDirection;
+  sortId: TSortId;
+}
+
+export interface DataTableSortDefinition<TSortId extends string = string> {
+  defaultDirection?: DataTableActiveSortDirection;
+  fieldId?: string;
+  label?: string;
+  sortId: TSortId;
+}
+
+export type DataTableSortDefinitionWithDefault<TSortId extends string = string> = DataTableSortDefinition<TSortId> & {
+  defaultDirection: DataTableActiveSortDirection;
+};
+
+export type DataTableSortFromDefinition<TDefinition> =
+  TDefinition extends DataTableSortDefinition<infer TSortId> ? DataTableSort<TSortId> : never;
+
+export type DataTableSortFromDefinitions<TDefinitions extends readonly DataTableSortDefinition[]> =
+  DataTableSortFromDefinition<TDefinitions[number]>;
+
+export function sortDefinition<const TSortId extends string>(
+  definition: DataTableSortDefinition<TSortId>,
+): DataTableSortDefinitionWithDefault<TSortId> {
+  return { defaultDirection: "ascending", ...definition };
+}
 
 /**
  * Represents the state of the sorting feature in the datagrid.
@@ -25,6 +51,7 @@ export type ISortingFeature = {
   addSort(sortId: string, direction?: DataTableActiveSortDirection): void;
   clearSorts(): void;
   getSort(sortId: string): DataTableSort | undefined;
+  getSortDefaultDirection(sortId: string): DataTableActiveSortDirection;
   getSortDirection(sortId: string): DataTableSortDirection;
   getSortFieldId(sort: DataTableSort): string;
   getSortIndex(sortId: string): number | null;
@@ -102,9 +129,11 @@ export class SortingFeature<TSort extends DataTableSort = DataTableSort> impleme
     this.sorts = this.sorts.map((sort) => (sort.sortId === sortId ? { ...sort, direction } : sort));
   }
 
-  addSort(sortId: string, direction: DataTableActiveSortDirection = "ascending"): void {
+  addSort(sortId: string, direction?: DataTableActiveSortDirection): void {
+    const nextDirection = direction ?? this.getSortDefaultDirection(sortId);
+
     if (this.getSort(sortId)) {
-      this.updateSort(sortId, direction);
+      this.updateSort(sortId, nextDirection);
       return;
     }
 
@@ -112,7 +141,7 @@ export class SortingFeature<TSort extends DataTableSort = DataTableSort> impleme
       return;
     }
 
-    this.sorts = [...this.sorts, { direction, sortId } as TSort];
+    this.sorts = [...this.sorts, { direction: nextDirection, sortId } as TSort];
   }
 
   isSorted(sortId: string, direction?: DataTableSortDirection): boolean {
@@ -124,6 +153,10 @@ export class SortingFeature<TSort extends DataTableSort = DataTableSort> impleme
 
   getSortFieldId(sort: DataTableSort): string {
     return this.sortDefinitions.find((definition) => definition.sortId === sort.sortId)?.fieldId ?? sort.sortId;
+  }
+
+  getSortDefaultDirection(sortId: string): DataTableActiveSortDirection {
+    return this.sortDefinitions.find((definition) => definition.sortId === sortId)?.defaultDirection ?? "ascending";
   }
 
   // Compatibility aliases for existing column-header call sites.

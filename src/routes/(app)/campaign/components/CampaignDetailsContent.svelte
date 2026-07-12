@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { LinkButton } from "$lib";
+  import { buildCampaignMessagesPath } from "$lib/app/paths";
   import CampaignStatusBadge from "./CampaignStatusBadge.svelte";
   import type { CampaignViewModel } from "$lib/feature/campaign/campaign-view-data";
 
@@ -59,7 +61,16 @@
             Created on {createdAtDateLabel} at {createdAtDateTimeLabel}
           </p>
         </div>
-        <CampaignStatusBadge status={campaign.status} />
+        <div class="flex flex-wrap items-center gap-2">
+          <CampaignStatusBadge status={campaign.status} />
+          <LinkButton class="text-sm" href={buildCampaignMessagesPath(campaign.id)}>View messages</LinkButton>
+        </div>
+      </div>
+    {/if}
+
+    {#if mobile}
+      <div class="flex justify-end">
+        <LinkButton class="text-sm" href={buildCampaignMessagesPath(campaign.id)}>View messages</LinkButton>
       </div>
     {/if}
 

@@ -8,8 +8,8 @@ import {
 } from "$lib/feature/contact/contact-display";
 import { buildContactRequest } from "$lib/feature/contact/contact-query";
 import type { ContactViewModel } from "$lib/feature/contact/contact-view-data";
-import { getContactTableFilters } from "../table/filter.svelte";
-import { getContactSortRules } from "../table/sort.svelte";
+import { getContactTableFilters } from "../filter/filter.svelte";
+import { getContactSortRules } from "../sort/sort.svelte";
 
 const EXPORT_PAGE_SIZE = 500;
 const MAX_EXPORT_PAGES = 200;
@@ -79,7 +79,7 @@ export function getFallbackContactExportList(
   );
 }
 
-export function toContactCsv(contacts: ContactViewModel[], groupNameById: Record<string, string>): string {
+export function toContactCsv(contacts: ContactViewModel[]): string {
   const header = ["First Name", "Last Name", "Phone Number", "Email", "Birthday", "Groups", "Notes"];
   const rows = contacts.map((contact) => [
     contact.firstName,
@@ -87,7 +87,7 @@ export function toContactCsv(contacts: ContactViewModel[], groupNameById: Record
     contact.phoneNumber,
     contact.email,
     contact.birthday,
-    contact.contactGroupIds.map((groupId) => groupNameById[groupId] ?? groupId).join("; "),
+    contact.contactGroupIds.join("; "),
     contact.notes,
   ]);
 

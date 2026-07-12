@@ -1,6 +1,6 @@
 <script lang="ts" generics="TData">
   import type { DatagridCore } from "../core/index.svelte";
-  import type { GridBasicRow } from "../core/types";
+  import type { GridBasicRow } from "../core/row-types";
   import TableCell from "./TableCell.svelte";
 
   interface Props {

@@ -16,7 +16,7 @@ import {
   DataLoadingFeature,
 } from "../features";
 import type { DatagridCore } from "../index.svelte";
-import type { DatagridCoreConfig } from "../types";
+import type { DatagridCoreConfig } from "../config";
 
 /**
  * A class that manages the various features of a DataGrid, including sorting, filtering, pagination, row selection, column visibility, and more.

@@ -44,7 +44,7 @@
 
     <div class="mt-5 flex justify-end gap-3">
       <Button spinner={processing} onclick={confirm}>Yes</Button>
-      <Button secondary onclick={cancel} disabled={processing}>No</Button>
+      <Button variant="secondary" onclick={cancel} disabled={processing}>No</Button>
     </div>
   </Dialog>
 </div>

@@ -1,24 +1,16 @@
 <script lang="ts">
   import Plus from "$lib/icons/Plus.svelte";
   import Trash from "$lib/icons/Trash.svelte";
-  import type { DataTableSort, DataTableSortDirection } from "../table";
+  import type { DataTableSortDirection } from "../table";
+  import type { SortPanelController } from "./sort-panel-types";
 
   interface SortFieldOption {
     value: string;
     label: string;
   }
 
-  export interface SortController {
-    sorts: DataTableSort[];
-    add: (sortId: string, direction?: Exclude<DataTableSortDirection, "intermediate">) => void;
-    clear: () => void;
-    removeAt: (index: number) => void;
-    updateDirection: (index: number, direction: Exclude<DataTableSortDirection, "intermediate">) => void;
-    updateSortId: (index: number, sortId: string) => void;
-  }
-
   interface Props {
-    sorting: SortController;
+    sorting: SortPanelController;
     fieldOptions: SortFieldOption[];
     compact?: boolean;
     directionOptions?: Exclude<DataTableSortDirection, "intermediate">[];
@@ -31,7 +23,7 @@
     const field = fieldOptions.find((option) => !usedFields.has(option.value)) ?? fieldOptions[0];
 
     if (field) {
-      sorting.add(field.value);
+      sorting.addSort(field.value);
     }
   }
 </script>
@@ -58,7 +50,7 @@
           class="min-w-0 rounded-xl border border-white/80 bg-white/90 px-3 py-2 text-sm text-slate-700 shadow-sm"
           value={rule.direction}
           onchange={(event) =>
-            sorting.updateDirection(
+            sorting.updateSortDirection(
               index,
               event.currentTarget.value as Exclude<DataTableSortDirection, "intermediate">,
             )}
@@ -75,7 +67,7 @@
           aria-label={`Remove sort rule ${index + 1}`}
           disabled={sorting.sorts.length <= 1}
           title="Remove sort rule"
-          onclick={() => sorting.removeAt(index)}
+          onclick={() => sorting.removeSortAt(index)}
         >
           <Trash class="size-4 fill-current" />
         </button>

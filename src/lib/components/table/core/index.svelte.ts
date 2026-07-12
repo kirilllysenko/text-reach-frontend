@@ -1,17 +1,7 @@
-import type {
-  AccessorColumn,
-  ColumnDef,
-  ColumnId,
-  ComputedColumn,
-  DataField,
-  DatagridCoreConfig,
-  DefaultColumnConfig,
-  GridBasicRow,
-  GridRow,
-  GridRowIdentifier,
-  ColumnGroup,
-  LeafColumn,
-} from "./types";
+import type { AccessorColumn, ColumnDef, ColumnGroup, ColumnId, ComputedColumn, LeafColumn } from "./column-types";
+import type { DatagridCoreConfig, DefaultColumnConfig } from "./config";
+import type { DataField } from "./data-types";
+import type { GridBasicRow, GridRow, GridRowIdentifier } from "./row-types";
 import { PerformanceMetrics } from "./helpers/performance-metrics.svelte";
 import { DataProcessor, ColumnProcessor } from "./processors";
 import { DatagridCacheManager } from "./managers";

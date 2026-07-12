@@ -3,8 +3,12 @@
   import type { ClassValue, HTMLButtonAttributes } from "svelte/elements";
   import Spinner from "$lib/icons/Spinner.svelte";
 
+  type ButtonVariant = "primary" | "secondary";
+
   interface Props extends HTMLButtonAttributes {
-    secondary?: boolean;
+    variant?: ButtonVariant;
+    active?: boolean;
+    activeClass?: ClassValue;
     small?: boolean;
     submit?: boolean;
     spinner?: boolean;
@@ -12,9 +16,35 @@
     icon?: Component<{ class?: ClassValue }>;
   }
 
+  const variantClasses = {
+    primary: {
+      enabled: `border-slate-700 bg-slate-700 text-white shadow-sm hover:not-disabled:bg-slate-800
+        focus-visible:outline-offset-2`,
+      active: "border-sky-300 bg-sky-50 text-sky-800 hover:not-disabled:bg-sky-50",
+      icon: "fill-white",
+      activeIcon: "fill-sky-700",
+    },
+    secondary: {
+      enabled: `border-white/80 bg-white/90 text-slate-700 shadow-sm backdrop-blur-sm hover:not-disabled:bg-white`,
+      active: "border-sky-300 bg-sky-50/90 text-slate-700 hover:not-disabled:bg-sky-50/90",
+      icon: "fill-slate-700",
+      activeIcon: "fill-sky-700",
+    },
+  } satisfies Record<
+    ButtonVariant,
+    {
+      enabled: ClassValue;
+      active: ClassValue;
+      icon: ClassValue;
+      activeIcon: ClassValue;
+    }
+  >;
+
   let {
     class: classProp,
-    secondary = false,
+    variant = "primary",
+    active = false,
+    activeClass,
     small = false,
     submit = false,
     spinner = false,
@@ -25,6 +55,7 @@
   }: Props = $props();
 
   const motionDisabled = $derived(spinner || disabled);
+  const variantClass = $derived(variantClasses[variant]);
   let hovered = $state(false);
   let pressed = $state(false);
 
@@ -73,27 +104,24 @@
       hover:not-disabled:cursor-pointer focus-visible:outline-2
       focus-visible:outline-sky-500`,
     small ? "h-7 pr-1 pl-1 text-sm" : "h-9 pr-3 pl-3 text-base",
-    disabled && !spinner
-      ? "border-white/70 bg-white/60 text-slate-400"
-      : secondary
-        ? `border-white/80 bg-white/80 text-slate-700 shadow-sm backdrop-blur-sm
-           hover:not-disabled:bg-white`
-        : `border-slate-700 bg-slate-700 text-white shadow-sm
-           hover:not-disabled:bg-slate-800
-           focus-visible:outline-offset-2`,
+    disabled && !spinner ? "border-white/70 bg-white/60 text-slate-400" : variantClass.enabled,
+    classProp,
+    !disabled && !spinner && active && variantClass.active,
+    !disabled && !spinner && active && activeClass,
     !motionDisabled && hovered && !pressed && "button-motion--raised",
     !motionDisabled && pressed && "button-motion--pressed",
-    classProp,
   ]}
 >
   {#if icon}
     {@const Icon = icon}
-    <Icon class={[small ? "size-4" : "size-5", secondary ? "fill-slate-700" : "fill-white"]} />
+    <Icon class={[small ? "size-4" : "size-5", active ? variantClass.activeIcon : variantClass.icon]} />
   {/if}
 
-  <div class="text-nowrap">
-    {@render children?.()}
-  </div>
+  {#if children}
+    <div class="text-nowrap">
+      {@render children()}
+    </div>
+  {/if}
 
   {#if spinner}
     <Spinner class={["ml-1 animate-spin fill-none stroke-slate-500", small ? "size-4" : "size-5"]} />

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
   import { Input } from "$lib";
+  import { debounce } from "$lib/utils/debounce";
 
   interface Props {
     onSearchChange: (search: string) => void;
@@ -10,24 +11,18 @@
   const SEARCH_DEBOUNCE_MS = 250;
 
   let { onSearchChange, value = $bindable("") }: Props = $props();
-  let searchTimer: ReturnType<typeof setTimeout> | null = null;
+
+  const debouncedSearchChange = debounce((search: string) => {
+    onSearchChange(search);
+  }, SEARCH_DEBOUNCE_MS);
 
   function updateSearch(search: string): void {
     value = search;
-
-    if (searchTimer) {
-      clearTimeout(searchTimer);
-    }
-
-    searchTimer = setTimeout(() => {
-      onSearchChange(search);
-    }, SEARCH_DEBOUNCE_MS);
+    debouncedSearchChange(search);
   }
 
   onDestroy(() => {
-    if (searchTimer) {
-      clearTimeout(searchTimer);
-    }
+    debouncedSearchChange.cancel();
   });
 </script>
 

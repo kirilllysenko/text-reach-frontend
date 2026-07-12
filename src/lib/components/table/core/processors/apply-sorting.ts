@@ -1,5 +1,5 @@
 import type { DatagridCore } from "../index.svelte";
-import type { DataTableActiveSortDirection } from "../types";
+import type { DataTableActiveSortDirection } from "../features/sorting.svelte";
 
 /**
  * Applies sorting to the given data based on the sort configurations in the datagrid.

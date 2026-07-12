@@ -1,21 +1,37 @@
-# AI Coding Rules
+# Agent Rules
 
-These docs extend `AGENTS.md` for the Text Reach frontend. Read them before changing code, and treat them as project rules for SvelteKit, Svelte 5, Tailwind, and Capacitor work.
+These docs extend `AGENTS.md`. This file is the compact source of truth; the topic files in `docs/` only point back here.
 
-## Read Order
+## Platform
 
-1. `docs/project-structure.md` - where files belong and how boundaries are drawn.
-2. `docs/component-quality.md` - how to keep Svelte components small, readable, and reusable.
-3. `docs/sveltekit-capacitor.md` - platform, routing, rendering, and native-container constraints.
+- Web and Capacitor share one static SvelteKit app.
+- Preserve `@sveltejs/adapter-static`, `fallback: "index.html"`, and `kit.paths.relative = true`.
+- Do not add runtime SSR dependencies, server routes, form actions, server hooks, or server-only app behavior.
+- Static public pages may prerender. Authenticated flows should load data client-side through feature/API layers.
+- Guard browser-only APIs during build or prerender: `window`, `document`, storage, observers, navigation, media queries.
+- Treat Capacitor as a webview: account for safe areas, touch targets, explicit mobile scroll containers, offline/timeouts, and no hover-only core actions.
 
-## Core Standards
+## Structure
 
-- Use Svelte 5 runes and existing local patterns before adding new abstractions.
-- Keep route files thin. Move page-specific UI into route-local components, and promote only reused/shared behavior to feature modules or shared components.
-- Split large components before they become difficult to scan, especially when markup, state, effects, and event handling are mixed together.
-- Preserve adapter-static, no-runtime-SSR assumptions, SSG for static pages, and Capacitor-safe browser code.
-- Use generated API clients, backend models, and request DTOs. Do not hand-write backend API wrappers except for generator gaps such as file uploads or downloads.
-- Use `bun` and `bunx` for scripts and package tooling.
-- Run the narrowest useful validation before handing work back, usually `bun run check` and `bun run lint` for code changes.
+- Keep `+page.svelte` and `+layout.svelte` thin. Put page-only components/helpers beside the route, usually in `components/`.
+- Never import from one route directory into another; promote shared code to `src/lib`.
+- Use `src/lib/feature/<feature>` for reused feature state, display mapping, query assembly, and business logic. Match suffixes: `*-state.svelte.ts`, `*-view-data.ts`, `*-display.ts`, `*-query.ts`.
+- Use `src/lib/components` for generic UI, `src/lib/state` for app-wide state, `src/lib/form` for form logic, `src/lib/utils` for utilities, and `src/lib/icons` for icons.
+- Treat `src/lib/api` as generated. Do not edit generated files or hand-write replacements for generated clients, models, or DTOs. Hand-write only generator gaps such as upload/download helpers.
 
-When a rule here conflicts with local code that already clearly establishes a pattern, follow the local pattern and update these docs only if the rule is outdated.
+## Components
+
+- Use Svelte 5 runes: `$state`, `$derived`, `$effect`, `$props`; use `$derived.by` for branched or multi-line derivations.
+- Use typed `$props()`, snippets for owned child layout, and explicit props for meaningful inputs.
+- For native wrappers, spread rest props onto the inner element. Do not write `class: classProp`; use a `class` rest prop or local class inside an array class.
+- Put Tailwind classes on elements, use array classes for conditions, and wrap class strings longer than 120 characters.
+- Keep transformations out of markup, effects clean, and state close to its use.
+- Prefer semantic HTML, accessible labels/ARIA/keyboard handling, stable layout for text/icons/badges, and no nested cards unless the inner card is a repeated item or modal.
+- Split components once markup, state, effects, and handlers stop being easy to scan, especially around 250 to 300 lines, repeated markup, independent visual regions, or section-local state.
+
+## Workflow
+
+- Follow existing local patterns before adding abstractions.
+- Keep changes scoped to the touched route, feature, or shared primitive.
+- Use `bun` and `bunx`, never `npm` or `npx`.
+- Run the narrowest useful validation before handoff: usually `bun run check`, plus `bun run lint` after broad markup or formatting changes.

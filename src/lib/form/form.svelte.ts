@@ -1,12 +1,22 @@
 import type { ZodType } from "zod";
 import { forEachObj } from "remeda";
+import { toErrorText } from "./errors";
 
 type FormValues = Record<string, any>;
 type FormErrorKey<Values> = keyof Values | "general";
 type SubmitHandler<Values extends FormValues, Response> = (values: Values) => Promise<Response>;
 
 const formFieldSymbol = Symbol("form-field");
-const reservedKeys = new Set(["clearErrors", "generalError", "loading", "setErrors", "submit", "toValues", "validate"]);
+const reservedKeys = new Set([
+  "clearErrors",
+  "generalError",
+  "loading",
+  "setErrors",
+  "setValues",
+  "submit",
+  "toValues",
+  "validate",
+]);
 
 export type FormField<Value> = {
   value: Value;
@@ -17,12 +27,11 @@ type InternalFormField<Value> = FormField<Value> & {
   [formFieldSymbol]: true;
 };
 
-export type FormShape<Value> =
-  Value extends Array<infer Item>
-    ? Array<FormShape<Item>>
-    : Value extends FormValues
-      ? { [Key in keyof Value]: FormShape<Value[Key]> }
-      : FormField<Value>;
+export type FormShape<Value> = Value extends unknown[]
+  ? FormField<Value>
+  : Value extends FormValues
+    ? { [Key in keyof Value]: FormShape<Value[Key]> }
+    : FormField<Value>;
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -33,10 +42,6 @@ function isFormField(value: unknown): value is InternalFormField<unknown> {
 }
 
 function createField<Value>(value: Value): FormShape<Value> {
-  if (Array.isArray(value)) {
-    return value.map((item) => createField(item)) as FormShape<Value>;
-  }
-
   if (isPlainObject(value)) {
     const entries = Object.entries(value).map(([key, item]) => [key, createField(item)]);
     return Object.fromEntries(entries) as FormShape<Value>;
@@ -76,11 +81,36 @@ function clearShapeErrors(shape: unknown): void {
   }
 }
 
-function extractValues<Value>(shape: FormShape<Value>): Value {
-  if (Array.isArray(shape)) {
-    return shape.map((item) => extractValues(item)) as Value;
+function setShapeValues(shape: unknown, value: unknown): void {
+  if (isFormField(shape)) {
+    shape.value = value;
+    shape.error = null;
+    return;
   }
 
+  if (!isPlainObject(shape) || !isPlainObject(value)) {
+    return;
+  }
+
+  for (const key of Object.keys(shape)) {
+    if (!(key in value)) {
+      delete shape[key];
+    }
+  }
+
+  for (const [key, item] of Object.entries(value)) {
+    const field = shape[key];
+
+    if (field === undefined) {
+      shape[key] = createField(item);
+      continue;
+    }
+
+    setShapeValues(field, item);
+  }
+}
+
+function extractValues<Value>(shape: FormShape<Value>): Value {
   if (isFormField(shape)) {
     return shape.value as Value;
   }
@@ -151,6 +181,11 @@ class FormController<Values extends FormValues, Response = void> {
     }
   };
 
+  setValues = (values: Values): void => {
+    setShapeValues(this.fields, values);
+    this.clearErrors();
+  };
+
   toValues = (): Values => {
     return extractValues(this.fields);
   };
@@ -200,6 +235,11 @@ class FormController<Values extends FormValues, Response = void> {
   private setErrorsFromResponse = (response: any): void => {
     if (response.data && response.data.errorDescription) {
       this.error = response.data.errorDescription;
+      return;
+    }
+
+    if (response.data && response.data.errorCode) {
+      this.error = toErrorText(response.data.errorCode);
     }
   };
 }

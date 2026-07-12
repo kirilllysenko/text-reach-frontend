@@ -1,10 +1,18 @@
-import type { FormatterFn, AggregationConfig, GetGroupValue, CustomCell, HeaderCell, ColumnId, CellValue, ColumnSizeState, ColumnPinningState, ColumnDef, ParentColumnId, AggregatedCell, GroupedCell, ColumnAlign } from "../types";
-
-type DotPrefix<T extends string> = T extends "" ? "" : `.${T}`;
-export type DotNestedKeys<T> = (T extends object ? {
-  [K in Exclude<keyof T, symbol>]: `${K}${DotPrefix<DotNestedKeys<T[K]>>}`;
-}[Exclude<keyof T, symbol>] : "") extends infer D ? Extract<D, string> : never;
-
+import type { CellValue, FormatterFn, GetGroupValue } from "../data-types";
+import type {
+  AggregatedCell,
+  AggregationConfig,
+  ColumnAlign,
+  ColumnDef,
+  ColumnId,
+  ColumnPinningState,
+  ColumnSizeState,
+  CustomCell,
+  DotNestedKeys,
+  GroupedCell,
+  HeaderCell,
+  ParentColumnId,
+} from "../column-types";
 
 // Column creation props
 export type CreateAccessorColumnProps<TOriginalRow, TKey extends DotNestedKeys<TOriginalRow>, TMeta> = {
@@ -27,13 +35,11 @@ export type CreateAccessorColumnProps<TOriginalRow, TKey extends DotNestedKeys<T
     pinnable?: boolean;
     moveable?: boolean;
     hideable?: boolean;
-    resizable?: boolean
+    resizable?: boolean;
   };
-  align?: ColumnAlign
-  state?: ColumnCreationStateProps
-} & CommonColumnCreationProps<TMeta>
-
-
+  align?: ColumnAlign;
+  state?: ColumnCreationStateProps;
+} & CommonColumnCreationProps<TMeta>;
 
 export type CreateComputeColumnProps<TOriginalRow, TMeta> = {
   // accessorFn: (row: TOriginalRow) => CellValue;
@@ -54,12 +60,12 @@ export type CreateComputeColumnProps<TOriginalRow, TMeta> = {
     pinnable?: boolean;
     moveable?: boolean;
     hideable?: boolean;
-    resizable?: boolean
+    resizable?: boolean;
   };
-  align?: ColumnAlign
+  align?: ColumnAlign;
   header: string;
-  state?: ColumnCreationStateProps
-} & CommonColumnCreationProps<TMeta>
+  state?: ColumnCreationStateProps;
+} & CommonColumnCreationProps<TMeta>;
 
 export type CreateDisplayColumnProps<TOriginalRow, TMeta> = {
   cell: CustomCell<TOriginalRow>;
@@ -74,28 +80,27 @@ export type CreateDisplayColumnProps<TOriginalRow, TMeta> = {
     pinnable?: boolean;
     moveable?: boolean;
     hideable?: boolean;
-    resizable?: boolean
+    resizable?: boolean;
   };
   header: string;
-  align?: ColumnAlign
-  state?: ColumnCreationStateProps
-} & CommonColumnCreationProps<TMeta>
+  align?: ColumnAlign;
+  state?: ColumnCreationStateProps;
+} & CommonColumnCreationProps<TMeta>;
 
 export type CreateGroupColumnProps<TOriginalRow, TMeta> = {
   header: string;
   headerCell?: HeaderCell;
   columns: ColumnDef<TOriginalRow>[];
-} & CommonColumnCreationProps<TMeta>
-
+} & CommonColumnCreationProps<TMeta>;
 
 type ColumnCreationStateProps = {
   size?: ColumnSizeState;
   visible?: boolean;
   pinning?: Partial<ColumnPinningState>;
-}
+};
 
 type CommonColumnCreationProps<TMeta> = {
   _meta?: TMeta;
-  parentColumnId?: ParentColumnId
+  parentColumnId?: ParentColumnId;
   columnId?: ColumnId;
-}
+};

@@ -11,7 +11,8 @@ import {
   type DataTableFilterFromDefinitions,
   type DataTableSortFromDefinitions,
 } from "../index";
-import type { DatagridCoreConfig, LeafColumn } from "../core/types";
+import type { LeafColumn } from "../core/column-types";
+import type { DatagridCoreConfig } from "../core/config";
 
 vi.mock("fuse.js", () => ({
   default: class FuseMock {
@@ -44,7 +45,7 @@ const contactFilterDefinitions = [
 type ContactFilter = DataTableFilterFromDefinitions<typeof contactFilterDefinitions>;
 
 const contactSortDefinitions = [
-  sortDefinition({ sortId: "fullName", fieldId: "fullName", defaultDirection: "ascending" }),
+  sortDefinition({ sortId: "fullName", fieldId: "fullName" }),
   sortDefinition({ sortId: "birthYear", fieldId: "birthYear", defaultDirection: "descending" }),
 ] as const;
 
@@ -159,6 +160,35 @@ describe("datagrid data fields", () => {
     });
 
     expect(visibleRowIds(table)).toEqual(["1", "3", "2"]);
+  });
+
+  it("defaults omitted sort definition directions to ascending", () => {
+    const table = createContactsTable({
+      initialState: {
+        sorting: {
+          sortDefinitions: contactSortDefinitions,
+        },
+      },
+    });
+
+    table.handlers.sorting.addSort("fullName");
+
+    expect(contactSortDefinitions[0].defaultDirection).toBe("ascending");
+    expect(table.features.sorting.sorts).toEqual([{ sortId: "fullName", direction: "ascending" }]);
+  });
+
+  it("uses configured sort definition defaults when adding a sort rule", () => {
+    const table = createContactsTable({
+      initialState: {
+        sorting: {
+          sortDefinitions: contactSortDefinitions,
+        },
+      },
+    });
+
+    table.handlers.sorting.addSort("birthYear");
+
+    expect(table.features.sorting.sorts).toEqual([{ sortId: "birthYear", direction: "descending" }]);
   });
 
   it("skips local sorting when sorting is manual", () => {
@@ -382,7 +412,7 @@ describe("datagrid data loading", () => {
         filters: [],
         limit: 1,
         page: 1,
-        sorting: [],
+        sorts: [],
       }),
     );
     expect(visibleRowIds(table)).toEqual(["1"]);
@@ -433,7 +463,7 @@ describe("datagrid data loading", () => {
 
     expect(loader).toHaveBeenCalledWith(
       expect.objectContaining({
-        sorting: [{ sortId: "fullName", direction: "descending" }],
+        sorts: [{ sortId: "fullName", direction: "descending" }],
       }),
     );
   });
@@ -514,7 +544,130 @@ describe("datagrid data loading", () => {
       expect.objectContaining({
         cursor: null,
         page: 1,
-        sorting: [{ sortId: "fullName", direction: "descending" }],
+        sorts: [{ sortId: "fullName", direction: "descending" }],
+      }),
+    );
+  });
+
+  it("reloads with panel-style filter service methods", async () => {
+    const loader = vi.fn(() => ({
+      rows: [{ id: "1", firstName: "Ada", lastName: "Lovelace" }],
+      nextCursor: null,
+      totalRows: 1,
+    }));
+    const table = createContactsTable({
+      data: [],
+      initialState: {
+        dataLoading: {
+          loader,
+        },
+        pagination: {
+          manual: true,
+          pageSize: 1,
+        },
+        filtering: {
+          filterDefinitions: contactFilterDefinitions,
+        },
+      },
+    });
+
+    table.handlers.dataLoading.start();
+    await flushMicrotasks();
+    loader.mockClear();
+
+    table.handlers.filtering.setFilter("fullName", {
+      filterId: "fullName",
+      operator: "CONTAINS",
+      type: "text",
+      value: "ada",
+    });
+    await flushMicrotasks();
+
+    expect(table.features.filtering.filters).toEqual([
+      { filterId: "fullName", operator: "CONTAINS", type: "text", value: "ada" },
+    ]);
+    expect(loader).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        filters: [{ filterId: "fullName", operator: "CONTAINS", type: "text", value: "ada" }],
+      }),
+    );
+
+    table.handlers.filtering.clearFilters();
+    await flushMicrotasks();
+
+    expect(table.features.filtering.filters).toEqual([]);
+    expect(loader).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        filters: [],
+      }),
+    );
+  });
+
+  it("keeps panel-style sorting service methods and header sorting state synchronized", async () => {
+    const loader = vi.fn(() => ({
+      rows: [{ id: "1", firstName: "Ada", lastName: "Lovelace" }],
+      nextCursor: null,
+      totalRows: 1,
+    }));
+    const table = createContactsTable({
+      data: [],
+      initialState: {
+        dataLoading: {
+          loader,
+        },
+        pagination: {
+          manual: true,
+          pageSize: 1,
+        },
+        sorting: {
+          sortDefinitions: contactSortDefinitions,
+        },
+      },
+    });
+
+    table.handlers.dataLoading.start();
+    await flushMicrotasks();
+    loader.mockClear();
+
+    table.handlers.sorting.addSort("fullName", "ascending");
+    await flushMicrotasks();
+
+    expect(table.features.sorting.sorts).toEqual([{ sortId: "fullName", direction: "ascending" }]);
+    expect(table.features.sorting.getSortDirection("fullName")).toBe("ascending");
+    expect(loader).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        sorts: [{ sortId: "fullName", direction: "ascending" }],
+      }),
+    );
+
+    table.handlers.sorting.updateSortDirection(0, "descending");
+    await flushMicrotasks();
+
+    expect(table.features.sorting.getSortDirection("fullName")).toBe("descending");
+    expect(loader).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        sorts: [{ sortId: "fullName", direction: "descending" }],
+      }),
+    );
+
+    table.handlers.sorting.updateSortId(0, "birthYear");
+    await flushMicrotasks();
+
+    expect(table.features.sorting.getSortDirection("fullName")).toBe("intermediate");
+    expect(table.features.sorting.getSortDirection("birthYear")).toBe("descending");
+    expect(loader).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        sorts: [{ sortId: "birthYear", direction: "descending" }],
+      }),
+    );
+
+    table.handlers.sorting.removeSortAt(0);
+    await flushMicrotasks();
+
+    expect(table.features.sorting.sorts).toEqual([]);
+    expect(loader).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        sorts: [],
       }),
     );
   });

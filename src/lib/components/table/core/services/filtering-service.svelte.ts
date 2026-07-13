@@ -1,16 +1,25 @@
-import type { DataTableFilter, DataTableFilterDefinition, LeafColumn } from "../types";
+import type { LeafColumn } from "../column-types";
+import type { DataTableFilter, DataTableFilterDefinition } from "../features/column-filtering.svelte";
 import { BaseService } from "./base-service";
 
 /**
  * Service for mutating active filters in the data grid.
  */
-export class FilteringService<TSortId extends string = string> extends BaseService<any, TSortId> {
+export class FilteringService extends BaseService {
   get filters(): DataTableFilter[] {
     return this.datagrid.features.filtering.filters;
   }
 
   get filterDefinitions(): readonly DataTableFilterDefinition[] {
     return this.datagrid.features.filtering.filterDefinitions;
+  }
+
+  getVisibleActiveFilterCount(): number {
+    const visibleFilterIds = new Set(
+      this.filterDefinitions.filter((definition) => !definition.hidden).map((definition) => definition.filterId),
+    );
+
+    return this.filters.filter((filter) => visibleFilterIds.has(filter.filterId)).length;
   }
 
   setColumnFilter(column: LeafColumn<any>, filter: DataTableFilter): void {
@@ -22,10 +31,7 @@ export class FilteringService<TSortId extends string = string> extends BaseServi
       throw new Error(`Filter id ${filter.filterId} does not match target filter id ${filterId}`);
     }
 
-    const fieldId = this.datagrid.features.filtering.getFilterFieldId(filter);
-    const field = this.datagrid.dataFields.findFieldByIdOrThrow(fieldId);
-
-    if (field.filterable === false) {
+    if (!this.isFilterable(filterId)) {
       return;
     }
 
@@ -41,6 +47,16 @@ export class FilteringService<TSortId extends string = string> extends BaseServi
   clearFilters(): void {
     this.datagrid.features.filtering.clearFilters();
     this.refreshFiltering();
+  }
+
+  private isFilterable(filterId: string): boolean {
+    const definition = this.filterDefinitions.find((current) => current.filterId === filterId);
+    if (definition) return true;
+
+    const column = this.datagrid.columns.findColumnById(filterId);
+    if (column?.type === "accessor" || column?.type === "computed") return column.options.filterable;
+
+    throw new Error(`Filter ${filterId} not found`);
   }
 
   private refreshFiltering(filterId?: string, column?: LeafColumn<any>): void {

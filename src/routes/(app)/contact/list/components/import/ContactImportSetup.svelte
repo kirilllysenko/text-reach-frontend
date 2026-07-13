@@ -6,12 +6,11 @@
 
   interface Props {
     contactImport: ContactImportState;
+    onClose: () => void;
   }
 
-  let { contactImport }: Props = $props();
+  let { contactImport, onClose }: Props = $props();
   let fileInput = $state<HTMLInputElement | null>(null);
-  const selectedFileName = $derived(contactImport.file?.name ?? "No file selected");
-  const canContinue = $derived(Boolean(contactImport.file) && !contactImport.setupSubmitting);
 
   function handleFileChange(event: Event): void {
     const input = event.currentTarget as HTMLInputElement;
@@ -31,20 +30,12 @@
         class="hidden"
         type="file"
         accept=".csv,text/csv,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        disabled={contactImport.setupSubmitting}
         onchange={handleFileChange}
       />
 
-      <Button
-        variant="secondary"
-        icon={Upload}
-        disabled={contactImport.setupSubmitting}
-        onclick={() => fileInput?.click()}
-      >
-        Choose file
-      </Button>
+      <Button variant="secondary" icon={Upload} onclick={() => fileInput?.click()}>Choose file</Button>
 
-      <span class="min-w-0 truncate text-sm text-slate-600">{selectedFileName}</span>
+      <span class="min-w-0 truncate text-sm text-slate-600">{contactImport.selectedFileName}</span>
     </div>
   </Field>
 
@@ -60,11 +51,15 @@
     />
   </Field>
 
-  <FieldError error={contactImport.displayError} />
+  <FieldError error={contactImport.error} />
 
   <div class="flex flex-col gap-2 sm:flex-row sm:justify-end">
-    <Button variant="secondary" onclick={contactImport.closeDialog}>Cancel</Button>
-    <Button disabled={!canContinue} spinner={contactImport.setupSubmitting} onclick={contactImport.prepareImport}>
+    <Button variant="secondary" onclick={onClose}>Cancel</Button>
+    <Button
+      disabled={!contactImport.canContinue}
+      spinner={contactImport.setupSubmitting}
+      onclick={contactImport.continueToMapping}
+    >
       Continue
     </Button>
   </div>

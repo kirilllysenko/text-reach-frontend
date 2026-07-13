@@ -1,9 +1,9 @@
+import type { ColumnType } from "./column-types";
 import type {
-  ColumnType,
   DataTableComparisonOperator,
   DataTableContainmentOperator,
   DataTableTextOperator,
-} from "./types";
+} from "./features/column-filtering.svelte";
 
 export const columnsWithGetters = ["accessor", "computed"] satisfies ColumnType[];
 

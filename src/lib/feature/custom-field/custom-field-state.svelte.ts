@@ -1,93 +1,31 @@
-import type { CustomFieldType, ErrorResponse } from "$lib/api/index.schemas";
+import { SortDirection, type CustomFieldType, type ErrorResponse } from "$lib/api/index.schemas";
 import { listCustomFields as listCustomFieldList } from "$lib/api/custom-field/custom-field";
-import type { DataTableFilter, DataTableLoadRequest, DataTableLoadResult } from "$lib/components/table";
+import type { DataTableFilter, DataTableLoadRequest, DataTableLoadResult, DataTableSort } from "$lib/components/table";
 import {
-  customFieldTypeLabelMap,
-  customFieldTypeOptions,
-  type CustomFieldTableSort,
+  customFieldSortFieldOptions,
+  type CustomFieldSortField,
+  type CustomFieldSortRule,
   type CustomFieldViewModel,
 } from "$lib/feature/custom-field/custom-field-view-data";
-import { debounce } from "$lib/utils/debounce";
-import {
-  createMockCustomFieldList,
-  filterCustomFieldList,
-  sortCustomFieldList,
-  toCustomFieldViewModel,
-} from "./custom-field-display";
+import { filterCustomFieldList, sortCustomFieldList, toCustomFieldViewModel } from "./custom-field-display";
 
-const SEARCH_DEBOUNCE_MS = 250;
+const defaultSortRules: CustomFieldSortRule[] = [
+  {
+    id: "name",
+    field: "name",
+    direction: SortDirection.ASC,
+  },
+];
 
 export class CustomFieldState {
   totalRows = $state(0);
   loadingError = $state<string | null>(null);
-
   search = $state("");
-  typeFilters = $state<CustomFieldType[]>([]);
 
-  filtersOpen = $state(false);
-  sortOpen = $state(false);
-  tableKey = $state(0);
-
-  private readonly scheduleRefresh = debounce(() => {
-    this.refreshTable();
-  }, SEARCH_DEBOUNCE_MS);
   private loaded = false;
   private fields = $state<CustomFieldViewModel[]>([]);
 
-  typeOptions = customFieldTypeOptions;
-
-  activeFilterChips = $derived.by(() => {
-    const chips: string[] = [];
-
-    if (this.typeFilters.length > 0) {
-      chips.push(`Type: ${this.typeFilters.map((type) => customFieldTypeLabelMap[type]).join(", ")}`);
-    }
-
-    return chips;
-  });
-
-  activeFilterCount = $derived(this.activeFilterChips.length);
-
-  updateSearch = (value: string): void => {
-    this.search = value;
-    this.scheduleRefresh();
-  };
-
-  toggleTypeFilter = (type: CustomFieldType): void => {
-    this.typeFilters = this.typeFilters.includes(type)
-      ? this.typeFilters.filter((value) => value !== type)
-      : [...this.typeFilters, type];
-
-    this.refreshTable();
-  };
-
-  clearFilters = (): void => {
-    this.typeFilters = [];
-    this.refreshTable();
-  };
-
-  openFilters = (): void => {
-    this.filtersOpen = !this.filtersOpen;
-    if (this.filtersOpen) {
-      this.sortOpen = false;
-    }
-  };
-
-  openSort = (): void => {
-    this.sortOpen = !this.sortOpen;
-    if (this.sortOpen) {
-      this.filtersOpen = false;
-    }
-  };
-
-  closeOverlays = (): void => {
-    this.filtersOpen = false;
-    this.sortOpen = false;
-  };
-
-  fetchRows = async (
-    request: DataTableLoadRequest<CustomFieldTableSort["sortId"]>,
-  ): Promise<DataTableLoadResult<CustomFieldViewModel>> => {
+  fetchRows = async (request: DataTableLoadRequest): Promise<DataTableLoadResult<CustomFieldViewModel>> => {
     if (!this.loaded) {
       await this.load();
     }
@@ -106,18 +44,24 @@ export class CustomFieldState {
     };
   };
 
-  dispose = (): void => {
-    this.scheduleRefresh.cancel();
-  };
+  private getFilteredFields(sorting: DataTableSort[], filters: DataTableFilter[]): CustomFieldViewModel[] {
+    const sortableFields = new Set<CustomFieldSortField>(customFieldSortFieldOptions);
+    const tableSortRules = sorting
+      .filter((sort): sort is DataTableSort & { sortId: CustomFieldSortField } =>
+        sortableFields.has(sort.sortId as CustomFieldSortField),
+      )
+      .map((sort) => ({
+        id: sort.sortId,
+        field: sort.sortId,
+        direction: sort.direction === "ascending" ? SortDirection.ASC : SortDirection.DESC,
+      }));
 
-  private refreshTable(): void {
-    this.tableKey += 1;
-  }
-
-  private getFilteredFields(sorting: CustomFieldTableSort[], filters: DataTableFilter[]): CustomFieldViewModel[] {
     const typeFilters = getCustomFieldTypeFilters(filters);
 
-    return sortCustomFieldList(filterCustomFieldList(this.fields, this.search, typeFilters), sorting);
+    return sortCustomFieldList(
+      filterCustomFieldList(this.fields, this.search, typeFilters),
+      tableSortRules.length > 0 ? tableSortRules : defaultSortRules,
+    );
   }
 
   private async load(): Promise<void> {
@@ -138,10 +82,8 @@ export class CustomFieldState {
   }
 
   private handleResponseError(error?: ErrorResponse): void {
-    this.loadingError =
-      error?.errorDescription ??
-      "Could not load custom fields from API. The page is showing local preview data until the backend responds.";
-    this.fields = createMockCustomFieldList();
+    this.loadingError = error?.errorDescription ?? "Could not load custom fields from API.";
+    this.fields = [];
     this.loaded = true;
   }
 }

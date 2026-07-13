@@ -1,46 +1,50 @@
 import { accessorColumn, computedColumn, displayColumn, columnGroup } from "./core/column-creation";
-import { createDatagrid, DatagridCore } from "./core/index.svelte";
-import { comparisonFilter, containmentFilter, sortDefinition, textFilter } from "./core/types";
+import { DatagridCore } from "./core/index.svelte";
+import { comparisonFilter, containmentFilter, textFilter } from "./core/features/column-filtering.svelte";
+import { TableBackendFilter, TableBackendFilterRegistry } from "./core/features/table-backend-filter";
+import { TableBackendSort, TableBackendSortRegistry } from "./core/features/table-backend-sort";
+import { sortDefinition } from "./core/features/sorting.svelte";
 import { getCellContent } from "./core/utils.svelte";
 import { FilteringService } from "./core/services/filtering-service.svelte";
+import { SortingService } from "./core/services/sorting-service";
 import Table from "./ui/Table.svelte";
+import type { ColumnDef } from "./core/column-types";
 import type {
-  ColumnDef,
-  DataField,
-  DataTableActiveSortDirection,
   DataTableComparisonFilter,
+  DataTableComparisonFilterComponentProps,
   DataTableComparisonFilterDefinition,
   DataTableComparisonOperator,
   DataTableContainmentFilter,
+  DataTableContainmentFilterComponentProps,
   DataTableContainmentFilterDefinition,
   DataTableContainmentOperator,
-  DataTableCursor,
   DataTableFilter,
   DataTableFilterDefinition,
-  FilterDefinitionSnippetProps,
   DataTableFilterFromDefinition,
   DataTableFilterFromDefinitions,
-  DataTableLoadRequest,
-  DataTableLoadResult,
-  DataTableLoader,
-  DataTableLoadReason,
-  DataTablePageDirection,
-  DataTablePageRequest,
+  DataTableTextFilter,
+  DataTableTextFilterComponentProps,
+  DataTableTextFilterDefinition,
+  DataTableTextOperator,
+} from "./core/features/column-filtering.svelte";
+import type {
+  DataTableActiveSortDirection,
   DataTableSort,
   DataTableSortDefinition,
   DataTableSortDirection,
-  DataTableSortIdFromDefinitions,
   DataTableSortFromDefinition,
   DataTableSortFromDefinitions,
-  SortPanelController,
-  DataTableTextFilter,
-  DataTableTextFilterDefinition,
-  DataTableTextOperator,
-} from "./core/types";
+} from "./core/features/sorting.svelte";
+import type {
+  DataTableLoadReason,
+  DataTableLoadRequest,
+  DataTableLoadResult,
+  DataTableLoader,
+} from "./core/features/data-loading.svelte";
+import type { DataTableCursor, DataTablePageDirection, DataTablePageRequest } from "./core/features/pagination.svelte";
 
 export {
   DatagridCore,
-  createDatagrid,
   getCellContent,
   Table,
   accessorColumn,
@@ -51,23 +55,28 @@ export {
   displayColumn,
   sortDefinition,
   textFilter,
+  TableBackendFilter,
+  TableBackendFilterRegistry,
+  TableBackendSort,
+  TableBackendSortRegistry,
   FilteringService,
+  SortingService,
 };
 
 export type {
   ColumnDef,
-  DataField,
   DataTableActiveSortDirection,
   DataTableComparisonFilter,
+  DataTableComparisonFilterComponentProps,
   DataTableComparisonFilterDefinition,
   DataTableComparisonOperator,
   DataTableContainmentFilter,
+  DataTableContainmentFilterComponentProps,
   DataTableContainmentFilterDefinition,
   DataTableContainmentOperator,
   DataTableCursor,
   DataTableFilter,
   DataTableFilterDefinition,
-  FilterDefinitionSnippetProps,
   DataTableFilterFromDefinition,
   DataTableFilterFromDefinitions,
   DataTableLoadRequest,
@@ -79,11 +88,10 @@ export type {
   DataTableSort,
   DataTableSortDefinition,
   DataTableSortDirection,
-  DataTableSortIdFromDefinitions,
   DataTableSortFromDefinition,
   DataTableSortFromDefinitions,
   DataTableTextFilter,
+  DataTableTextFilterComponentProps,
   DataTableTextFilterDefinition,
   DataTableTextOperator,
-  SortPanelController,
 };

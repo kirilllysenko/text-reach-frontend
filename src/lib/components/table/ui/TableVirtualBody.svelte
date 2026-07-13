@@ -1,10 +1,10 @@
-<script lang="ts" generics="TData, TSortId extends string = string">
+<script lang="ts" generics="TData">
   import { VirtualList } from "svelte-virtuallists";
   import type { DatagridCore } from "../core/index.svelte";
   import TableRow from "./TableRow.svelte";
 
   interface Props {
-    table: DatagridCore<TData, any, TSortId>;
+    table: DatagridCore<TData>;
     height?: string;
   }
 

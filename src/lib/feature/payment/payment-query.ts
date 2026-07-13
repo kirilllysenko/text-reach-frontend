@@ -1,16 +1,13 @@
 import {
-  ComparisonOperator,
   ContainmentOperator,
   NestedOperator,
   PageDirection,
-  TextOperator,
   type PageRequestWalletTransactionFilterDtoWalletTransactionSortDto,
   type WalletTransactionFilterDto,
+  type WalletTransactionSortDto,
 } from "$lib/api/index.schemas";
 import type { DataTableFilter } from "$lib/components/table";
-import { tableSortsToDto } from "$lib/utils/table-sort";
-import { dollarsToUsdMicros } from "./payment-display";
-import { defaultWalletTransactionSorts, type WalletTransactionTableSort } from "./payment-view-data";
+import { walletTransactionTableFilters } from "./payment-table-filters";
 
 const ULID_PATTERN = /^[0-9A-HJKMNP-TV-Z]{26}$/i;
 
@@ -20,7 +17,7 @@ interface WalletTransactionRequestOptions {
   direction?: "next" | "previous";
   idSearch: string;
   filters: DataTableFilter[];
-  sorts: WalletTransactionTableSort[];
+  sort: WalletTransactionSortDto;
 }
 
 export function buildWalletTransactionRequest(
@@ -30,7 +27,7 @@ export function buildWalletTransactionRequest(
     pageSize: options.pageSize,
     position: buildPosition(options),
     filter: buildWalletTransactionFilter(options.idSearch, options.filters),
-    sort: tableSortsToDto(options.sorts.length > 0 ? options.sorts : defaultWalletTransactionSorts),
+    sort: options.sort,
   };
 }
 
@@ -61,13 +58,7 @@ export function buildWalletTransactionFilter(
     });
   }
 
-  for (const filter of filters) {
-    const nextFilter = toWalletTransactionFilter(filter);
-
-    if (nextFilter) {
-      nested.push(nextFilter);
-    }
-  }
+  nested.push(...walletTransactionTableFilters.toDtos(filters));
 
   if (nested.length === 0) {
     return undefined;
@@ -95,87 +86,4 @@ function buildPosition(
   }
 
   return undefined;
-}
-
-function toWalletTransactionFilter(filter: DataTableFilter): WalletTransactionFilterDto | null {
-  if (filter.type === "comparison") {
-    return toComparisonFilter(filter);
-  }
-
-  if (filter.type === "text" && typeof filter.value === "string" && filter.value.trim()) {
-    return toTextFilter(filter.filterId, filter.value.trim());
-  }
-
-  return null;
-}
-
-function toComparisonFilter(filter: DataTableFilter & { type: "comparison" }): WalletTransactionFilterDto | null {
-  if (filter.filterId === "minAmount" && typeof filter.value !== "undefined") {
-    return {
-      amountUsdMicros: {
-        operator: ComparisonOperator.GREATER_OR_EQUAL,
-        value: dollarsToUsdMicros(Number(filter.value)),
-      },
-    };
-  }
-
-  if (filter.filterId === "maxAmount" && typeof filter.value !== "undefined") {
-    return {
-      amountUsdMicros: {
-        operator: ComparisonOperator.LESS_OR_EQUAL,
-        value: dollarsToUsdMicros(Number(filter.value)),
-      },
-    };
-  }
-
-  if (filter.filterId === "createdFrom" && filter.value) {
-    return {
-      createdAt: {
-        operator: ComparisonOperator.GREATER_OR_EQUAL,
-        value: `${filter.value}T00:00:00.000Z`,
-      },
-    };
-  }
-
-  if (filter.filterId === "createdTo" && filter.value) {
-    return {
-      createdAt: {
-        operator: ComparisonOperator.LESS_OR_EQUAL,
-        value: `${filter.value}T23:59:59.999Z`,
-      },
-    };
-  }
-
-  return null;
-}
-
-function toTextFilter(filterId: string, value: string): WalletTransactionFilterDto | null {
-  if (filterId === "currency") {
-    return {
-      currency: {
-        operator: TextOperator.CONTAINS,
-        value,
-      },
-    };
-  }
-
-  if (filterId === "entryType") {
-    return {
-      entryType: {
-        operator: TextOperator.CONTAINS,
-        value,
-      },
-    };
-  }
-
-  if (filterId === "sourceType") {
-    return {
-      sourceType: {
-        operator: TextOperator.CONTAINS,
-        value,
-      },
-    };
-  }
-
-  return null;
 }

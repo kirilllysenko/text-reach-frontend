@@ -9,20 +9,6 @@
   }
 
   let { state }: Props = $props();
-
-  const createdAtHeaderLabel = $derived.by(() => {
-    if (!state.selectedCampaign) {
-      return "";
-    }
-
-    return new Intl.DateTimeFormat("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-    }).format(state.selectedCampaign.createdAt);
-  });
 </script>
 
 <section class="flex h-full min-h-0 flex-col bg-gradient-to-br from-slate-100 via-slate-50 to-stone-100">
@@ -32,7 +18,6 @@
         <Button variant="secondary" onclick={state.backToMobileList}>← Back</Button>
         <div class="min-w-0 grow">
           <h2 class="truncate text-base font-semibold text-slate-800">{state.selectedCampaign.name}</h2>
-          <p class="truncate text-xs text-slate-500">Created {createdAtHeaderLabel}</p>
         </div>
         <CampaignStatusBadge status={state.selectedCampaign.status} />
       </div>

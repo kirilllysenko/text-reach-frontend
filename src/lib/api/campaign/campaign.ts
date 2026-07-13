@@ -6,9 +6,7 @@
 import type {
   CampaignCreateDto,
   CampaignDto,
-  CampaignMediaUploadUrlDto,
   ErrorResponse,
-  GetCampaignMediaUploadUrlParams,
   IdDto,
   PageCampaignDto,
   PageRequestCampaignFilterDtoCampaignSortDto,
@@ -112,66 +110,6 @@ export const listCampaigns = async (
 
   const data: ListCampaignsResponse["data"] = body ? JSON.parse(body) : {};
   return { data, status: res.status, headers: res.headers } as ListCampaignsResponse;
-};
-
-export type GetCampaignMediaUploadUrlResponse200 = {
-  data: CampaignMediaUploadUrlDto;
-  status: 200;
-};
-
-export type GetCampaignMediaUploadUrlResponse400 = {
-  data: ErrorResponse;
-  status: 400;
-};
-
-export type GetCampaignMediaUploadUrlResponse500 = {
-  data: ErrorResponse;
-  status: 500;
-};
-
-export type GetCampaignMediaUploadUrlResponseSuccess = GetCampaignMediaUploadUrlResponse200 & {
-  headers: Headers;
-};
-export type GetCampaignMediaUploadUrlResponseError = (
-  | GetCampaignMediaUploadUrlResponse400
-  | GetCampaignMediaUploadUrlResponse500
-) & {
-  headers: Headers;
-};
-
-export type GetCampaignMediaUploadUrlResponse =
-  | GetCampaignMediaUploadUrlResponseSuccess
-  | GetCampaignMediaUploadUrlResponseError;
-
-export const getGetCampaignMediaUploadUrlUrl = (params: GetCampaignMediaUploadUrlParams) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
-    }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0
-    ? `/campaign/campaign/media/upload-url?${stringifiedParams}`
-    : `/campaign/campaign/media/upload-url`;
-};
-
-export const getCampaignMediaUploadUrl = async (
-  params: GetCampaignMediaUploadUrlParams,
-  options?: RequestInit,
-): Promise<GetCampaignMediaUploadUrlResponse> => {
-  const res = await fetch(getGetCampaignMediaUploadUrlUrl(params), {
-    ...options,
-    method: "GET",
-  });
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: GetCampaignMediaUploadUrlResponse["data"] = body ? JSON.parse(body) : {};
-  return { data, status: res.status, headers: res.headers } as GetCampaignMediaUploadUrlResponse;
 };
 
 export type GetCampaignResponse200 = {

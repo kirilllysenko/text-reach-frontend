@@ -1,15 +1,28 @@
 <script lang="ts">
   import Input from "../input/Input.svelte";
-  import type { DataTableFilter, DataTableFilterDefinition, FilteringService } from "../table";
+  import type {
+    DataTableComparisonFilter,
+    DataTableComparisonFilterComponentProps,
+    DataTableComparisonFilterDefinition,
+    DataTableContainmentFilter,
+    DataTableContainmentFilterComponentProps,
+    DataTableContainmentFilterDefinition,
+    DataTableFilter,
+    DataTableFilterDefinition,
+    DataTableTextFilter,
+    DataTableTextFilterComponentProps,
+    DataTableTextFilterDefinition,
+  } from "../table";
   import type {
     FilterPanelCheckboxGroup,
     FilterPanelConfig,
+    FilterPanelController,
     FilterPanelField,
     FilterPanelInput,
   } from "./filter-panel-types";
 
   interface Props {
-    filtering: FilteringService;
+    filtering: FilterPanelController;
     clearLabel?: string;
     compact?: boolean;
     config?: FilterPanelConfig;
@@ -29,9 +42,7 @@
   const filterDefinitions = $derived(filtering.filterDefinitions?.filter((definition) => !definition.hidden) ?? []);
   const visibleFilterIds = $derived(new Set(filterDefinitions.map((definition) => definition.filterId)));
   const chips = $derived.by(() =>
-    filtering.filters
-      .filter((filter) => config || visibleFilterIds.has(filter.filterId))
-      .map(formatChip),
+    filtering.filters.filter((filter) => config || visibleFilterIds.has(filter.filterId)).map(formatChip),
   );
   const panelTitle = $derived(config?.title ?? title);
   const panelDescription = $derived(config?.description ?? description);
@@ -51,8 +62,7 @@
   function getDefinitionFilter(definition: DataTableFilterDefinition): DataTableFilter | null {
     return (
       filtering.filters.find(
-        (current) =>
-          current.filterId === definition.filterId && current.operator === getDefinitionOperator(definition),
+        (current) => current.filterId === definition.filterId && current.operator === getDefinitionOperator(definition),
       ) ?? null
     );
   }
@@ -241,16 +251,61 @@
     filterDefinitions.forEach((definition) => filtering.removeFilter(definition.filterId));
   }
 
-  function getSnippetProps(definition: DataTableFilterDefinition) {
+  function getTextComponentProps(
+    definition: DataTableTextFilterDefinition,
+  ): DataTableTextFilterComponentProps {
+    return getComponentProps(definition, isTextFilter);
+  }
+
+  function getComparisonComponentProps(
+    definition: DataTableComparisonFilterDefinition,
+  ): DataTableComparisonFilterComponentProps {
+    return getComponentProps(definition, isComparisonFilter);
+  }
+
+  function getContainmentComponentProps(
+    definition: DataTableContainmentFilterDefinition,
+  ): DataTableContainmentFilterComponentProps {
+    return getComponentProps(definition, isContainmentFilter);
+  }
+
+  function getComponentProps<TFilter extends DataTableFilter>(
+    definition: DataTableFilterDefinition,
+    isExpectedFilter: (filter: DataTableFilter) => filter is TFilter,
+  ): FilterComponentProps<TFilter> {
+    const getFilter = () => {
+      const filter = getDefinitionFilter(definition);
+      return filter && isExpectedFilter(filter) ? filter : null;
+    };
+
     return {
-      filter: getDefinitionFilter(definition),
-      value: getDefinitionValue(definition),
-      getValue: () => getDefinitionValue(definition),
-      setValue: (nextValue: DataTableFilter["value"] | null | undefined) =>
-        setDefinitionValue(definition, nextValue),
+      filter: getFilter(),
+      value: getFilter()?.value ?? null,
+      getValue: () => getFilter()?.value ?? null,
+      setValue: (nextValue: DataTableFilter["value"] | null | undefined) => setDefinitionValue(definition, nextValue),
       clear: () => filtering.removeFilter(definition.filterId),
     };
   }
+
+  function isTextFilter(filter: DataTableFilter): filter is DataTableTextFilter {
+    return filter.type === "text";
+  }
+
+  function isComparisonFilter(filter: DataTableFilter): filter is DataTableComparisonFilter {
+    return filter.type === "comparison";
+  }
+
+  function isContainmentFilter(filter: DataTableFilter): filter is DataTableContainmentFilter {
+    return filter.type === "containment";
+  }
+
+  type FilterComponentProps<TFilter extends DataTableFilter> = {
+    filter: TFilter | null;
+    value: TFilter["value"] | null;
+    getValue: () => TFilter["value"] | null;
+    setValue: (nextValue: TFilter["value"] | null | undefined) => void;
+    clear: () => void;
+  };
 </script>
 
 <div
@@ -287,47 +342,47 @@
   {#if config}
     {#each config.fields as field (field.id)}
       {#if field.kind === "checkbox-group"}
-      {@const values = getContainmentValues(field)}
-      <div class="space-y-2">
-        <p class="text-xs font-medium tracking-[0.02em] text-slate-500 uppercase">{field.label}</p>
-        <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-          {#each field.options as option (option.value)}
-            <label
-              class="flex items-center gap-2 rounded-xl border border-white/80 bg-white/75 px-3 py-2 text-sm
+        {@const values = getContainmentValues(field)}
+        <div class="space-y-2">
+          <p class="text-xs font-medium tracking-[0.02em] text-slate-500 uppercase">{field.label}</p>
+          <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {#each field.options as option (option.value)}
+              <label
+                class="flex items-center gap-2 rounded-xl border border-white/80 bg-white/75 px-3 py-2 text-sm
                 text-slate-700"
-            >
-              <input
-                type="checkbox"
-                checked={values.includes(option.value)}
-                onchange={() => updateCheckbox(field, option.value)}
+              >
+                <input
+                  type="checkbox"
+                  checked={values.includes(option.value)}
+                  onchange={() => updateCheckbox(field, option.value)}
+                />
+                <span class="min-w-0 truncate">{option.label}</span>
+              </label>
+            {/each}
+          </div>
+        </div>
+      {:else if field.kind === "input-grid"}
+        <div
+          class={[
+            "grid grid-cols-1 gap-3",
+            field.columns === 3 && "sm:grid-cols-3",
+            field.columns === 2 && "sm:grid-cols-2",
+            (!field.columns || field.columns === 1) && "sm:grid-cols-1",
+          ]}
+        >
+          {#each field.inputs as input (input.id)}
+            <label class="space-y-1">
+              <span class="text-xs font-medium text-slate-500">{input.label}</span>
+              <Input
+                type={input.inputType}
+                min={input.min}
+                value={getInputValue(input)}
+                placeholder={input.placeholder}
+                oninput={(event) => updateInput(input, event.currentTarget.value)}
               />
-              <span class="min-w-0 truncate">{option.label}</span>
             </label>
           {/each}
         </div>
-      </div>
-      {:else if field.kind === "input-grid"}
-      <div
-        class={[
-          "grid grid-cols-1 gap-3",
-          field.columns === 3 && "sm:grid-cols-3",
-          field.columns === 2 && "sm:grid-cols-2",
-          (!field.columns || field.columns === 1) && "sm:grid-cols-1",
-        ]}
-      >
-        {#each field.inputs as input (input.id)}
-          <label class="space-y-1">
-            <span class="text-xs font-medium text-slate-500">{input.label}</span>
-            <Input
-              type={input.inputType}
-              min={input.min}
-              value={getInputValue(input)}
-              placeholder={input.placeholder}
-              oninput={(event) => updateInput(input, event.currentTarget.value)}
-            />
-          </label>
-        {/each}
-      </div>
       {/if}
     {/each}
   {:else}
@@ -335,8 +390,15 @@
       <div class="space-y-1">
         <span class="text-xs font-medium text-slate-500">{definition.label ?? definition.filterId}</span>
 
-        {#if definition.snippet}
-          {@render definition.snippet(getSnippetProps(definition))}
+        {#if definition.type === "text" && definition.component}
+          {@const FilterControl = definition.component}
+          <FilterControl {...getTextComponentProps(definition)} />
+        {:else if definition.type === "comparison" && definition.component}
+          {@const FilterControl = definition.component}
+          <FilterControl {...getComparisonComponentProps(definition)} />
+        {:else if definition.type === "containment" && definition.component}
+          {@const FilterControl = definition.component}
+          <FilterControl {...getContainmentComponentProps(definition)} />
         {:else if definition.type === "text" || definition.type === "comparison"}
           <Input
             type={getDefinitionInputType(definition)}

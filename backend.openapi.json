@@ -7,9 +7,7 @@
   "paths": {
     "/auth/check-session": {
       "get": {
-        "tags": [
-          "auth"
-        ],
+        "tags": ["auth"],
         "operationId": "check_session",
         "responses": {
           "200": {
@@ -40,9 +38,7 @@
     },
     "/auth/sign-in": {
       "post": {
-        "tags": [
-          "auth"
-        ],
+        "tags": ["auth"],
         "operationId": "sign_in",
         "requestBody": {
           "content": {
@@ -83,9 +79,7 @@
     },
     "/auth/sign-out": {
       "post": {
-        "tags": [
-          "auth"
-        ],
+        "tags": ["auth"],
         "operationId": "sign_out",
         "responses": {
           "200": {
@@ -96,9 +90,7 @@
     },
     "/campaign/campaign": {
       "post": {
-        "tags": [
-          "campaign"
-        ],
+        "tags": ["campaign"],
         "operationId": "create_campaign",
         "requestBody": {
           "content": {
@@ -156,9 +148,7 @@
     },
     "/campaign/campaign/fetch": {
       "post": {
-        "tags": [
-          "campaign"
-        ],
+        "tags": ["campaign"],
         "operationId": "list_campaigns",
         "requestBody": {
           "content": {
@@ -204,61 +194,9 @@
         }
       }
     },
-    "/campaign/campaign/media/upload-url": {
-      "get": {
-        "tags": [
-          "campaign"
-        ],
-        "operationId": "get_campaign_media_upload_url",
-        "parameters": [
-          {
-            "name": "filename",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CampaignMediaUploadUrlDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/campaign/campaign/{id}": {
       "get": {
-        "tags": [
-          "campaign"
-        ],
+        "tags": ["campaign"],
         "operationId": "get_campaign",
         "parameters": [
           {
@@ -306,9 +244,7 @@
     },
     "/contact/contact": {
       "post": {
-        "tags": [
-          "contact"
-        ],
+        "tags": ["contact"],
         "operationId": "create_contact",
         "requestBody": {
           "content": {
@@ -356,9 +292,7 @@
     },
     "/contact/contact-group": {
       "post": {
-        "tags": [
-          "contact_group"
-        ],
+        "tags": ["contact_group"],
         "operationId": "create_contact_group",
         "requestBody": {
           "content": {
@@ -406,9 +340,7 @@
     },
     "/contact/contact-group/fetch": {
       "post": {
-        "tags": [
-          "contact_group"
-        ],
+        "tags": ["contact_group"],
         "operationId": "fetch_contact_groups",
         "requestBody": {
           "content": {
@@ -456,9 +388,7 @@
     },
     "/contact/contact-group/{id}": {
       "get": {
-        "tags": [
-          "contact_group"
-        ],
+        "tags": ["contact_group"],
         "operationId": "get_contact_group",
         "parameters": [
           {
@@ -504,9 +434,7 @@
         }
       },
       "put": {
-        "tags": [
-          "contact_group"
-        ],
+        "tags": ["contact_group"],
         "operationId": "update_contact_group",
         "parameters": [
           {
@@ -565,9 +493,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "contact_group"
-        ],
+        "tags": ["contact_group"],
         "operationId": "delete_contact_group",
         "parameters": [
           {
@@ -608,9 +534,7 @@
     },
     "/contact/contact/count": {
       "post": {
-        "tags": [
-          "contact"
-        ],
+        "tags": ["contact"],
         "operationId": "count_contacts",
         "requestBody": {
           "content": {
@@ -659,9 +583,7 @@
     },
     "/contact/contact/export": {
       "post": {
-        "tags": [
-          "contact"
-        ],
+        "tags": ["contact"],
         "operationId": "export_contacts",
         "requestBody": {
           "content": {
@@ -705,9 +627,7 @@
     },
     "/contact/contact/fetch": {
       "post": {
-        "tags": [
-          "contact"
-        ],
+        "tags": ["contact"],
         "operationId": "fetch_contacts",
         "requestBody": {
           "content": {
@@ -755,9 +675,7 @@
     },
     "/contact/contact/import": {
       "post": {
-        "tags": [
-          "contact"
-        ],
+        "tags": ["contact"],
         "operationId": "import_contacts",
         "requestBody": {
           "content": {
@@ -805,9 +723,7 @@
     },
     "/contact/contact/upload-url": {
       "get": {
-        "tags": [
-          "contact"
-        ],
+        "tags": ["contact"],
         "operationId": "get_contact_upload_url",
         "parameters": [
           {
@@ -865,9 +781,7 @@
     },
     "/contact/contact/{id}": {
       "get": {
-        "tags": [
-          "contact"
-        ],
+        "tags": ["contact"],
         "operationId": "get_contact",
         "parameters": [
           {
@@ -913,9 +827,7 @@
         }
       },
       "put": {
-        "tags": [
-          "contact"
-        ],
+        "tags": ["contact"],
         "operationId": "update_contact",
         "parameters": [
           {
@@ -974,9 +886,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "contact"
-        ],
+        "tags": ["contact"],
         "operationId": "delete_contact",
         "parameters": [
           {
@@ -1017,9 +927,7 @@
     },
     "/contact/custom-fields": {
       "get": {
-        "tags": [
-          "custom_field"
-        ],
+        "tags": ["custom_field"],
         "operationId": "list_custom_fields",
         "responses": {
           "200": {
@@ -1048,9 +956,7 @@
         }
       },
       "post": {
-        "tags": [
-          "custom_field"
-        ],
+        "tags": ["custom_field"],
         "operationId": "create_custom_field",
         "requestBody": {
           "content": {
@@ -1098,9 +1004,7 @@
     },
     "/contact/custom-fields/{id}": {
       "get": {
-        "tags": [
-          "custom_field"
-        ],
+        "tags": ["custom_field"],
         "operationId": "get_custom_field",
         "parameters": [
           {
@@ -1146,9 +1050,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "custom_field"
-        ],
+        "tags": ["custom_field"],
         "operationId": "delete_custom_field",
         "parameters": [
           {
@@ -1189,9 +1091,7 @@
     },
     "/contact/custom-fields/{id}/name": {
       "put": {
-        "tags": [
-          "custom_field"
-        ],
+        "tags": ["custom_field"],
         "operationId": "update_custom_field_name",
         "parameters": [
           {
@@ -1252,9 +1152,7 @@
     },
     "/contact/custom-fields/{id}/position": {
       "put": {
-        "tags": [
-          "custom_field"
-        ],
+        "tags": ["custom_field"],
         "operationId": "update_custom_field_position",
         "parameters": [
           {
@@ -1313,93 +1211,9 @@
         }
       }
     },
-    "/message-sender/webhooks/telnyx": {
-      "post": {
-        "operationId": "telnyx_webhook",
-        "parameters": [
-          {
-            "name": "tenantId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "messageId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "campaignId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "contactId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "tenantPhoneId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          },
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/message/message": {
       "post": {
-        "tags": [
-          "message"
-        ],
+        "tags": ["message"],
         "operationId": "get_page",
         "requestBody": {
           "content": {
@@ -1447,9 +1261,7 @@
     },
     "/message/message/export": {
       "post": {
-        "tags": [
-          "message"
-        ],
+        "tags": ["message"],
         "operationId": "export_messages",
         "requestBody": {
           "content": {
@@ -1493,9 +1305,7 @@
     },
     "/message/message/{id}": {
       "get": {
-        "tags": [
-          "message"
-        ],
+        "tags": ["message"],
         "operationId": "get_by_id",
         "parameters": [
           {
@@ -1809,9 +1619,7 @@
     },
     "/phone/ten-dlc-brand": {
       "get": {
-        "tags": [
-          "ten_dlc_brand"
-        ],
+        "tags": ["ten_dlc_brand"],
         "operationId": "get_ten_dlc_brand",
         "responses": {
           "200": {
@@ -1847,9 +1655,7 @@
         }
       },
       "put": {
-        "tags": [
-          "ten_dlc_brand"
-        ],
+        "tags": ["ten_dlc_brand"],
         "operationId": "update_ten_dlc_brand",
         "requestBody": {
           "content": {
@@ -1895,9 +1701,7 @@
         }
       },
       "post": {
-        "tags": [
-          "ten_dlc_brand"
-        ],
+        "tags": ["ten_dlc_brand"],
         "operationId": "create_ten_dlc_brand",
         "requestBody": {
           "content": {
@@ -1935,9 +1739,7 @@
     },
     "/phone/ten-dlc-campaign": {
       "get": {
-        "tags": [
-          "ten_dlc_campaign"
-        ],
+        "tags": ["ten_dlc_campaign"],
         "operationId": "list_ten_dlc_campaigns",
         "responses": {
           "200": {
@@ -1966,9 +1768,7 @@
         }
       },
       "post": {
-        "tags": [
-          "ten_dlc_campaign"
-        ],
+        "tags": ["ten_dlc_campaign"],
         "operationId": "create_ten_dlc_campaign",
         "requestBody": {
           "content": {
@@ -2016,9 +1816,7 @@
     },
     "/phone/ten-dlc-campaign/{id}": {
       "get": {
-        "tags": [
-          "ten_dlc_campaign"
-        ],
+        "tags": ["ten_dlc_campaign"],
         "operationId": "get_ten_dlc_campaign",
         "parameters": [
           {
@@ -2064,9 +1862,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "ten_dlc_campaign"
-        ],
+        "tags": ["ten_dlc_campaign"],
         "operationId": "delete_ten_dlc_campaign",
         "parameters": [
           {
@@ -2107,9 +1903,7 @@
     },
     "/phone/tenant-phone/available": {
       "get": {
-        "tags": [
-          "tenant_phone"
-        ],
+        "tags": ["tenant_phone"],
         "operationId": "available_tenant_phones",
         "parameters": [
           {
@@ -2158,9 +1952,7 @@
     },
     "/phone/tenant-phone/buy": {
       "post": {
-        "tags": [
-          "tenant_phone"
-        ],
+        "tags": ["tenant_phone"],
         "operationId": "buy_tenant_phone",
         "parameters": [
           {
@@ -2208,9 +2000,7 @@
     },
     "/tenant/profile": {
       "get": {
-        "tags": [
-          "tenant"
-        ],
+        "tags": ["tenant"],
         "operationId": "get_profile",
         "responses": {
           "200": {
@@ -2248,9 +2038,7 @@
     },
     "/tenant/profile/change-name": {
       "post": {
-        "tags": [
-          "tenant"
-        ],
+        "tags": ["tenant"],
         "operationId": "change_name",
         "requestBody": {
           "content": {
@@ -2301,9 +2089,7 @@
     },
     "/tenant/profile/change-password": {
       "post": {
-        "tags": [
-          "tenant"
-        ],
+        "tags": ["tenant"],
         "operationId": "change_password",
         "requestBody": {
           "content": {
@@ -2354,9 +2140,7 @@
     },
     "/tenant/sign-up": {
       "post": {
-        "tags": [
-          "tenant"
-        ],
+        "tags": ["tenant"],
         "operationId": "sign_up",
         "requestBody": {
           "content": {
@@ -2407,9 +2191,7 @@
     },
     "/tenant/sign-up/send-email-code": {
       "post": {
-        "tags": [
-          "tenant"
-        ],
+        "tags": ["tenant"],
         "operationId": "send_email_code",
         "requestBody": {
           "content": {
@@ -2460,9 +2242,7 @@
     },
     "/tenant/sign-up/send-phone-code": {
       "post": {
-        "tags": [
-          "tenant"
-        ],
+        "tags": ["tenant"],
         "operationId": "send_phone_code",
         "requestBody": {
           "content": {
@@ -2510,236 +2290,10 @@
           }
         }
       }
-    },
-    "/tenant/users": {
-      "get": {
-        "tags": [
-          "tenant"
-        ],
-        "operationId": "list_users",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/TenantUserDto"
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "tenant"
-        ],
-        "operationId": "create_user",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateUserDto"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": ""
-          },
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/tenant/users/{id}": {
-      "parameters": [
-        {
-          "name": "id",
-          "in": "path",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ],
-      "put": {
-        "tags": [
-          "tenant"
-        ],
-        "operationId": "update_user",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateUserDto"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": ""
-          },
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "tenant"
-        ],
-        "operationId": "delete_user",
-        "responses": {
-          "200": {
-            "description": ""
-          },
-          "403": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
     }
   },
   "components": {
     "schemas": {
-      "AccessGroup": {
-        "type": "string",
-        "enum": [
-          "CONTACT_READ",
-          "CONTACT_WRITE",
-          "CUSTOM_FIELDS_READ",
-          "CUSTOM_FIELDS_WRITE",
-          "CAMPAIGN_READ",
-          "CAMPAIGN_WRITE",
-          "MESSAGE_READ",
-          "PHONE_READ",
-          "PHONE_WRITE",
-          "BILLING_READ",
-          "BILLING_WRITE",
-          "USER_READ",
-          "USER_WRITE"
-        ]
-      },
       "CampaignCreateDto": {
         "type": "object",
         "properties": {
@@ -2749,44 +2303,20 @@
               "type": "string"
             }
           },
-          "media": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CampaignMediaDto"
-            }
-          },
           "messageTemplate": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           },
           "name": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           },
           "tenantPhoneId": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           }
         }
       },
       "CampaignDto": {
         "type": "object",
-        "required": [
-          "id",
-          "name",
-          "messageTemplate",
-          "media",
-          "contactGroupIds",
-          "status",
-          "messageCount",
-          "sentMessageCount"
-        ],
+        "required": ["id", "name", "messageTemplate", "contactGroupIds", "status", "messageCount", "sentMessageCount"],
         "properties": {
           "contactGroupIds": {
             "type": "array",
@@ -2796,12 +2326,6 @@
           },
           "id": {
             "type": "string"
-          },
-          "media": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CampaignMediaDto"
-            }
           },
           "messageCount": {
             "type": "integer",
@@ -2916,48 +2440,6 @@
           }
         }
       },
-      "CampaignMediaDto": {
-        "type": "object",
-        "required": [
-          "url",
-          "contentType"
-        ],
-        "properties": {
-          "contentType": {
-            "type": "string"
-          },
-          "sizeBytes": {
-            "type": [
-              "integer",
-              "null"
-            ],
-            "format": "int64",
-            "minimum": 0
-          },
-          "url": {
-            "type": "string"
-          }
-        }
-      },
-      "CampaignMediaUploadUrlDto": {
-        "type": "object",
-        "required": [
-          "uploadUrl",
-          "mediaUrl",
-          "newFilename"
-        ],
-        "properties": {
-          "mediaUrl": {
-            "type": "string"
-          },
-          "newFilename": {
-            "type": "string"
-          },
-          "uploadUrl": {
-            "type": "string"
-          }
-        }
-      },
       "CampaignSortDto": {
         "type": "object",
         "properties": {
@@ -3037,10 +2519,7 @@
       },
       "ChangePasswordDto": {
         "type": "object",
-        "required": [
-          "oldPassword",
-          "newPassword"
-        ],
+        "required": ["oldPassword", "newPassword"],
         "properties": {
           "newPassword": {
             "type": "string"
@@ -3054,18 +2533,13 @@
         "type": "object",
         "properties": {
           "name": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           }
         }
       },
       "ComparisonFilter_String": {
         "type": "object",
-        "required": [
-          "operator"
-        ],
+        "required": ["operator"],
         "properties": {
           "operator": {
             "$ref": "#/components/schemas/ComparisonOperator"
@@ -3077,9 +2551,7 @@
       },
       "ComparisonFilter_i32": {
         "type": "object",
-        "required": [
-          "operator"
-        ],
+        "required": ["operator"],
         "properties": {
           "operator": {
             "$ref": "#/components/schemas/ComparisonOperator"
@@ -3092,9 +2564,7 @@
       },
       "ComparisonFilter_i64": {
         "type": "object",
-        "required": [
-          "operator"
-        ],
+        "required": ["operator"],
         "properties": {
           "operator": {
             "$ref": "#/components/schemas/ComparisonOperator"
@@ -3107,23 +2577,13 @@
       },
       "ComparisonOperator": {
         "type": "string",
-        "enum": [
-          "EQUAL",
-          "NOT_EQUAL",
-          "GREATER_THAN",
-          "LESS_THAN",
-          "GREATER_OR_EQUAL",
-          "LESS_OR_EQUAL"
-        ]
+        "enum": ["EQUAL", "NOT_EQUAL", "GREATER_THAN", "LESS_THAN", "GREATER_OR_EQUAL", "LESS_OR_EQUAL"]
       },
       "ContactCreateDto": {
         "type": "object",
         "properties": {
           "birthday": {
-            "type": [
-              "string",
-              "null"
-            ],
+            "type": ["string", "null"],
             "format": "date"
           },
           "contactGroupIds": {
@@ -3133,60 +2593,34 @@
             }
           },
           "customFields": {
-            "type": [
-              "array",
-              "null"
-            ],
+            "type": ["array", "null"],
             "items": {
               "$ref": "#/components/schemas/CustomFieldValueInputDto"
             }
           },
           "email": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           },
           "firstName": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           },
           "lastName": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           },
           "notes": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           },
           "phoneNumber": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           }
         }
       },
       "ContactDto": {
         "type": "object",
-        "required": [
-          "id",
-          "phoneNumber",
-          "customFields",
-          "contactGroupIds"
-        ],
+        "required": ["id", "phoneNumber", "customFields", "contactGroupIds"],
         "properties": {
           "birthday": {
-            "type": [
-              "string",
-              "null"
-            ],
+            "type": ["string", "null"],
             "format": "date"
           },
           "contactGroupIds": {
@@ -3202,31 +2636,19 @@
             }
           },
           "email": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           },
           "firstName": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           },
           "id": {
             "$ref": "#/components/schemas/Ulid"
           },
           "lastName": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           },
           "notes": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           },
           "phoneNumber": {
             "type": "string"
@@ -3235,9 +2657,7 @@
       },
       "ContactExportDto": {
         "type": "object",
-        "required": [
-          "format"
-        ],
+        "required": ["format"],
         "properties": {
           "filter": {
             "oneOf": [
@@ -3266,10 +2686,7 @@
       },
       "ContactExportFormatDto": {
         "type": "string",
-        "enum": [
-          "CSV",
-          "EXCEL"
-        ]
+        "enum": ["CSV", "EXCEL"]
       },
       "ContactFilterDto": {
         "type": "object",
@@ -3305,10 +2722,7 @@
             ]
           },
           "filter": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           },
           "firstName": {
             "oneOf": [
@@ -3365,20 +2779,13 @@
         "type": "object",
         "properties": {
           "name": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           }
         }
       },
       "ContactGroupDto": {
         "type": "object",
-        "required": [
-          "id",
-          "name",
-          "contactCount"
-        ],
+        "required": ["id", "name", "contactCount"],
         "properties": {
           "contactCount": {
             "type": "integer",
@@ -3455,19 +2862,13 @@
         "type": "object",
         "properties": {
           "name": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           }
         }
       },
       "ContactImportColumnDto": {
         "type": "object",
-        "required": [
-          "columnIndex",
-          "field"
-        ],
+        "required": ["columnIndex", "field"],
         "properties": {
           "columnIndex": {
             "type": "integer",
@@ -3480,10 +2881,7 @@
       },
       "ContactImportDto": {
         "type": "object",
-        "required": [
-          "filename",
-          "fields"
-        ],
+        "required": ["filename", "fields"],
         "properties": {
           "contactGroupIds": {
             "type": "array",
@@ -3507,9 +2905,7 @@
       },
       "ContactImportResultDto": {
         "type": "object",
-        "required": [
-          "importedCount"
-        ],
+        "required": ["importedCount"],
         "properties": {
           "importedCount": {
             "type": "integer",
@@ -3576,10 +2972,7 @@
         "type": "object",
         "properties": {
           "birthday": {
-            "type": [
-              "string",
-              "null"
-            ],
+            "type": ["string", "null"],
             "format": "date"
           },
           "contactGroupIds": {
@@ -3589,52 +2982,31 @@
             }
           },
           "customFields": {
-            "type": [
-              "array",
-              "null"
-            ],
+            "type": ["array", "null"],
             "items": {
               "$ref": "#/components/schemas/CustomFieldValueInputDto"
             }
           },
           "email": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           },
           "firstName": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           },
           "lastName": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           },
           "notes": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           },
           "phoneNumber": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           }
         }
       },
       "ContainmentFilter_CampaignStatus": {
         "type": "object",
-        "required": [
-          "operator",
-          "value"
-        ],
+        "required": ["operator", "value"],
         "properties": {
           "operator": {
             "$ref": "#/components/schemas/ContainmentOperator"
@@ -3658,10 +3030,7 @@
       },
       "ContainmentFilter_MessageStatus": {
         "type": "object",
-        "required": [
-          "operator",
-          "value"
-        ],
+        "required": ["operator", "value"],
         "properties": {
           "operator": {
             "$ref": "#/components/schemas/ContainmentOperator"
@@ -3670,22 +3039,14 @@
             "type": "array",
             "items": {
               "type": "string",
-              "enum": [
-                "PENDING",
-                "QUEUED",
-                "SENT",
-                "FAILED"
-              ]
+              "enum": ["PENDING", "SENT", "FAILED"]
             }
           }
         }
       },
       "ContainmentFilter_Ulid": {
         "type": "object",
-        "required": [
-          "operator",
-          "value"
-        ],
+        "required": ["operator", "value"],
         "properties": {
           "operator": {
             "$ref": "#/components/schemas/ContainmentOperator"
@@ -3700,17 +3061,11 @@
       },
       "ContainmentOperator": {
         "type": "string",
-        "enum": [
-          "IN",
-          "NOT_IN"
-        ]
+        "enum": ["IN", "NOT_IN"]
       },
       "CreateCustomFieldDto": {
         "type": "object",
-        "required": [
-          "name",
-          "type"
-        ],
+        "required": ["name", "type"],
         "properties": {
           "name": {
             "type": "string"
@@ -3722,9 +3077,7 @@
       },
       "CreateTopupCheckoutSessionRequest": {
         "type": "object",
-        "required": [
-          "amountUsdMicros"
-        ],
+        "required": ["amountUsdMicros"],
         "properties": {
           "amountUsdMicros": {
             "type": "integer",
@@ -3732,41 +3085,9 @@
           }
         }
       },
-      "CreateUserDto": {
-        "type": "object",
-        "required": [
-          "password",
-          "role"
-        ],
-        "properties": {
-          "email": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "name": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "password": {
-            "type": "string"
-          },
-          "role": {
-            "$ref": "#/components/schemas/Role"
-          }
-        }
-      },
       "CustomFieldDto": {
         "type": "object",
-        "required": [
-          "id",
-          "name",
-          "type",
-          "position"
-        ],
+        "required": ["id", "name", "type", "position"],
         "properties": {
           "id": {
             "$ref": "#/components/schemas/Ulid"
@@ -3784,18 +3105,11 @@
       },
       "CustomFieldType": {
         "type": "string",
-        "enum": [
-          "TEXT",
-          "NUMBER",
-          "DATE"
-        ]
+        "enum": ["TEXT", "NUMBER", "DATE"]
       },
       "CustomFieldValueDto": {
         "type": "object",
-        "required": [
-          "id",
-          "value"
-        ],
+        "required": ["id", "value"],
         "properties": {
           "id": {
             "$ref": "#/components/schemas/Ulid"
@@ -3807,10 +3121,7 @@
       },
       "CustomFieldValueInputDto": {
         "type": "object",
-        "required": [
-          "id",
-          "value"
-        ],
+        "required": ["id", "value"],
         "properties": {
           "id": {
             "$ref": "#/components/schemas/Ulid"
@@ -3833,32 +3144,24 @@
           "SESSION_EXPIRED",
           "SESSION_CLIENT_CHANGED",
           "SESSION_INVALID_USER",
-          "ACCESS_DENIED",
           "TEN_DLC_BRAND_REQUIRED"
         ]
       },
       "ErrorResponse": {
         "type": "object",
-        "required": [
-          "errorCode"
-        ],
+        "required": ["errorCode"],
         "properties": {
           "errorCode": {
             "$ref": "#/components/schemas/ErrorCode"
           },
           "errorDescription": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           }
         }
       },
       "HealthResponse": {
         "type": "object",
-        "required": [
-          "status"
-        ],
+        "required": ["status"],
         "properties": {
           "status": {
             "type": "string"
@@ -3867,9 +3170,7 @@
       },
       "IdDto": {
         "type": "object",
-        "required": [
-          "id"
-        ],
+        "required": ["id"],
         "properties": {
           "id": {
             "$ref": "#/components/schemas/Ulid"
@@ -3878,47 +3179,22 @@
       },
       "MessageDto": {
         "type": "object",
-        "required": [
-          "id",
-          "text",
-          "media",
-          "tenantPhoneId",
-          "tenantPhoneNumber",
-          "status"
-        ],
+        "required": ["id", "text", "tenantPhoneId", "tenantPhoneNumber", "status"],
         "properties": {
           "campaignId": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           },
           "contactId": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           },
           "conversationId": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           },
           "id": {
             "type": "string"
           },
-          "media": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/MessageMediaDto"
-            }
-          },
           "sentAt": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           },
           "status": {
             "$ref": "#/components/schemas/MessageStatus"
@@ -3936,10 +3212,7 @@
       },
       "MessageExportDto": {
         "type": "object",
-        "required": [
-          "campaignId",
-          "format"
-        ],
+        "required": ["campaignId", "format"],
         "properties": {
           "campaignId": {
             "type": "string"
@@ -3961,10 +3234,7 @@
       },
       "MessageExportFormatDto": {
         "type": "string",
-        "enum": [
-          "CSV",
-          "EXCEL"
-        ]
+        "enum": ["CSV", "EXCEL"]
       },
       "MessageFilterDto": {
         "type": "object",
@@ -4070,29 +3340,6 @@
           }
         }
       },
-      "MessageMediaDto": {
-        "type": "object",
-        "required": [
-          "url",
-          "contentType"
-        ],
-        "properties": {
-          "contentType": {
-            "type": "string"
-          },
-          "sizeBytes": {
-            "type": [
-              "integer",
-              "null"
-            ],
-            "format": "int64",
-            "minimum": 0
-          },
-          "url": {
-            "type": "string"
-          }
-        }
-      },
       "MessageSortDto": {
         "type": "object",
         "properties": {
@@ -4190,40 +3437,24 @@
       },
       "MessageStatus": {
         "type": "string",
-        "enum": [
-          "PENDING",
-          "QUEUED",
-          "SENT",
-          "FAILED"
-        ]
+        "enum": ["PENDING", "SENT", "FAILED"]
       },
       "NestedOperator": {
         "type": "string",
-        "enum": [
-          "AND",
-          "OR"
-        ]
+        "enum": ["AND", "OR"]
       },
       "PageDirection": {
         "type": "string",
-        "enum": [
-          "NEXT",
-          "PREVIOUS"
-        ]
+        "enum": ["NEXT", "PREVIOUS"]
       },
       "PagePosition": {
         "oneOf": [
           {
             "type": "object",
-            "required": [
-              "type"
-            ],
+            "required": ["type"],
             "properties": {
               "cursor": {
-                "type": [
-                  "array",
-                  "null"
-                ],
+                "type": ["array", "null"],
                 "items": {
                   "$ref": "#/components/schemas/Value"
                 }
@@ -4233,18 +3464,13 @@
               },
               "type": {
                 "type": "string",
-                "enum": [
-                  "SEEK"
-                ]
+                "enum": ["SEEK"]
               }
             }
           },
           {
             "type": "object",
-            "required": [
-              "offset",
-              "type"
-            ],
+            "required": ["offset", "type"],
             "properties": {
               "offset": {
                 "type": "integer",
@@ -4253,9 +3479,7 @@
               },
               "type": {
                 "type": "string",
-                "enum": [
-                  "OFFSET"
-                ]
+                "enum": ["OFFSET"]
               }
             }
           }
@@ -4474,10 +3698,7 @@
                     ]
                   },
                   "filter": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
+                    "type": ["string", "null"]
                   },
                   "firstName": {
                     "oneOf": [
@@ -5037,10 +4258,7 @@
       },
       "Page_CampaignDto": {
         "type": "object",
-        "required": [
-          "items",
-          "size"
-        ],
+        "required": ["items", "size"],
         "properties": {
           "items": {
             "type": "array",
@@ -5050,7 +4268,6 @@
                 "id",
                 "name",
                 "messageTemplate",
-                "media",
                 "contactGroupIds",
                 "status",
                 "messageCount",
@@ -5065,12 +4282,6 @@
                 },
                 "id": {
                   "type": "string"
-                },
-                "media": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/CampaignMediaDto"
-                  }
                 },
                 "messageCount": {
                   "type": "integer",
@@ -5093,19 +4304,13 @@
             }
           },
           "nextCursor": {
-            "type": [
-              "array",
-              "null"
-            ],
+            "type": ["array", "null"],
             "items": {
               "$ref": "#/components/schemas/Value"
             }
           },
           "prevCursor": {
-            "type": [
-              "array",
-              "null"
-            ],
+            "type": ["array", "null"],
             "items": {
               "$ref": "#/components/schemas/Value"
             }
@@ -5118,27 +4323,16 @@
       },
       "Page_ContactDto": {
         "type": "object",
-        "required": [
-          "items",
-          "size"
-        ],
+        "required": ["items", "size"],
         "properties": {
           "items": {
             "type": "array",
             "items": {
               "type": "object",
-              "required": [
-                "id",
-                "phoneNumber",
-                "customFields",
-                "contactGroupIds"
-              ],
+              "required": ["id", "phoneNumber", "customFields", "contactGroupIds"],
               "properties": {
                 "birthday": {
-                  "type": [
-                    "string",
-                    "null"
-                  ],
+                  "type": ["string", "null"],
                   "format": "date"
                 },
                 "contactGroupIds": {
@@ -5154,31 +4348,19 @@
                   }
                 },
                 "email": {
-                  "type": [
-                    "string",
-                    "null"
-                  ]
+                  "type": ["string", "null"]
                 },
                 "firstName": {
-                  "type": [
-                    "string",
-                    "null"
-                  ]
+                  "type": ["string", "null"]
                 },
                 "id": {
                   "$ref": "#/components/schemas/Ulid"
                 },
                 "lastName": {
-                  "type": [
-                    "string",
-                    "null"
-                  ]
+                  "type": ["string", "null"]
                 },
                 "notes": {
-                  "type": [
-                    "string",
-                    "null"
-                  ]
+                  "type": ["string", "null"]
                 },
                 "phoneNumber": {
                   "type": "string"
@@ -5187,19 +4369,13 @@
             }
           },
           "nextCursor": {
-            "type": [
-              "array",
-              "null"
-            ],
+            "type": ["array", "null"],
             "items": {
               "$ref": "#/components/schemas/Value"
             }
           },
           "prevCursor": {
-            "type": [
-              "array",
-              "null"
-            ],
+            "type": ["array", "null"],
             "items": {
               "$ref": "#/components/schemas/Value"
             }
@@ -5212,20 +4388,13 @@
       },
       "Page_ContactGroupDto": {
         "type": "object",
-        "required": [
-          "items",
-          "size"
-        ],
+        "required": ["items", "size"],
         "properties": {
           "items": {
             "type": "array",
             "items": {
               "type": "object",
-              "required": [
-                "id",
-                "name",
-                "contactCount"
-              ],
+              "required": ["id", "name", "contactCount"],
               "properties": {
                 "contactCount": {
                   "type": "integer",
@@ -5241,19 +4410,13 @@
             }
           },
           "nextCursor": {
-            "type": [
-              "array",
-              "null"
-            ],
+            "type": ["array", "null"],
             "items": {
               "$ref": "#/components/schemas/Value"
             }
           },
           "prevCursor": {
-            "type": [
-              "array",
-              "null"
-            ],
+            "type": ["array", "null"],
             "items": {
               "$ref": "#/components/schemas/Value"
             }
@@ -5266,56 +4429,28 @@
       },
       "Page_MessageDto": {
         "type": "object",
-        "required": [
-          "items",
-          "size"
-        ],
+        "required": ["items", "size"],
         "properties": {
           "items": {
             "type": "array",
             "items": {
               "type": "object",
-              "required": [
-                "id",
-                "text",
-                "media",
-                "tenantPhoneId",
-                "tenantPhoneNumber",
-                "status"
-              ],
+              "required": ["id", "text", "tenantPhoneId", "tenantPhoneNumber", "status"],
               "properties": {
                 "campaignId": {
-                  "type": [
-                    "string",
-                    "null"
-                  ]
+                  "type": ["string", "null"]
                 },
                 "contactId": {
-                  "type": [
-                    "string",
-                    "null"
-                  ]
+                  "type": ["string", "null"]
                 },
                 "conversationId": {
-                  "type": [
-                    "string",
-                    "null"
-                  ]
+                  "type": ["string", "null"]
                 },
                 "id": {
                   "type": "string"
                 },
-                "media": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/MessageMediaDto"
-                  }
-                },
                 "sentAt": {
-                  "type": [
-                    "string",
-                    "null"
-                  ]
+                  "type": ["string", "null"]
                 },
                 "status": {
                   "$ref": "#/components/schemas/MessageStatus"
@@ -5333,19 +4468,13 @@
             }
           },
           "nextCursor": {
-            "type": [
-              "array",
-              "null"
-            ],
+            "type": ["array", "null"],
             "items": {
               "$ref": "#/components/schemas/Value"
             }
           },
           "prevCursor": {
-            "type": [
-              "array",
-              "null"
-            ],
+            "type": ["array", "null"],
             "items": {
               "$ref": "#/components/schemas/Value"
             }
@@ -5358,24 +4487,13 @@
       },
       "Page_WalletTransactionDto": {
         "type": "object",
-        "required": [
-          "items",
-          "size"
-        ],
+        "required": ["items", "size"],
         "properties": {
           "items": {
             "type": "array",
             "items": {
               "type": "object",
-              "required": [
-                "id",
-                "amountUsdMicros",
-                "currency",
-                "entryType",
-                "sourceType",
-                "sourceId",
-                "createdAt"
-              ],
+              "required": ["id", "amountUsdMicros", "currency", "entryType", "sourceType", "sourceId", "createdAt"],
               "properties": {
                 "amountUsdMicros": {
                   "type": "integer",
@@ -5404,19 +4522,13 @@
             }
           },
           "nextCursor": {
-            "type": [
-              "array",
-              "null"
-            ],
+            "type": ["array", "null"],
             "items": {
               "$ref": "#/components/schemas/Value"
             }
           },
           "prevCursor": {
-            "type": [
-              "array",
-              "null"
-            ],
+            "type": ["array", "null"],
             "items": {
               "$ref": "#/components/schemas/Value"
             }
@@ -5429,12 +4541,7 @@
       },
       "PaymentConfigDto": {
         "type": "object",
-        "required": [
-          "stripePublishableKey",
-          "currency",
-          "minTopupUsdMicros",
-          "maxTopupUsdMicros"
-        ],
+        "required": ["stripePublishableKey", "currency", "minTopupUsdMicros", "maxTopupUsdMicros"],
         "properties": {
           "currency": {
             "type": "string"
@@ -5454,63 +4561,29 @@
       },
       "PhoneType": {
         "type": "string",
-        "enum": [
-          "TEN_DLC",
-          "SHORT_CODE",
-          "TOLL_FREE"
-        ]
+        "enum": ["TEN_DLC", "SHORT_CODE", "TOLL_FREE"]
       },
       "ProfileDto": {
         "type": "object",
-        "required": [
-          "email",
-          "accessGroups"
-        ],
+        "required": ["email"],
         "properties": {
-          "accessGroups": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AccessGroup"
-            }
-          },
           "email": {
             "type": "string"
           },
           "name": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           }
         }
       },
       "RegularContactImportFieldDto": {
         "type": "string",
-        "enum": [
-          "PhoneNumber",
-          "FirstName",
-          "LastName",
-          "Email",
-          "Birthday",
-          "Notes"
-        ]
-      },
-      "Role": {
-        "type": "string",
-        "enum": [
-          "ADMIN",
-          "MANAGER",
-          "EMPLOYEE"
-        ]
+        "enum": ["PhoneNumber", "FirstName", "LastName", "Email", "Birthday", "Notes"]
       },
       "SendEmailOtpDto": {
         "type": "object",
         "properties": {
           "email": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           }
         }
       },
@@ -5518,19 +4591,13 @@
         "type": "object",
         "properties": {
           "phoneNumber": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           }
         }
       },
       "SignInDto": {
         "type": "object",
-        "required": [
-          "email",
-          "password"
-        ],
+        "required": ["email", "password"],
         "properties": {
           "email": {
             "type": "string"
@@ -5542,44 +4609,28 @@
       },
       "SignUpDto": {
         "type": "object",
-        "required": [
-          "password"
-        ],
+        "required": ["password"],
         "properties": {
           "email": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           },
           "emailCode": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           },
           "password": {
             "type": "string"
           },
           "phoneNumber": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           },
           "phoneNumberCode": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           }
         }
       },
       "Sort": {
         "type": "object",
-        "required": [
-          "order"
-        ],
+        "required": ["order"],
         "properties": {
           "direction": {
             "oneOf": [
@@ -5599,46 +4650,33 @@
       },
       "SortDirection": {
         "type": "string",
-        "enum": [
-          "ASC",
-          "DESC"
-        ]
+        "enum": ["ASC", "DESC"]
       },
       "TableImportFieldDto": {
         "oneOf": [
           {
             "type": "object",
-            "required": [
-              "field",
-              "type"
-            ],
+            "required": ["field", "type"],
             "properties": {
               "field": {
                 "$ref": "#/components/schemas/RegularContactImportFieldDto"
               },
               "type": {
                 "type": "string",
-                "enum": [
-                  "REGULAR"
-                ]
+                "enum": ["REGULAR"]
               }
             }
           },
           {
             "type": "object",
-            "required": [
-              "custom_field_id",
-              "type"
-            ],
+            "required": ["custom_field_id", "type"],
             "properties": {
               "custom_field_id": {
                 "$ref": "#/components/schemas/Ulid"
               },
               "type": {
                 "type": "string",
-                "enum": [
-                  "CUSTOM_FIELD"
-                ]
+                "enum": ["CUSTOM_FIELD"]
               }
             }
           }
@@ -5646,12 +4684,7 @@
       },
       "TenDlcBrandDto": {
         "type": "object",
-        "required": [
-          "id",
-          "createdAt",
-          "updatedAt",
-          "name"
-        ],
+        "required": ["id", "createdAt", "updatedAt", "name"],
         "properties": {
           "createdAt": {
             "type": "string"
@@ -5669,9 +4702,7 @@
       },
       "TenDlcBrandUpdate": {
         "type": "object",
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "properties": {
           "name": {
             "type": "string"
@@ -5682,29 +4713,19 @@
         "type": "object",
         "properties": {
           "description": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           }
         }
       },
       "TenDlcCampaignDto": {
         "type": "object",
-        "required": [
-          "id",
-          "createdAt",
-          "updatedAt"
-        ],
+        "required": ["id", "createdAt", "updatedAt"],
         "properties": {
           "createdAt": {
             "type": "string"
           },
           "description": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           },
           "id": {
             "type": "string"
@@ -5716,10 +4737,7 @@
       },
       "TenantPhoneDto": {
         "type": "object",
-        "required": [
-          "phoneType",
-          "phoneNumber"
-        ],
+        "required": ["phoneType", "phoneNumber"],
         "properties": {
           "phoneNumber": {
             "type": "string"
@@ -5729,68 +4747,25 @@
           }
         }
       },
-      "TenantUserDto": {
-        "type": "object",
-        "required": [
-          "id",
-          "email",
-          "role"
-        ],
-        "properties": {
-          "email": {
-            "type": "string"
-          },
-          "id": {
-            "$ref": "#/components/schemas/Ulid"
-          },
-          "name": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "role": {
-            "$ref": "#/components/schemas/Role"
-          }
-        }
-      },
       "TextFilter": {
         "type": "object",
-        "required": [
-          "operator"
-        ],
+        "required": ["operator"],
         "properties": {
           "operator": {
             "$ref": "#/components/schemas/TextOperator"
           },
           "value": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           }
         }
       },
       "TextOperator": {
         "type": "string",
-        "enum": [
-          "CONTAINS",
-          "NOT_CONTAINS",
-          "STARTS_WITH",
-          "ENDS_WITH",
-          "EQUAL",
-          "NOT_EQUAL"
-        ]
+        "enum": ["CONTAINS", "NOT_CONTAINS", "STARTS_WITH", "ENDS_WITH", "EQUAL", "NOT_EQUAL"]
       },
       "TopupCheckoutSessionDto": {
         "type": "object",
-        "required": [
-          "topupId",
-          "clientSecret",
-          "amountUsdMicros",
-          "currency",
-          "stripeAmountCents"
-        ],
+        "required": ["topupId", "clientSecret", "amountUsdMicros", "currency", "stripeAmountCents"],
         "properties": {
           "amountUsdMicros": {
             "type": "integer",
@@ -5816,9 +4791,7 @@
       },
       "UpdateCustomFieldNameDto": {
         "type": "object",
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "properties": {
           "name": {
             "type": "string"
@@ -5827,38 +4800,16 @@
       },
       "UpdateCustomFieldPositionDto": {
         "type": "object",
-        "required": [
-          "position"
-        ],
+        "required": ["position"],
         "properties": {
           "position": {
             "type": "string"
           }
         }
       },
-      "UpdateUserDto": {
-        "type": "object",
-        "required": [
-          "role"
-        ],
-        "properties": {
-          "name": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "role": {
-            "$ref": "#/components/schemas/Role"
-          }
-        }
-      },
       "UploadUrlDto": {
         "type": "object",
-        "required": [
-          "url",
-          "newFilename"
-        ],
+        "required": ["url", "newFilename"],
         "properties": {
           "newFilename": {
             "type": "string"
@@ -5871,10 +4822,7 @@
       "Value": {},
       "WalletBalanceDto": {
         "type": "object",
-        "required": [
-          "currency",
-          "balanceUsdMicros"
-        ],
+        "required": ["currency", "balanceUsdMicros"],
         "properties": {
           "balanceUsdMicros": {
             "type": "integer",
@@ -5887,15 +4835,7 @@
       },
       "WalletTransactionDto": {
         "type": "object",
-        "required": [
-          "id",
-          "amountUsdMicros",
-          "currency",
-          "entryType",
-          "sourceType",
-          "sourceId",
-          "createdAt"
-        ],
+        "required": ["id", "amountUsdMicros", "currency", "entryType", "sourceType", "sourceId", "createdAt"],
         "properties": {
           "amountUsdMicros": {
             "type": "integer",

@@ -1,11 +1,15 @@
 import type { DatagridCore } from "../index.svelte";
-import type {
-  DataTableCursor,
-  DataTableLoadRequest,
-  DataTableLoadResult,
-  DataTablePageDirection,
-  DataTablePageRequest,
-} from "../types";
+
+export type DataTableCursor = unknown[] | null;
+export type DataTablePageDirection = "next" | "previous";
+
+export interface DataTablePageRequest {
+  cursor: DataTableCursor;
+  direction: DataTablePageDirection;
+  limit: number;
+  offset?: number;
+  page: number;
+}
 
 export type PageCursorMap = Record<number, DataTableCursor | undefined>;
 
@@ -55,7 +59,7 @@ export type PaginationFeatureConfig = Partial<PaginationFeatureState>;
 /**
  * Interface for row pinning functionality, extending PaginationFeatureState.
  */
-export type IRowPinningFeature = {} & PaginationFeatureState;
+export type IPaginationFeature = PaginationFeatureState;
 
 /**
  * Manages pagination functionality within a data grid.
@@ -63,9 +67,9 @@ export type IRowPinningFeature = {} & PaginationFeatureState;
  * Cursor pagination is modeled as an optimization of page navigation: page numbers
  * still drive the UI, while cursor state records how to fetch adjacent pages.
  */
-export class PaginationFeature<TOriginalRow = any> implements IRowPinningFeature {
+export class PaginationFeature<TOriginalRow = any> implements IPaginationFeature {
   /** The instance of the data grid associated with this feature. */
-  datagrid: DatagridCore<TOriginalRow, any, any>;
+  datagrid: DatagridCore<TOriginalRow>;
 
   /** Flag indicating whether page resets automatically. */
   autoResetPage = $state(false);
@@ -105,7 +109,7 @@ export class PaginationFeature<TOriginalRow = any> implements IRowPinningFeature
    * @param datagrid The data grid instance to which pagination will be applied.
    * @param config Optional configuration to initialize the feature.
    */
-  constructor(datagrid: DatagridCore<TOriginalRow, any, any>, config?: PaginationFeatureConfig) {
+  constructor(datagrid: DatagridCore<TOriginalRow>, config?: PaginationFeatureConfig) {
     this.datagrid = datagrid;
     Object.assign(this, config);
 
@@ -223,9 +227,9 @@ export class PaginationFeature<TOriginalRow = any> implements IRowPinningFeature
   /**
    * Records cursor boundaries returned by a page load.
    */
-  registerLoadResult<TData>(
-    request: Pick<DataTableLoadRequest, "cursor" | "direction" | "limit" | "offset" | "page">,
-    result: Pick<DataTableLoadResult<TData>, "nextCursor" | "previousCursor" | "totalRows">,
+  registerLoadResult(
+    request: Pick<DataTablePageRequest, "cursor" | "direction" | "limit" | "page"> & { offset?: number },
+    result: { nextCursor: DataTableCursor; previousCursor?: DataTableCursor; totalRows: number },
   ): void {
     const page = request.page ?? this.page;
     const pageSize = request.limit || this.pageSize;
@@ -409,10 +413,10 @@ export class PaginationFeature<TOriginalRow = any> implements IRowPinningFeature
     return (page - 1) * this.pageSize;
   }
 
-  private getResultPageCursor<TData>(
+  private getResultPageCursor(
     page: number,
-    request: Pick<DataTableLoadRequest, "cursor" | "direction" | "offset">,
-    result: Pick<DataTableLoadResult<TData>, "previousCursor">,
+    request: Pick<DataTablePageRequest, "cursor" | "direction"> & { offset?: number },
+    result: { previousCursor?: DataTableCursor },
   ): DataTableCursor | undefined {
     if (typeof result.previousCursor !== "undefined") {
       return result.previousCursor;

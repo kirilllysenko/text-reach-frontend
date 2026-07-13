@@ -1,8 +1,9 @@
 import { isGroupColumn } from "../helpers/column-guards";
 import type { DatagridCore } from "../index.svelte";
-import type { Aggregation, AggregationFn, DataTableFilter, GridGroupRow, GridRow } from "../types";
+import type { Aggregation, GridGroupRow, GridRow } from "../row-types";
+import type { AggregationFn, AccessorColumn, ComputedColumn } from "../column-types";
+import type { DataTableFilter } from "../features/column-filtering.svelte";
 import type { PerformanceMetrics } from "../helpers/performance-metrics.svelte";
-import type { AccessorColumn, ComputedColumn } from "../types";
 import { aggregationFunctions } from "../helpers/aggregation-functions";
 import { applySorting } from "./apply-sorting";
 import { findColumnById, flattenColumnStructureAndClearGroups } from "../utils.svelte";
@@ -17,16 +18,16 @@ import { findColumnById, flattenColumnStructureAndClearGroups } from "../utils.s
  *
  * @template TOriginalRow - The type of the original row data in the datagrid.
  */
-export class DataDataProcessor<TOriginalRow> {
+export class DataProcessor<TOriginalRow> {
   readonly metrics: PerformanceMetrics;
   private customAggregationFns: Map<string, AggregationFn>;
 
   /**
-   * Constructs an instance of the DataDataProcessor.
+   * Constructs a data processor.
    *
-   * @param {DatagridCore<TOriginalRow, any, any>} datagrid - The core datagrid instance to which this processor belongs.
+   * @param {DatagridCore<TOriginalRow>} datagrid - The core datagrid instance to which this processor belongs.
    */
-  constructor(private readonly datagrid: DatagridCore<TOriginalRow, any, any>) {
+  constructor(private readonly datagrid: DatagridCore<TOriginalRow>) {
     this.metrics = datagrid.performanceMetrics;
     this.customAggregationFns = new Map();
   }
@@ -160,7 +161,7 @@ export class DataDataProcessor<TOriginalRow> {
     );
     const noFilters = activeFilters.length === 0;
 
-    if (isManualFilteringEnabled || noFilters) return data;
+    if (isManualFilteringEnabled || noFilters || data.length === 0) return data;
 
     const filterData = (
       data: TOriginalRow[],
@@ -173,24 +174,13 @@ export class DataDataProcessor<TOriginalRow> {
       );
     };
 
-    const getActiveFilters = () => {
-      return activeFilters
-        .map((filter) => {
-          const fieldId = this.datagrid.features.filtering.getFilterFieldId(filter);
-          const field = this.datagrid.dataFields.findFieldByIdOrThrow(fieldId);
-
-          if (field.filterable === false) return null;
-
-          return {
-            filter,
-            getValue: field.getValueFn,
-          };
-        })
-        .filter((filter) => filter !== null);
-    };
+    const resolvedFilters = activeFilters.map((filter) => ({
+      filter,
+      getValue: this.datagrid.features.filtering.getFilterValueGetter(filter),
+    }));
 
     this.metrics.measure("Column Filtering", () => {
-      data = filterData(data, getActiveFilters());
+      data = filterData(data, resolvedFilters);
     });
 
     return this.datagrid.lifecycleHooks.executePostFilter(data);

@@ -1,8 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { AccessGate, PageTitle } from "$lib";
+  import { PageTitle } from "$lib";
   import { PATH_PAYMENT_TOP_UP, PATH_PAYMENT_TRANSACTION } from "$lib/app/paths";
-  import { AccessGroup } from "$lib/api/index.schemas";
   import { formatPaymentBalance } from "$lib/feature/payment/payment-display";
   import { PaymentOverviewState } from "$lib/feature/payment/payment-state.svelte";
 
@@ -32,15 +31,13 @@
           </div>
 
           <div class="flex flex-col gap-2 sm:flex-row">
-            <AccessGate access={AccessGroup.BILLING_WRITE}>
-              <a
-                href={PATH_PAYMENT_TOP_UP}
-                class="flex h-10 items-center justify-center rounded-xl border border-slate-700 bg-slate-700 px-4
-                  text-sm font-medium text-white shadow-sm hover:bg-slate-800"
-              >
-                Top up
-              </a>
-            </AccessGate>
+            <a
+              href={PATH_PAYMENT_TOP_UP}
+              class="flex h-10 items-center justify-center rounded-xl border border-slate-700 bg-slate-700 px-4
+                text-sm font-medium text-white shadow-sm hover:bg-slate-800"
+            >
+              Top up
+            </a>
             <a
               href={PATH_PAYMENT_TRANSACTION}
               class="flex h-10 items-center justify-center rounded-xl border border-white/80 bg-white/90 px-4

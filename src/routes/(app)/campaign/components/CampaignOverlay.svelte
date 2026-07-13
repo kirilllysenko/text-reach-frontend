@@ -1,7 +1,6 @@
 <script lang="ts">
-  import { Button, ResponsiveDialog, SortPanel, type SortPanelController } from "$lib";
+  import { Button, ResponsiveDialog, SortPanel } from "$lib";
   import type { CampaignState } from "$lib/feature/campaign/campaign-state.svelte";
-  import { campaignSortDefinitions, type CampaignSortId } from "$lib/feature/campaign/campaign-view-data";
   import CampaignFilterPanel from "./CampaignFilterPanel.svelte";
 
   interface Props {
@@ -9,12 +8,6 @@
   }
 
   let { state }: Props = $props();
-
-  const sorting = $derived<SortPanelController<CampaignSortId>>(state);
-  const sortFieldOptions = campaignSortDefinitions.map(({ sortId, label }) => ({
-    value: sortId,
-    label: label ?? sortId,
-  }));
 </script>
 
 <ResponsiveDialog
@@ -36,7 +29,7 @@
   description="Adjust the priority stack for the campaign list."
   onClose={state.closeOverlays}
 >
-  <SortPanel {sorting} fieldOptions={sortFieldOptions} compact directionOptions={["descending", "ascending"]} />
+  <SortPanel sorting={state.sorting} />
 
   {#snippet mobileFooter()}
     <Button class="w-full" onclick={state.closeOverlays}>Apply sorting</Button>

@@ -1,60 +1,20 @@
-import type { ErrorResponse } from "$lib/api/index.schemas";
+import type { ErrorResponse, MessageSortDto } from "$lib/api/index.schemas";
 import { getPage as getMessagePage } from "$lib/api/message/message";
 import type { DataTableLoadRequest, DataTableLoadResult } from "$lib/components/table";
 import { toMessageViewModel } from "$lib/feature/message/message-display";
 import { buildMessageRequest } from "$lib/feature/message/message-query";
-import { debounce } from "$lib/utils/debounce";
-import {
-  defaultMessageSorts,
-  type MessageSortId,
-  type MessageTableSort,
-  type MessageViewModel,
-} from "$lib/feature/message/message-view-data";
-
-const SEARCH_DEBOUNCE_MS = 250;
-
-export function resolveMessageSorts(sorts: readonly MessageTableSort[]): readonly MessageTableSort[] {
-  return sorts.length > 0 ? sorts : defaultMessageSorts;
-}
+import type { MessageViewModel } from "$lib/feature/message/message-view-data";
 
 export class CampaignMessagesState {
   loadingError = $state<string | null>(null);
   search = $state("");
-  filtersOpen = $state(false);
-  sortOpen = $state(false);
-  tableKey = $state(0);
-
-  private readonly scheduleRefresh = debounce(() => {
-    this.refreshTable();
-  }, SEARCH_DEBOUNCE_MS);
 
   constructor(private readonly campaignId: string) {}
 
-  updateSearch = (value: string): void => {
-    this.search = value;
-    this.scheduleRefresh();
-  };
-
-  openFilters = (): void => {
-    this.filtersOpen = !this.filtersOpen;
-    if (this.filtersOpen) {
-      this.sortOpen = false;
-    }
-  };
-
-  openSort = (): void => {
-    this.sortOpen = !this.sortOpen;
-    if (this.sortOpen) {
-      this.filtersOpen = false;
-    }
-  };
-
-  closeOverlays = (): void => {
-    this.filtersOpen = false;
-    this.sortOpen = false;
-  };
-
-  fetchRows = async (request: DataTableLoadRequest<MessageSortId>): Promise<DataTableLoadResult<MessageViewModel>> => {
+  fetchRows = async (
+    request: DataTableLoadRequest,
+    sort: MessageSortDto,
+  ): Promise<DataTableLoadResult<MessageViewModel>> => {
     const pageRequest = buildMessageRequest({
       campaignId: this.campaignId,
       pageSize: request.limit,
@@ -62,7 +22,7 @@ export class CampaignMessagesState {
       direction: request.direction,
       search: this.search,
       filters: request.filters,
-      sorts: resolveMessageSorts(request.sorts),
+      sort,
     });
 
     try {
@@ -89,19 +49,7 @@ export class CampaignMessagesState {
     }
   };
 
-  dispose = (): void => {
-    this.scheduleRefresh.cancel();
-  };
-
-  private refreshTable(): void {
-    this.tableKey += 1;
-  }
-
-  private estimateTotalRows(
-    request: DataTableLoadRequest<MessageSortId>,
-    rowCount: number,
-    nextCursor: unknown[] | null,
-  ): number {
+  private estimateTotalRows(request: DataTableLoadRequest, rowCount: number, nextCursor: unknown[] | null): number {
     const offset = request.offset ?? 0;
     return offset + rowCount + (nextCursor ? 1 : 0);
   }

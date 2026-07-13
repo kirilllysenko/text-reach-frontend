@@ -37,7 +37,7 @@ export type IGlobalSearchState = GlobalSearchState;
  * including fuzzy search and manual query management.
  */
 export class GlobalSearchFeature implements IGlobalSearchState {
-    datagrid: DatagridCore<any, any, any>;
+    datagrid: DatagridCore;
 
     /** Whether the search is manual. */
     isManual: boolean = $state(false);
@@ -58,7 +58,7 @@ export class GlobalSearchFeature implements IGlobalSearchState {
      * @param {DatagridCore} datagrid - The datagrid instance to associate with the search feature.
      * @param {GlobalSearchFeatureConfig} config - Configuration options for initializing the feature.
      */
-    constructor(datagrid: DatagridCore<any, any, any>, config: GlobalSearchFeatureConfig) {
+    constructor(datagrid: DatagridCore, config: GlobalSearchFeatureConfig) {
         this.datagrid = datagrid;
         Object.assign(this, config);
     }

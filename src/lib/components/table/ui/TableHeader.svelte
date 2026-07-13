@@ -1,11 +1,11 @@
-<script lang="ts" generics="TData, TSortId extends string = string">
+<script lang="ts" generics="TData">
   import { onDestroy } from "svelte";
   import type { DatagridCore } from "../core/index.svelte";
-  import type { LeafColumn } from "../core/types";
+  import type { LeafColumn } from "../core/column-types";
   import { getColumnSizeStyle, setColumnSizeStyleProperty } from "./column-size-style";
 
   interface Props {
-    table: DatagridCore<TData, any, TSortId>;
+    table: DatagridCore<TData>;
   }
 
   let { table }: Props = $props();
@@ -161,14 +161,14 @@
             onclick={(event) => toggleSort(event, column)}
           >
             <span class="min-w-0 truncate">{column.header}</span>
-            {#if table.features.sorting.getSortDirectionByFieldId(column.columnId) === "ascending"}
+            {#if table.features.sorting.getSortDirection(column.columnId) === "ascending"}
               <span class="shrink-0" aria-label="Sorted ascending">▲</span>
-            {:else if table.features.sorting.getSortDirectionByFieldId(column.columnId) === "descending"}
+            {:else if table.features.sorting.getSortDirection(column.columnId) === "descending"}
               <span class="shrink-0" aria-label="Sorted descending">▼</span>
             {/if}
-            {#if table.features.sorting.getSortConfigIndexByFieldId(column.columnId)}
+            {#if table.features.sorting.getSortIndex(column.columnId)}
               <span class="shrink-0 text-[10px] text-slate-400">
-                {table.features.sorting.getSortConfigIndexByFieldId(column.columnId)}
+                {table.features.sorting.getSortIndex(column.columnId)}
               </span>
             {/if}
           </button>

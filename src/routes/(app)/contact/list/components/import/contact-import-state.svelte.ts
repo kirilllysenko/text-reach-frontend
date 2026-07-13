@@ -1,33 +1,57 @@
 import { getContactUploadUrl, importContacts } from "$lib/api/contact/contact";
-import type { ContactImportDto, ContactImportResultDto, ErrorResponse } from "$lib/api/index.schemas";
+import { listCustomFields } from "$lib/api/custom-field/custom-field";
+import type { CustomFieldDto, ErrorResponse } from "$lib/api/index.schemas";
 import { notificationsState } from "$lib/state/notifications.svelte";
-import { parseContactImportFile } from "./contact-import-file";
 import {
-  CONTACT_IMPORT_IGNORE,
-  ContactImportMappingState,
-  type ContactImportMapping,
   buildContactImportRequest,
-} from "./contact-import-mapping.svelte";
+  CONTACT_IMPORT_IGNORE,
+  createContactImportMappingOptions,
+  getContactImportPreviewRows,
+  inferContactImportMapping,
+  parseContactImportFile,
+  type ContactImportMappingValue,
+  type ContactImportParseResult,
+  type ContactImportPreviewColumn,
+} from "./contact-import";
 
-export type ContactImportStep = "setup" | "mapping" | "complete";
+type ContactImportStep = "setup" | "mapping" | "complete";
 
-export interface ContactImportStateOptions {
-  onImported: () => Promise<void> | void;
+interface ContactImportStateOptions {
+  refreshTable: () => Promise<void> | void;
 }
 
-export function createContactImportState(options: ContactImportStateOptions): ContactImportState {
-  return new ContactImportState(options);
+export interface ContactTableReloadTarget {
+  handlers: {
+    dataLoading: {
+      reload: () => Promise<unknown> | void;
+    };
+  };
 }
 
-export class ContactImportState {
-  open = $state(false);
+export function createContactImportState(table: ContactTableReloadTarget): ContactImportState {
+  return new ContactImportState({
+    async refreshTable() {
+      await table.handlers.dataLoading.reload();
+    },
+  });
+}
+
+class ContactImportState {
   step = $state<ContactImportStep>("setup");
-  error = $state<string | null>(null);
-  importedCount = $state<number | null>(null);
   file = $state<File | null>(null);
   contactGroupIds = $state<string[]>([]);
+  uploadedFilename = $state("");
+  rows = $state<string[][]>([]);
+  columns = $state<ContactImportPreviewColumn[]>([]);
+  skipFirstRow = $state(false);
+  mappings = $state<Record<number, ContactImportMappingValue>>({});
+  customFields = $state<CustomFieldDto[]>([]);
+  customFieldsLoading = $state(false);
+  customFieldsLoaded = $state(false);
   setupSubmitting = $state(false);
-  mapping = new ContactImportMappingState();
+  importSubmitting = $state(false);
+  error = $state<string | null>(null);
+  importedCount = $state<number | null>(null);
 
   private options: ContactImportStateOptions;
 
@@ -35,41 +59,33 @@ export class ContactImportState {
     this.options = options;
   }
 
-  get displayError(): string | null {
-    return this.error ?? this.mapping.customFieldsError;
-  }
-
-  openDialog = (): void => {
-    this.open = true;
-    void this.mapping.preloadCustomFields();
-  };
-
-  closeDialog = (): void => {
-    if (this.setupSubmitting || this.mapping.importSubmitting) {
-      return;
-    }
-
-    this.open = false;
-    this.reset();
-  };
+  mappingOptions = $derived(createContactImportMappingOptions(this.customFields));
+  previewRows = $derived(getContactImportPreviewRows(this.rows, this.skipFirstRow));
+  selectedFileName = $derived(this.file?.name ?? "No file selected");
+  canContinue = $derived(Boolean(this.file) && !this.setupSubmitting);
+  canImport = $derived(Boolean(this.uploadedFilename) && !this.importSubmitting && this.step === "mapping");
 
   reset = (): void => {
     this.step = "setup";
-    this.error = null;
-    this.importedCount = null;
     this.file = null;
     this.contactGroupIds = [];
+    this.uploadedFilename = "";
+    this.rows = [];
+    this.columns = [];
+    this.skipFirstRow = false;
+    this.mappings = {};
     this.setupSubmitting = false;
-    this.mapping.reset();
+    this.importSubmitting = false;
+    this.error = null;
+    this.importedCount = null;
   };
 
   setFile = (file: File | null): void => {
-    if (this.setupSubmitting) {
-      return;
-    }
-
     this.file = file;
-    this.mapping.reset();
+    this.uploadedFilename = "";
+    this.rows = [];
+    this.columns = [];
+    this.mappings = {};
     this.step = "setup";
     this.error = null;
     this.importedCount = null;
@@ -79,20 +95,47 @@ export class ContactImportState {
     this.contactGroupIds = contactGroupIds;
   };
 
-  returnToSetup = (): void => {
-    if (!this.mapping.importSubmitting) {
-      this.step = "setup";
-    }
+  setSkipFirstRow = (skipFirstRow: boolean): void => {
+    this.skipFirstRow = skipFirstRow;
   };
 
-  clearError = (): void => {
+  updateMapping = (columnIndex: number, value: ContactImportMappingValue): void => {
+    this.mappings = {
+      ...this.mappings,
+      [columnIndex]: value,
+    };
     this.error = null;
   };
 
-  prepareImport = async (): Promise<void> => {
-    const file = this.file;
+  getMappingOption = (value: ContactImportMappingValue) =>
+    this.mappingOptions.find((option) => option.id === value) ?? this.mappingOptions[0];
 
-    if (!file || this.setupSubmitting) {
+  loadCustomFields = async (): Promise<void> => {
+    if (this.customFieldsLoaded || this.customFieldsLoading) {
+      return;
+    }
+
+    this.customFieldsLoading = true;
+
+    try {
+      const response = await listCustomFields({ credentials: "include" });
+
+      if (response.status !== 200) {
+        this.error = toErrorText(response.data as ErrorResponse, "Could not load custom fields.");
+        return;
+      }
+
+      this.customFields = response.data;
+      this.customFieldsLoaded = true;
+    } catch {
+      this.error = "Could not load custom fields.";
+    } finally {
+      this.customFieldsLoading = false;
+    }
+  };
+
+  continueToMapping = async (): Promise<void> => {
+    if (!this.file || this.setupSubmitting) {
       return;
     }
 
@@ -100,11 +143,30 @@ export class ContactImportState {
     this.error = null;
 
     try {
-      await this.mapping.preloadCustomFields();
-      const parsedFile = await parseContactImportFile(file);
-      const uploadedFilename = await uploadContactImportFile(file);
+      await this.loadCustomFields();
+      const parsedFile = await parseContactImportFile(this.file);
+      const uploadResponse = await getContactUploadUrl({ filename: this.file.name }, { credentials: "include" });
 
-      this.mapping.applyParsedFile(parsedFile, uploadedFilename);
+      if (uploadResponse.status !== 200) {
+        this.error = toErrorText(uploadResponse.data as ErrorResponse, "Could not start contact file upload.");
+        return;
+      }
+
+      const uploadResult = await fetch(uploadResponse.data.url, {
+        method: "PUT",
+        headers: {
+          "Content-Type": this.file.type || getFallbackContentType(this.file),
+        },
+        body: this.file,
+      });
+
+      if (!uploadResult.ok) {
+        this.error = "Could not upload contacts file.";
+        return;
+      }
+
+      this.applyParsedFile(parsedFile);
+      this.uploadedFilename = uploadResponse.data.newFilename;
       this.step = "mapping";
     } catch (error) {
       this.error = error instanceof Error ? error.message : "Could not prepare contacts import.";
@@ -114,73 +176,48 @@ export class ContactImportState {
   };
 
   importContacts = async (): Promise<void> => {
-    if (this.mapping.importSubmitting || !this.mapping.uploadedFilename) {
+    if (this.importSubmitting || !this.uploadedFilename) {
       return;
     }
 
-    this.mapping.importSubmitting = true;
+    this.importSubmitting = true;
     this.error = null;
 
     try {
-      const mappings: ContactImportMapping[] = this.mapping.columns.map((column) => ({
-        columnIndex: column.index,
-        value: this.mapping.mappings[column.index] ?? CONTACT_IMPORT_IGNORE,
-      }));
       const request = buildContactImportRequest({
-        filename: this.mapping.uploadedFilename,
+        filename: this.uploadedFilename,
         contactGroupIds: this.contactGroupIds,
-        skipFirstRow: this.mapping.skipFirstRow,
-        mappings,
+        skipFirstRow: this.skipFirstRow,
+        mappings: this.columns.map((column) => ({
+          columnIndex: column.index,
+          value: this.mappings[column.index] ?? CONTACT_IMPORT_IGNORE,
+        })),
       });
-      const result = await submitContactImport(request);
+      const response = await importContacts(request, { credentials: "include" });
 
-      this.importedCount = result.importedCount;
+      if (response.status !== 200) {
+        this.error = toErrorText(response.data as ErrorResponse, "Could not import contacts.");
+        return;
+      }
+
+      this.importedCount = response.data.importedCount;
       this.step = "complete";
-      notificationsState.showInfo(`Imported ${result.importedCount} contacts.`);
-      await this.options.onImported();
+      notificationsState.showInfo(`Imported ${response.data.importedCount} contacts.`);
+      await this.options.refreshTable();
     } catch (error) {
       this.error = error instanceof Error ? error.message : "Could not import contacts.";
     } finally {
-      this.mapping.importSubmitting = false;
+      this.importSubmitting = false;
     }
   };
-}
 
-async function uploadContactImportFile(file: File): Promise<string> {
-  const upload = await getContactUploadUrl({ filename: file.name }, { credentials: "include" }).catch((error) => {
-    throw asContactImportError(error, "Could not start contact file upload.");
-  });
-
-  if (upload.status !== 200) {
-    throw new Error(toErrorText(upload.data as ErrorResponse, "Could not start contact file upload."));
-  }
-
-  const response = await fetch(upload.data.url, {
-    method: "PUT",
-    headers: { "Content-Type": file.type || getFallbackContentType(file) },
-    body: file,
-  }).catch((error) => {
-    throw asContactImportError(error, "Could not upload contacts file.");
-  });
-
-  if (!response.ok) {
-    throw new Error("Could not upload contacts file.");
-  }
-
-  return upload.data.newFilename;
-}
-
-async function submitContactImport(request: ContactImportDto): Promise<ContactImportResultDto> {
-  try {
-    const response = await importContacts(request, { credentials: "include" });
-
-    if (response.status !== 200) {
-      throw new Error(toErrorText(response.data as ErrorResponse, "Could not import contacts."));
-    }
-
-    return response.data;
-  } catch (error) {
-    throw asContactImportError(error, "Could not import contacts.");
+  private applyParsedFile(parsedFile: ContactImportParseResult): void {
+    this.rows = parsedFile.rows;
+    this.columns = parsedFile.columns;
+    this.skipFirstRow = parsedFile.skipFirstRow;
+    this.mappings = Object.fromEntries(
+      parsedFile.columns.map((column) => [column.index, inferContactImportMapping(column, this.customFields)]),
+    );
   }
 }
 
@@ -188,12 +225,10 @@ function toErrorText(error: ErrorResponse | undefined, fallback: string): string
   return error?.errorDescription ?? fallback;
 }
 
-function asContactImportError(error: unknown, fallback: string): Error {
-  return error instanceof Error ? error : new Error(fallback);
-}
-
 function getFallbackContentType(file: File): string {
   return file.name.toLowerCase().endsWith(".xlsx")
     ? "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     : "text/csv";
 }
+
+export type { ContactImportState };

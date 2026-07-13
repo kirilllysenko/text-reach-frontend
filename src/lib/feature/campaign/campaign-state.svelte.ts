@@ -1,59 +1,42 @@
 import {
+  SortDirection,
   type CampaignDto,
   type ErrorResponse,
   type PageRequestContactGroupFilterDtoContactGroupSortDto,
 } from "$lib/api/index.schemas";
 import { fetchContactGroups as fetchContactGroupList } from "$lib/api/contact-group/contact-group";
 import { listCampaigns as listCampaignList } from "$lib/api/campaign/campaign";
-import type { DataTableActiveSortDirection, DataTableFilter, SortPanelController } from "$lib/components/table";
-import { defaultContactGroupSorts } from "$lib/feature/contact-group/contact-group-sorting";
+import { DatagridCore, accessorColumn, type DataTableFilter, type SortingService } from "$lib/components/table";
 import { debounce } from "$lib/utils/debounce";
-import { tableSortsToDto } from "$lib/utils/table-sort";
 import {
-  campaignSortDefinitions,
   campaignStatusOptions,
   statusLabelMap,
-  defaultCampaignSorts,
-  type CampaignSortId,
   type CampaignStatus,
-  type CampaignTableSort,
   type CampaignViewModel,
 } from "$lib/feature/campaign/campaign-view-data";
 import { buildCampaignRequest } from "./campaign-query";
-import {
-  createMockCampaignList,
-  defaultContactGroupNameById,
-  mergeContactGroupNames,
-  toCampaignViewModel,
-} from "./campaign-display";
+import { campaignTableSorts } from "./campaign-table-sorts";
+import { mergeContactGroupNames, toCampaignViewModel } from "./campaign-display";
 
 type MobileView = "list" | "details";
 
 const DEFAULT_PAGE_SIZE = 50;
 const SEARCH_DEBOUNCE_MS = 250;
+const INITIAL_SORTING = [{ sortId: "createdAt", direction: "descending" }] as const;
 
-export function buildContactGroupListRequest(): PageRequestContactGroupFilterDtoContactGroupSortDto {
-  return {
-    pageSize: 300,
-    sort: tableSortsToDto(defaultContactGroupSorts),
-  };
-}
-
-export class CampaignState implements SortPanelController<CampaignSortId> {
+export class CampaignState {
   loading = $state(true);
   loadingMore = $state(false);
   loadingError = $state<string | null>(null);
   campaigns = $state<CampaignViewModel[]>([]);
   selectedCampaignId = $state<string | null>(null);
-  contactGroupNameById = $state<Record<string, string>>({ ...defaultContactGroupNameById });
+  contactGroupNameById = $state<Record<string, string>>({});
 
   search = $state("");
   statusFilters = $state<NonNullable<CampaignStatus>[]>([]);
   createdAfter = $state("");
   minSentMessageCount = $state("");
   minMessageCount = $state("");
-  sorts = $state<CampaignTableSort[]>([...defaultCampaignSorts]);
-
   desktopExpanded = $state(false);
   filtersOpen = $state(false);
   sortOpen = $state(false);
@@ -66,9 +49,25 @@ export class CampaignState implements SortPanelController<CampaignSortId> {
   private readonly scheduleRefresh = debounce(() => {
     void this.resetAndLoadCampaignList();
   }, SEARCH_DEBOUNCE_MS);
+  private readonly sortingTable = new DatagridCore<CampaignViewModel>({
+    columns: [
+      accessorColumn<CampaignViewModel, "id", unknown>({
+        accessorKey: "id",
+        columnId: "id",
+        header: "Campaign",
+      }),
+    ],
+    data: [],
+    initialState: {
+      sorting: {
+        sortDefinitions: campaignTableSorts.definitions,
+        sorts: [...INITIAL_SORTING],
+      },
+    },
+  });
+  readonly sorting: SortingService = this.sortingTable.handlers.sorting;
 
   statusOptions = campaignStatusOptions;
-
   selectedCampaign = $derived.by(() => {
     const selectedCampaignId = this.selectedCampaignId;
     if (!selectedCampaignId) {
@@ -103,13 +102,14 @@ export class CampaignState implements SortPanelController<CampaignSortId> {
   activeFilterCount = $derived(this.activeFilterChips.length);
 
   sortChips = $derived.by(() =>
-    this.sorts.map((sort, index) => {
-      const label = campaignSortDefinitions.find((definition) => definition.sortId === sort.sortId)?.label;
-      return `#${index + 1} ${label ?? sort.sortId} ${sort.direction}`;
+    this.sorting.sorts.map((rule, index) => {
+      const definition = this.sorting.sortDefinitions.find((current) => current.sortId === rule.sortId);
+      const direction = rule.direction === "ascending" ? "ASC" : "DESC";
+      return `#${index + 1} ${definition?.label ?? rule.sortId} ${direction}`;
     }),
   );
 
-  activeSortCount = $derived(this.sorts.length);
+  activeSortCount = $derived(this.sorting.sorts.length);
 
   selectedCampaignGroupNames = $derived.by(() => {
     if (!this.selectedCampaign) {
@@ -120,6 +120,7 @@ export class CampaignState implements SortPanelController<CampaignSortId> {
   });
 
   constructor() {
+    this.sortingTable.events.on("onSortingChange", this.handleSortingChange);
     void this.load();
   }
 
@@ -186,37 +187,6 @@ export class CampaignState implements SortPanelController<CampaignSortId> {
     this.setFilters([]);
   };
 
-  addSort = (sortId: CampaignSortId, direction: DataTableActiveSortDirection = "ascending"): void => {
-    this.setSorts([
-      ...this.sorts.filter((sort) => sort.sortId !== sortId),
-      {
-        direction,
-        sortId,
-      },
-    ]);
-  };
-
-  removeSortAt = (index: number): void => {
-    this.setSorts(this.sorts.filter((_, currentIndex) => currentIndex !== index));
-  };
-
-  updateSortDirection = (index: number, direction: DataTableActiveSortDirection): void => {
-    this.setSorts(this.sorts.map((sort, currentIndex) => (currentIndex === index ? { ...sort, direction } : sort)));
-  };
-
-  updateSortId = (index: number, sortId: CampaignSortId): void => {
-    this.setSorts(this.sorts.map((sort, currentIndex) => (currentIndex === index ? { ...sort, sortId } : sort)));
-  };
-
-  clearSorts = (): void => {
-    this.setSorts([]);
-  };
-
-  setSorts = (sorts: CampaignTableSort[]): void => {
-    this.sorts = sorts.length > 0 ? sorts : [...defaultCampaignSorts];
-    void this.resetAndLoadCampaignList();
-  };
-
   selectCampaign = (campaignId: string): void => {
     this.selectedCampaignId = campaignId;
     if (this.desktopExpanded) {
@@ -277,6 +247,7 @@ export class CampaignState implements SortPanelController<CampaignSortId> {
   statusLabel = (status: NonNullable<CampaignStatus>): string => statusLabelMap[status];
 
   dispose = (): void => {
+    this.sortingTable.events.off("onSortingChange", this.handleSortingChange);
     this.scheduleRefresh.cancel();
   };
 
@@ -284,6 +255,10 @@ export class CampaignState implements SortPanelController<CampaignSortId> {
     this.applyFeatureFilters(filters);
     void this.resetAndLoadCampaignList();
   }
+
+  private handleSortingChange = (): void => {
+    void this.resetAndLoadCampaignList();
+  };
 
   private applyFeatureFilters(filters: DataTableFilter[]): void {
     const statusFilter = filters.find(
@@ -353,7 +328,7 @@ export class CampaignState implements SortPanelController<CampaignSortId> {
           createdAfter: this.createdAfter,
           minSentMessageCount: this.minSentMessageCount,
           minMessageCount: this.minMessageCount,
-          sorts: this.sorts,
+          sort: campaignTableSorts.toBackend(this.sorting.sorts),
         }),
       );
       if (version !== this.requestVersion) {
@@ -389,9 +364,8 @@ export class CampaignState implements SortPanelController<CampaignSortId> {
   }
 
   private handleCampaignLoadError(error?: ErrorResponse): void {
-    this.loadingError =
-      error?.errorDescription ?? "Could not load campaigns from API, so the page is showing local preview data.";
-    this.campaigns = createMockCampaignList();
+    this.loadingError = error?.errorDescription ?? "Could not load campaigns from API.";
+    this.campaigns = [];
     this.nextCursor = null;
     this.hasNextPage = false;
     this.ensureSelectedCampaign();
@@ -411,7 +385,15 @@ export class CampaignState implements SortPanelController<CampaignSortId> {
   }
 
   private async loadContactGroupList(): Promise<void> {
-    const request = buildContactGroupListRequest();
+    const request: PageRequestContactGroupFilterDtoContactGroupSortDto = {
+      pageSize: 300,
+      sort: {
+        name: {
+          order: 0,
+          direction: SortDirection.ASC,
+        },
+      },
+    };
 
     const response = await fetchContactGroupList(request, { credentials: "include" });
     if (response.status !== 200) {

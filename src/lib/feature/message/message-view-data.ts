@@ -1,11 +1,4 @@
-import { MessageStatus, type MessageSortDto } from "$lib/api/index.schemas";
-import {
-  sortDefinition,
-  type DataTableSortDefinition,
-  type DataTableSortFromDefinitions,
-  type DataTableSortIdFromDefinitions,
-} from "$lib/components/table";
-import type { SortDtoField } from "$lib/utils/table-sort";
+import { MessageStatus, SortDirection, type SortDirection as SortDirectionValue } from "$lib/api/index.schemas";
 
 export type MessageStatusValue = (typeof MessageStatus)[keyof typeof MessageStatus];
 
@@ -23,33 +16,39 @@ export interface MessageViewModel {
   text: string;
 }
 
+export type MessageSortField = "sentAt" | "status" | "tenantPhoneNumber" | "text";
+
+export interface MessageSortRule {
+  id: string;
+  field: MessageSortField;
+  direction: SortDirectionValue;
+}
+
 export const messageStatusOptions: MessageStatusValue[] = [
   MessageStatus.PENDING,
-  MessageStatus.QUEUED,
   MessageStatus.SENT,
   MessageStatus.FAILED,
 ];
 
 export const messageStatusLabelMap: Record<MessageStatusValue, string> = {
   [MessageStatus.PENDING]: "Pending",
-  [MessageStatus.QUEUED]: "Queued",
   [MessageStatus.SENT]: "Sent",
   [MessageStatus.FAILED]: "Failed",
 };
 
-export const messageSortDefinitions = [
-  sortDefinition({ sortId: "sentAt", label: "Sent At", defaultDirection: "descending" }),
-  sortDefinition({ sortId: "status", label: "Status" }),
-  sortDefinition({ sortId: "tenantPhoneNumber", label: "Tenant Phone" }),
-  sortDefinition({ sortId: "text", label: "Text" }),
-] as const satisfies readonly DataTableSortDefinition<SortDtoField<MessageSortDto>>[];
+export const messageSortFieldOptions: MessageSortField[] = ["sentAt", "status", "tenantPhoneNumber", "text"];
 
-export type MessageTableSort = DataTableSortFromDefinitions<typeof messageSortDefinitions>;
-export type MessageSortId = DataTableSortIdFromDefinitions<typeof messageSortDefinitions>;
+export const messageSortFieldLabelMap: Record<MessageSortField, string> = {
+  sentAt: "Sent At",
+  status: "Status",
+  tenantPhoneNumber: "Tenant Phone",
+  text: "Text",
+};
 
-export const defaultMessageSorts = [
+export const defaultMessageSortRules: MessageSortRule[] = [
   {
-    sortId: messageSortDefinitions[0].sortId,
-    direction: messageSortDefinitions[0].defaultDirection,
+    id: "sentAt",
+    field: "sentAt",
+    direction: SortDirection.DESC,
   },
-] satisfies MessageTableSort[];
+];

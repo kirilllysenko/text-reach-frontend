@@ -14,19 +14,17 @@ export type {
   MultiComboboxOption,
 } from "./dropdown";
 export { default as Avatar } from "./avatar/Avatar.svelte";
-export { default as AccessGate } from "./access-gate/AccessGate.svelte";
 export { default as BackButton } from "./back-button/BackButton.svelte";
 export { default as Input } from "./input/Input.svelte";
 export { default as LinkButton } from "./link-button/LinkButton.svelte";
 export { default as Field, FieldError, FieldLabel } from "./field";
 export { default as FilterPanel } from "./filter-panel/FilterPanel.svelte";
-export type { FilterPanelConfig, FilterPanelField } from "./filter-panel/filter-panel-types";
+export type { FilterPanelConfig, FilterPanelController, FilterPanelField } from "./filter-panel/filter-panel-types";
 export { default as SortPanel } from "./sort-panel/SortPanel.svelte";
 export { default as Notification } from "./notification/Notification.svelte";
 export { default as PopupMenu } from "./popup-menu/PopupMenu.svelte";
 export { default as NotificationsLayout } from "./notifications-layout/NotificationsLayout.svelte";
 export { default as PageTitle } from "./page-title/PageTitle.svelte";
-export { default as PageAccess } from "./page-access/PageAccess.svelte";
 export { default as ProfileButton } from "./profile-button/ProfileButton.svelte";
 export { default as Sidebar } from "./sidebar/Sidebar.svelte";
 export * from "./table";

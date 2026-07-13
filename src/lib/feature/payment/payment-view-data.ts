@@ -1,6 +1,4 @@
-import type { WalletTransactionSortDto } from "$lib/api/index.schemas";
-import { sortDefinition, type DataTableSortDefinition, type DataTableSortFromDefinitions } from "$lib/components/table";
-import type { SortDtoField } from "$lib/utils/table-sort";
+import { SortDirection, type SortDirection as SortDirectionValue } from "$lib/api/index.schemas";
 
 export interface WalletTransactionViewModel {
   id: string;
@@ -16,19 +14,34 @@ export interface WalletTransactionViewModel {
   sourceTypeLabel: string;
 }
 
-export const walletTransactionSortDefinitions = [
-  sortDefinition({ sortId: "createdAt", label: "Created", defaultDirection: "descending" }),
-  sortDefinition({ sortId: "amountUsdMicros", label: "Amount" }),
-  sortDefinition({ sortId: "currency", label: "Currency" }),
-  sortDefinition({ sortId: "entryType", label: "Entry Type" }),
-  sortDefinition({ sortId: "sourceType", label: "Source Type" }),
-] as const satisfies readonly DataTableSortDefinition<SortDtoField<WalletTransactionSortDto>>[];
+export type WalletTransactionSortField = "amountUsdMicros" | "createdAt" | "currency" | "entryType" | "sourceType";
 
-export type WalletTransactionTableSort = DataTableSortFromDefinitions<typeof walletTransactionSortDefinitions>;
+export interface WalletTransactionSortRule {
+  id: string;
+  field: WalletTransactionSortField;
+  direction: SortDirectionValue;
+}
 
-export const defaultWalletTransactionSorts = [
+export const walletTransactionSortFieldOptions: WalletTransactionSortField[] = [
+  "createdAt",
+  "amountUsdMicros",
+  "currency",
+  "entryType",
+  "sourceType",
+];
+
+export const walletTransactionSortFieldLabelMap: Record<WalletTransactionSortField, string> = {
+  amountUsdMicros: "Amount",
+  createdAt: "Created",
+  currency: "Currency",
+  entryType: "Entry Type",
+  sourceType: "Source Type",
+};
+
+export const defaultWalletTransactionSortRules: WalletTransactionSortRule[] = [
   {
-    direction: walletTransactionSortDefinitions[0].defaultDirection,
-    sortId: walletTransactionSortDefinitions[0].sortId,
+    id: "createdAt",
+    field: "createdAt",
+    direction: SortDirection.DESC,
   },
-] satisfies WalletTransactionTableSort[];
+];

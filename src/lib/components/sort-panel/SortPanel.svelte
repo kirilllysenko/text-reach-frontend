@@ -1,21 +1,21 @@
-<script lang="ts" generics="TSortId extends string">
+<script lang="ts">
   import Plus from "$lib/icons/Plus.svelte";
   import Trash from "$lib/icons/Trash.svelte";
-  import type { DataTableSortDirection, SortPanelController } from "../table";
-
-  interface SortFieldOption<TSortId extends string = string> {
-    value: TSortId;
-    label: string;
-  }
+  import type { DataTableSortDirection, SortingService } from "../table";
 
   interface Props {
-    sorting: SortPanelController<TSortId>;
-    fieldOptions: readonly SortFieldOption<TSortId>[];
-    compact?: boolean;
-    directionOptions?: Exclude<DataTableSortDirection, "intermediate">[];
+    sorting: SortingService;
   }
 
-  let { sorting, fieldOptions, compact = false, directionOptions = ["ascending", "descending"] }: Props = $props();
+  let { sorting }: Props = $props();
+
+  const fieldOptions = $derived(
+    sorting.sortDefinitions.map((definition) => ({
+      value: definition.sortId,
+      label: definition.label ?? definition.sortId,
+    })),
+  );
+  const directionOptions = ["ascending", "descending"] satisfies Exclude<DataTableSortDirection, "intermediate">[];
 
   function addRule(): void {
     const usedFields = new Set(sorting.sorts.map((sort) => sort.sortId));
@@ -25,23 +25,9 @@
       sorting.addSort(field.value);
     }
   }
-
-  function updateSortId(index: number, value: string): void {
-    const sortId = fieldOptions.find((option) => option.value === value)?.value;
-    if (sortId) {
-      sorting.updateSortId(index, sortId);
-    }
-  }
-
-  function updateSortDirection(index: number, value: string): void {
-    const direction = directionOptions.find((option) => option === value);
-    if (direction) {
-      sorting.updateSortDirection(index, direction);
-    }
-  }
 </script>
 
-<div class={["space-y-3", compact && "text-sm"]}>
+<div class="space-y-3 text-sm">
   <div class="space-y-2">
     {#each sorting.sorts as rule, index (`${rule.sortId}-${index}`)}
       <div class="grid grid-cols-[1.75rem_minmax(0,1fr)_minmax(7.5rem,0.7fr)_2.5rem] items-center gap-2">
@@ -52,7 +38,7 @@
         <select
           class="min-w-0 rounded-xl border border-white/80 bg-white/90 px-3 py-2 text-sm text-slate-700 shadow-sm"
           value={rule.sortId}
-          onchange={(event) => updateSortId(index, event.currentTarget.value)}
+          onchange={(event) => sorting.updateSortId(index, event.currentTarget.value)}
         >
           {#each fieldOptions as field (field.value)}
             <option value={field.value}>{field.label}</option>
@@ -62,7 +48,11 @@
         <select
           class="min-w-0 rounded-xl border border-white/80 bg-white/90 px-3 py-2 text-sm text-slate-700 shadow-sm"
           value={rule.direction}
-          onchange={(event) => updateSortDirection(index, event.currentTarget.value)}
+          onchange={(event) =>
+            sorting.updateSortDirection(
+              index,
+              event.currentTarget.value as Exclude<DataTableSortDirection, "intermediate">,
+            )}
         >
           {#each directionOptions as direction (direction)}
             <option value={direction}>{direction}</option>

@@ -6,25 +6,27 @@
   import type { ContactImportState } from "./contact-import-state.svelte";
 
   interface Props {
+    open: boolean;
     contactImport: ContactImportState;
+    onClose: () => void;
   }
 
-  let { contactImport }: Props = $props();
+  let { open, contactImport, onClose }: Props = $props();
 </script>
 
 <ResponsiveDialog
-  open={contactImport.open}
+  {open}
   title="Import contacts"
   description="Upload a file, review the columns, then choose which contact fields to import."
-  onClose={contactImport.closeDialog}
+  {onClose}
 >
   <div class="space-y-5">
     {#if contactImport.step === "setup"}
-      <ContactImportSetup {contactImport} />
+      <ContactImportSetup {contactImport} {onClose} />
     {:else if contactImport.step === "mapping"}
-      <ContactImportMapping {contactImport} />
+      <ContactImportMapping {contactImport} {onClose} />
     {:else}
-      <ContactImportComplete {contactImport} />
+      <ContactImportComplete {contactImport} {onClose} />
     {/if}
   </div>
 </ResponsiveDialog>

@@ -1,13 +1,9 @@
-<script lang="ts" generics="TData, TSortId extends string = string">
+<script lang="ts" generics="TData">
   import type { Component } from "svelte";
   import type { DatagridCore } from "../core/index.svelte";
-  import type {
-    CellValue,
-    CustomCellComponentWithProps,
-    CustomCellProps,
-    GridBasicRow,
-    LeafColumn,
-  } from "../core/types";
+  import type { CustomCellComponentWithProps, CustomCellProps, LeafColumn } from "../core/column-types";
+  import type { CellValue } from "../core/data-types";
+  import type { GridBasicRow } from "../core/row-types";
   import { getCellContent, isCellComponent } from "../core/utils.svelte";
   import { getColumnSizeStyle } from "./column-size-style";
 
@@ -15,7 +11,7 @@
     column: LeafColumn<TData>;
     row: GridBasicRow<TData>;
     rowIndex: number;
-    table: DatagridCore<TData, any, TSortId>;
+    table: DatagridCore<TData>;
   }
 
   let { column, row, rowIndex, table }: Props = $props();

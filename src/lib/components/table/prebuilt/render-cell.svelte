@@ -1,7 +1,8 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
   import type { DatagridCore } from "../core/index.svelte";
-  import type { GridBasicRow, LeafColumn } from "../core/types";
+  import type { LeafColumn } from "../core/column-types";
+  import type { GridBasicRow } from "../core/row-types";
   import { getCellContent, isCellComponent } from "../core/utils.svelte";
 
   type Props = {

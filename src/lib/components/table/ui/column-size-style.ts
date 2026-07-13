@@ -1,4 +1,4 @@
-import type { LeafColumn } from "../core/types";
+import type { LeafColumn } from "../core/column-types";
 
 function getColumnSizeVariableName(column: LeafColumn<any>): string {
   const safeColumnId = column.columnId.replace(/[^a-zA-Z0-9_-]/g, "-");

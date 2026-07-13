@@ -1,5 +1,5 @@
 import type { DatagridCore } from "../index.svelte";
-import type { DataTableActiveSortDirection } from "../types";
+import type { DataTableActiveSortDirection } from "../features/sorting.svelte";
 
 /**
  * Applies sorting to the given data based on the sort configurations in the datagrid.
@@ -8,7 +8,7 @@ import type { DataTableActiveSortDirection } from "../types";
  *
  * @template TOriginalRow - The type of the rows in the data array.
  *
- * @param {DatagridCore<TOriginalRow, any, any>} datagrid - The datagrid instance containing the sorting configuration and lifecycle hooks.
+ * @param {DatagridCore<TOriginalRow>} datagrid - The datagrid instance containing the sorting configuration and lifecycle hooks.
  * @param {TOriginalRow[]} data - The data array to be sorted.
  *
  * @returns {TOriginalRow[]} - The sorted data array.
@@ -18,31 +18,18 @@ import type { DataTableActiveSortDirection } from "../types";
  * - The sorting respects the direction specified in the active sorts and handles cases for null or undefined values.
  * - The Schwartzian Transform is used for precomputing the values to be sorted, which improves performance when sorting large datasets.
  */
-export function applySorting<TOriginalRow>(datagrid: DatagridCore<TOriginalRow, any, any>, data: TOriginalRow[]): TOriginalRow[] {
+export function applySorting<TOriginalRow>(datagrid: DatagridCore<TOriginalRow>, data: TOriginalRow[]): TOriginalRow[] {
   data = datagrid.lifecycleHooks.executePreSort(data);
 
   const isManualSortingEnabled = datagrid.features.sorting.isManual;
   const noSorting = datagrid.features.sorting.sorts.length === 0;
-  if (isManualSortingEnabled || noSorting) return data;
+  if (isManualSortingEnabled || noSorting || data.length === 0) return data;
 
-  const sorts = datagrid.features.sorting.sorts
-    .map((sort) => {
-      const fieldId = datagrid.features.sorting.getSortFieldId(sort);
-      const field = datagrid.dataFields.findFieldByIdOrThrow(fieldId);
-
-      if (field.sortable === false) {
-        return null;
-      }
-
-      return {
-        getValue: (row: TOriginalRow) => field.getValueFn(row),
-        direction: sort.direction,
-      };
-    })
-    .filter((sort) => sort !== null) as {
-    getValue: (row: TOriginalRow) => any;
-    direction: DataTableActiveSortDirection;
-  }[];
+  const sorts: { getValue: (row: TOriginalRow) => any; direction: DataTableActiveSortDirection }[] =
+    datagrid.features.sorting.sorts.map((sort) => ({
+      getValue: datagrid.features.sorting.getSortValueGetter(sort),
+      direction: sort.direction,
+    }));
 
   // Schwartzian Transform: Precompute sort values
   const decorated = data.map((row) => ({

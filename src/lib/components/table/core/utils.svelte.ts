@@ -1,6 +1,6 @@
 import { UnableToRenderCellError } from "./errors";
-import type { ColumnDef, ColumnId, ColumnGroup } from "./types";
-import type { CellValue, CustomCellComponentWithProps, } from "./types";
+import type { ColumnDef, ColumnGroup, ColumnId, CustomCellComponentWithProps } from "./column-types";
+import type { CellValue } from "./data-types";
 
 /**
  * Generates a random column ID.
@@ -8,7 +8,7 @@ import type { CellValue, CustomCellComponentWithProps, } from "./types";
  * @returns A random string that can be used as a column ID.
  */
 export function generateRandomColumnId(): string {
-    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 }
 
 /**
@@ -19,26 +19,26 @@ export function generateRandomColumnId(): string {
  * @returns The content of the cell.
  */
 export function getCellContent(column: ColumnDef<any>, originalRow: any): CellValue {
-	switch (column.type) {
-		case 'accessor':
-			if (column.formatterFn) {
-				return column.formatterFn(originalRow);
-			} else if (column.getValueFn) {
-				return column.getValueFn(originalRow);
-			}
-			throw new UnableToRenderCellError(column.columnId);
-		case 'computed':
-			if (column.formatterFn) {
-				return column.formatterFn(originalRow);
-			} else if (column.getValueFn) {
-				return column.getValueFn(originalRow);
-			}
-			throw new UnableToRenderCellError(column.columnId);
-		case 'display':
-			throw new UnableToRenderCellError(column.columnId);
-		case 'group':
-			throw new UnableToRenderCellError(column.columnId);
-	}
+  switch (column.type) {
+    case "accessor":
+      if (column.formatterFn) {
+        return column.formatterFn(originalRow);
+      } else if (column.getValueFn) {
+        return column.getValueFn(originalRow);
+      }
+      throw new UnableToRenderCellError(column.columnId);
+    case "computed":
+      if (column.formatterFn) {
+        return column.formatterFn(originalRow);
+      } else if (column.getValueFn) {
+        return column.getValueFn(originalRow);
+      }
+      throw new UnableToRenderCellError(column.columnId);
+    case "display":
+      throw new UnableToRenderCellError(column.columnId);
+    case "group":
+      throw new UnableToRenderCellError(column.columnId);
+  }
 }
 
 /**
@@ -49,15 +49,15 @@ export function getCellContent(column: ColumnDef<any>, originalRow: any): CellVa
  * @returns True if the column is a descendant, false otherwise.
  */
 export function isColumnInGroupTree(possibleDescendant: ColumnGroup<any>, ancestor: ColumnGroup<any>): boolean {
-    if (!possibleDescendant) return false;
+  if (!possibleDescendant) return false;
 
-    // Check if the possible descendant is a direct child of the ancestor
-    if (ancestor.columns.includes(possibleDescendant)) return true;
+  // Check if the possible descendant is a direct child of the ancestor
+  if (ancestor.columns.includes(possibleDescendant)) return true;
 
-    // Recursively check if the possible descendant is a descendant of any group columns
-    return ancestor.columns
-        .filter((col): col is ColumnGroup<any> => col.type === 'group') // Type guard to ensure we only check GroupColumn types
-        .some(childGroup => isColumnInGroupTree(possibleDescendant, childGroup)); // Recursive call for group columns
+  // Recursively check if the possible descendant is a descendant of any group columns
+  return ancestor.columns
+    .filter((col): col is ColumnGroup<any> => col.type === "group") // Type guard to ensure we only check GroupColumn types
+    .some((childGroup) => isColumnInGroupTree(possibleDescendant, childGroup)); // Recursive call for group columns
 }
 
 /**
@@ -67,7 +67,7 @@ export function isColumnInGroupTree(possibleDescendant: ColumnGroup<any>, ancest
  * @returns True if the value is a custom cell component, false otherwise.
  */
 export function isCellComponent(value: any): value is CustomCellComponentWithProps {
-    return value && typeof value === 'object' && 'component' in value
+  return value && typeof value === "object" && "component" in value;
 }
 
 /**
@@ -78,11 +78,11 @@ export function isCellComponent(value: any): value is CustomCellComponentWithPro
  * @returns The debounced function.
  */
 export function debounce<T extends (...args: any[]) => void>(func: T, delay: number): T {
-    let timer: ReturnType<typeof setTimeout>;
-    return ((...args: Parameters<T>) => {
-        clearTimeout(timer);
-        timer = setTimeout(() => func(...args), delay);
-    }) as T;
+  let timer: ReturnType<typeof setTimeout>;
+  return ((...args: Parameters<T>) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => func(...args), delay);
+  }) as T;
 }
 
 /**
@@ -92,40 +92,37 @@ export function debounce<T extends (...args: any[]) => void>(func: T, delay: num
  * @param preserveGroups Whether to preserve groups.
  * @returns The flattened column structure.
  */
-export function flattenColumnStructure(
-    columns: ColumnDef<any>[],
-    preserveGroups: boolean = false
-): ColumnDef<any>[] {
-    const flattened: ColumnDef<any>[] = [];
+export function flattenColumnStructure(columns: ColumnDef<any>[], preserveGroups: boolean = false): ColumnDef<any>[] {
+  const flattened: ColumnDef<any>[] = [];
 
-    /**
-     * Recursively processes columns and adds them to the flattened array.
-     *
-     * @param cols The columns to process.
-     * @param result The flattened array.
-     */
-    const processColumns = (cols: ColumnDef<any>[], result: ColumnDef<any>[]) => {
-        for (let i = 0; i < cols.length; i++) {
-            const column = cols[i];
+  /**
+   * Recursively processes columns and adds them to the flattened array.
+   *
+   * @param cols The columns to process.
+   * @param result The flattened array.
+   */
+  const processColumns = (cols: ColumnDef<any>[], result: ColumnDef<any>[]) => {
+    for (let i = 0; i < cols.length; i++) {
+      const column = cols[i];
 
-            // Skip if column is undefined
-            if (!column) continue;
+      // Skip if column is undefined
+      if (!column) continue;
 
-            if (column.type === 'group') {
-                // Make sure columns exists before accessing it
-                if (column.columns) {
-                    processColumns(column.columns, result);
-                }
-
-                result.push(preserveGroups ? column : { ...column, columns: [] });
-            } else {
-                result.push(column);
-            }
+      if (column.type === "group") {
+        // Make sure columns exists before accessing it
+        if (column.columns) {
+          processColumns(column.columns, result);
         }
-    };
 
-    processColumns(columns, flattened);
-    return flattened;
+        result.push(preserveGroups ? column : { ...column, columns: [] });
+      } else {
+        result.push(column);
+      }
+    }
+  };
+
+  processColumns(columns, flattened);
+  return flattened;
 }
 
 /**
@@ -135,7 +132,7 @@ export function flattenColumnStructure(
  * @returns The flattened column structure.
  */
 export function flattenColumnStructureAndClearGroups(columns: ColumnDef<any>[]): ColumnDef<any>[] {
-    return flattenColumnStructure(columns, false);
+  return flattenColumnStructure(columns, false);
 }
 
 /**
@@ -144,7 +141,7 @@ export function flattenColumnStructureAndClearGroups(columns: ColumnDef<any>[]):
  * @returns A flattened array of column definitions with groups retained.
  */
 export function flattenColumnStructurePreservingGroups(columns: ColumnDef<any>[]): ColumnDef<any>[] {
-    return flattenColumnStructure(columns, true);
+  return flattenColumnStructure(columns, true);
 }
 
 /**
@@ -153,8 +150,11 @@ export function flattenColumnStructurePreservingGroups(columns: ColumnDef<any>[]
  * @param id - The unique identifier of the column to find.
  * @returns The column definition if found, otherwise null.
  */
-export function findColumnById<TOriginalRow>(flatColumns: ColumnDef<TOriginalRow>[], id: ColumnId): ColumnDef<TOriginalRow> | null {
-    return flatColumns.find((col) => col.columnId === id) ?? null;
+export function findColumnById<TOriginalRow>(
+  flatColumns: ColumnDef<TOriginalRow>[],
+  id: ColumnId,
+): ColumnDef<TOriginalRow> | null {
+  return flatColumns.find((col) => col.columnId === id) ?? null;
 }
 
 /**
@@ -163,7 +163,5 @@ export function findColumnById<TOriginalRow>(flatColumns: ColumnDef<TOriginalRow
  * @returns An array of selected option values.
  */
 export function convertSelectedOptionsToArray(event: any) {
-    return Array.from(event.currentTarget.selectedOptions).map(
-        (option: any) => option.value
-    );
+  return Array.from(event.currentTarget.selectedOptions).map((option: any) => option.value);
 }

@@ -1,11 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { page } from "$app/state";
-  import { resolvePageAccess } from "$lib/app/access";
-  import PageAccess from "$lib/components/page-access/PageAccess.svelte";
   import Sidebar from "$lib/components/sidebar/Sidebar.svelte";
   import { appShellState } from "$lib/state/app-shell.svelte";
-  import { currentUserState } from "$lib/state/current-user.svelte";
   import { sessionState } from "$lib/state/session.svelte";
 
   let { children } = $props();
@@ -19,19 +15,15 @@
       return;
     }
 
-    await currentUserState.load();
+    await sessionState.loadProfile();
     render = true;
   });
-
-  const pageAccess = $derived(resolvePageAccess(page.url.pathname));
 </script>
 
 {#if render}
   <div class="min-h-dvh bg-linear-to-br from-slate-100 via-slate-50 to-stone-100">
     <div class="min-h-dvh sm:ml-70 sm:p-6">
-      <PageAccess access={pageAccess}>
-        {@render children()}
-      </PageAccess>
+      {@render children()}
     </div>
 
     <button

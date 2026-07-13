@@ -1,58 +1,90 @@
 import type { DatagridCore } from "../index.svelte";
-import type {
-  DataTableActiveSortDirection,
-  DataTableSort,
-  DataTableSortDefinition,
-  DataTableSortDirection,
-} from "../types";
+import type { GetValueFn } from "../data-types";
+
+export type SortingDirection = "ascending" | "descending" | "intermediate";
+export type DataTableSortDirection = SortingDirection;
+export type DataTableActiveSortDirection = Exclude<DataTableSortDirection, "intermediate">;
+
+export interface DataTableSort<TSortId extends string = string> {
+  direction: DataTableActiveSortDirection;
+  sortId: TSortId;
+}
+
+export interface DataTableSortDefinition<TSortId extends string = string, TOriginalRow = any> {
+  defaultDirection?: DataTableActiveSortDirection;
+  fieldId?: string;
+  getValueFn?: GetValueFn<TOriginalRow>;
+  label?: string;
+  sortId: TSortId;
+}
+
+export type DataTableSortDefinitionWithDefault<
+  TSortId extends string = string,
+  TOriginalRow = any,
+> = DataTableSortDefinition<TSortId, TOriginalRow> & {
+  defaultDirection: DataTableActiveSortDirection;
+};
+
+export type DataTableSortFromDefinition<TDefinition> =
+  TDefinition extends DataTableSortDefinition<infer TSortId> ? DataTableSort<TSortId> : never;
+
+export type DataTableSortFromDefinitions<TDefinitions extends readonly DataTableSortDefinition[]> =
+  DataTableSortFromDefinition<TDefinitions[number]>;
+
+export function sortDefinition<const TSortId extends string, TOriginalRow = any>(
+  definition: DataTableSortDefinition<TSortId, TOriginalRow>,
+): DataTableSortDefinitionWithDefault<TSortId, TOriginalRow> {
+  return { defaultDirection: "ascending", ...definition };
+}
 
 /**
  * Represents the state of the sorting feature in the datagrid.
  */
-export type SortingFeatureState<TSortId extends string = string> = {
-  sortDefinitions: readonly DataTableSortDefinition<TSortId>[];
-  sorts: DataTableSort<TSortId>[];
+export type SortingFeatureState<TSort extends DataTableSort = DataTableSort> = {
+  sortDefinitions: readonly DataTableSortDefinition[];
+  sorts: TSort[];
   isManual: boolean;
   allowMultiSort: boolean;
   maxMultiSortColumns: number;
-  onSortingChange: (config: SortingFeature<TSortId>) => void;
+  onSortingChange: (config: SortingFeature) => void;
 };
 
 /**
  * Interface for methods related to the sorting feature.
  */
-export type ISortingFeature<TSortId extends string = string> = {
-  addSort(sortId: TSortId, direction?: DataTableActiveSortDirection): void;
+export type ISortingFeature = {
+  addSort(sortId: string, direction?: DataTableActiveSortDirection): void;
   clearSorts(): void;
-  getSort(sortId: TSortId): DataTableSort<TSortId> | undefined;
-  getSortDefaultDirection(sortId: TSortId): DataTableActiveSortDirection;
-  getSortDirection(sortId: TSortId): DataTableSortDirection;
-  getSortFieldId(sort: DataTableSort<TSortId>): string;
-  getSortIndex(sortId: TSortId): number | null;
-  isSorted(sortId: TSortId, direction?: DataTableSortDirection): boolean;
-  removeSort(sortId: TSortId): void;
-  setSorts(sorts: DataTableSort<TSortId>[]): void;
-  updateSort(sortId: TSortId, direction: DataTableActiveSortDirection): void;
-} & SortingFeatureState<TSortId>;
+  getSort(sortId: string): DataTableSort | undefined;
+  getSortDefaultDirection(sortId: string): DataTableActiveSortDirection;
+  getSortDirection(sortId: string): DataTableSortDirection;
+  getSortFieldId(sort: DataTableSort): string;
+  getSortValueGetter(sort: DataTableSort): GetValueFn<any>;
+  getSortIndex(sortId: string): number | null;
+  isSorted(sortId: string, direction?: DataTableSortDirection): boolean;
+  removeSort(sortId: string): void;
+  setSorts(sorts: DataTableSort[]): void;
+  updateSort(sortId: string, direction: DataTableActiveSortDirection): void;
+} & SortingFeatureState;
 
 /**
  * Configuration options for the sorting feature.
  */
-export type SortingFeatureConfig<TSortId extends string = string> = Partial<SortingFeatureState<TSortId>>;
+export type SortingFeatureConfig<TSort extends DataTableSort = DataTableSort> = Partial<SortingFeatureState<TSort>>;
 
 /**
  * Manages ordered sorting rules for the datagrid.
  */
-export class SortingFeature<TSortId extends string = string> implements ISortingFeature<TSortId> {
-  datagrid: DatagridCore<any, any, TSortId>;
-  sortDefinitions: readonly DataTableSortDefinition<TSortId>[] = [];
-  sorts: DataTableSort<TSortId>[] = $state([]);
+export class SortingFeature<TSort extends DataTableSort = DataTableSort> implements ISortingFeature {
+  datagrid: DatagridCore<any>;
+  sortDefinitions: readonly DataTableSortDefinition[] = [];
+  sorts: TSort[] = $state([]);
   isManual: boolean = $state(false);
   allowMultiSort: boolean = $state(true);
   maxMultiSortColumns: number = $state(Infinity);
-  onSortingChange: (config: SortingFeature<TSortId>) => void = () => {};
+  onSortingChange: (config: SortingFeature) => void = () => {};
 
-  constructor(datagrid: DatagridCore<any, any, TSortId>, config: SortingFeatureConfig<TSortId> = {}) {
+  constructor(datagrid: DatagridCore<any>, config: SortingFeatureConfig<TSort> = {}) {
     this.datagrid = datagrid;
     this.sortDefinitions = config.sortDefinitions ?? [];
     this.sorts = config.sorts ?? [];
@@ -62,37 +94,20 @@ export class SortingFeature<TSortId extends string = string> implements ISorting
     this.onSortingChange = config.onSortingChange ?? (() => {});
   }
 
-  getSort(sortId: TSortId): DataTableSort<TSortId> | undefined {
+  getSort(sortId: string): TSort | undefined {
     return this.sorts.find((sort) => sort.sortId === sortId);
   }
 
-  getSortByFieldId(fieldId: string): DataTableSort<TSortId> | undefined {
-    return this.sorts.find((sort) => this.getSortFieldId(sort) === fieldId);
-  }
-
-  getSortIndex(sortId: TSortId): number | null {
+  getSortIndex(sortId: string): number | null {
     const index = this.findSortIndex(sortId);
     return index === -1 ? null : index + 1;
   }
 
-  getSortConfigIndex(sortId: TSortId): number | null {
-    return this.getSortIndex(sortId);
-  }
-
-  getSortConfigIndexByFieldId(fieldId: string): number | null {
-    const sort = this.getSortByFieldId(fieldId);
-    return sort ? this.getSortIndex(sort.sortId) : null;
-  }
-
-  getSortDirection(sortId: TSortId): DataTableSortDirection {
+  getSortDirection(sortId: string): DataTableSortDirection {
     return this.getSort(sortId)?.direction ?? "intermediate";
   }
 
-  getSortDirectionByFieldId(fieldId: string): DataTableSortDirection {
-    return this.getSortByFieldId(fieldId)?.direction ?? "intermediate";
-  }
-
-  setSorts(sorts: DataTableSort<TSortId>[]): void {
+  setSorts(sorts: TSort[]): void {
     this.sorts = this.normalizeSorts(sorts);
   }
 
@@ -100,15 +115,15 @@ export class SortingFeature<TSortId extends string = string> implements ISorting
     this.sorts = [];
   }
 
-  removeSort(sortId: TSortId): void {
+  removeSort(sortId: string): void {
     this.sorts = this.sorts.filter((sort) => sort.sortId !== sortId);
   }
 
-  updateSort(sortId: TSortId, direction: DataTableActiveSortDirection): void {
+  updateSort(sortId: string, direction: DataTableActiveSortDirection): void {
     this.sorts = this.sorts.map((sort) => (sort.sortId === sortId ? { ...sort, direction } : sort));
   }
 
-  addSort(sortId: TSortId, direction?: DataTableActiveSortDirection): void {
+  addSort(sortId: string, direction?: DataTableActiveSortDirection): void {
     const nextDirection = direction ?? this.getSortDefaultDirection(sortId);
 
     if (this.getSort(sortId)) {
@@ -120,38 +135,40 @@ export class SortingFeature<TSortId extends string = string> implements ISorting
       return;
     }
 
-    this.sorts = [...this.sorts, { direction: nextDirection, sortId }];
+    this.sorts = [...this.sorts, { direction: nextDirection, sortId } as TSort];
   }
 
-  isSorted(sortId: TSortId, direction?: DataTableSortDirection): boolean {
+  isSorted(sortId: string, direction?: DataTableSortDirection): boolean {
     const sort = this.getSort(sortId);
     if (!direction) return Boolean(sort);
 
     return sort?.direction === direction;
   }
 
-  getSortFieldId(sort: DataTableSort<TSortId>): string {
+  getSortFieldId(sort: DataTableSort): string {
     return this.sortDefinitions.find((definition) => definition.sortId === sort.sortId)?.fieldId ?? sort.sortId;
   }
 
-  getSortDefaultDirection(sortId: TSortId): DataTableActiveSortDirection {
+  getSortValueGetter(sort: DataTableSort): GetValueFn<any> {
+    const definition = this.sortDefinitions.find((current) => current.sortId === sort.sortId);
+    if (definition?.getValueFn) return definition.getValueFn;
+
+    const fieldId = definition?.fieldId ?? sort.sortId;
+    const column = this.datagrid.columns.findColumnById(fieldId);
+    if (column?.type === "accessor" || column?.type === "computed") return column.getValueFn;
+
+    throw new Error(`Sort ${sort.sortId} has no local value getter`);
+  }
+
+  getSortDefaultDirection(sortId: string): DataTableActiveSortDirection {
     return this.sortDefinitions.find((definition) => definition.sortId === sortId)?.defaultDirection ?? "ascending";
   }
 
-  // Compatibility aliases for existing column-header call sites.
-  isColumnSorted(sortId: TSortId, direction?: DataTableSortDirection): boolean {
-    return this.isSorted(sortId, direction);
-  }
-
-  findSortConfigIndex(sortId: TSortId): number {
-    return this.findSortIndex(sortId);
-  }
-
-  private findSortIndex(sortId: TSortId): number {
+  private findSortIndex(sortId: string): number {
     return this.sorts.findIndex((sort) => sort.sortId === sortId);
   }
 
-  private normalizeSorts(sorts: DataTableSort<TSortId>[]): DataTableSort<TSortId>[] {
+  private normalizeSorts(sorts: TSort[]): TSort[] {
     if (this.allowMultiSort) {
       return sorts.slice(0, this.maxMultiSortColumns);
     }

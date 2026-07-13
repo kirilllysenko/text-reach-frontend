@@ -1,10 +1,7 @@
-import type { DataTableLoadReason, DataTableLoadResult } from "../types";
+import type { DataTableLoadReason, DataTableLoadResult } from "../features/data-loading.svelte";
 import { BaseService } from "./base-service";
 
-export class DataLoadingService<TOriginalRow = any, TSortId extends string = string> extends BaseService<
-  TOriginalRow,
-  TSortId
-> {
+export class DataLoadingService<TOriginalRow> extends BaseService<TOriginalRow> {
   start(): void {
     this.datagrid.features.dataLoading.start();
   }

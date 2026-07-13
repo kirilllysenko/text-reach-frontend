@@ -6,7 +6,7 @@ import { BaseService } from "./base-service";
  * 
  * @extends BaseService
  */
-export class SearchService<TSortId extends string = string> extends BaseService<any, TSortId> {
+export class SearchService extends BaseService {
 
     /**
      * Updates the global search query and triggers necessary actions to filter the data.

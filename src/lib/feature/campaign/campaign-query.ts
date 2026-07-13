@@ -4,10 +4,10 @@ import {
   NestedOperator,
   PageDirection,
   type CampaignFilterDto,
+  type CampaignSortDto,
   type PageRequestCampaignFilterDtoCampaignSortDto,
 } from "$lib/api/index.schemas";
-import type { CampaignStatus, CampaignTableSort } from "$lib/feature/campaign/campaign-view-data";
-import { tableSortsToDto } from "$lib/utils/table-sort";
+import type { CampaignStatus } from "$lib/feature/campaign/campaign-view-data";
 
 interface CampaignRequestOptions {
   pageSize: number;
@@ -17,7 +17,7 @@ interface CampaignRequestOptions {
   createdAfter: string;
   minSentMessageCount: string;
   minMessageCount: string;
-  sorts: readonly CampaignTableSort[];
+  sort: CampaignSortDto;
 }
 
 export function buildCampaignRequest(options: CampaignRequestOptions): PageRequestCampaignFilterDtoCampaignSortDto {
@@ -31,7 +31,7 @@ export function buildCampaignRequest(options: CampaignRequestOptions): PageReque
         }
       : undefined,
     filter: buildCampaignFilter(options),
-    sort: tableSortsToDto(options.sorts),
+    sort: options.sort,
   };
 }
 

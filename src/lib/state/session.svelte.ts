@@ -1,8 +1,8 @@
 import { goto } from "$app/navigation";
 import { PATH_SIGN_IN } from "$lib/app/paths";
-import type { ErrorCode } from "$lib/api/index.schemas";
+import type { ErrorCode, ProfileDto } from "$lib/api/index.schemas";
 import { checkSession, signOut } from "$lib/api/auth/auth";
-import { currentUserState } from "$lib/state/current-user.svelte";
+import { getProfile } from "$lib/api/tenant/tenant";
 
 function buildSignInHref(errorCode?: ErrorCode): string {
   if (!errorCode) {
@@ -15,6 +15,7 @@ function buildSignInHref(errorCode?: ErrorCode): string {
 
 class SessionState {
   ready = $state(false);
+  profile = $state<ProfileDto | null>(null);
 
   ensureAppAccess = async (): Promise<boolean> => {
     this.ready = false;
@@ -23,7 +24,7 @@ class SessionState {
     try {
       response = await checkSession({ credentials: "include" });
     } catch {
-      currentUserState.clear();
+      this.profile = null;
       await goto(PATH_SIGN_IN);
       return false;
     }
@@ -33,14 +34,28 @@ class SessionState {
       return true;
     }
 
-    currentUserState.clear();
+    this.profile = null;
     await goto(buildSignInHref(response.data?.errorCode));
     return false;
   };
 
+  loadProfile = async (): Promise<ProfileDto | null> => {
+    const response = await getProfile({ credentials: "include" });
+    if (response.status !== 200) {
+      return null;
+    }
+
+    this.profile = response.data;
+    return response.data;
+  };
+
+  applyProfile = (profile: ProfileDto): void => {
+    this.profile = profile;
+  };
+
   signOutAndRedirect = async (): Promise<void> => {
     await signOut({ credentials: "include" });
-    currentUserState.clear();
+    this.profile = null;
     this.ready = false;
     await goto(PATH_SIGN_IN);
   };

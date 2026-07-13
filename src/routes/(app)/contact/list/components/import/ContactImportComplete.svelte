@@ -4,9 +4,10 @@
 
   interface Props {
     contactImport: ContactImportState;
+    onClose: () => void;
   }
 
-  let { contactImport }: Props = $props();
+  let { contactImport, onClose }: Props = $props();
 </script>
 
 <section class="space-y-4">
@@ -15,6 +16,6 @@
   </div>
 
   <div class="flex justify-end">
-    <Button onclick={contactImport.closeDialog}>Done</Button>
+    <Button onclick={onClose}>Done</Button>
   </div>
 </section>

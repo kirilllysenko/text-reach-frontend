@@ -1,5 +1,4 @@
-import type { CustomFieldDto, CustomFieldType } from "$lib/api/index.schemas";
-import { sortDefinition, type DataTableSortFromDefinitions } from "$lib/components/table";
+import type { CustomFieldDto, CustomFieldType, SortDirection } from "$lib/api/index.schemas";
 
 export interface CustomFieldViewModel {
   id: string;
@@ -8,9 +7,18 @@ export interface CustomFieldViewModel {
   typeLabel: string;
 }
 
+export type CustomFieldSortField = "name" | "type";
+
+export interface CustomFieldSortRule {
+  id: string;
+  field: CustomFieldSortField;
+  direction: SortDirection;
+}
+
 export type CustomFieldDtoLike = Pick<CustomFieldDto, "id" | "name" | "type">;
 
 export const customFieldTypeOptions: CustomFieldType[] = ["TEXT", "NUMBER", "DATE"];
+export const customFieldSortFieldOptions: CustomFieldSortField[] = ["name", "type"];
 
 export const customFieldTypeLabelMap: Record<CustomFieldType, string> = {
   TEXT: "Text",
@@ -18,16 +26,7 @@ export const customFieldTypeLabelMap: Record<CustomFieldType, string> = {
   DATE: "Date",
 };
 
-export const customFieldSortDefinitions = [
-  sortDefinition({ sortId: "name", label: "Name" }),
-  sortDefinition({ sortId: "type", label: "Type" }),
-] as const;
-
-export type CustomFieldTableSort = DataTableSortFromDefinitions<typeof customFieldSortDefinitions>;
-
-export const defaultCustomFieldSorts = [
-  {
-    direction: customFieldSortDefinitions[0].defaultDirection,
-    sortId: customFieldSortDefinitions[0].sortId,
-  },
-] satisfies CustomFieldTableSort[];
+export const customFieldSortFieldLabelMap: Record<CustomFieldSortField, string> = {
+  name: "Name",
+  type: "Type",
+};

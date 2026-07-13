@@ -12,6 +12,8 @@ export interface ContactViewModel {
   contactGroupIds: string[];
 }
 
+export type ContactSortField = "firstName" | "lastName" | "phoneNumber" | "email" | "birthday";
+
 export type ContactDtoLike = Pick<
   ContactDto,
   "birthday" | "contactGroupIds" | "email" | "firstName" | "id" | "lastName" | "notes" | "phoneNumber"

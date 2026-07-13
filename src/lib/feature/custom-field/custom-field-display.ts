@@ -18,29 +18,6 @@ export function toCustomFieldViewModel(dto: CustomFieldDtoLike, index: number): 
   };
 }
 
-export function createMockCustomFieldList(): CustomFieldViewModel[] {
-  return [
-    {
-      id: "mock-custom-field-1",
-      name: "Lead Source",
-      type: "TEXT",
-      typeLabel: customFieldTypeLabelMap.TEXT,
-    },
-    {
-      id: "mock-custom-field-2",
-      name: "Lifetime Value",
-      type: "NUMBER",
-      typeLabel: customFieldTypeLabelMap.NUMBER,
-    },
-    {
-      id: "mock-custom-field-3",
-      name: "Renewal Date",
-      type: "DATE",
-      typeLabel: customFieldTypeLabelMap.DATE,
-    },
-  ];
-}
-
 export function filterCustomFieldList(
   fields: CustomFieldViewModel[],
   search: string,

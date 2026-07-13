@@ -9,17 +9,6 @@
   let { filtering }: Props = $props();
   let open = $state(false);
 
-  const visibleFilterIds = $derived(
-    new Set(
-      (filtering.filterDefinitions ?? [])
-        .filter((definition) => !definition.hidden)
-        .map((definition) => definition.filterId),
-    ),
-  );
-  const activeFilterCount = $derived(
-    filtering.filters.filter((filter) => visibleFilterIds.has(filter.filterId)).length,
-  );
-
   function openFilters(): void {
     open = true;
   }
@@ -36,7 +25,7 @@
       class="flex h-4 min-w-4 items-center justify-center rounded-full bg-slate-700 px-1 text-[10px]
         leading-4 text-white"
     >
-      {activeFilterCount}
+      {filtering.getVisibleActiveFilterCount()}
     </span>
   </span>
 </Button>

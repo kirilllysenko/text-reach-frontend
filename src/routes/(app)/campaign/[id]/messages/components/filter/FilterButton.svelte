@@ -1,29 +1,16 @@
 <script lang="ts">
-  import {
-    Button,
-    FilterPanel,
-    ResponsiveDialog,
-    SortPanel,
-    type FilteringService,
-    type FilterPanelConfig,
-    type SortPanelController,
-  } from "$lib";
-  import type { CampaignMessagesState } from "$lib/feature/message/message-state.svelte";
-  import {
-    messageSortFieldLabelMap,
-    messageStatusLabelMap,
-    messageStatusOptions,
-  } from "$lib/feature/message/message-view-data";
+  import { Button, FilterPanel, ResponsiveDialog, type FilteringService, type FilterPanelConfig } from "$lib";
+  import { messageStatusLabelMap, messageStatusOptions } from "$lib/feature/message/message-view-data";
+  import Filter from "$lib/icons/Filter.svelte";
 
   interface Props {
     filtering: FilteringService;
-    sorting: SortPanelController;
-    state: CampaignMessagesState;
   }
 
-  let { filtering: filterController, sorting, state }: Props = $props();
+  let { filtering }: Props = $props();
+  let open = $state(false);
 
-  const filtering = $derived.by<FilterPanelConfig>(() => ({
+  const config: FilterPanelConfig = {
     title: "Active filters",
     description: "Refine the messages table",
     fields: [
@@ -74,38 +61,38 @@
         ],
       },
     ],
-  }));
+  };
 
-  const sortFieldOptions = $derived(
-    state.sortFieldOptions.map((field) => ({
-      value: field,
-      label: messageSortFieldLabelMap[field],
-    })),
-  );
+  function openFilters(): void {
+    open = true;
+  }
+
+  function closeFilters(): void {
+    open = false;
+  }
 </script>
 
+<Button variant="secondary" active={open} icon={Filter} class="relative gap-2 text-sm" onclick={openFilters}>
+  <span class="flex items-center gap-2">
+    Filters
+    <span
+      class="flex h-4 min-w-4 items-center justify-center rounded-full bg-slate-700 px-1 text-[10px]
+        leading-4 text-white"
+    >
+      {filtering.getVisibleActiveFilterCount()}
+    </span>
+  </span>
+</Button>
+
 <ResponsiveDialog
-  open={state.filtersOpen}
+  {open}
   title="Filter messages"
   description="Refine the messages table without taking over the whole page."
-  onClose={state.closeOverlays}
+  onClose={closeFilters}
 >
-  <FilterPanel filtering={filterController} config={filtering} compact />
+  <FilterPanel {filtering} {config} compact />
 
   {#snippet mobileFooter()}
-    <Button class="w-full" onclick={state.closeOverlays}>Apply filters</Button>
-  {/snippet}
-</ResponsiveDialog>
-
-<ResponsiveDialog
-  open={state.sortOpen}
-  title="Sort messages"
-  description="Adjust the priority stack for the messages table."
-  onClose={state.closeOverlays}
->
-  <SortPanel {sorting} fieldOptions={sortFieldOptions} compact />
-
-  {#snippet mobileFooter()}
-    <Button class="w-full" onclick={state.closeOverlays}>Apply sorting</Button>
+    <Button class="w-full" onclick={closeFilters}>Apply filters</Button>
   {/snippet}
 </ResponsiveDialog>

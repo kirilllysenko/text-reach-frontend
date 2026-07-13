@@ -1,23 +1,13 @@
-import { SortDirection, type ErrorResponse, type WalletBalanceDto } from "$lib/api/index.schemas";
+import type { ErrorResponse, WalletBalanceDto, WalletTransactionSortDto } from "$lib/api/index.schemas";
 import {
   countTransactions as countTransactionList,
   getBalance,
   listTransactions as listTransactionList,
 } from "$lib/api/default/default";
-import type { DataTableFilter, DataTableLoadRequest, DataTableLoadResult, DataTableSort } from "$lib/components/table";
-import { debounce } from "$lib/utils/debounce";
+import type { DataTableLoadRequest, DataTableLoadResult } from "$lib/components/table";
 import { toWalletTransactionViewModel } from "./payment-display";
 import { buildWalletTransactionFilter, buildWalletTransactionRequest, isUlid } from "./payment-query";
-import {
-  defaultWalletTransactionSortRules,
-  walletTransactionSortFieldLabelMap,
-  walletTransactionSortFieldOptions,
-  type WalletTransactionSortField,
-  type WalletTransactionSortRule,
-  type WalletTransactionViewModel,
-} from "./payment-view-data";
-
-const SEARCH_DEBOUNCE_MS = 250;
+import type { WalletTransactionViewModel } from "./payment-view-data";
 
 export class PaymentOverviewState {
   balance = $state<WalletBalanceDto | null>(null);
@@ -55,50 +45,12 @@ export class WalletTransactionState {
   loadingError = $state<string | null>(null);
   idSearch = $state("");
 
-  filtersOpen = $state(false);
-  sortOpen = $state(false);
-  tableKey = $state(0);
-
-  private readonly scheduleRefresh = debounce(() => {
-    this.refreshTable();
-  }, SEARCH_DEBOUNCE_MS);
-
-  sortFieldOptions = walletTransactionSortFieldOptions;
-
   activeIdSearchIsInvalid = $derived(Boolean(this.idSearch.trim()) && !isUlid(this.idSearch));
 
-  sortChips = $derived.by(() =>
-    defaultWalletTransactionSortRules.map(
-      (rule, index) => `#${index + 1} ${walletTransactionSortFieldLabelMap[rule.field]} ${rule.direction}`,
-    ),
-  );
-
-  updateIdSearch = (value: string): void => {
-    this.idSearch = value;
-    this.scheduleRefresh();
-  };
-
-  openFilters = (): void => {
-    this.filtersOpen = !this.filtersOpen;
-    if (this.filtersOpen) {
-      this.sortOpen = false;
-    }
-  };
-
-  openSort = (): void => {
-    this.sortOpen = !this.sortOpen;
-    if (this.sortOpen) {
-      this.filtersOpen = false;
-    }
-  };
-
-  closeOverlays = (): void => {
-    this.filtersOpen = false;
-    this.sortOpen = false;
-  };
-
-  fetchRows = async (request: DataTableLoadRequest): Promise<DataTableLoadResult<WalletTransactionViewModel>> => {
-    const sortRules = this.getSortRules(request.sorts);
+  fetchRows = async (
+    request: DataTableLoadRequest,
+    sort: WalletTransactionSortDto,
+  ): Promise<DataTableLoadResult<WalletTransactionViewModel>> => {
     const filter = buildWalletTransactionFilter(this.idSearch, request.filters);
 
     if (request.cursor === null) {
@@ -111,7 +63,7 @@ export class WalletTransactionState {
       direction: "next",
       idSearch: this.idSearch,
       filters: request.filters,
-      sortRules,
+      sort,
     });
 
     try {
@@ -134,15 +86,6 @@ export class WalletTransactionState {
       return this.emptyResult();
     }
   };
-
-  dispose = (): void => {
-    this.scheduleRefresh.cancel();
-  };
-
-  private refreshTable(): void {
-    this.totalRows = 0;
-    this.tableKey += 1;
-  }
 
   private async refreshCount(filter: ReturnType<typeof buildWalletTransactionFilter>): Promise<void> {
     try {
@@ -168,21 +111,6 @@ export class WalletTransactionState {
       nextCursor: null,
       totalRows: 0,
     };
-  }
-
-  private getSortRules(sorting: DataTableSort[]): WalletTransactionSortRule[] {
-    const sortableFields = new Set<WalletTransactionSortField>(this.sortFieldOptions);
-    const tableSortRules = sorting
-      .filter((sort): sort is DataTableSort & { sortId: WalletTransactionSortField } =>
-        sortableFields.has(sort.sortId as WalletTransactionSortField),
-      )
-      .map((sort) => ({
-        id: sort.sortId,
-        field: sort.sortId,
-        direction: sort.direction === "ascending" ? SortDirection.ASC : SortDirection.DESC,
-      }));
-
-    return tableSortRules.length > 0 ? tableSortRules : defaultWalletTransactionSortRules;
   }
 
   private handleResponseError(error?: ErrorResponse): void {

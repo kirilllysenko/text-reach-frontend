@@ -1,14 +1,13 @@
 import {
-  ComparisonOperator,
   NestedOperator,
   PageDirection,
   TextOperator,
   type ContactGroupFilterDto,
   type ContactGroupSortDto,
   type PageRequestContactGroupFilterDtoContactGroupSortDto,
-  type Sort,
 } from "$lib/api/index.schemas";
-import type { ContactGroupSortRule } from "$lib/feature/contact-group/contact-group-view-data";
+import type { DataTableFilter } from "$lib/components/table";
+import { contactGroupTableFilters } from "$lib/feature/contact-group/contact-group-table-filters";
 
 interface ContactGroupRequestOptions {
   pageSize: number;
@@ -16,15 +15,13 @@ interface ContactGroupRequestOptions {
   direction?: "next" | "previous";
   offset?: number;
   search: string;
-  minContactCount: string;
-  maxContactCount: string;
-  sortRules: ContactGroupSortRule[];
+  filters?: readonly DataTableFilter[];
+  sort: ContactGroupSortDto;
 }
 
 export interface ContactGroupFilterOptions {
   search: string;
-  minContactCount: string;
-  maxContactCount: string;
+  filters?: readonly DataTableFilter[];
 }
 
 export function buildContactGroupRequest(
@@ -34,15 +31,13 @@ export function buildContactGroupRequest(
     pageSize: options.pageSize,
     position: buildPosition(options),
     filter: buildContactGroupFilter(options),
-    sort: buildContactGroupSort(options.sortRules),
+    sort: options.sort,
   };
 }
 
 export function buildContactGroupFilter(options: ContactGroupFilterOptions): ContactGroupFilterDto | undefined {
   const nested: ContactGroupFilterDto[] = [];
   const searchValue = options.search.trim();
-  const minContactTotal = Number(options.minContactCount);
-  const maxContactTotal = Number(options.maxContactCount);
 
   if (searchValue) {
     nested.push({
@@ -53,23 +48,7 @@ export function buildContactGroupFilter(options: ContactGroupFilterOptions): Con
     });
   }
 
-  if (options.minContactCount && !Number.isNaN(minContactTotal)) {
-    nested.push({
-      contactCount: {
-        operator: ComparisonOperator.GREATER_OR_EQUAL,
-        value: minContactTotal,
-      },
-    });
-  }
-
-  if (options.maxContactCount && !Number.isNaN(maxContactTotal)) {
-    nested.push({
-      contactCount: {
-        operator: ComparisonOperator.LESS_OR_EQUAL,
-        value: maxContactTotal,
-      },
-    });
-  }
+  nested.push(...contactGroupTableFilters.toDtos(options.filters ?? []));
 
   if (nested.length === 0) {
     return undefined;
@@ -100,14 +79,4 @@ function buildPosition(
   }
 
   return undefined;
-}
-
-function buildContactGroupSort(sortRules: ContactGroupSortRule[]): ContactGroupSortDto {
-  return sortRules.reduce<ContactGroupSortDto>((acc, rule, index) => {
-    acc[rule.field] = {
-      order: index + 1,
-      direction: rule.direction,
-    } satisfies Sort;
-    return acc;
-  }, {});
 }

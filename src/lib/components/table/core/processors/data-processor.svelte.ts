@@ -18,12 +18,12 @@ import { findColumnById, flattenColumnStructureAndClearGroups } from "../utils.s
  *
  * @template TOriginalRow - The type of the original row data in the datagrid.
  */
-export class DataDataProcessor<TOriginalRow> {
+export class DataProcessor<TOriginalRow> {
   readonly metrics: PerformanceMetrics;
   private customAggregationFns: Map<string, AggregationFn>;
 
   /**
-   * Constructs an instance of the DataDataProcessor.
+   * Constructs a data processor.
    *
    * @param {DatagridCore<TOriginalRow>} datagrid - The core datagrid instance to which this processor belongs.
    */
@@ -161,7 +161,7 @@ export class DataDataProcessor<TOriginalRow> {
     );
     const noFilters = activeFilters.length === 0;
 
-    if (isManualFilteringEnabled || noFilters) return data;
+    if (isManualFilteringEnabled || noFilters || data.length === 0) return data;
 
     const filterData = (
       data: TOriginalRow[],
@@ -174,24 +174,13 @@ export class DataDataProcessor<TOriginalRow> {
       );
     };
 
-    const getActiveFilters = () => {
-      return activeFilters
-        .map((filter) => {
-          const fieldId = this.datagrid.features.filtering.getFilterFieldId(filter);
-          const field = this.datagrid.dataFields.findFieldByIdOrThrow(fieldId);
-
-          if (field.filterable === false) return null;
-
-          return {
-            filter,
-            getValue: field.getValueFn,
-          };
-        })
-        .filter((filter) => filter !== null);
-    };
+    const resolvedFilters = activeFilters.map((filter) => ({
+      filter,
+      getValue: this.datagrid.features.filtering.getFilterValueGetter(filter),
+    }));
 
     this.metrics.measure("Column Filtering", () => {
-      data = filterData(data, getActiveFilters());
+      data = filterData(data, resolvedFilters);
     });
 
     return this.datagrid.lifecycleHooks.executePostFilter(data);

@@ -23,26 +23,13 @@ export function applySorting<TOriginalRow>(datagrid: DatagridCore<TOriginalRow>,
 
   const isManualSortingEnabled = datagrid.features.sorting.isManual;
   const noSorting = datagrid.features.sorting.sorts.length === 0;
-  if (isManualSortingEnabled || noSorting) return data;
+  if (isManualSortingEnabled || noSorting || data.length === 0) return data;
 
-  const sorts = datagrid.features.sorting.sorts
-    .map((sort) => {
-      const fieldId = datagrid.features.sorting.getSortFieldId(sort);
-      const field = datagrid.dataFields.findFieldByIdOrThrow(fieldId);
-
-      if (field.sortable === false) {
-        return null;
-      }
-
-      return {
-        getValue: (row: TOriginalRow) => field.getValueFn(row),
-        direction: sort.direction,
-      };
-    })
-    .filter((sort) => sort !== null) as {
-    getValue: (row: TOriginalRow) => any;
-    direction: DataTableActiveSortDirection;
-  }[];
+  const sorts: { getValue: (row: TOriginalRow) => any; direction: DataTableActiveSortDirection }[] =
+    datagrid.features.sorting.sorts.map((sort) => ({
+      getValue: datagrid.features.sorting.getSortValueGetter(sort),
+      direction: sort.direction,
+    }));
 
   // Schwartzian Transform: Precompute sort values
   const decorated = data.map((row) => ({

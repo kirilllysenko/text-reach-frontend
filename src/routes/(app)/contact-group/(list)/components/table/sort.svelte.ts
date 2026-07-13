@@ -1,11 +1,16 @@
-import { sortDefinition } from "$lib/components/table";
+import type { ContactGroupSortDto } from "$lib/api/index.schemas";
+import { TableBackendSort } from "$lib/components/table";
 
-export const contactGroupSortDefinitions = [
-  sortDefinition({ sortId: "name", fieldId: "name", label: "Name" }),
-  sortDefinition({
+const contactGroupSort = new TableBackendSort<ContactGroupSortDto>();
+
+export const contactGroupTableSorts = contactGroupSort.define([
+  contactGroupSort.sort({ sortId: "name", fieldId: "name", label: "Name" }),
+  contactGroupSort.sort({
     sortId: "contactCount",
     fieldId: "contactCount",
     label: "Contacts",
     defaultDirection: "descending",
   }),
-] as const;
+] as const);
+
+export const contactGroupSortDefinitions = contactGroupTableSorts.definitions;

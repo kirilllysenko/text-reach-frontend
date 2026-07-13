@@ -1,4 +1,4 @@
-import { CampaignStatus as CampaignStatusEnum, type CampaignDto, type SortDirection } from "$lib/api/index.schemas";
+import { CampaignStatus as CampaignStatusEnum, type CampaignDto } from "$lib/api/index.schemas";
 
 export type CampaignStatus = CampaignDto["status"];
 
@@ -10,18 +10,7 @@ export interface CampaignViewModel {
   messageCount: number;
   sentMessageCount: number;
   pendingMessageCount: number;
-  errorMessageCount: number;
-  createdAt: Date;
   contactGroupIds: string[];
-  fromPhoneNumber: string;
-}
-
-export type CampaignSortField = "createdAt" | "name" | "status" | "messageCount" | "sentMessageCount";
-
-export interface SortRule {
-  id: string;
-  field: CampaignSortField;
-  direction: SortDirection;
 }
 
 export const statusLabelMap: Record<NonNullable<CampaignStatus>, string> = {
@@ -34,14 +23,6 @@ export const statusLabelMap: Record<NonNullable<CampaignStatus>, string> = {
   [CampaignStatusEnum.SENT]: "Sent",
 };
 
-export const sortFieldLabelMap: Record<CampaignSortField, string> = {
-  createdAt: "Created Date",
-  name: "Name",
-  status: "Status",
-  messageCount: "All Messages",
-  sentMessageCount: "Sent Messages",
-};
-
 export const campaignStatusOptions: NonNullable<CampaignStatus>[] = [
   CampaignStatusEnum.PENDING,
   CampaignStatusEnum.SENDING,
@@ -50,12 +31,4 @@ export const campaignStatusOptions: NonNullable<CampaignStatus>[] = [
   CampaignStatusEnum.CANCELLED_BY_USER,
   CampaignStatusEnum.CANCELLED_BY_TIMEOUT,
   CampaignStatusEnum.SENT,
-];
-
-export const campaignSortFieldOptions: CampaignSortField[] = [
-  "createdAt",
-  "name",
-  "status",
-  "messageCount",
-  "sentMessageCount",
 ];

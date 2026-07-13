@@ -59,7 +59,7 @@ export type PaginationFeatureConfig = Partial<PaginationFeatureState>;
 /**
  * Interface for row pinning functionality, extending PaginationFeatureState.
  */
-export type IRowPinningFeature = {} & PaginationFeatureState;
+export type IPaginationFeature = PaginationFeatureState;
 
 /**
  * Manages pagination functionality within a data grid.
@@ -67,7 +67,7 @@ export type IRowPinningFeature = {} & PaginationFeatureState;
  * Cursor pagination is modeled as an optimization of page navigation: page numbers
  * still drive the UI, while cursor state records how to fetch adjacent pages.
  */
-export class PaginationFeature<TOriginalRow = any> implements IRowPinningFeature {
+export class PaginationFeature<TOriginalRow = any> implements IPaginationFeature {
   /** The instance of the data grid associated with this feature. */
   datagrid: DatagridCore<TOriginalRow>;
 

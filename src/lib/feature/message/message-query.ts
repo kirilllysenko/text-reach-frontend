@@ -1,5 +1,4 @@
 import {
-  ComparisonOperator,
   ContainmentOperator,
   NestedOperator,
   PageDirection,
@@ -7,10 +6,9 @@ import {
   type MessageFilterDto,
   type MessageSortDto,
   type PageRequestMessageFilterDtoMessageSortDto,
-  type Sort,
 } from "$lib/api/index.schemas";
 import type { DataTableFilter } from "$lib/components/table";
-import type { MessageSortRule, MessageStatusValue } from "$lib/feature/message/message-view-data";
+import { messageTableFilters } from "$lib/feature/message/message-table-filters";
 
 interface MessageRequestOptions {
   campaignId: string;
@@ -19,7 +17,7 @@ interface MessageRequestOptions {
   filters: DataTableFilter[];
   pageSize: number;
   search: string;
-  sortRules: MessageSortRule[];
+  sort: MessageSortDto;
 }
 
 export function buildMessageRequest(options: MessageRequestOptions): PageRequestMessageFilterDtoMessageSortDto {
@@ -27,7 +25,7 @@ export function buildMessageRequest(options: MessageRequestOptions): PageRequest
     pageSize: options.pageSize,
     position: buildPosition(options),
     filter: buildMessageFilter(options.campaignId, options.search, options.filters),
-    sort: buildMessageSort(options.sortRules),
+    sort: options.sort,
   };
 }
 
@@ -74,74 +72,10 @@ function buildMessageFilter(campaignId: string, search: string, filters: DataTab
     });
   }
 
-  for (const filter of filters) {
-    const nextFilter = toMessageFilter(filter);
-
-    if (nextFilter) {
-      nested.push(nextFilter);
-    }
-  }
+  nested.push(...messageTableFilters.toDtos(filters));
 
   return {
     operator: NestedOperator.AND,
     nested,
   };
-}
-
-function buildMessageSort(sortRules: MessageSortRule[]): MessageSortDto {
-  return sortRules.reduce<MessageSortDto>((acc, rule, index) => {
-    acc[rule.field] = {
-      order: index + 1,
-      direction: rule.direction,
-    } satisfies Sort;
-    return acc;
-  }, {});
-}
-
-function toMessageFilter(filter: DataTableFilter): MessageFilterDto | null {
-  if (filter.type === "containment" && filter.filterId === "status" && filter.value.length > 0) {
-    return {
-      status: {
-        operator: ContainmentOperator.IN,
-        value: filter.value as MessageStatusValue[],
-      },
-    };
-  }
-
-  if (filter.type === "comparison") {
-    return toComparisonFilter(filter);
-  }
-
-  if (filter.type === "text" && filter.filterId === "tenantPhoneNumber" && filter.value?.trim()) {
-    return {
-      tenantPhoneNumber: {
-        operator: TextOperator.CONTAINS,
-        value: filter.value.trim(),
-      },
-    };
-  }
-
-  return null;
-}
-
-function toComparisonFilter(filter: DataTableFilter & { type: "comparison" }): MessageFilterDto | null {
-  if (filter.filterId === "sentFrom" && filter.value) {
-    return {
-      sentAt: {
-        operator: ComparisonOperator.GREATER_OR_EQUAL,
-        value: `${filter.value}T00:00:00.000Z`,
-      },
-    };
-  }
-
-  if (filter.filterId === "sentTo" && filter.value) {
-    return {
-      sentAt: {
-        operator: ComparisonOperator.LESS_OR_EQUAL,
-        value: `${filter.value}T23:59:59.999Z`,
-      },
-    };
-  }
-
-  return null;
 }

@@ -14,6 +14,14 @@ export class FilteringService extends BaseService {
     return this.datagrid.features.filtering.filterDefinitions;
   }
 
+  getVisibleActiveFilterCount(): number {
+    const visibleFilterIds = new Set(
+      this.filterDefinitions.filter((definition) => !definition.hidden).map((definition) => definition.filterId),
+    );
+
+    return this.filters.filter((filter) => visibleFilterIds.has(filter.filterId)).length;
+  }
+
   setColumnFilter(column: LeafColumn<any>, filter: DataTableFilter): void {
     this.setFilter(column.columnId, filter, column);
   }
@@ -23,10 +31,7 @@ export class FilteringService extends BaseService {
       throw new Error(`Filter id ${filter.filterId} does not match target filter id ${filterId}`);
     }
 
-    const fieldId = this.datagrid.features.filtering.getFilterFieldId(filter);
-    const field = this.datagrid.dataFields.findFieldByIdOrThrow(fieldId);
-
-    if (field.filterable === false) {
+    if (!this.isFilterable(filterId)) {
       return;
     }
 
@@ -42,6 +47,16 @@ export class FilteringService extends BaseService {
   clearFilters(): void {
     this.datagrid.features.filtering.clearFilters();
     this.refreshFiltering();
+  }
+
+  private isFilterable(filterId: string): boolean {
+    const definition = this.filterDefinitions.find((current) => current.filterId === filterId);
+    if (definition) return true;
+
+    const column = this.datagrid.columns.findColumnById(filterId);
+    if (column?.type === "accessor" || column?.type === "computed") return column.options.filterable;
+
+    throw new Error(`Filter ${filterId} not found`);
   }
 
   private refreshFiltering(filterId?: string, column?: LeafColumn<any>): void {

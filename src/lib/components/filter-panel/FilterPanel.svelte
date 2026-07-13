@@ -1,6 +1,18 @@
 <script lang="ts">
   import Input from "../input/Input.svelte";
-  import type { DataTableFilter, DataTableFilterDefinition } from "../table";
+  import type {
+    DataTableComparisonFilter,
+    DataTableComparisonFilterComponentProps,
+    DataTableComparisonFilterDefinition,
+    DataTableContainmentFilter,
+    DataTableContainmentFilterComponentProps,
+    DataTableContainmentFilterDefinition,
+    DataTableFilter,
+    DataTableFilterDefinition,
+    DataTableTextFilter,
+    DataTableTextFilterComponentProps,
+    DataTableTextFilterDefinition,
+  } from "../table";
   import type {
     FilterPanelCheckboxGroup,
     FilterPanelConfig,
@@ -239,15 +251,61 @@
     filterDefinitions.forEach((definition) => filtering.removeFilter(definition.filterId));
   }
 
-  function getSnippetProps(definition: DataTableFilterDefinition) {
+  function getTextComponentProps(
+    definition: DataTableTextFilterDefinition,
+  ): DataTableTextFilterComponentProps {
+    return getComponentProps(definition, isTextFilter);
+  }
+
+  function getComparisonComponentProps(
+    definition: DataTableComparisonFilterDefinition,
+  ): DataTableComparisonFilterComponentProps {
+    return getComponentProps(definition, isComparisonFilter);
+  }
+
+  function getContainmentComponentProps(
+    definition: DataTableContainmentFilterDefinition,
+  ): DataTableContainmentFilterComponentProps {
+    return getComponentProps(definition, isContainmentFilter);
+  }
+
+  function getComponentProps<TFilter extends DataTableFilter>(
+    definition: DataTableFilterDefinition,
+    isExpectedFilter: (filter: DataTableFilter) => filter is TFilter,
+  ): FilterComponentProps<TFilter> {
+    const getFilter = () => {
+      const filter = getDefinitionFilter(definition);
+      return filter && isExpectedFilter(filter) ? filter : null;
+    };
+
     return {
-      filter: getDefinitionFilter(definition),
-      value: getDefinitionValue(definition),
-      getValue: () => getDefinitionValue(definition),
+      filter: getFilter(),
+      value: getFilter()?.value ?? null,
+      getValue: () => getFilter()?.value ?? null,
       setValue: (nextValue: DataTableFilter["value"] | null | undefined) => setDefinitionValue(definition, nextValue),
       clear: () => filtering.removeFilter(definition.filterId),
     };
   }
+
+  function isTextFilter(filter: DataTableFilter): filter is DataTableTextFilter {
+    return filter.type === "text";
+  }
+
+  function isComparisonFilter(filter: DataTableFilter): filter is DataTableComparisonFilter {
+    return filter.type === "comparison";
+  }
+
+  function isContainmentFilter(filter: DataTableFilter): filter is DataTableContainmentFilter {
+    return filter.type === "containment";
+  }
+
+  type FilterComponentProps<TFilter extends DataTableFilter> = {
+    filter: TFilter | null;
+    value: TFilter["value"] | null;
+    getValue: () => TFilter["value"] | null;
+    setValue: (nextValue: TFilter["value"] | null | undefined) => void;
+    clear: () => void;
+  };
 </script>
 
 <div
@@ -332,8 +390,15 @@
       <div class="space-y-1">
         <span class="text-xs font-medium text-slate-500">{definition.label ?? definition.filterId}</span>
 
-        {#if definition.snippet}
-          {@render definition.snippet(getSnippetProps(definition))}
+        {#if definition.type === "text" && definition.component}
+          {@const FilterControl = definition.component}
+          <FilterControl {...getTextComponentProps(definition)} />
+        {:else if definition.type === "comparison" && definition.component}
+          {@const FilterControl = definition.component}
+          <FilterControl {...getComparisonComponentProps(definition)} />
+        {:else if definition.type === "containment" && definition.component}
+          {@const FilterControl = definition.component}
+          <FilterControl {...getContainmentComponentProps(definition)} />
         {:else if definition.type === "text" || definition.type === "comparison"}
           <Input
             type={getDefinitionInputType(definition)}

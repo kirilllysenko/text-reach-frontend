@@ -1,25 +1,29 @@
 import { accessorColumn, computedColumn, displayColumn, columnGroup } from "./core/column-creation";
 import { DatagridCore } from "./core/index.svelte";
 import { comparisonFilter, containmentFilter, textFilter } from "./core/features/column-filtering.svelte";
+import { TableBackendFilter, TableBackendFilterRegistry } from "./core/features/table-backend-filter";
+import { TableBackendSort, TableBackendSortRegistry } from "./core/features/table-backend-sort";
 import { sortDefinition } from "./core/features/sorting.svelte";
 import { getCellContent } from "./core/utils.svelte";
 import { FilteringService } from "./core/services/filtering-service.svelte";
+import { SortingService } from "./core/services/sorting-service";
 import Table from "./ui/Table.svelte";
 import type { ColumnDef } from "./core/column-types";
-import type { DataField } from "./core/data-types";
 import type {
   DataTableComparisonFilter,
+  DataTableComparisonFilterComponentProps,
   DataTableComparisonFilterDefinition,
   DataTableComparisonOperator,
   DataTableContainmentFilter,
+  DataTableContainmentFilterComponentProps,
   DataTableContainmentFilterDefinition,
   DataTableContainmentOperator,
   DataTableFilter,
   DataTableFilterDefinition,
-  FilterDefinitionSnippetProps,
   DataTableFilterFromDefinition,
   DataTableFilterFromDefinitions,
   DataTableTextFilter,
+  DataTableTextFilterComponentProps,
   DataTableTextFilterDefinition,
   DataTableTextOperator,
 } from "./core/features/column-filtering.svelte";
@@ -38,7 +42,6 @@ import type {
   DataTableLoader,
 } from "./core/features/data-loading.svelte";
 import type { DataTableCursor, DataTablePageDirection, DataTablePageRequest } from "./core/features/pagination.svelte";
-import type { SortPanelController } from "../sort-panel/sort-panel-types";
 
 export {
   DatagridCore,
@@ -52,23 +55,28 @@ export {
   displayColumn,
   sortDefinition,
   textFilter,
+  TableBackendFilter,
+  TableBackendFilterRegistry,
+  TableBackendSort,
+  TableBackendSortRegistry,
   FilteringService,
+  SortingService,
 };
 
 export type {
   ColumnDef,
-  DataField,
   DataTableActiveSortDirection,
   DataTableComparisonFilter,
+  DataTableComparisonFilterComponentProps,
   DataTableComparisonFilterDefinition,
   DataTableComparisonOperator,
   DataTableContainmentFilter,
+  DataTableContainmentFilterComponentProps,
   DataTableContainmentFilterDefinition,
   DataTableContainmentOperator,
   DataTableCursor,
   DataTableFilter,
   DataTableFilterDefinition,
-  FilterDefinitionSnippetProps,
   DataTableFilterFromDefinition,
   DataTableFilterFromDefinitions,
   DataTableLoadRequest,
@@ -83,7 +91,7 @@ export type {
   DataTableSortFromDefinition,
   DataTableSortFromDefinitions,
   DataTableTextFilter,
+  DataTableTextFilterComponentProps,
   DataTableTextFilterDefinition,
   DataTableTextOperator,
-  SortPanelController,
 };

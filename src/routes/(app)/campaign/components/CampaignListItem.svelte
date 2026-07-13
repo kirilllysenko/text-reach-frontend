@@ -11,14 +11,6 @@
   }
 
   let { campaign, compact = false, mobile = false, selected = false, onSelect }: Props = $props();
-
-  const createdAtLabel = $derived(
-    new Intl.DateTimeFormat("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    }).format(campaign.createdAt),
-  );
 </script>
 
 <button
@@ -39,13 +31,11 @@
       </div>
 
       {#if compact}
-        <p class="mt-2 text-xs text-slate-500">Created: {createdAtLabel}</p>
+        <p class="mt-2 text-xs text-slate-500">{campaign.messageCount} contacts</p>
       {:else}
         <div class="mt-2 grid grid-cols-2 gap-1 text-xs text-slate-500">
-          <span>Created: {createdAtLabel}</span>
           <span>Sent: {campaign.sentMessageCount}</span>
           <span>Contacts: {campaign.messageCount}</span>
-          <span>From: {campaign.fromPhoneNumber}</span>
         </div>
       {/if}
     </div>

@@ -1,24 +1,13 @@
 <script lang="ts">
-  import { Button, ResponsiveDialog, SortPanel, type DataTableSortDefinition, type SortPanelController } from "$lib";
+  import { Button, ResponsiveDialog, SortPanel, type SortingService } from "$lib";
   import Sort from "$lib/icons/Sort.svelte";
 
-  interface SortingServiceController extends SortPanelController {
-    sortDefinitions: readonly DataTableSortDefinition[];
-  }
-
   interface Props {
-    sorting: SortingServiceController;
+    sorting: SortingService;
   }
 
   let { sorting }: Props = $props();
   let open = $state(false);
-
-  const sortFieldOptions = $derived(
-    sorting.sortDefinitions.map((definition) => ({
-      value: definition.sortId,
-      label: definition.label ?? definition.sortId,
-    })),
-  );
 
   function openSort(): void {
     open = true;
@@ -47,7 +36,7 @@
   description="Adjust the priority stack for the contact table."
   onClose={closeSort}
 >
-  <SortPanel {sorting} fieldOptions={sortFieldOptions} compact />
+  <SortPanel {sorting} />
 
   {#snippet mobileFooter()}
     <Button class="w-full" onclick={closeSort}>Apply sorting</Button>

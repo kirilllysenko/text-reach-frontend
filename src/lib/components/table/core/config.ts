@@ -1,5 +1,5 @@
 import type { ColumnDef } from "./column-types";
-import type { DataField } from "./data-types";
+import type { DataTableLoader, DataLoadingFeatureConfig } from "./features/data-loading.svelte";
 import type { InitialState, FeatureOverrides } from "./features/types";
 import type { LifecycleHooks } from "./managers/lifecycle-hooks-manager.svelte";
 
@@ -17,15 +17,30 @@ export type DatagridCoreConfigDefaults = {
   column?: DefaultColumnConfig;
 };
 
-export type DatagridCoreConfig<TOriginalRow, C extends ColumnDef<TOriginalRow> = ColumnDef<TOriginalRow>> = {
+type SharedDatagridCoreConfig<TOriginalRow, C extends ColumnDef<TOriginalRow>> = {
   columns: C[];
-  data: TOriginalRow[];
-  dataFields?: DataField<TOriginalRow>[];
   lifecycleHooks?: LifecycleHooks<TOriginalRow>;
-  initialState?: InitialState;
   measurePerformance?: boolean;
   rowIdGetter?: (row: TOriginalRow) => string;
-  rowIndexGetter?: (row: TOriginalRow) => string;
+  rowIndexGetter?: (row: TOriginalRow, parentIndex: string | null, index: number) => string;
   features?: FeatureOverrides;
   default?: DatagridCoreConfigDefaults;
 };
+
+type LocalDatagridCoreConfig<TOriginalRow> = {
+  data: TOriginalRow[];
+  initialState?: InitialState<TOriginalRow>;
+};
+
+type LoaderDatagridCoreConfig<TOriginalRow> = {
+  data?: TOriginalRow[];
+  initialState: InitialState<TOriginalRow> & {
+    dataLoading: DataLoadingFeatureConfig<TOriginalRow> & { loader: DataTableLoader<TOriginalRow> };
+  };
+};
+
+export type DatagridCoreConfig<
+  TOriginalRow,
+  C extends ColumnDef<TOriginalRow> = ColumnDef<TOriginalRow>,
+> = SharedDatagridCoreConfig<TOriginalRow, C> &
+  (LocalDatagridCoreConfig<TOriginalRow> | LoaderDatagridCoreConfig<TOriginalRow>);

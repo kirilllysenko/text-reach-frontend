@@ -1,5 +1,6 @@
 import type { DatagridCore } from "../index.svelte";
-import type { Snippet } from "svelte";
+import type { Component } from "svelte";
+import type { GetValueFn } from "../data-types";
 
 export type DataTableTextOperator = "CONTAINS" | "NOT_CONTAINS" | "STARTS_WITH" | "ENDS_WITH" | "EQUAL" | "NOT_EQUAL";
 
@@ -40,26 +41,40 @@ export type DataTableFilter<TFilterId extends string = string> =
   | DataTableComparisonFilter<TFilterId>
   | DataTableContainmentFilter<TFilterId>;
 
-export interface FilterDefinitionSnippetProps {
-  filter: DataTableFilter | null;
-  value: DataTableFilter["value"] | null;
-  getValue: () => DataTableFilter["value"] | null;
-  setValue: (nextValue: DataTableFilter["value"] | null | undefined) => void;
+interface FilterComponentProps<TFilter extends DataTableFilter> {
+  filter: TFilter | null;
+  value: TFilter["value"] | null;
+  getValue: () => TFilter["value"] | null;
+  setValue: (nextValue: TFilter["value"] | null | undefined) => void;
   clear: () => void;
 }
 
-export interface DataTableBaseFilterDefinition<TFilterId extends string = string> {
+export type DataTableTextFilterComponentProps<TFilterId extends string = string> =
+  FilterComponentProps<DataTableTextFilter<TFilterId>>;
+
+export type DataTableComparisonFilterComponentProps<TFilterId extends string = string> =
+  FilterComponentProps<DataTableComparisonFilter<TFilterId>>;
+
+export type DataTableContainmentFilterComponentProps<TFilterId extends string = string> =
+  FilterComponentProps<DataTableContainmentFilter<TFilterId>>;
+
+export interface DataTableBaseFilterDefinition<
+  TFilterId extends string = string,
+  TOriginalRow = any,
+> {
   filterId: TFilterId;
   formatValue?: (value: DataTableFilter["value"], filter: DataTableFilter) => string;
   fieldId?: string;
+  getValueFn?: GetValueFn<TOriginalRow>;
   hidden?: boolean;
   label?: string;
-  snippet?: Snippet<[FilterDefinitionSnippetProps]>;
 }
 
 export interface DataTableTextFilterDefinition<
   TFilterId extends string = string,
-> extends DataTableBaseFilterDefinition<TFilterId> {
+  TOriginalRow = any,
+> extends DataTableBaseFilterDefinition<TFilterId, TOriginalRow> {
+  component?: Component<DataTableTextFilterComponentProps>;
   type: "text";
   defaultOperator?: DataTableTextOperator;
   operators?: readonly DataTableTextOperator[];
@@ -67,7 +82,9 @@ export interface DataTableTextFilterDefinition<
 
 export interface DataTableComparisonFilterDefinition<
   TFilterId extends string = string,
-> extends DataTableBaseFilterDefinition<TFilterId> {
+  TOriginalRow = any,
+> extends DataTableBaseFilterDefinition<TFilterId, TOriginalRow> {
+  component?: Component<DataTableComparisonFilterComponentProps>;
   type: "comparison";
   defaultOperator?: DataTableComparisonOperator;
   operators?: readonly DataTableComparisonOperator[];
@@ -75,16 +92,18 @@ export interface DataTableComparisonFilterDefinition<
 
 export interface DataTableContainmentFilterDefinition<
   TFilterId extends string = string,
-> extends DataTableBaseFilterDefinition<TFilterId> {
+  TOriginalRow = any,
+> extends DataTableBaseFilterDefinition<TFilterId, TOriginalRow> {
+  component?: Component<DataTableContainmentFilterComponentProps>;
   type: "containment";
   defaultOperator?: DataTableContainmentOperator;
   operators?: readonly DataTableContainmentOperator[];
 }
 
-export type DataTableFilterDefinition<TFilterId extends string = string> =
-  | DataTableTextFilterDefinition<TFilterId>
-  | DataTableComparisonFilterDefinition<TFilterId>
-  | DataTableContainmentFilterDefinition<TFilterId>;
+export type DataTableFilterDefinition<TFilterId extends string = string, TOriginalRow = any> =
+  | DataTableTextFilterDefinition<TFilterId, TOriginalRow>
+  | DataTableComparisonFilterDefinition<TFilterId, TOriginalRow>
+  | DataTableContainmentFilterDefinition<TFilterId, TOriginalRow>;
 
 export type DataTableFilterFromDefinition<TDefinition> =
   TDefinition extends DataTableTextFilterDefinition<infer TFilterId>
@@ -98,21 +117,21 @@ export type DataTableFilterFromDefinition<TDefinition> =
 export type DataTableFilterFromDefinitions<TDefinitions extends readonly DataTableFilterDefinition[]> =
   DataTableFilterFromDefinition<TDefinitions[number]>;
 
-export function textFilter<const TFilterId extends string>(
-  definition: Omit<DataTableTextFilterDefinition<TFilterId>, "type">,
-): DataTableTextFilterDefinition<TFilterId> {
+export function textFilter<const TFilterId extends string, TOriginalRow = any>(
+  definition: Omit<DataTableTextFilterDefinition<TFilterId, TOriginalRow>, "type">,
+): DataTableTextFilterDefinition<TFilterId, TOriginalRow> {
   return { ...definition, type: "text" };
 }
 
-export function comparisonFilter<const TFilterId extends string>(
-  definition: Omit<DataTableComparisonFilterDefinition<TFilterId>, "type">,
-): DataTableComparisonFilterDefinition<TFilterId> {
+export function comparisonFilter<const TFilterId extends string, TOriginalRow = any>(
+  definition: Omit<DataTableComparisonFilterDefinition<TFilterId, TOriginalRow>, "type">,
+): DataTableComparisonFilterDefinition<TFilterId, TOriginalRow> {
   return { ...definition, type: "comparison" };
 }
 
-export function containmentFilter<const TFilterId extends string>(
-  definition: Omit<DataTableContainmentFilterDefinition<TFilterId>, "type">,
-): DataTableContainmentFilterDefinition<TFilterId> {
+export function containmentFilter<const TFilterId extends string, TOriginalRow = any>(
+  definition: Omit<DataTableContainmentFilterDefinition<TFilterId, TOriginalRow>, "type">,
+): DataTableContainmentFilterDefinition<TFilterId, TOriginalRow> {
   return { ...definition, type: "containment" };
 }
 
@@ -219,6 +238,17 @@ export class ColumnFilteringFeature<
     return (
       this.filterDefinitions.find((definition) => definition.filterId === filter.filterId)?.fieldId ?? filter.filterId
     );
+  }
+
+  getFilterValueGetter(filter: DataTableFilter): GetValueFn<any> {
+    const definition = this.filterDefinitions.find((current) => current.filterId === filter.filterId);
+    if (definition?.getValueFn) return definition.getValueFn;
+
+    const fieldId = definition?.fieldId ?? filter.filterId;
+    const column = this.datagrid.columns.findColumnById(fieldId);
+    if (column?.type === "accessor" || column?.type === "computed") return column.getValueFn;
+
+    throw new Error(`Filter ${filter.filterId} has no local value getter`);
   }
 
   evaluateFilter(cellValue: unknown, filter: DataTableFilter): boolean {

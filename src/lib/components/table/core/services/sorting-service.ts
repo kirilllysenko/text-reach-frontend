@@ -198,14 +198,17 @@ export class SortingService extends BaseService {
   }
 
   private isSortable(sortId: string): boolean {
-    const field = this.validateSort(sortId);
-    return field.sortable !== false;
+    const definition = this.sortDefinitions.find((current) => current.sortId === sortId);
+    if (definition) return true;
+
+    const column = this.datagrid.columns.findColumnById(sortId);
+    if (column?.type === "accessor" || column?.type === "computed") return column.options.sortable;
+
+    throw new Error(`Sort ${sortId} not found`);
   }
 
-  private validateSort(sortId: string) {
-    const sort = { direction: "ascending", sortId } satisfies DataTableSort;
-    const fieldId = this.datagrid.features.sorting.getSortFieldId(sort);
-    return this.datagrid.dataFields.findFieldByIdOrThrow(fieldId);
+  private validateSort(sortId: string): void {
+    this.isSortable(sortId);
   }
 
   private getAlternateDirection(direction: DataTableActiveSortDirection): DataTableActiveSortDirection {

@@ -13,15 +13,8 @@ export async function loadContactGroupComboboxOptions(
         cursor: request.cursor,
         direction: "next",
         search: request.search,
-        minContactCount: "",
-        maxContactCount: "",
-        sortRules: [
-          {
-            id: "name",
-            field: "name",
-            direction: SortDirection.ASC,
-          },
-        ],
+        filters: [],
+        sort: { name: { direction: SortDirection.ASC, order: 1 } },
       }),
       { credentials: "include", signal: request.signal },
     );

@@ -51,8 +51,8 @@ export type FeatureConstructor<T> = {
   new (datagrid: DatagridCore<any>, config?: any): T;
 };
 
-export type InitialState = {
-  dataLoading?: DataLoadingFeatureConfig;
+export type InitialState<TOriginalRow = any> = {
+  dataLoading?: DataLoadingFeatureConfig<TOriginalRow>;
   sorting?: SortingFeatureConfig;
   pagination?: PaginationFeatureConfig;
   filtering?: ColumnFilteringFeatureConfig;

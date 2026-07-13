@@ -2,144 +2,28 @@ import { SortDirection, type CustomFieldType, type ErrorResponse } from "$lib/ap
 import { listCustomFields as listCustomFieldList } from "$lib/api/custom-field/custom-field";
 import type { DataTableFilter, DataTableLoadRequest, DataTableLoadResult, DataTableSort } from "$lib/components/table";
 import {
-  customFieldSortFieldLabelMap,
   customFieldSortFieldOptions,
-  customFieldTypeLabelMap,
-  customFieldTypeOptions,
   type CustomFieldSortField,
   type CustomFieldSortRule,
   type CustomFieldViewModel,
 } from "$lib/feature/custom-field/custom-field-view-data";
-import { debounce } from "$lib/utils/debounce";
-import {
-  createMockCustomFieldList,
-  filterCustomFieldList,
-  sortCustomFieldList,
-  toCustomFieldViewModel,
-} from "./custom-field-display";
+import { filterCustomFieldList, sortCustomFieldList, toCustomFieldViewModel } from "./custom-field-display";
 
-const SEARCH_DEBOUNCE_MS = 250;
+const defaultSortRules: CustomFieldSortRule[] = [
+  {
+    id: "name",
+    field: "name",
+    direction: SortDirection.ASC,
+  },
+];
 
 export class CustomFieldState {
   totalRows = $state(0);
   loadingError = $state<string | null>(null);
-
   search = $state("");
-  typeFilters = $state<CustomFieldType[]>([]);
-  sortRules = $state<CustomFieldSortRule[]>([
-    {
-      id: crypto.randomUUID(),
-      field: "name",
-      direction: SortDirection.ASC,
-    },
-  ]);
 
-  filtersOpen = $state(false);
-  sortOpen = $state(false);
-  tableKey = $state(0);
-
-  private readonly scheduleRefresh = debounce(() => {
-    this.refreshTable();
-  }, SEARCH_DEBOUNCE_MS);
   private loaded = false;
   private fields = $state<CustomFieldViewModel[]>([]);
-
-  typeOptions = customFieldTypeOptions;
-  sortFieldOptions = customFieldSortFieldOptions;
-
-  activeFilterChips = $derived.by(() => {
-    const chips: string[] = [];
-
-    if (this.typeFilters.length > 0) {
-      chips.push(`Type: ${this.typeFilters.map((type) => customFieldTypeLabelMap[type]).join(", ")}`);
-    }
-
-    return chips;
-  });
-
-  activeFilterCount = $derived(this.activeFilterChips.length);
-
-  sortChips = $derived.by(() =>
-    this.sortRules.map((rule, index) => `#${index + 1} ${customFieldSortFieldLabelMap[rule.field]} ${rule.direction}`),
-  );
-
-  activeSortCount = $derived(this.sortRules.length);
-
-  updateSearch = (value: string): void => {
-    this.search = value;
-    this.scheduleRefresh();
-  };
-
-  toggleTypeFilter = (type: CustomFieldType): void => {
-    this.typeFilters = this.typeFilters.includes(type)
-      ? this.typeFilters.filter((value) => value !== type)
-      : [...this.typeFilters, type];
-
-    this.refreshTable();
-  };
-
-  clearFilters = (): void => {
-    this.typeFilters = [];
-    this.refreshTable();
-  };
-
-  addSortRule = (): void => {
-    const usedFields = new Set(this.sortRules.map((rule) => rule.field));
-    const field = this.sortFieldOptions.find((option) => !usedFields.has(option)) ?? this.sortFieldOptions[0];
-
-    this.sortRules = [
-      ...this.sortRules,
-      {
-        id: crypto.randomUUID(),
-        field,
-        direction: SortDirection.ASC,
-      },
-    ];
-
-    this.refreshTable();
-  };
-
-  removeSortRule = (ruleId: string): void => {
-    const remaining = this.sortRules.filter((rule) => rule.id !== ruleId);
-    this.sortRules =
-      remaining.length > 0 ? remaining : [{ id: crypto.randomUUID(), field: "name", direction: SortDirection.ASC }];
-
-    this.refreshTable();
-  };
-
-  updateSortRuleField = (ruleId: string, field: CustomFieldSortField): void => {
-    this.sortRules = this.sortRules.map((rule) => (rule.id === ruleId ? { ...rule, field } : rule));
-    this.refreshTable();
-  };
-
-  updateSortRuleDirection = (ruleId: string, direction: SortDirection): void => {
-    this.sortRules = this.sortRules.map((rule) => (rule.id === ruleId ? { ...rule, direction } : rule));
-    this.refreshTable();
-  };
-
-  clearSortRules = (): void => {
-    this.sortRules = [{ id: crypto.randomUUID(), field: "name", direction: SortDirection.ASC }];
-    this.refreshTable();
-  };
-
-  openFilters = (): void => {
-    this.filtersOpen = !this.filtersOpen;
-    if (this.filtersOpen) {
-      this.sortOpen = false;
-    }
-  };
-
-  openSort = (): void => {
-    this.sortOpen = !this.sortOpen;
-    if (this.sortOpen) {
-      this.filtersOpen = false;
-    }
-  };
-
-  closeOverlays = (): void => {
-    this.filtersOpen = false;
-    this.sortOpen = false;
-  };
 
   fetchRows = async (request: DataTableLoadRequest): Promise<DataTableLoadResult<CustomFieldViewModel>> => {
     if (!this.loaded) {
@@ -160,20 +44,8 @@ export class CustomFieldState {
     };
   };
 
-  dispose = (): void => {
-    this.scheduleRefresh.cancel();
-  };
-
-  private refreshTable(): void {
-    this.tableKey += 1;
-  }
-
-  private get filteredFields(): CustomFieldViewModel[] {
-    return this.getFilteredFields([], []);
-  }
-
   private getFilteredFields(sorting: DataTableSort[], filters: DataTableFilter[]): CustomFieldViewModel[] {
-    const sortableFields = new Set<CustomFieldSortField>(this.sortFieldOptions);
+    const sortableFields = new Set<CustomFieldSortField>(customFieldSortFieldOptions);
     const tableSortRules = sorting
       .filter((sort): sort is DataTableSort & { sortId: CustomFieldSortField } =>
         sortableFields.has(sort.sortId as CustomFieldSortField),
@@ -188,7 +60,7 @@ export class CustomFieldState {
 
     return sortCustomFieldList(
       filterCustomFieldList(this.fields, this.search, typeFilters),
-      tableSortRules.length > 0 ? tableSortRules : this.sortRules,
+      tableSortRules.length > 0 ? tableSortRules : defaultSortRules,
     );
   }
 
@@ -210,10 +82,8 @@ export class CustomFieldState {
   }
 
   private handleResponseError(error?: ErrorResponse): void {
-    this.loadingError =
-      error?.errorDescription ??
-      "Could not load custom fields from API. The page is showing local preview data until the backend responds.";
-    this.fields = createMockCustomFieldList();
+    this.loadingError = error?.errorDescription ?? "Could not load custom fields from API.";
+    this.fields = [];
     this.loaded = true;
   }
 }

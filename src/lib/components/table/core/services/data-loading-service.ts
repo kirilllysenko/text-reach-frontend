@@ -1,7 +1,7 @@
 import type { DataTableLoadReason, DataTableLoadResult } from "../features/data-loading.svelte";
 import { BaseService } from "./base-service";
 
-export class DataLoadingService extends BaseService {
+export class DataLoadingService<TOriginalRow> extends BaseService<TOriginalRow> {
   start(): void {
     this.datagrid.features.dataLoading.start();
   }
@@ -14,11 +14,11 @@ export class DataLoadingService extends BaseService {
     this.datagrid.features.dataLoading.dispose();
   }
 
-  load(reason: DataTableLoadReason = "reload"): Promise<DataTableLoadResult<any> | null> {
+  load(reason: DataTableLoadReason = "reload"): Promise<DataTableLoadResult<TOriginalRow> | null> {
     return this.datagrid.features.dataLoading.load(reason);
   }
 
-  reload(reason: DataTableLoadReason = "reload"): Promise<DataTableLoadResult<any> | null> {
+  reload(reason: DataTableLoadReason = "reload"): Promise<DataTableLoadResult<TOriginalRow> | null> {
     return this.datagrid.features.dataLoading.reload(reason);
   }
 }

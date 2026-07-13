@@ -30,13 +30,8 @@ export function applySorting<TOriginalRow>(datagrid: DatagridCore<TOriginalRow>,
   // Build active sorts and precompute keys.
   const sorts = datagrid.features.sorting.sorts
     .map((sort) => {
-      const fieldId = datagrid.features.sorting.getSortFieldId(sort);
-      const field = datagrid.dataFields.findFieldByIdOrThrow(fieldId);
-      if (field.sortable === false) {
-        return null;
-      }
       return {
-        getValue: (row: TOriginalRow) => field.getValueFn(row),
+        getValue: datagrid.features.sorting.getSortValueGetter(sort),
         direction: sort.direction,
       };
     })

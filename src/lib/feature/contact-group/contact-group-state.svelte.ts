@@ -1,162 +1,28 @@
-import { SortDirection, type ErrorResponse } from "$lib/api/index.schemas";
+import type { ContactGroupSortDto, ErrorResponse } from "$lib/api/index.schemas";
 import { fetchContactGroups as fetchContactGroupList } from "$lib/api/contact-group/contact-group";
-import type { DataTableFilter, DataTableLoadRequest, DataTableLoadResult, DataTableSort } from "$lib/components/table";
-import {
-  contactGroupSortFieldLabelMap,
-  contactGroupSortFieldOptions,
-  type ContactGroupSortField,
-  type ContactGroupSortRule,
-  type ContactGroupViewModel,
-} from "$lib/feature/contact-group/contact-group-view-data";
-import { debounce } from "$lib/utils/debounce";
-import {
-  createMockContactGroupList,
-  filterMockContactGroupList,
-  sortContactGroupList,
-  toContactGroupViewModel,
-} from "./contact-group-display";
+import type { DataTableLoadRequest, DataTableLoadResult } from "$lib/components/table";
+import type { ContactGroupViewModel } from "$lib/feature/contact-group/contact-group-view-data";
+import { toContactGroupViewModel } from "./contact-group-display";
 import { buildContactGroupRequest } from "./contact-group-query";
-
-const SEARCH_DEBOUNCE_MS = 250;
 
 export class ContactGroupState {
   totalRows = $state(0);
   loadingError = $state<string | null>(null);
-
   search = $state("");
-  minContactCount = $state("");
-  maxContactCount = $state("");
-  sortRules = $state<ContactGroupSortRule[]>([
-    {
-      id: crypto.randomUUID(),
-      field: "name",
-      direction: SortDirection.ASC,
-    },
-  ]);
 
-  filtersOpen = $state(false);
-  sortOpen = $state(false);
-  tableKey = $state(0);
-
-  private readonly scheduleRefresh = debounce(() => {
-    void this.refreshTable();
-  }, SEARCH_DEBOUNCE_MS);
   private loadedRowEstimate = 0;
-  private fallbackGroupList = createMockContactGroupList();
 
-  sortFieldOptions = contactGroupSortFieldOptions;
-
-  activeFilterChips = $derived.by(() => {
-    const chips: string[] = [];
-
-    if (this.minContactCount) {
-      chips.push(`Min contacts: ${this.minContactCount}`);
-    }
-
-    if (this.maxContactCount) {
-      chips.push(`Max contacts: ${this.maxContactCount}`);
-    }
-
-    return chips;
-  });
-
-  activeFilterCount = $derived(this.activeFilterChips.length);
-
-  sortChips = $derived.by(() =>
-    this.sortRules.map((rule, index) => `#${index + 1} ${contactGroupSortFieldLabelMap[rule.field]} ${rule.direction}`),
-  );
-
-  activeSortCount = $derived(this.sortRules.length);
-
-  updateSearch = (value: string): void => {
-    this.search = value;
-    this.scheduleRefresh();
-  };
-
-  updateMinContactCount = (value: string): void => {
-    this.minContactCount = value;
-    void this.refreshTable();
-  };
-
-  updateMaxContactCount = (value: string): void => {
-    this.maxContactCount = value;
-    void this.refreshTable();
-  };
-
-  clearFilters = (): void => {
-    this.minContactCount = "";
-    this.maxContactCount = "";
-    void this.refreshTable();
-  };
-
-  addSortRule = (): void => {
-    const usedFields = new Set(this.sortRules.map((rule) => rule.field));
-    const field = this.sortFieldOptions.find((option) => !usedFields.has(option)) ?? this.sortFieldOptions[0];
-
-    this.sortRules = [
-      ...this.sortRules,
-      {
-        id: crypto.randomUUID(),
-        field,
-        direction: SortDirection.ASC,
-      },
-    ];
-
-    void this.refreshTable();
-  };
-
-  removeSortRule = (ruleId: string): void => {
-    const remaining = this.sortRules.filter((rule) => rule.id !== ruleId);
-    this.sortRules =
-      remaining.length > 0 ? remaining : [{ id: crypto.randomUUID(), field: "name", direction: SortDirection.ASC }];
-
-    void this.refreshTable();
-  };
-
-  updateSortRuleField = (ruleId: string, field: ContactGroupSortField): void => {
-    this.sortRules = this.sortRules.map((rule) => (rule.id === ruleId ? { ...rule, field } : rule));
-    void this.refreshTable();
-  };
-
-  updateSortRuleDirection = (ruleId: string, direction: SortDirection): void => {
-    this.sortRules = this.sortRules.map((rule) => (rule.id === ruleId ? { ...rule, direction } : rule));
-    void this.refreshTable();
-  };
-
-  clearSortRules = (): void => {
-    this.sortRules = [{ id: crypto.randomUUID(), field: "name", direction: SortDirection.ASC }];
-    void this.refreshTable();
-  };
-
-  openFilters = (): void => {
-    this.filtersOpen = !this.filtersOpen;
-    if (this.filtersOpen) {
-      this.sortOpen = false;
-    }
-  };
-
-  openSort = (): void => {
-    this.sortOpen = !this.sortOpen;
-    if (this.sortOpen) {
-      this.filtersOpen = false;
-    }
-  };
-
-  closeOverlays = (): void => {
-    this.filtersOpen = false;
-    this.sortOpen = false;
-  };
-
-  fetchRows = async (request: DataTableLoadRequest): Promise<DataTableLoadResult<ContactGroupViewModel>> => {
-    const filters = getContactGroupTableFilters(request.filters);
+  fetchRows = async (
+    request: DataTableLoadRequest,
+    sort: ContactGroupSortDto,
+  ): Promise<DataTableLoadResult<ContactGroupViewModel>> => {
     const pageRequest = buildContactGroupRequest({
       pageSize: request.limit,
       cursor: request.cursor,
       direction: "next",
       search: this.search,
-      minContactCount: filters.minContactCount,
-      maxContactCount: filters.maxContactCount,
-      sortRules: this.getSortRules(request.sorts),
+      filters: request.filters,
+      sort,
     });
 
     try {
@@ -164,7 +30,7 @@ export class ContactGroupState {
 
       if (response.status !== 200) {
         this.handleResponseError(response.data as ErrorResponse);
-        return this.fetchMockRows(request);
+        return this.emptyRows();
       }
 
       const rows = (response.data.items ?? []).map((item, index) => toContactGroupViewModel(item, index));
@@ -185,50 +51,17 @@ export class ContactGroupState {
       };
     } catch {
       this.handleResponseError();
-      return this.fetchMockRows(request);
+      return this.emptyRows();
     }
   };
 
-  dispose = (): void => {
-    this.scheduleRefresh.cancel();
-  };
-
-  private refreshTable(): void {
+  private emptyRows(): DataTableLoadResult<ContactGroupViewModel> {
     this.loadedRowEstimate = 0;
     this.totalRows = 0;
-    this.tableKey += 1;
-  }
-
-  private get filteredMockGroupList(): ContactGroupViewModel[] {
-    return this.getFilteredMockGroupList([]);
-  }
-
-  private getFilteredMockGroupList(filters: DataTableFilter[]): ContactGroupViewModel[] {
-    const tableFilters = getContactGroupTableFilters(filters);
-    return sortContactGroupList(
-      filterMockContactGroupList(
-        this.fallbackGroupList,
-        this.search,
-        tableFilters.minContactCount,
-        tableFilters.maxContactCount,
-      ),
-      this.sortRules,
-    );
-  }
-
-  private fetchMockRows(request: DataTableLoadRequest): DataTableLoadResult<ContactGroupViewModel> {
-    const groups = this.getFilteredMockGroupList(request.filters);
-    const start = Number(request.cursor?.[0] ?? 0);
-    const end = start + request.limit;
-    const rows = groups.slice(start, end);
-
-    this.loadedRowEstimate = rows.length;
-    this.totalRows = groups.length;
-
     return {
-      rows,
-      nextCursor: end < groups.length ? [end] : null,
-      totalRows: groups.length,
+      rows: [],
+      nextCursor: null,
+      totalRows: 0,
     };
   }
 
@@ -249,45 +82,7 @@ export class ContactGroupState {
     this.totalRows = hasNextCursor ? Math.max(knownRows + limit, limit) : knownRows;
   }
 
-  private getSortRules(sorting: DataTableSort[]): ContactGroupSortRule[] {
-    const sortableFields = new Set<ContactGroupSortField>(this.sortFieldOptions);
-    const tableSortRules = sorting
-      .filter((sort): sort is DataTableSort & { sortId: ContactGroupSortField } =>
-        sortableFields.has(sort.sortId as ContactGroupSortField),
-      )
-      .map((sort) => ({
-        id: sort.sortId,
-        field: sort.sortId,
-        direction: sort.direction === "ascending" ? SortDirection.ASC : SortDirection.DESC,
-      }));
-
-    return tableSortRules.length > 0 ? tableSortRules : this.sortRules;
-  }
-
   private handleResponseError(error?: ErrorResponse): void {
-    this.loadingError =
-      error?.errorDescription ??
-      "Could not load contact groups from API. The page is showing local preview data until the backend responds.";
+    this.loadingError = error?.errorDescription ?? "Could not load contact groups from API.";
   }
-}
-
-function getContactGroupTableFilters(filters: DataTableFilter[]): {
-  maxContactCount: string;
-  minContactCount: string;
-} {
-  const minFilter = filters.find(
-    (filter) =>
-      filter.type === "comparison" && filter.filterId === "minContactCount" && filter.operator === "GREATER_OR_EQUAL",
-  );
-  const maxFilter = filters.find(
-    (filter) =>
-      filter.type === "comparison" && filter.filterId === "maxContactCount" && filter.operator === "LESS_OR_EQUAL",
-  );
-
-  return {
-    maxContactCount:
-      maxFilter?.type === "comparison" && typeof maxFilter.value !== "undefined" ? String(maxFilter.value) : "",
-    minContactCount:
-      minFilter?.type === "comparison" && typeof minFilter.value !== "undefined" ? String(minFilter.value) : "",
-  };
 }

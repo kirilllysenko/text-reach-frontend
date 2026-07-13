@@ -166,9 +166,9 @@
             {:else if table.features.sorting.getSortDirection(column.columnId) === "descending"}
               <span class="shrink-0" aria-label="Sorted descending">▼</span>
             {/if}
-            {#if table.features.sorting.getSortConfigIndex(column.columnId)}
+            {#if table.features.sorting.getSortIndex(column.columnId)}
               <span class="shrink-0 text-[10px] text-slate-400">
-                {table.features.sorting.getSortConfigIndex(column.columnId)}
+                {table.features.sorting.getSortIndex(column.columnId)}
               </span>
             {/if}
           </button>

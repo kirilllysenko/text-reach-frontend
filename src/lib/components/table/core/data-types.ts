@@ -3,12 +3,3 @@ export type CellValue = Primitive | Record<string, any> | Array<any>;
 export type GetValueFn<TOriginalRow> = (row: TOriginalRow) => CellValue;
 export type GetGroupValue<TOriginalRow> = (row: TOriginalRow) => CellValue;
 export type FormatterFn<TOriginalRow> = (row: TOriginalRow) => CellValue;
-
-export type DataField<TOriginalRow> = {
-  fieldId: string;
-  label?: string;
-  getValueFn: GetValueFn<TOriginalRow>;
-  sortable?: boolean;
-  filterable?: boolean;
-  searchable?: boolean;
-};

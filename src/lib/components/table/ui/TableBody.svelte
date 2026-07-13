@@ -1,6 +1,5 @@
 <script lang="ts" generics="TData">
   import type { DatagridCore } from "../core/index.svelte";
-  import TableVirtualBody from "./TableVirtualBody.svelte";
   import TableRow from "./TableRow.svelte";
 
   interface Props {

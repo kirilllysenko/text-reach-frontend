@@ -2,7 +2,6 @@ import type { ErrorResponse } from "$lib/api/index.schemas";
 import { countContacts as countContactList, fetchContacts as fetchContactList } from "$lib/api/contact/contact";
 import {
   DatagridCore,
-  type DataField,
   type DataTableLoadRequest,
   type DataTableLoadResult,
   type DataTableSort,
@@ -10,11 +9,10 @@ import {
 import { toContactViewModel } from "$lib/feature/contact/contact-display";
 import { buildContactFilter, buildContactRequest } from "$lib/feature/contact/contact-query";
 import type { ContactViewModel } from "$lib/feature/contact/contact-view-data";
-import { createContactFilterDefinitions, getContactTableFilters, type ContactTableFilters } from "../filter/filter.svelte";
-import { contactSortDefinitions, getContactSortRules } from "../sort/sort.svelte";
+import { contactTableFilters } from "../filter/filter.svelte";
+import { contactSortDefinitions, contactTableSorts } from "../sort/sort.svelte";
 import { createContactColumns } from "./column.svelte";
 
-const PAGE_SIZE = 500;
 const initialSorting = [
   { sortId: "lastName", direction: "ascending" },
   { sortId: "firstName", direction: "ascending" },
@@ -25,30 +23,23 @@ export const table = createContactTable();
 function createContactTable(): DatagridCore<ContactViewModel> {
   return new DatagridCore<ContactViewModel>({
     columns: createContactColumns(),
-    data: [],
-    dataFields: createContactDataFields(),
     initialState: {
       dataLoading: {
         loader: fetchContactRows,
       },
       filtering: {
-        filterDefinitions: createContactFilterDefinitions(),
-      },
-      pagination: {
-        manual: true,
-        pageSize: PAGE_SIZE,
+        filterDefinitions: contactTableFilters.definitions,
       },
       sorting: {
         sortDefinitions: contactSortDefinitions,
         sorts: initialSorting,
       },
     },
-    rowIdGetter: (contact: ContactViewModel) => contact.id,
   });
 }
 
 async function fetchContactRows(request: DataTableLoadRequest): Promise<DataTableLoadResult<ContactViewModel>> {
-  const filters = getContactTableFilters(request.filters);
+  const filters = contactTableFilters.toDtos(request.filters);
   const totalRows = await fetchContactCount(filters, request.signal);
 
   const pageRequest = buildContactRequest({
@@ -56,11 +47,8 @@ async function fetchContactRows(request: DataTableLoadRequest): Promise<DataTabl
     cursor: request.cursor,
     direction: request.direction ?? "next",
     offset: request.offset,
-    search: filters.search,
-    contactGroupIds: filters.contactGroupIds,
-    birthdayAfter: filters.birthdayAfter,
-    emailContains: filters.emailContains,
-    sortRules: getContactSortRules(request.sorts),
+    filters,
+    sort: contactTableSorts.toBackend(request.sorts),
   });
 
   try {
@@ -80,13 +68,11 @@ async function fetchContactRows(request: DataTableLoadRequest): Promise<DataTabl
   }
 }
 
-async function fetchContactCount(filters: ContactTableFilters, signal?: AbortSignal): Promise<number> {
-  const filter = buildContactFilter({
-    search: filters.search,
-    contactGroupIds: filters.contactGroupIds,
-    birthdayAfter: filters.birthdayAfter,
-    emailContains: filters.emailContains,
-  });
+async function fetchContactCount(
+  filters: Parameters<typeof buildContactFilter>[0],
+  signal?: AbortSignal,
+): Promise<number> {
+  const filter = buildContactFilter(filters);
 
   try {
     const response = await countContactList(filter ?? {}, { credentials: "include", signal });
@@ -103,47 +89,4 @@ async function fetchContactCount(filters: ContactTableFilters, signal?: AbortSig
 
 function getContactErrorMessage(error?: ErrorResponse, fallback = "Could not load contacts from API."): string {
   return error?.errorDescription ?? fallback;
-}
-
-function createContactDataFields(): DataField<ContactViewModel>[] {
-  return [
-    {
-      fieldId: "firstName",
-      getValueFn: (contact) => contact.firstName,
-      sortable: true,
-    },
-    {
-      fieldId: "lastName",
-      getValueFn: (contact) => contact.lastName,
-      sortable: true,
-    },
-    {
-      fieldId: "phoneNumber",
-      getValueFn: (contact) => contact.phoneNumber,
-      sortable: true,
-    },
-    {
-      fieldId: "search",
-      getValueFn: (contact) =>
-        [contact.fullName, contact.phoneNumber, contact.email, contact.notes].filter(Boolean).join(" "),
-      filterable: true,
-    },
-    {
-      fieldId: "email",
-      getValueFn: (contact) => contact.email,
-      filterable: true,
-      sortable: true,
-    },
-    {
-      fieldId: "birthday",
-      getValueFn: (contact) => contact.birthday,
-      filterable: true,
-      sortable: true,
-    },
-    {
-      fieldId: "contactGroupIds",
-      getValueFn: (contact) => contact.contactGroupIds,
-      filterable: true,
-    },
-  ];
 }

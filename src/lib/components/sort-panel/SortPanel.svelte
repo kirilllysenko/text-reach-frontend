@@ -1,22 +1,21 @@
 <script lang="ts">
   import Plus from "$lib/icons/Plus.svelte";
   import Trash from "$lib/icons/Trash.svelte";
-  import type { DataTableSortDirection } from "../table";
-  import type { SortPanelController } from "./sort-panel-types";
-
-  interface SortFieldOption {
-    value: string;
-    label: string;
-  }
+  import type { DataTableSortDirection, SortingService } from "../table";
 
   interface Props {
-    sorting: SortPanelController;
-    fieldOptions: SortFieldOption[];
-    compact?: boolean;
-    directionOptions?: Exclude<DataTableSortDirection, "intermediate">[];
+    sorting: SortingService;
   }
 
-  let { sorting, fieldOptions, compact = false, directionOptions = ["ascending", "descending"] }: Props = $props();
+  let { sorting }: Props = $props();
+
+  const fieldOptions = $derived(
+    sorting.sortDefinitions.map((definition) => ({
+      value: definition.sortId,
+      label: definition.label ?? definition.sortId,
+    })),
+  );
+  const directionOptions = ["ascending", "descending"] satisfies Exclude<DataTableSortDirection, "intermediate">[];
 
   function addRule(): void {
     const usedFields = new Set(sorting.sorts.map((sort) => sort.sortId));
@@ -28,7 +27,7 @@
   }
 </script>
 
-<div class={["space-y-3", compact && "text-sm"]}>
+<div class="space-y-3 text-sm">
   <div class="space-y-2">
     {#each sorting.sorts as rule, index (`${rule.sortId}-${index}`)}
       <div class="grid grid-cols-[1.75rem_minmax(0,1fr)_minmax(7.5rem,0.7fr)_2.5rem] items-center gap-2">

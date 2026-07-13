@@ -2,27 +2,39 @@
   import { onDestroy } from "svelte";
   import { Input } from "$lib";
   import { debounce } from "$lib/utils/debounce";
+  import { table } from "./table/table.svelte";
 
   interface Props {
-    onSearchChange: (search: string) => void;
     value: string;
   }
 
   const SEARCH_DEBOUNCE_MS = 250;
 
-  let { onSearchChange, value = $bindable("") }: Props = $props();
+  let { value = $bindable("") }: Props = $props();
 
-  const debouncedSearchChange = debounce((search: string) => {
-    onSearchChange(search);
+  const updateSearchFilter = debounce((search: string) => {
+    const normalizedSearch = search.trim();
+
+    if (!normalizedSearch) {
+      table.handlers.filtering.removeFilter("search");
+      return;
+    }
+
+    table.handlers.filtering.setFilter("search", {
+      filterId: "search",
+      operator: "CONTAINS",
+      type: "text",
+      value: normalizedSearch,
+    });
   }, SEARCH_DEBOUNCE_MS);
 
   function updateSearch(search: string): void {
     value = search;
-    debouncedSearchChange(search);
+    updateSearchFilter(search);
   }
 
   onDestroy(() => {
-    debouncedSearchChange.cancel();
+    updateSearchFilter.cancel();
   });
 </script>
 

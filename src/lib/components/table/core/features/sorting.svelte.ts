@@ -1,4 +1,5 @@
 import type { DatagridCore } from "../index.svelte";
+import type { GetValueFn } from "../data-types";
 
 export type SortingDirection = "ascending" | "descending" | "intermediate";
 export type DataTableSortDirection = SortingDirection;
@@ -9,14 +10,18 @@ export interface DataTableSort<TSortId extends string = string> {
   sortId: TSortId;
 }
 
-export interface DataTableSortDefinition<TSortId extends string = string> {
+export interface DataTableSortDefinition<TSortId extends string = string, TOriginalRow = any> {
   defaultDirection?: DataTableActiveSortDirection;
   fieldId?: string;
+  getValueFn?: GetValueFn<TOriginalRow>;
   label?: string;
   sortId: TSortId;
 }
 
-export type DataTableSortDefinitionWithDefault<TSortId extends string = string> = DataTableSortDefinition<TSortId> & {
+export type DataTableSortDefinitionWithDefault<
+  TSortId extends string = string,
+  TOriginalRow = any,
+> = DataTableSortDefinition<TSortId, TOriginalRow> & {
   defaultDirection: DataTableActiveSortDirection;
 };
 
@@ -26,9 +31,9 @@ export type DataTableSortFromDefinition<TDefinition> =
 export type DataTableSortFromDefinitions<TDefinitions extends readonly DataTableSortDefinition[]> =
   DataTableSortFromDefinition<TDefinitions[number]>;
 
-export function sortDefinition<const TSortId extends string>(
-  definition: DataTableSortDefinition<TSortId>,
-): DataTableSortDefinitionWithDefault<TSortId> {
+export function sortDefinition<const TSortId extends string, TOriginalRow = any>(
+  definition: DataTableSortDefinition<TSortId, TOriginalRow>,
+): DataTableSortDefinitionWithDefault<TSortId, TOriginalRow> {
   return { defaultDirection: "ascending", ...definition };
 }
 
@@ -54,6 +59,7 @@ export type ISortingFeature = {
   getSortDefaultDirection(sortId: string): DataTableActiveSortDirection;
   getSortDirection(sortId: string): DataTableSortDirection;
   getSortFieldId(sort: DataTableSort): string;
+  getSortValueGetter(sort: DataTableSort): GetValueFn<any>;
   getSortIndex(sortId: string): number | null;
   isSorted(sortId: string, direction?: DataTableSortDirection): boolean;
   removeSort(sortId: string): void;
@@ -92,25 +98,13 @@ export class SortingFeature<TSort extends DataTableSort = DataTableSort> impleme
     return this.sorts.find((sort) => sort.sortId === sortId);
   }
 
-  getSortByFieldId(fieldId: string): TSort | undefined {
-    return this.sorts.find((sort) => this.getSortFieldId(sort) === fieldId);
-  }
-
   getSortIndex(sortId: string): number | null {
     const index = this.findSortIndex(sortId);
     return index === -1 ? null : index + 1;
   }
 
-  getSortConfigIndex(sortId: string): number | null {
-    return this.getSortIndex(sortId);
-  }
-
   getSortDirection(sortId: string): DataTableSortDirection {
     return this.getSort(sortId)?.direction ?? "intermediate";
-  }
-
-  getSortDirectionByFieldId(fieldId: string): DataTableSortDirection {
-    return this.getSortByFieldId(fieldId)?.direction ?? "intermediate";
   }
 
   setSorts(sorts: TSort[]): void {
@@ -155,17 +149,19 @@ export class SortingFeature<TSort extends DataTableSort = DataTableSort> impleme
     return this.sortDefinitions.find((definition) => definition.sortId === sort.sortId)?.fieldId ?? sort.sortId;
   }
 
+  getSortValueGetter(sort: DataTableSort): GetValueFn<any> {
+    const definition = this.sortDefinitions.find((current) => current.sortId === sort.sortId);
+    if (definition?.getValueFn) return definition.getValueFn;
+
+    const fieldId = definition?.fieldId ?? sort.sortId;
+    const column = this.datagrid.columns.findColumnById(fieldId);
+    if (column?.type === "accessor" || column?.type === "computed") return column.getValueFn;
+
+    throw new Error(`Sort ${sort.sortId} has no local value getter`);
+  }
+
   getSortDefaultDirection(sortId: string): DataTableActiveSortDirection {
     return this.sortDefinitions.find((definition) => definition.sortId === sortId)?.defaultDirection ?? "ascending";
-  }
-
-  // Compatibility aliases for existing column-header call sites.
-  isColumnSorted(sortId: string, direction?: DataTableSortDirection): boolean {
-    return this.isSorted(sortId, direction);
-  }
-
-  findSortConfigIndex(sortId: string): number {
-    return this.findSortIndex(sortId);
   }
 
   private findSortIndex(sortId: string): number {

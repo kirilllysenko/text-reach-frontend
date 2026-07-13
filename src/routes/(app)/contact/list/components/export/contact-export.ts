@@ -1,15 +1,10 @@
 import { fetchContacts as fetchContactList } from "$lib/api/contact/contact";
 import type { DataTableFilter, DataTableSort } from "$lib/components/table";
-import {
-  createMockContactList,
-  filterMockContactList,
-  sortContactList,
-  toContactViewModel,
-} from "$lib/feature/contact/contact-display";
+import { toContactViewModel } from "$lib/feature/contact/contact-display";
 import { buildContactRequest } from "$lib/feature/contact/contact-query";
 import type { ContactViewModel } from "$lib/feature/contact/contact-view-data";
-import { getContactTableFilters } from "../filter/filter.svelte";
-import { getContactSortRules } from "../sort/sort.svelte";
+import { contactTableFilters } from "../filter/filter.svelte";
+import { contactTableSorts } from "../sort/sort.svelte";
 
 const EXPORT_PAGE_SIZE = 500;
 const MAX_EXPORT_PAGES = 200;
@@ -21,23 +16,24 @@ export interface ContactExportSnapshot {
 }
 
 export function buildContactExportRequest(snapshot: ContactExportSnapshot, cursor: unknown[] | null) {
-  const filters = getContactTableFilters(snapshot.filters);
-
   return buildContactRequest({
     pageSize: EXPORT_PAGE_SIZE,
     cursor,
-    search: snapshot.search,
-    contactGroupIds: filters.contactGroupIds,
-    birthdayAfter: filters.birthdayAfter,
-    emailContains: filters.emailContains,
-    sortRules: getContactSortRules(snapshot.sorting),
+    filters: contactTableFilters.toDtos(getContactExportFilters(snapshot)),
+    sort: contactTableSorts.toBackend(snapshot.sorting),
   });
 }
 
-export async function loadContactExportList(
-  snapshot: ContactExportSnapshot,
-  fallbackContactList: ContactViewModel[] = createMockContactList(),
-): Promise<ContactViewModel[]> {
+function getContactExportFilters(snapshot: ContactExportSnapshot): DataTableFilter[] {
+  const search = snapshot.search.trim();
+  if (!search || snapshot.filters.some((filter) => filter.filterId === "search")) {
+    return snapshot.filters;
+  }
+
+  return [{ filterId: "search", type: "text", operator: "CONTAINS", value: search }, ...snapshot.filters];
+}
+
+export async function loadContactExportList(snapshot: ContactExportSnapshot): Promise<ContactViewModel[]> {
   const contacts: ContactViewModel[] = [];
   let cursor: unknown[] | null = null;
 
@@ -45,7 +41,7 @@ export async function loadContactExportList(
     const response = await fetchContactList(buildContactExportRequest(snapshot, cursor), { credentials: "include" });
 
     if (response.status !== 200) {
-      return getFallbackContactExportList(snapshot, fallbackContactList);
+      throw new Error("Could not load contacts for export.");
     }
 
     contacts.push(
@@ -59,24 +55,6 @@ export async function loadContactExportList(
   }
 
   return contacts;
-}
-
-export function getFallbackContactExportList(
-  snapshot: ContactExportSnapshot,
-  fallbackContactList: ContactViewModel[],
-): ContactViewModel[] {
-  const filters = getContactTableFilters(snapshot.filters);
-
-  return sortContactList(
-    filterMockContactList(
-      fallbackContactList,
-      snapshot.search,
-      filters.contactGroupIds,
-      filters.birthdayAfter,
-      filters.emailContains,
-    ),
-    getContactSortRules(snapshot.sorting),
-  );
 }
 
 export function toContactCsv(contacts: ContactViewModel[]): string {

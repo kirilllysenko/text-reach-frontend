@@ -8,7 +8,7 @@ import {
 } from "$lib/api/index.schemas";
 import type { DataTableFilter, DataTableSort } from "$lib/components/table";
 import type { ContactViewModel } from "$lib/feature/contact/contact-view-data";
-import { buildContactExportRequest, getFallbackContactExportList, toContactCsv } from "./contact-export";
+import { buildContactExportRequest, toContactCsv } from "./contact-export";
 
 const filteredSnapshot = {
   filters: [
@@ -118,13 +118,6 @@ describe("contact export helpers", () => {
         },
       },
     });
-  });
-
-  it("filters and sorts fallback contacts with the export snapshot", () => {
-    expect(getFallbackContactExportList(filteredSnapshot, contacts).map((contact) => contact.id)).toEqual([
-      "three",
-      "two",
-    ]);
   });
 
   it("escapes CSV cells and exports contact group ids", () => {

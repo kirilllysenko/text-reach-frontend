@@ -1,31 +1,14 @@
-import { SortDirection } from "$lib/api/index.schemas";
-import { sortDefinition, type DataTableSort, type DataTableSortFromDefinitions } from "$lib/components/table";
-import {
-  contactSortFieldOptions,
-  type ContactSortField,
-  type ContactSortRule,
-} from "$lib/feature/contact/contact-view-data";
+import type { ContactSortDto } from "$lib/api/index.schemas";
+import { TableBackendSort } from "$lib/components/table";
 
-export const contactSortDefinitions = [
-  sortDefinition({ sortId: "lastName", fieldId: "lastName", label: "Last name" }),
-  sortDefinition({ sortId: "firstName", fieldId: "firstName", label: "First name" }),
-  sortDefinition({ sortId: "phoneNumber", fieldId: "phoneNumber", label: "Phone" }),
-  sortDefinition({ sortId: "email", fieldId: "email", label: "Email" }),
-  sortDefinition({ sortId: "birthday", fieldId: "birthday", label: "Birthday" }),
-] as const;
+const contactSort = new TableBackendSort<ContactSortDto>();
 
-export type ContactTableSort = DataTableSortFromDefinitions<typeof contactSortDefinitions>;
+export const contactTableSorts = contactSort.define([
+  contactSort.sort({ sortId: "lastName", fieldId: "lastName", label: "Last name" }),
+  contactSort.sort({ sortId: "firstName", fieldId: "firstName", label: "First name" }),
+  contactSort.sort({ sortId: "phoneNumber", fieldId: "phoneNumber", label: "Phone" }),
+  contactSort.sort({ sortId: "email", fieldId: "email", label: "Email" }),
+  contactSort.sort({ sortId: "birthday", fieldId: "birthday", label: "Birthday" }),
+] as const);
 
-export function getContactSortRules(sorting: DataTableSort[]): ContactSortRule[] {
-  const sortableFields = new Set<ContactSortField>(contactSortFieldOptions);
-
-  return sorting
-    .filter((sort): sort is DataTableSort & { sortId: ContactSortField } =>
-      sortableFields.has(sort.sortId as ContactSortField),
-    )
-    .map((sort) => ({
-      id: sort.sortId,
-      field: sort.sortId,
-      direction: sort.direction === "ascending" ? SortDirection.ASC : SortDirection.DESC,
-    }));
-}
+export const contactSortDefinitions = contactTableSorts.definitions;

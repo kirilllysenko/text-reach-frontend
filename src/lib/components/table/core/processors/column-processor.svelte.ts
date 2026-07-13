@@ -32,19 +32,8 @@ export class ColumnProcessor<TOriginalRow> {
    */
   initializeColumns = (columns: ColumnDef<TOriginalRow>[]): ColumnDef<TOriginalRow>[] => {
     columns = this.datagrid.lifecycleHooks.executePreProcessColumns(columns);
-
     columns = this.placeGroupColumnsInFront(columns);
-
-    columns.forEach((col) => {
-      return {
-        isGroupColumn: () => col.type === "group",
-        ...col,
-      };
-    });
-
-    columns = this.datagrid.lifecycleHooks.executePostProcessColumns(columns);
-
-    return columns;
+    return this.datagrid.lifecycleHooks.executePostProcessColumns(columns);
   };
 
   /**
@@ -75,12 +64,12 @@ export class ColumnProcessor<TOriginalRow> {
     const groupByColumns = this.datagrid.features.grouping.activeGroups;
 
     const orderedGroupColumns = groupByColumns
-      .map((groupCol) => columns.find((col) => col.columnId === groupCol))
-      .filter(Boolean);
+      .map((groupCol: string) => columns.find((column) => column.columnId === groupCol))
+      .filter((column: ColumnDef<TOriginalRow> | undefined): column is ColumnDef<TOriginalRow> => Boolean(column));
 
     const nonGroupColumns = columns.filter((col) => !groupByColumns.includes(col.columnId));
 
-    return [...orderedGroupColumns, ...nonGroupColumns].filter((e) => e !== undefined);
+    return [...orderedGroupColumns, ...nonGroupColumns];
   };
 
   /**
@@ -122,49 +111,39 @@ export class ColumnProcessor<TOriginalRow> {
    * @param {ColumnDef<TOriginalRow>[]} partialFlatColumns - The flat list of columns to structure into a hierarchy.
    * @returns {ColumnDef<TOriginalRow>[]} A hierarchical column structure.
    */
-  createColumnHierarchy<TOriginalRow>(partialFlatColumns: ColumnDef<TOriginalRow>[]): ColumnDef<TOriginalRow>[] {
-    const results: ColumnDef<TOriginalRow>[] = [];
+  createColumnHierarchy<TRow>(flatColumns: ColumnDef<TRow>[]): ColumnDef<TRow>[] {
+    const columnsById = new Map<string, ColumnDef<TRow>>();
 
-    // handle root columns first
-    partialFlatColumns.forEach((col) => {
-      if (col.parentColumnId === null) {
-        results.push(col);
-      }
+    flatColumns.forEach((column) => {
+      if (columnsById.has(column.columnId)) throw new Error(`Duplicate column ${column.columnId}`);
+      columnsById.set(column.columnId, column.type === "group" ? { ...column, columns: [] } : column);
     });
-    partialFlatColumns = partialFlatColumns.filter((col) => col.parentColumnId !== null);
 
-    const findGroupColumnInResults = (
-      columns: ColumnDef<TOriginalRow>[],
-      column: ColumnDef<TOriginalRow>,
-    ): ColumnGroup<TOriginalRow> | null => {
-      for (const col of columns) {
-        if (col.columnId === column.parentColumnId) return col as ColumnGroup<TOriginalRow>;
-        if (col.type === "group" && col.columns) {
-          const found = findGroupColumnInResults(col.columns, column);
-          if (found) return found;
-        }
-      }
-      return null;
+    const validateParentChain = (column: ColumnDef<TRow>, ancestors = new Set<string>()): void => {
+      if (ancestors.has(column.columnId)) throw new Error(`Cyclic column hierarchy at ${column.columnId}`);
+      if (column.parentColumnId === null) return;
+
+      const parent = columnsById.get(column.parentColumnId);
+      if (!parent) throw new Error(`Parent column ${column.parentColumnId} not found for ${column.columnId}`);
+      if (parent.type !== "group") throw new Error(`Parent column ${parent.columnId} must be a group`);
+
+      validateParentChain(parent, new Set([...ancestors, column.columnId]));
     };
 
-    while (partialFlatColumns.length > 0) {
-      const column = partialFlatColumns.shift()!;
-      if (column.parentColumnId === null) {
-        results.push(column);
-        continue;
-      }
-      let parentColumn = findGroupColumnInResults(results, column);
-      if (parentColumn === null) {
-        // Check next column
-        partialFlatColumns.push(column);
-        continue;
-      } else {
-        parentColumn = parentColumn as ColumnGroup<TOriginalRow>;
-        parentColumn.columns.push(column);
-      }
-    }
+    columnsById.forEach((column) => validateParentChain(column));
 
-    return results;
+    const roots: ColumnDef<TRow>[] = [];
+    columnsById.forEach((column) => {
+      if (column.parentColumnId === null) {
+        roots.push(column);
+        return;
+      }
+
+      const parent = columnsById.get(column.parentColumnId) as ColumnGroup<TRow>;
+      parent.columns.push(column);
+    });
+
+    return roots;
   }
 
   /**
@@ -269,14 +248,14 @@ export class ColumnProcessor<TOriginalRow> {
    * @returns The updated columns with applied size constraints.
    */
   applyDefaultColumnSizes(columns: ColumnDef<TOriginalRow>[], config?: DefaultColumnConfig): ColumnDef<TOriginalRow>[] {
-    return columns.map((col) => {
-      if (col.state.size.width === -1) col.state.size.width = config?.size?.width ?? DEFAULT_COLUMN_SIZE.width;
-      if (col.state.size.minWidth === -1)
-        col.state.size.minWidth = config?.size?.minWidth ?? DEFAULT_COLUMN_SIZE.minWidth;
-      if (col.state.size.maxWidth === -1)
-        col.state.size.maxWidth = config?.size?.maxWidth ?? DEFAULT_COLUMN_SIZE.maxWidth;
-
-      return col;
+    return columns.map((column) => {
+      const { maxWidth, minWidth, width } = column.state.size;
+      column.state.size = {
+        width: width === -1 ? (config?.size?.width ?? DEFAULT_COLUMN_SIZE.width) : width,
+        minWidth: minWidth === -1 ? (config?.size?.minWidth ?? DEFAULT_COLUMN_SIZE.minWidth) : minWidth,
+        maxWidth: maxWidth === -1 ? (config?.size?.maxWidth ?? DEFAULT_COLUMN_SIZE.maxWidth) : maxWidth,
+      };
+      return column;
     });
   }
 }

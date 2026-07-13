@@ -39,7 +39,7 @@ export type EventPayloadMap = {
  * @template T The type of the event name, constrained to keys of `EventPayloadMap`.
  */
 export class EventService {
-  private listeners = new Map<keyof EventPayloadMap, ((data: any) => void)[]>();
+  private listeners = new Map<keyof EventPayloadMap, Set<(data: never) => void>>();
 
   /**
    * Registers an event listener for the specified event.
@@ -49,10 +49,9 @@ export class EventService {
    * @template T The type of the event, constrained to keys of `EventPayloadMap`.
    */
   on<T extends keyof EventPayloadMap>(event: T, callback: (data: EventPayloadMap[T]) => void) {
-    if (!this.listeners.has(event)) {
-      this.listeners.set(event, []);
-    }
-    this.listeners.get(event)?.push(callback);
+    const listeners = this.listeners.get(event) ?? new Set<(data: never) => void>();
+    listeners.add(callback as (data: never) => void);
+    this.listeners.set(event, listeners);
   }
 
   /**
@@ -63,11 +62,9 @@ export class EventService {
    * @template T The type of the event, constrained to keys of `EventPayloadMap`.
    */
   off<T extends keyof EventPayloadMap>(event: T, callback: (data: EventPayloadMap[T]) => void) {
-    const callbacks = this.listeners.get(event) || [];
-    const index = callbacks.indexOf(callback);
-    if (index > -1) {
-      callbacks.splice(index, 1);
-    }
+    const listeners = this.listeners.get(event);
+    listeners?.delete(callback as (data: never) => void);
+    if (listeners?.size === 0) this.listeners.delete(event);
   }
 
   /**
@@ -78,6 +75,6 @@ export class EventService {
    * @template T The type of the event, constrained to keys of `EventPayloadMap`.
    */
   emit<T extends keyof EventPayloadMap>(event: T, data: EventPayloadMap[T]) {
-    this.listeners.get(event)?.forEach((callback) => callback(data));
+    this.listeners.get(event)?.forEach((callback) => callback(data as never));
   }
 }

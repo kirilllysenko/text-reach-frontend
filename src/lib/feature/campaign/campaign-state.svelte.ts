@@ -6,30 +6,23 @@ import {
 } from "$lib/api/index.schemas";
 import { fetchContactGroups as fetchContactGroupList } from "$lib/api/contact-group/contact-group";
 import { listCampaigns as listCampaignList } from "$lib/api/campaign/campaign";
-import type { DataTableActiveSortDirection, DataTableFilter, DataTableSort } from "$lib/components/table";
+import { DatagridCore, accessorColumn, type DataTableFilter, type SortingService } from "$lib/components/table";
 import { debounce } from "$lib/utils/debounce";
 import {
-  campaignSortFieldOptions,
   campaignStatusOptions,
-  sortFieldLabelMap,
   statusLabelMap,
-  type CampaignSortField,
   type CampaignStatus,
   type CampaignViewModel,
-  type SortRule,
 } from "$lib/feature/campaign/campaign-view-data";
 import { buildCampaignRequest } from "./campaign-query";
-import {
-  createMockCampaignList,
-  defaultContactGroupNameById,
-  mergeContactGroupNames,
-  toCampaignViewModel,
-} from "./campaign-display";
+import { campaignTableSorts } from "./campaign-table-sorts";
+import { mergeContactGroupNames, toCampaignViewModel } from "./campaign-display";
 
 type MobileView = "list" | "details";
 
 const DEFAULT_PAGE_SIZE = 50;
 const SEARCH_DEBOUNCE_MS = 250;
+const INITIAL_SORTING = [{ sortId: "createdAt", direction: "descending" }] as const;
 
 export class CampaignState {
   loading = $state(true);
@@ -37,21 +30,13 @@ export class CampaignState {
   loadingError = $state<string | null>(null);
   campaigns = $state<CampaignViewModel[]>([]);
   selectedCampaignId = $state<string | null>(null);
-  contactGroupNameById = $state<Record<string, string>>({ ...defaultContactGroupNameById });
+  contactGroupNameById = $state<Record<string, string>>({});
 
   search = $state("");
   statusFilters = $state<NonNullable<CampaignStatus>[]>([]);
   createdAfter = $state("");
   minSentMessageCount = $state("");
   minMessageCount = $state("");
-  sortRules = $state<SortRule[]>([
-    {
-      id: crypto.randomUUID(),
-      field: "createdAt",
-      direction: SortDirection.DESC,
-    },
-  ]);
-
   desktopExpanded = $state(false);
   filtersOpen = $state(false);
   sortOpen = $state(false);
@@ -64,10 +49,25 @@ export class CampaignState {
   private readonly scheduleRefresh = debounce(() => {
     void this.resetAndLoadCampaignList();
   }, SEARCH_DEBOUNCE_MS);
+  private readonly sortingTable = new DatagridCore<CampaignViewModel>({
+    columns: [
+      accessorColumn<CampaignViewModel, "id", unknown>({
+        accessorKey: "id",
+        columnId: "id",
+        header: "Campaign",
+      }),
+    ],
+    data: [],
+    initialState: {
+      sorting: {
+        sortDefinitions: campaignTableSorts.definitions,
+        sorts: [...INITIAL_SORTING],
+      },
+    },
+  });
+  readonly sorting: SortingService = this.sortingTable.handlers.sorting;
 
   statusOptions = campaignStatusOptions;
-  sortFieldOptions = campaignSortFieldOptions;
-
   selectedCampaign = $derived.by(() => {
     const selectedCampaignId = this.selectedCampaignId;
     if (!selectedCampaignId) {
@@ -102,10 +102,14 @@ export class CampaignState {
   activeFilterCount = $derived(this.activeFilterChips.length);
 
   sortChips = $derived.by(() =>
-    this.sortRules.map((rule, index) => `#${index + 1} ${sortFieldLabelMap[rule.field]} ${rule.direction}`),
+    this.sorting.sorts.map((rule, index) => {
+      const definition = this.sorting.sortDefinitions.find((current) => current.sortId === rule.sortId);
+      const direction = rule.direction === "ascending" ? "ASC" : "DESC";
+      return `#${index + 1} ${definition?.label ?? rule.sortId} ${direction}`;
+    }),
   );
 
-  activeSortCount = $derived(this.sortRules.length);
+  activeSortCount = $derived(this.sorting.sorts.length);
 
   selectedCampaignGroupNames = $derived.by(() => {
     if (!this.selectedCampaign) {
@@ -116,6 +120,7 @@ export class CampaignState {
   });
 
   constructor() {
+    this.sortingTable.events.on("onSortingChange", this.handleSortingChange);
     void this.load();
   }
 
@@ -161,13 +166,6 @@ export class CampaignState {
     return filters;
   }
 
-  get sorts(): DataTableSort[] {
-    return this.sortRules.map((rule) => ({
-      direction: rule.direction === SortDirection.ASC ? "ascending" : "descending",
-      sortId: rule.field,
-    }));
-  }
-
   load = async (): Promise<void> => {
     await Promise.all([this.loadContactGroupList(), this.resetAndLoadCampaignList()]);
   };
@@ -187,45 +185,6 @@ export class CampaignState {
 
   clearFilters = (): void => {
     this.setFilters([]);
-  };
-
-  addSort = (sortId: string, direction: DataTableActiveSortDirection = "ascending"): void => {
-    if (!this.isCampaignSortField(sortId)) {
-      return;
-    }
-
-    this.setSorts([
-      ...this.sorts.filter((sort) => sort.sortId !== sortId),
-      {
-        direction,
-        sortId,
-      },
-    ]);
-  };
-
-  removeSortAt = (index: number): void => {
-    this.setSorts(this.sorts.filter((_, currentIndex) => currentIndex !== index));
-  };
-
-  updateSortDirection = (index: number, direction: DataTableActiveSortDirection): void => {
-    this.setSorts(this.sorts.map((sort, currentIndex) => (currentIndex === index ? { ...sort, direction } : sort)));
-  };
-
-  updateSortId = (index: number, sortId: string): void => {
-    if (!this.isCampaignSortField(sortId)) {
-      return;
-    }
-
-    this.setSorts(this.sorts.map((sort, currentIndex) => (currentIndex === index ? { ...sort, sortId } : sort)));
-  };
-
-  clearSorts = (): void => {
-    this.setSorts([]);
-  };
-
-  setSorts = (sorts: DataTableSort[]): void => {
-    this.applyFeatureSorts(sorts);
-    void this.resetAndLoadCampaignList();
   };
 
   selectCampaign = (campaignId: string): void => {
@@ -288,6 +247,7 @@ export class CampaignState {
   statusLabel = (status: NonNullable<CampaignStatus>): string => statusLabelMap[status];
 
   dispose = (): void => {
+    this.sortingTable.events.off("onSortingChange", this.handleSortingChange);
     this.scheduleRefresh.cancel();
   };
 
@@ -296,9 +256,9 @@ export class CampaignState {
     void this.resetAndLoadCampaignList();
   }
 
-  private isCampaignSortField(sortId: string): sortId is CampaignSortField {
-    return this.sortFieldOptions.includes(sortId as CampaignSortField);
-  }
+  private handleSortingChange = (): void => {
+    void this.resetAndLoadCampaignList();
+  };
 
   private applyFeatureFilters(filters: DataTableFilter[]): void {
     const statusFilter = filters.find(
@@ -335,24 +295,6 @@ export class CampaignState {
         : "";
   }
 
-  private applyFeatureSorts(sorts: DataTableSort[]): void {
-    const sortableFields = new Set<CampaignSortField>(this.sortFieldOptions);
-    const sortRules = sorts
-      .filter((sort): sort is DataTableSort & { sortId: CampaignSortField } =>
-        sortableFields.has(sort.sortId as CampaignSortField),
-      )
-      .map((sort) => ({
-        id: sort.sortId,
-        field: sort.sortId,
-        direction: sort.direction === "ascending" ? SortDirection.ASC : SortDirection.DESC,
-      }));
-
-    this.sortRules =
-      sortRules.length > 0
-        ? sortRules
-        : [{ id: crypto.randomUUID(), field: "createdAt", direction: SortDirection.DESC }];
-  }
-
   private async resetAndLoadCampaignList(): Promise<void> {
     this.requestVersion += 1;
     this.loading = true;
@@ -386,7 +328,7 @@ export class CampaignState {
           createdAfter: this.createdAfter,
           minSentMessageCount: this.minSentMessageCount,
           minMessageCount: this.minMessageCount,
-          sortRules: this.sortRules,
+          sort: campaignTableSorts.toBackend(this.sorting.sorts),
         }),
       );
       if (version !== this.requestVersion) {
@@ -422,9 +364,8 @@ export class CampaignState {
   }
 
   private handleCampaignLoadError(error?: ErrorResponse): void {
-    this.loadingError =
-      error?.errorDescription ?? "Could not load campaigns from API, so the page is showing local preview data.";
-    this.campaigns = createMockCampaignList();
+    this.loadingError = error?.errorDescription ?? "Could not load campaigns from API.";
+    this.campaigns = [];
     this.nextCursor = null;
     this.hasNextPage = false;
     this.ensureSelectedCampaign();

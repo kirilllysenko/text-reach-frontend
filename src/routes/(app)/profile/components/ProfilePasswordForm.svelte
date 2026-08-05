@@ -1,9 +1,12 @@
 <script lang="ts">
+  import { ChangePasswordStore } from "$houdini";
   import { Button, ButtonEye, Field, FieldError, FieldLabel, Input } from "$lib";
-  import { changePassword } from "$lib/api/tenant/tenant";
+  import { networkErrorText } from "$lib/form/errors";
   import { PasswordSchema } from "$lib/form/validators";
+  import { toGraphQLErrorText } from "$lib/graphql/errors";
   import { notificationsState } from "$lib/state/notifications.svelte";
-  import { setProfileResponseErrors } from "./profile-errors";
+
+  const changePasswordMutation = new ChangePasswordStore();
 
   let oldPassword = $state("");
   let newPassword = $state("");
@@ -39,25 +42,25 @@
 
     savingPassword = true;
 
-    const response = await changePassword({ oldPassword, newPassword }, { credentials: "include" });
+    let response;
+    try {
+      response = await changePasswordMutation.mutate({ input: { oldPassword, newPassword } });
+    } catch {
+      savingPassword = false;
+      passwordFormError = networkErrorText;
+      return;
+    }
 
     savingPassword = false;
 
-    if (response.status === 200) {
+    if (!response.errors && response.data?.changePassword) {
       oldPassword = "";
       newPassword = "";
       notificationsState.showInfo("Your password has been changed");
       return;
     }
 
-    setProfileResponseErrors(
-      response.data,
-      {
-        oldPassword: (value) => (oldPasswordError = value),
-        newPassword: (value) => (newPasswordError = value),
-      },
-      (value) => (passwordFormError = value),
-    );
+    passwordFormError = toGraphQLErrorText(response.errors);
   }
 </script>
 

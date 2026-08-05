@@ -1,5 +1,3 @@
-import type { ContactDto } from "$lib/api/index.schemas";
-
 export interface ContactViewModel {
   id: string;
   fullName: string;
@@ -14,7 +12,13 @@ export interface ContactViewModel {
 
 export type ContactSortField = "firstName" | "lastName" | "phoneNumber" | "email" | "birthday";
 
-export type ContactDtoLike = Pick<
-  ContactDto,
-  "birthday" | "contactGroupIds" | "email" | "firstName" | "id" | "lastName" | "notes" | "phoneNumber"
->;
+export interface ContactDtoLike {
+  readonly birthday?: string | null;
+  readonly contactGroups?: readonly { readonly id: string }[] | null;
+  readonly email?: string | null;
+  readonly firstName?: string | null;
+  readonly id: string;
+  readonly lastName?: string | null;
+  readonly notes?: string | null;
+  readonly phoneNumber: string;
+}

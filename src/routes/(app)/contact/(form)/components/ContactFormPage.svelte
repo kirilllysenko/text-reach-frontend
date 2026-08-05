@@ -1,28 +1,15 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import { BackButton, Button, Field, FieldError, FieldLabel, Input, PageTitle } from "$lib";
+  import { resolve } from "$app/paths";
+  import { graphql } from "$houdini";
+  import { BackButton, Button, FieldError, PageTitle } from "$lib";
   import { PATH_CONTACT } from "$lib/app/paths";
-  import {
-    SortDirection,
-    type ContactGroupDto,
-    type CustomFieldDto,
-    type CustomFieldType,
-  } from "$lib/api/index.schemas";
-  import { getContact } from "$lib/api/contact/contact";
-  import { fetchContactGroups as fetchContactGroupList } from "$lib/api/contact-group/contact-group";
-  import { listCustomFields as listCustomFieldList } from "$lib/api/custom-field/custom-field";
-  import type { ErrorResponse, Ulid } from "$lib/api/index.schemas";
-  import { networkErrorText, toErrorText } from "$lib/form/errors";
-  import { customFieldTypeLabelMap } from "$lib/feature/custom-field/custom-field-view-data";
-  import {
-    configureContactForm,
-    form,
-    serializeContactPayload,
-    setContactCustomFields,
-    setContactFormValues,
-    toggleContactGroup,
-    type FormMode,
-  } from "./form.svelte";
+  import { networkErrorText } from "$lib/form/errors";
+  import { toGraphQLErrorText } from "$lib/graphql/errors";
+  import { onMount, untrack } from "svelte";
+  import ContactBasicFields from "./ContactBasicFields.svelte";
+  import ContactCustomFields from "./ContactCustomFields.svelte";
+  import ContactGroupsField from "./ContactGroupsField.svelte";
+  import { createContactForm, type FormMode } from "./form.svelte";
 
   interface Props {
     id?: string;
@@ -31,125 +18,100 @@
 
   let { id, mode }: Props = $props();
 
-  let contactGroupList = $state<ContactGroupDto[]>([]);
-  let customFields = $state<CustomFieldDto[]>([]);
-  let metadataError = $state<string | null>(null);
-  let initialPayload = $state("");
-  let loadingForm = $state(false);
+  const options = untrack(() => ({ id, mode }));
+  const contactPath = resolve(PATH_CONTACT);
+  const contactForm = createContactForm(options);
+  const { form } = contactForm;
+  const createFormQuery = graphql(`
+    query ContactFormCreateQuery @cache(policy: NetworkOnly) {
+      contactGroups(first: 300, sortBy: [{ name: { direction: ASC } }]) {
+        edges {
+          node {
+            id
+            name
+          }
+        }
+      }
+    }
+  `);
+  const editFormQuery = graphql(`
+    query ContactFormEditQuery($id: Ulid!) @cache(policy: NetworkOnly) {
+      contact(id: $id) {
+        birthday
+        contactGroups {
+          id
+        }
+        email
+        firstName
+        lastName
+        notes
+        phoneNumber
+      }
+      contactGroups(first: 300, sortBy: [{ name: { direction: ASC } }]) {
+        edges {
+          node {
+            id
+            name
+          }
+        }
+      }
+    }
+  `);
 
-  const title = $derived(mode === "create" ? "Add contact" : "Edit contact");
-  const submitLabel = $derived(mode === "create" ? "Create" : "Save");
-  const formDirty = $derived(serializeContactPayload() !== initialPayload);
-  const submitDisabled = $derived(form.loading || loadingForm || (mode === "edit" && !formDirty));
+  const queryData = $derived(options.mode === "create" ? $createFormQuery.data : $editFormQuery.data);
+  const contactGroups = $derived(queryData?.contactGroups.edges.map((edge) => edge.node) ?? []);
+  const title = options.mode === "create" ? "Add contact" : "Edit contact";
+  const submitLabel = options.mode === "create" ? "Create" : "Save";
+  const submitDisabled = $derived(
+    form.loading || !contactForm.ready || (options.mode === "edit" && !contactForm.dirty),
+  );
 
   onMount(() => {
-    configureContactForm({ id, mode });
-    void loadFormData();
+    void loadForm();
   });
 
-  function getResponseError(error?: ErrorResponse): string {
-    return error?.errorDescription ?? toErrorText(error?.errorCode);
-  }
-
-  async function loadFormData(): Promise<void> {
-    loadingForm = true;
-    form.error = null;
+  async function loadForm(): Promise<void> {
+    contactForm.startPageLoad();
 
     try {
-      await Promise.all([
-        loadContactGroupList(),
-        loadCustomFieldList(),
-        mode === "edit" ? loadContact() : Promise.resolve(),
-      ]);
-      initialPayload = serializeContactPayload();
-    } finally {
-      loadingForm = false;
-    }
-  }
+      if (options.mode === "create") {
+        const response = await createFormQuery.fetch();
+        if (response.errors || !response.data) {
+          contactForm.setPageError(toGraphQLErrorText(response.errors));
+          return;
+        }
 
-  async function loadContact(): Promise<void> {
-    if (!id) {
-      form.error = "Contact was not found.";
-      return;
-    }
-
-    try {
-      const response = await getContact(id as Ulid, { credentials: "include" });
-
-      if (response.status !== 200) {
-        form.error = getResponseError(response.data);
+        contactForm.setPageReady();
         return;
       }
 
-      setContactFormValues({
-        birthday: response.data.birthday?.slice(0, 10) ?? "",
-        contactGroupIds: response.data.contactGroupIds ?? [],
-        customFieldValues: Object.fromEntries(
-          (response.data.customFields ?? []).map((field) => [field.id, field.value]),
-        ),
-        email: response.data.email ?? "",
-        firstName: response.data.firstName ?? "",
-        lastName: response.data.lastName ?? "",
-        notes: response.data.notes ?? "",
-        phoneNumber: response.data.phoneNumber ?? "",
+      if (!options.id) {
+        contactForm.setPageError("Contact was not found.");
+        return;
+      }
+
+      const response = await editFormQuery.fetch({ variables: { id: options.id } });
+      if (response.errors || !response.data?.contact) {
+        contactForm.setPageError(toGraphQLErrorText(response.errors));
+        return;
+      }
+
+      const contact = response.data.contact;
+      contactForm.setContact({
+        birthday: contact.birthday?.slice(0, 10) ?? "",
+        contactGroupIds: contact.contactGroups.map((group) => group.id),
+        email: contact.email ?? "",
+        firstName: contact.firstName ?? "",
+        lastName: contact.lastName ?? "",
+        notes: contact.notes ?? "",
+        phoneNumber: contact.phoneNumber,
       });
+      contactForm.setPageReady();
     } catch {
-      form.error = networkErrorText;
+      contactForm.setPageError(networkErrorText);
+    } finally {
+      contactForm.finishPageLoad();
     }
-  }
-
-  async function loadContactGroupList(): Promise<void> {
-    try {
-      const response = await fetchContactGroupList(
-        {
-          pageSize: 300,
-          sort: {
-            name: {
-              order: 0,
-              direction: SortDirection.ASC,
-            },
-          },
-        },
-        { credentials: "include" },
-      );
-
-      if (response.status !== 200) {
-        metadataError = "Could not load groups.";
-        return;
-      }
-
-      contactGroupList = response.data.items ?? [];
-    } catch {
-      metadataError = "Could not load groups.";
-    }
-  }
-
-  async function loadCustomFieldList(): Promise<void> {
-    try {
-      const response = await listCustomFieldList({ credentials: "include" });
-
-      if (response.status !== 200) {
-        metadataError = "Could not load custom fields.";
-        return;
-      }
-
-      customFields = response.data;
-      setContactCustomFields(response.data);
-    } catch {
-      metadataError = "Could not load custom fields.";
-    }
-  }
-
-  function getCustomFieldInputType(type: CustomFieldType): "date" | "number" | "text" {
-    if (type === "DATE") {
-      return "date";
-    }
-
-    if (type === "NUMBER") {
-      return "number";
-    }
-
-    return "text";
   }
 </script>
 
@@ -158,7 +120,7 @@
     to-stone-100 p-2 sm:h-[calc(100dvh-3rem)] sm:p-3"
 >
   <PageTitle {title}>
-    <BackButton href={PATH_CONTACT} />
+    <BackButton href={contactPath} />
   </PageTitle>
 
   <div class="flex min-h-0 grow justify-center overflow-y-auto pt-4 pb-18 sm:items-start">
@@ -166,131 +128,33 @@
       class="w-full max-w-3xl rounded-2xl border border-white/80 bg-white/75 p-4
         shadow-[0_20px_45px_-25px_rgba(30,41,59,0.45)] backdrop-blur-md sm:p-6"
     >
-      <form onsubmit={form.submit} inert={form.loading || loadingForm || undefined}>
-        <div class="grid gap-4 sm:grid-cols-2">
-          <Field>
-            <FieldLabel for="contact-first-name">First name</FieldLabel>
-            <Input id="contact-first-name" bind:value={form.firstName.value} maxlength={100} placeholder="Avery" />
-          </Field>
-
-          <Field>
-            <FieldLabel for="contact-last-name">Last name</FieldLabel>
-            <Input id="contact-last-name" bind:value={form.lastName.value} maxlength={100} placeholder="Johnson" />
-          </Field>
-
-          <Field>
-            <FieldLabel for="contact-phone-number">Phone</FieldLabel>
-            <Input
-              id="contact-phone-number"
-              bind:value={form.phoneNumber.value}
-              maxlength={40}
-              placeholder="+1 415 555 0127"
-              error={form.phoneNumber.error}
-            />
-            <FieldError error={form.phoneNumber.error} />
-          </Field>
-
-          <Field>
-            <FieldLabel for="contact-email">Email</FieldLabel>
-            <Input
-              id="contact-email"
-              bind:value={form.email.value}
-              maxlength={255}
-              placeholder="avery@example.com"
-              type="email"
-            />
-          </Field>
-
-          <Field>
-            <FieldLabel for="contact-birthday">Birthday</FieldLabel>
-            <Input id="contact-birthday" bind:value={form.birthday.value} type="date" />
-          </Field>
+      {#if contactForm.pageLoading}
+        <p class="py-8 text-center text-sm text-slate-500">Loading contact form…</p>
+      {:else if !contactForm.pageReady}
+        <div class="space-y-4 py-6 text-center">
+          <FieldError error={form.error} />
+          <Button variant="secondary" onclick={loadForm}>Try again</Button>
         </div>
+      {:else}
+        <form onsubmit={form.submit} inert={form.loading || undefined}>
+          <ContactBasicFields {form} />
+          <ContactGroupsField {form} groups={contactGroups} onToggle={contactForm.toggleContactGroup} />
+          <ContactCustomFields {contactForm} id={options.id} mode={options.mode} />
 
-        <Field class="mt-4">
-          <FieldLabel for="contact-notes">Notes</FieldLabel>
-          <textarea
-            id="contact-notes"
-            bind:value={form.notes.value}
-            maxlength={1000}
-            rows="4"
-            class="min-h-24 w-full resize-y rounded-[1.05rem] border-none bg-white/70 px-3 py-2 text-slate-700
-              shadow-[inset_0px_0px_7px_3px_rgba(30,41,59,0.1)] transition-[box-shadow,background-color]
-              duration-200 placeholder:text-slate-400 focus:ring-2 focus:ring-sky-500/25 focus:outline-none"
-            placeholder="Prefers afternoon texts"
-          ></textarea>
-        </Field>
+          <FieldError class="mt-3" error={form.error} />
 
-        <section class="mt-5 space-y-2">
-          <h2 class="text-sm font-medium text-slate-700">Groups</h2>
-
-          {#if contactGroupList.length > 0}
-            <div class="grid gap-2 sm:grid-cols-2">
-              {#each contactGroupList as group (group.id)}
-                <label
-                  class="flex min-h-10 items-center gap-2 rounded-xl border border-white/80 bg-white/70 px-3
-                    py-2 text-sm text-slate-700 shadow-sm"
-                >
-                  <input
-                    type="checkbox"
-                    class="size-4 accent-slate-700"
-                    checked={form.contactGroupIds.value.includes(group.id)}
-                    onchange={() => toggleContactGroup(group.id)}
-                  />
-                  <span>{group.name}</span>
-                </label>
-              {/each}
-            </div>
-          {:else}
-            <p class="rounded-xl border border-white/80 bg-white/70 px-3 py-2 text-sm text-slate-500 shadow-sm">
-              No groups available
-            </p>
-          {/if}
-        </section>
-
-        {#if customFields.length > 0}
-          <section class="mt-5">
-            <h2 class="mb-2 text-sm font-medium text-slate-700">Custom fields</h2>
-
-            <div class="grid gap-4 sm:grid-cols-2">
-              {#each customFields as field (field.id)}
-                <Field>
-                  <FieldLabel for={`contact-custom-field-${field.id}`}>
-                    {field.name}
-                    <span class="font-normal text-slate-400">({customFieldTypeLabelMap[field.type]})</span>
-                  </FieldLabel>
-                  <Input
-                    id={`contact-custom-field-${field.id}`}
-                    bind:value={form.customFieldValues[field.id].value}
-                    type={getCustomFieldInputType(field.type)}
-                  />
-                </Field>
-              {/each}
-            </div>
-          </section>
-        {/if}
-
-        <FieldError class="mt-3" error={form.error} />
-
-        {#if metadataError && !form.error}
-          <div
-            class="text-amber-900 mt-3 rounded-xl border border-amber-200/80 bg-amber-100/90 px-3 py-2 text-sm shadow-sm"
-          >
-            {metadataError}
+          <div class="mt-5 flex justify-end gap-2">
+            <a
+              href={contactPath}
+              class="flex h-9 items-center justify-center rounded-xl border border-white/80 bg-white/80 px-3
+                text-base font-medium text-slate-700 shadow-sm backdrop-blur-sm hover:bg-white"
+            >
+              Cancel
+            </a>
+            <Button submit spinner={form.loading} disabled={submitDisabled}>{submitLabel}</Button>
           </div>
-        {/if}
-
-        <div class="mt-5 flex justify-end gap-2">
-          <a
-            href={PATH_CONTACT}
-            class="flex h-9 items-center justify-center rounded-xl border border-white/80 bg-white/80 px-3
-              text-base font-medium text-slate-700 shadow-sm backdrop-blur-sm hover:bg-white"
-          >
-            Cancel
-          </a>
-          <Button submit spinner={form.loading} disabled={submitDisabled}>{submitLabel}</Button>
-        </div>
-      </form>
+        </form>
+      {/if}
     </section>
   </div>
 </div>

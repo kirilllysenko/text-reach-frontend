@@ -1,12 +1,4 @@
-import {
-  ContainmentOperator,
-  NestedOperator,
-  PageDirection,
-  TextOperator,
-  type MessageFilterDto,
-  type MessageSortDto,
-  type PageRequestMessageFilterDtoMessageSortDto,
-} from "$lib/api/index.schemas";
+import type { MessageFilterInput, MessageSortByInput } from "$houdini/graphql/inputs";
 import type { DataTableFilter } from "$lib/components/table";
 import { messageTableFilters } from "$lib/feature/message/message-table-filters";
 
@@ -17,35 +9,27 @@ interface MessageRequestOptions {
   filters: DataTableFilter[];
   pageSize: number;
   search: string;
-  sort: MessageSortDto;
+  sort: readonly MessageSortByInput[];
 }
 
-export function buildMessageRequest(options: MessageRequestOptions): PageRequestMessageFilterDtoMessageSortDto {
+export function buildMessageRequest(options: MessageRequestOptions) {
+  const cursor = typeof options.cursor?.[0] === "string" ? options.cursor[0] : undefined;
   return {
-    pageSize: options.pageSize,
-    position: buildPosition(options),
     filter: buildMessageFilter(options.campaignId, options.search, options.filters),
-    sort: options.sort,
+    sortBy: [...options.sort],
+    ...(cursor && options.direction === "previous"
+      ? { before: cursor, last: options.pageSize }
+      : { after: cursor, first: options.pageSize }),
   };
 }
 
-function buildPosition(options: MessageRequestOptions): PageRequestMessageFilterDtoMessageSortDto["position"] {
-  if (!options.cursor) {
-    return undefined;
-  }
-
-  return {
-    type: "SEEK",
-    cursor: options.cursor as Record<string, never>[],
-    pageDirection: options.direction === "previous" ? PageDirection.PREVIOUS : PageDirection.NEXT,
-  };
-}
-
-function buildMessageFilter(campaignId: string, search: string, filters: DataTableFilter[]): MessageFilterDto {
-  const nested: MessageFilterDto[] = [
+function buildMessageFilter(campaignId: string, search: string, filters: DataTableFilter[]): MessageFilterInput {
+  const nested: MessageFilterInput[] = [
     {
+      nested: [],
+      operator: "AND",
       campaignId: {
-        operator: ContainmentOperator.IN,
+        operator: "IN",
         value: [campaignId],
       },
     },
@@ -54,17 +38,21 @@ function buildMessageFilter(campaignId: string, search: string, filters: DataTab
 
   if (normalizedSearch) {
     nested.push({
-      operator: NestedOperator.OR,
+      operator: "OR",
       nested: [
         {
+          nested: [],
+          operator: "AND",
           text: {
-            operator: TextOperator.CONTAINS,
+            operator: "CONTAINS",
             value: normalizedSearch,
           },
         },
         {
+          nested: [],
+          operator: "AND",
           tenantPhoneNumber: {
-            operator: TextOperator.CONTAINS,
+            operator: "CONTAINS",
             value: normalizedSearch,
           },
         },
@@ -75,7 +63,7 @@ function buildMessageFilter(campaignId: string, search: string, filters: DataTab
   nested.push(...messageTableFilters.toDtos(filters));
 
   return {
-    operator: NestedOperator.AND,
+    operator: "AND",
     nested,
   };
 }

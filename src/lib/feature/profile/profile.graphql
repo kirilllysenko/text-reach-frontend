@@ -1,0 +1,27 @@
+query Profile @cache(policy: NetworkOnly) {
+  profile {
+    accessGroups
+    email
+    name
+  }
+}
+
+mutation SignUp($input: SignUpInput!) {
+  signUp(input: $input)
+}
+
+mutation SendSignUpEmailCode($email: String!) {
+  sendSignUpEmailCode(email: $email)
+}
+
+mutation SendSignUpPhoneCode($phoneNumber: String!) {
+  sendSignUpPhoneCode(phoneNumber: $phoneNumber)
+}
+
+mutation ChangeProfileName($name: String) {
+  changeProfileName(name: $name)
+}
+
+mutation ChangePassword($input: ChangePasswordInput!) {
+  changePassword(input: $input)
+}

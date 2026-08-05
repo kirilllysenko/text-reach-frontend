@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { ContactGroupStore } from "$houdini";
+  import { untrack } from "svelte";
   import { BackButton, Button, Field, FieldError, FieldLabel, Input, PageTitle } from "$lib";
   import { PATH_CONTACT_GROUP } from "$lib/app/paths";
-  import type { ErrorResponse, Ulid } from "$lib/api/index.schemas";
-  import { getContactGroup } from "$lib/api/contact-group/contact-group";
-  import { networkErrorText, toErrorText } from "$lib/form/errors";
+  import { networkErrorText } from "$lib/form/errors";
+  import { toGraphQLErrorText } from "$lib/graphql/errors";
   import { configureContactGroupForm, form, setContactGroupFormValues, type FormMode } from "./form.svelte";
 
   interface Props {
@@ -15,50 +15,44 @@
   let { id, mode }: Props = $props();
 
   let initialName = $state("");
-  let loadingContactGroup = $state(false);
+  let initializedContactGroupId = $state<string | null>(null);
+  const initialProps = untrack(() => ({ id, mode }));
 
-  const title = $derived(mode === "create" ? "Add contact group" : "Edit contact group");
-  const submitLabel = $derived(mode === "create" ? "Create" : "Save");
+  configureContactGroupForm(initialProps);
+
+  const contactGroupQuery = new ContactGroupStore();
+
+  const contactGroup = $derived($contactGroupQuery.data?.contactGroup ?? null);
+  const loadingContactGroup = $derived(initialProps.mode === "edit" && $contactGroupQuery.fetching && !contactGroup);
+
+  const title = initialProps.mode === "create" ? "Add contact group" : "Edit contact group";
+  const submitLabel = initialProps.mode === "create" ? "Create" : "Save";
   const nameDirty = $derived(form.name.value.trim() !== initialName);
-  const submitDisabled = $derived(form.loading || loadingContactGroup || (mode === "edit" && !nameDirty));
+  const submitDisabled = $derived(form.loading || loadingContactGroup || (initialProps.mode === "edit" && !nameDirty));
 
-  onMount(() => {
-    configureContactGroupForm({ id, mode });
-    initialName = "";
-
-    if (mode === "edit") {
-      loadingContactGroup = true;
-      void loadContactGroup();
-    }
-  });
-
-  function getResponseError(error?: ErrorResponse): string {
-    return error?.errorDescription ?? toErrorText(error?.errorCode);
-  }
-
-  async function loadContactGroup(): Promise<void> {
-    if (!id) {
-      form.error = "Contact group was not found.";
-      loadingContactGroup = false;
+  $effect(() => {
+    if (initialProps.mode !== "edit" || !initialProps.id) {
       return;
     }
 
-    try {
-      const response = await getContactGroup(id as Ulid, { credentials: "include" });
+    void contactGroupQuery.fetch({ variables: { id: initialProps.id } }).catch(() => (form.error = networkErrorText));
+  });
 
-      if (response.status !== 200) {
-        form.error = getResponseError(response.data);
-        return;
-      }
-
-      setContactGroupFormValues({ name: response.data.name });
-      initialName = response.data.name.trim();
-    } catch {
-      form.error = networkErrorText;
-    } finally {
-      loadingContactGroup = false;
+  $effect(() => {
+    if (!contactGroup || initializedContactGroupId === contactGroup.id) {
+      return;
     }
-  }
+
+    initializedContactGroupId = contactGroup.id;
+    setContactGroupFormValues({ name: contactGroup.name });
+    initialName = contactGroup.name.trim();
+  });
+
+  $effect(() => {
+    if ($contactGroupQuery.errors) {
+      form.error = toGraphQLErrorText($contactGroupQuery.errors);
+    }
+  });
 </script>
 
 <div

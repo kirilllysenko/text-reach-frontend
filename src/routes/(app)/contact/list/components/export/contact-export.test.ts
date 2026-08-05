@@ -1,11 +1,4 @@
 import { describe, expect, it } from "vitest";
-import {
-  ComparisonOperator,
-  ContainmentOperator,
-  NestedOperator,
-  SortDirection,
-  TextOperator,
-} from "$lib/api/index.schemas";
 import type { DataTableFilter, DataTableSort } from "$lib/components/table";
 import type { ContactViewModel } from "$lib/feature/contact/contact-view-data";
 import { buildContactExportRequest, toContactCsv } from "./contact-export";
@@ -86,37 +79,34 @@ describe("contact export helpers", () => {
           },
           {
             contactGroupId: {
-              operator: ContainmentOperator.IN,
+              operator: "IN",
               value: ["group-b"],
             },
           },
           {
             birthday: {
-              operator: ComparisonOperator.GREATER_OR_EQUAL,
+              operator: "GREATER_OR_EQUAL",
               value: "1990-01-01",
             },
           },
           {
             email: {
-              operator: TextOperator.CONTAINS,
+              operator: "CONTAINS",
               value: "example.com",
             },
           },
         ],
-        operator: NestedOperator.AND,
+        operator: "AND",
       },
-      pageSize: 500,
-      position: {
-        cursor: ["cursor"],
-        pageDirection: "NEXT",
-        type: "SEEK",
-      },
-      sort: {
-        firstName: {
-          direction: SortDirection.DESC,
-          order: 1,
+      after: "cursor",
+      first: 500,
+      sortBy: [
+        {
+          firstName: {
+            direction: "DESC",
+          },
         },
-      },
+      ],
     });
   });
 

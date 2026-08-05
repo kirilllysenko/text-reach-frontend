@@ -1,5 +1,18 @@
-import type { PageWalletTransactionDtoItemsItem, WalletBalanceDto, WalletTransactionDto } from "$lib/api/index.schemas";
 import type { WalletTransactionViewModel } from "./payment-view-data";
+
+export interface WalletBalanceData {
+  balanceUsdMicros: number;
+  currency: string;
+}
+
+interface WalletTransactionData {
+  amountUsdMicros: number;
+  createdAt: string;
+  currency: string;
+  entryType: string;
+  id: string;
+  source: { __typename: string; id: string };
+}
 
 const USD_MICROS_PER_DOLLAR = 1_000_000;
 
@@ -27,7 +40,7 @@ export function formatUsdMicros(value: number): string {
   return usdFormatter.format(usdMicrosToDollars(value));
 }
 
-export function formatPaymentBalance(balance: WalletBalanceDto | null): string {
+export function formatPaymentBalance(balance: WalletBalanceData | null): string {
   return formatUsdMicros(balance?.balanceUsdMicros ?? 0);
 }
 
@@ -49,9 +62,7 @@ export function formatPaymentType(value: string): string {
     .join(" ");
 }
 
-export function toWalletTransactionViewModel(
-  transaction: WalletTransactionDto | PageWalletTransactionDtoItemsItem,
-): WalletTransactionViewModel {
+export function toWalletTransactionViewModel(transaction: WalletTransactionData): WalletTransactionViewModel {
   return {
     id: transaction.id,
     amountDisplay: formatUsdMicros(transaction.amountUsdMicros),
@@ -61,8 +72,8 @@ export function toWalletTransactionViewModel(
     currency: transaction.currency,
     entryType: transaction.entryType,
     entryTypeLabel: formatPaymentType(transaction.entryType),
-    sourceId: transaction.sourceId,
-    sourceType: transaction.sourceType,
-    sourceTypeLabel: formatPaymentType(transaction.sourceType),
+    sourceId: transaction.source.id,
+    sourceType: transaction.source.__typename,
+    sourceTypeLabel: formatPaymentType(transaction.source.__typename),
   };
 }

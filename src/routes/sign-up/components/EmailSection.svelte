@@ -1,9 +1,10 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
+  import { SendSignUpEmailCodeStore } from "$houdini";
   import { Button, Input } from "$lib";
-  import { sendEmailCode } from "$lib/api/tenant/tenant";
   import { Field, FieldError, FieldLabel } from "$lib/components/field";
-  import { defaultErrorText, networkErrorText, toErrorText } from "$lib/form/errors";
+  import { defaultErrorText, networkErrorText } from "$lib/form/errors";
+  import { toGraphQLErrorText } from "$lib/graphql/errors";
   import { notificationsState } from "$lib/state/notifications.svelte";
   import { Countdown } from "$lib/utils/countdown.svelte";
   import { OTP_LENGTH } from "$lib/form/validators";
@@ -14,6 +15,7 @@
   let codeLoading = $state(false);
 
   const countdown = new Countdown();
+  const sendEmailCodeMutation = new SendSignUpEmailCodeStore();
 
   async function sendCodeClick(): Promise<void> {
     const emailResult = EmailSchema.safeParse(email.value);
@@ -27,14 +29,14 @@
     codeLoading = true;
 
     try {
-      const response = await sendEmailCode({ email: email.value }, { credentials: "include" });
+      const response = await sendEmailCodeMutation.mutate({ email: email.value });
 
-      if (response.status === 200) {
+      if (!response.errors && response.data?.sendSignUpEmailCode) {
         countdown.start(60);
         return;
       }
 
-      notificationsState.showError(toErrorText(response.data.errorCode));
+      notificationsState.showError(toGraphQLErrorText(response.errors));
     } catch {
       notificationsState.showError(networkErrorText);
     } finally {

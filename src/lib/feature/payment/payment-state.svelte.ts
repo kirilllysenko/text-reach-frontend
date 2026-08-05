@@ -1,16 +1,13 @@
-import type { ErrorResponse, WalletBalanceDto, WalletTransactionSortDto } from "$lib/api/index.schemas";
-import {
-  countTransactions as countTransactionList,
-  getBalance,
-  listTransactions as listTransactionList,
-} from "$lib/api/default/default";
+import { PaymentOverviewStore, WalletTransactionsStore } from "$houdini";
+import type { WalletTransactionSortByInput } from "$houdini/graphql/inputs";
 import type { DataTableLoadRequest, DataTableLoadResult } from "$lib/components/table";
-import { toWalletTransactionViewModel } from "./payment-display";
+import { toWalletTransactionViewModel, type WalletBalanceData } from "./payment-display";
 import { buildWalletTransactionFilter, buildWalletTransactionRequest, isUlid } from "./payment-query";
 import type { WalletTransactionViewModel } from "./payment-view-data";
 
 export class PaymentOverviewState {
-  balance = $state<WalletBalanceDto | null>(null);
+  private readonly paymentOverviewQuery = new PaymentOverviewStore();
+  balance = $state<WalletBalanceData | null>(null);
   loading = $state(false);
   loadingError = $state<string | null>(null);
 
@@ -18,14 +15,14 @@ export class PaymentOverviewState {
     this.loading = true;
 
     try {
-      const response = await getBalance({ credentials: "include" });
+      const response = await this.paymentOverviewQuery.fetch();
 
-      if (response.status !== 200) {
-        this.handleResponseError(response.data as ErrorResponse);
+      if (response.errors || !response.data) {
+        this.handleResponseError();
         return;
       }
 
-      this.balance = response.data;
+      this.balance = response.data.walletBalance;
       this.loadingError = null;
     } catch {
       this.handleResponseError();
@@ -34,13 +31,14 @@ export class PaymentOverviewState {
     }
   };
 
-  private handleResponseError(error?: ErrorResponse): void {
-    this.loadingError = error?.errorDescription ?? "Could not load payment balance.";
+  private handleResponseError(): void {
+    this.loadingError = "Could not load payment balance.";
     this.balance = null;
   }
 }
 
 export class WalletTransactionState {
+  private readonly walletTransactionsQuery = new WalletTransactionsStore();
   totalRows = $state(0);
   loadingError = $state<string | null>(null);
   idSearch = $state("");
@@ -49,13 +47,9 @@ export class WalletTransactionState {
 
   fetchRows = async (
     request: DataTableLoadRequest,
-    sort: WalletTransactionSortDto,
+    sort: WalletTransactionSortByInput[],
   ): Promise<DataTableLoadResult<WalletTransactionViewModel>> => {
     const filter = buildWalletTransactionFilter(this.idSearch, request.filters);
-
-    if (request.cursor === null) {
-      await this.refreshCount(filter);
-    }
 
     const pageRequest = buildWalletTransactionRequest({
       pageSize: request.limit,
@@ -67,43 +61,28 @@ export class WalletTransactionState {
     });
 
     try {
-      const response = await listTransactionList(pageRequest, { credentials: "include", signal: request.signal });
+      const response = await this.walletTransactionsQuery.fetch({ variables: pageRequest });
 
-      if (response.status !== 200) {
-        this.handleResponseError(response.data as ErrorResponse);
+      if (response.errors || !response.data) {
+        this.handleResponseError();
         return this.emptyResult();
       }
 
       this.loadingError = null;
+      const result = response.data.walletTransactions;
 
       return {
-        rows: (response.data.items ?? []).map(toWalletTransactionViewModel),
-        nextCursor: response.data.nextCursor ?? null,
-        totalRows: this.totalRows,
+        rows: result.edges.map((edge) => toWalletTransactionViewModel(edge.node)),
+        nextCursor: result.pageInfo.hasNextPage && result.pageInfo.endCursor ? [result.pageInfo.endCursor] : null,
+        previousCursor:
+          result.pageInfo.hasPreviousPage && result.pageInfo.startCursor ? [result.pageInfo.startCursor] : null,
+        totalRows: result.totalCount,
       };
     } catch {
       this.handleResponseError();
       return this.emptyResult();
     }
   };
-
-  private async refreshCount(filter: ReturnType<typeof buildWalletTransactionFilter>): Promise<void> {
-    try {
-      const response = await countTransactionList(filter ?? {}, { credentials: "include" });
-
-      if (response.status !== 200) {
-        this.handleResponseError(response.data as ErrorResponse);
-        this.totalRows = 0;
-        return;
-      }
-
-      this.totalRows = response.data;
-      this.loadingError = null;
-    } catch {
-      this.handleResponseError();
-      this.totalRows = 0;
-    }
-  }
 
   private emptyResult(): DataTableLoadResult<WalletTransactionViewModel> {
     return {
@@ -113,7 +92,7 @@ export class WalletTransactionState {
     };
   }
 
-  private handleResponseError(error?: ErrorResponse): void {
-    this.loadingError = error?.errorDescription ?? "Could not load wallet transactions.";
+  private handleResponseError(): void {
+    this.loadingError = "Could not load wallet transactions.";
   }
 }

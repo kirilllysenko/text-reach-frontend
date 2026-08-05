@@ -1,11 +1,4 @@
-import {
-  NestedOperator,
-  PageDirection,
-  TextOperator,
-  type ContactGroupFilterDto,
-  type ContactGroupSortDto,
-  type PageRequestContactGroupFilterDtoContactGroupSortDto,
-} from "$lib/api/index.schemas";
+import { type ContactGroupFilterInput, type ContactGroupSortByInput } from "$houdini/graphql/inputs";
 import type { DataTableFilter } from "$lib/components/table";
 import { contactGroupTableFilters } from "$lib/feature/contact-group/contact-group-table-filters";
 
@@ -16,7 +9,17 @@ interface ContactGroupRequestOptions {
   offset?: number;
   search: string;
   filters?: readonly DataTableFilter[];
-  sort: ContactGroupSortDto;
+  sort: readonly ContactGroupSortByInput[];
+}
+
+interface ContactGroupQueryVariables {
+  after?: string;
+  before?: string;
+  filter?: ContactGroupFilterInput;
+  first?: number;
+  last?: number;
+  offset?: number;
+  sortBy: ContactGroupSortByInput[];
 }
 
 export interface ContactGroupFilterOptions {
@@ -24,27 +27,31 @@ export interface ContactGroupFilterOptions {
   filters?: readonly DataTableFilter[];
 }
 
-export function buildContactGroupRequest(
-  options: ContactGroupRequestOptions,
-): PageRequestContactGroupFilterDtoContactGroupSortDto {
+export function buildContactGroupRequest(options: ContactGroupRequestOptions): ContactGroupQueryVariables {
+  const cursor = readCursor(options.cursor);
+
   return {
-    pageSize: options.pageSize,
-    position: buildPosition(options),
     filter: buildContactGroupFilter(options),
-    sort: options.sort,
+    sortBy: [...options.sort],
+    ...(cursor && options.direction === "previous"
+      ? { before: cursor, last: options.pageSize }
+      : { after: cursor, first: options.pageSize }),
+    ...(cursor ? {} : { offset: options.offset }),
   };
 }
 
-export function buildContactGroupFilter(options: ContactGroupFilterOptions): ContactGroupFilterDto | undefined {
-  const nested: ContactGroupFilterDto[] = [];
+export function buildContactGroupFilter(options: ContactGroupFilterOptions): ContactGroupFilterInput | undefined {
+  const nested: ContactGroupFilterInput[] = [];
   const searchValue = options.search.trim();
 
   if (searchValue) {
     nested.push({
       name: {
-        operator: TextOperator.CONTAINS,
+        operator: "CONTAINS",
         value: searchValue,
       },
+      nested: [],
+      operator: "AND",
     });
   }
 
@@ -55,28 +62,12 @@ export function buildContactGroupFilter(options: ContactGroupFilterOptions): Con
   }
 
   return {
-    operator: NestedOperator.AND,
+    operator: "AND",
     nested,
   };
 }
 
-function buildPosition(
-  options: ContactGroupRequestOptions,
-): PageRequestContactGroupFilterDtoContactGroupSortDto["position"] {
-  if (options.cursor) {
-    return {
-      type: "SEEK",
-      cursor: options.cursor as Record<string, never>[],
-      pageDirection: options.direction === "previous" ? PageDirection.PREVIOUS : PageDirection.NEXT,
-    };
-  }
-
-  if (typeof options.offset === "number") {
-    return {
-      type: "OFFSET",
-      offset: options.offset,
-    };
-  }
-
-  return undefined;
+function readCursor(cursor: unknown[] | null): string | undefined {
+  const value = cursor?.[0];
+  return typeof value === "string" ? value : undefined;
 }

@@ -1,9 +1,12 @@
 <script lang="ts">
+  import { ChangeProfileNameStore } from "$houdini";
   import { Button, Field, FieldError, FieldLabel, Input } from "$lib";
-  import { changeName } from "$lib/api/tenant/tenant";
+  import { networkErrorText } from "$lib/form/errors";
+  import { toGraphQLErrorText } from "$lib/graphql/errors";
   import { notificationsState } from "$lib/state/notifications.svelte";
   import { sessionState } from "$lib/state/session.svelte";
-  import { setProfileResponseErrors } from "./profile-errors";
+
+  const changeNameMutation = new ChangeProfileNameStore();
 
   let name = $state("");
   let initialName = $state("");
@@ -31,11 +34,18 @@
     nameFormError = null;
     savingName = true;
 
-    const response = await changeName({ name: name.trim() }, { credentials: "include" });
+    let response;
+    try {
+      response = await changeNameMutation.mutate({ name: name.trim() || null });
+    } catch {
+      savingName = false;
+      nameFormError = networkErrorText;
+      return;
+    }
 
     savingName = false;
 
-    if (response.status === 200) {
+    if (!response.errors && response.data?.changeProfileName) {
       if (!sessionState.profile) {
         return;
       }
@@ -52,13 +62,7 @@
       return;
     }
 
-    setProfileResponseErrors(
-      response.data,
-      {
-        name: (value) => (nameError = value),
-      },
-      (value) => (nameFormError = value),
-    );
+    nameFormError = toGraphQLErrorText(response.errors);
   }
 </script>
 

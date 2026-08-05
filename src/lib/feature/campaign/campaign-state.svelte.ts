@@ -1,13 +1,7 @@
-import {
-  SortDirection,
-  type CampaignDto,
-  type ErrorResponse,
-  type PageRequestContactGroupFilterDtoContactGroupSortDto,
-} from "$lib/api/index.schemas";
-import { fetchContactGroups as fetchContactGroupList } from "$lib/api/contact-group/contact-group";
-import { listCampaigns as listCampaignList } from "$lib/api/campaign/campaign";
+import { CampaignsStore } from "$houdini";
 import { DatagridCore, accessorColumn, type DataTableFilter, type SortingService } from "$lib/components/table";
 import { debounce } from "$lib/utils/debounce";
+import { toGraphQLErrorText } from "$lib/graphql/errors";
 import {
   campaignStatusOptions,
   statusLabelMap,
@@ -25,6 +19,7 @@ const SEARCH_DEBOUNCE_MS = 250;
 const INITIAL_SORTING = [{ sortId: "createdAt", direction: "descending" }] as const;
 
 export class CampaignState {
+  private readonly campaignsQuery = new CampaignsStore();
   loading = $state(true);
   loadingMore = $state(false);
   loadingError = $state<string | null>(null);
@@ -167,7 +162,7 @@ export class CampaignState {
   }
 
   load = async (): Promise<void> => {
-    await Promise.all([this.loadContactGroupList(), this.resetAndLoadCampaignList()]);
+    await this.resetAndLoadCampaignList();
   };
 
   updateSearch = (value: string): void => {
@@ -319,8 +314,8 @@ export class CampaignState {
     this.loadingMore = this.campaigns.length > 0;
 
     try {
-      const response = await listCampaignList(
-        buildCampaignRequest({
+      const response = await this.campaignsQuery.fetch({
+        variables: buildCampaignRequest({
           pageSize: DEFAULT_PAGE_SIZE,
           cursor: this.nextCursor,
           search: this.search,
@@ -330,27 +325,28 @@ export class CampaignState {
           minMessageCount: this.minMessageCount,
           sort: campaignTableSorts.toBackend(this.sorting.sorts),
         }),
-      );
+      });
       if (version !== this.requestVersion) {
         return;
       }
 
-      if (response.status !== 200) {
-        this.handleCampaignLoadError(response.data as ErrorResponse);
+      if (response.errors || !response.data) {
+        this.handleCampaignLoadError(toGraphQLErrorText(response.errors));
         return;
       }
 
-      const data = response.data as { items?: CampaignDto[]; nextCursor?: unknown[] };
-      const newItems = (data.items ?? []).map((item: CampaignDto, index: number) =>
-        toCampaignViewModel(item, this.campaigns.length + index),
-      );
+      const data = response.data.campaigns;
+      for (const edge of data.edges) {
+        this.contactGroupNameById = mergeContactGroupNames(this.contactGroupNameById, edge.node.contactGroups);
+      }
+      const newItems = data.edges.map((edge, index) => toCampaignViewModel(edge.node, this.campaigns.length + index));
 
       const knownIds = new Set(this.campaigns.map((campaign: CampaignViewModel) => campaign.id));
       const dedupedItems = newItems.filter((campaign: CampaignViewModel) => !knownIds.has(campaign.id));
 
       this.campaigns = [...this.campaigns, ...dedupedItems];
-      this.nextCursor = data.nextCursor ?? null;
-      this.hasNextPage = !!data.nextCursor && (data.items?.length ?? 0) > 0;
+      this.nextCursor = data.pageInfo.endCursor ? [data.pageInfo.endCursor] : null;
+      this.hasNextPage = data.pageInfo.hasNextPage && data.edges.length > 0;
       this.ensureSelectedCampaign();
       this.loading = false;
       this.loadingMore = false;
@@ -363,8 +359,8 @@ export class CampaignState {
     }
   }
 
-  private handleCampaignLoadError(error?: ErrorResponse): void {
-    this.loadingError = error?.errorDescription ?? "Could not load campaigns from API.";
+  private handleCampaignLoadError(error?: string): void {
+    this.loadingError = error ?? "Could not load campaigns from API.";
     this.campaigns = [];
     this.nextCursor = null;
     this.hasNextPage = false;
@@ -382,24 +378,5 @@ export class CampaignState {
     if (!this.campaigns.some((campaign) => campaign.id === this.selectedCampaignId)) {
       this.selectedCampaignId = this.campaigns[0]?.id ?? null;
     }
-  }
-
-  private async loadContactGroupList(): Promise<void> {
-    const request: PageRequestContactGroupFilterDtoContactGroupSortDto = {
-      pageSize: 300,
-      sort: {
-        name: {
-          order: 0,
-          direction: SortDirection.ASC,
-        },
-      },
-    };
-
-    const response = await fetchContactGroupList(request, { credentials: "include" });
-    if (response.status !== 200) {
-      return;
-    }
-
-    this.contactGroupNameById = mergeContactGroupNames(this.contactGroupNameById, response.data.items ?? []);
   }
 }

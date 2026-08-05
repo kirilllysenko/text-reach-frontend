@@ -17,7 +17,7 @@ These docs extend `AGENTS.md`. This file is the compact source of truth; the top
 - Never import from one route directory into another; promote shared code to `src/lib`.
 - Use `src/lib/feature/<feature>` for reused feature state, display mapping, query assembly, and business logic. Match suffixes: `*-state.svelte.ts`, `*-view-data.ts`, `*-display.ts`, `*-query.ts`.
 - Use `src/lib/components` for generic UI, `src/lib/state` for app-wide state, `src/lib/form` for form logic, `src/lib/utils` for utilities, and `src/lib/icons` for icons.
-- Treat `src/lib/api` as generated. Do not edit generated files or hand-write replacements for generated clients, models, or DTOs. Hand-write only generator gaps such as upload/download helpers.
+- Put GraphQL operations beside their feature under `src/lib/feature` and use the generated Houdini stores. Do not add REST clients for application business operations.
 
 ## Components
 
@@ -35,3 +35,13 @@ These docs extend `AGENTS.md`. This file is the compact source of truth; the top
 - Keep changes scoped to the touched route, feature, or shared primitive.
 - Use `bun` and `bunx`, never `npm` or `npx`.
 - Run the narrowest useful validation before handoff: usually `bun run check`, plus `bun run lint` after broad markup or formatting changes.
+
+## GraphQL
+
+- Hive Router is the source of truth for GraphQL generation. Houdini introspects `http://localhost:4000/graphql` by
+  default; set `HIVE_ROUTER_URL` when the Router is available at another address.
+- The backend's local and production Hive Router configurations must keep introspection enabled. Never generate from an
+  individual subgraph, a copied client schema, or supergraph SDL.
+- Run `bun run generate:graphql` while Hive Router is available after changing operations or publishing a new schema.
+- `.houdini`, including Houdini's introspection cache, is generated and ignored. Houdini uses normalized records and the
+  cache policies declared in each operation.

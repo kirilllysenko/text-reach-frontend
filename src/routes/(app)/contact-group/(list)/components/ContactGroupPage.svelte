@@ -1,14 +1,14 @@
 <script lang="ts">
   import { Card, LinkButton, PageTitle } from "$lib";
   import { PATH_CONTACT_GROUP_ADD } from "$lib/app/paths";
-  import { ContactGroupState } from "$lib/feature/contact-group/contact-group-state.svelte";
+  import { createContactGroupState } from "$lib/feature/contact-group/contact-group-state.svelte";
   import ContactGroupSearchInput from "./ContactGroupSearchInput.svelte";
   import FilterButton from "./filter/FilterButton.svelte";
   import SortButton from "./sort/SortButton.svelte";
   import ContactGroupTable from "./table/ContactGroupTable.svelte";
   import { createContactGroupTable } from "./table/table.svelte";
 
-  const contactGroupState = new ContactGroupState();
+  const contactGroupState = createContactGroupState();
   const table = createContactGroupTable({ contactGroupState });
 </script>
 

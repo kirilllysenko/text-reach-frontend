@@ -1,13 +1,14 @@
-import { fetchContacts as fetchContactList } from "$lib/api/contact/contact";
+import { ContactsStore } from "$houdini";
 import type { DataTableFilter, DataTableSort } from "$lib/components/table";
 import { toContactViewModel } from "$lib/feature/contact/contact-display";
-import { buildContactRequest } from "$lib/feature/contact/contact-query";
+import { buildContactRequest, type ContactQueryVariables } from "$lib/feature/contact/contact-query";
 import type { ContactViewModel } from "$lib/feature/contact/contact-view-data";
 import { contactTableFilters } from "../filter/filter.svelte";
 import { contactTableSorts } from "../sort/sort.svelte";
 
 const EXPORT_PAGE_SIZE = 500;
 const MAX_EXPORT_PAGES = 200;
+const contactsQuery = new ContactsStore();
 
 export interface ContactExportSnapshot {
   filters: DataTableFilter[];
@@ -15,7 +16,10 @@ export interface ContactExportSnapshot {
   sorting: DataTableSort[];
 }
 
-export function buildContactExportRequest(snapshot: ContactExportSnapshot, cursor: unknown[] | null) {
+export function buildContactExportRequest(
+  snapshot: ContactExportSnapshot,
+  cursor: unknown[] | null,
+): ContactQueryVariables {
   return buildContactRequest({
     pageSize: EXPORT_PAGE_SIZE,
     cursor,
@@ -38,18 +42,19 @@ export async function loadContactExportList(snapshot: ContactExportSnapshot): Pr
   let cursor: unknown[] | null = null;
 
   for (let page = 0; page < MAX_EXPORT_PAGES; page += 1) {
-    const response = await fetchContactList(buildContactExportRequest(snapshot, cursor), { credentials: "include" });
+    const variables: ContactQueryVariables = buildContactExportRequest(snapshot, cursor);
+    const response = await contactsQuery.fetch({ variables });
 
-    if (response.status !== 200) {
+    if (response.errors || !response.data) {
       throw new Error("Could not load contacts for export.");
     }
 
-    contacts.push(
-      ...(response.data.items ?? []).map((item, index) => toContactViewModel(item, contacts.length + index)),
-    );
-    cursor = response.data.nextCursor ?? null;
+    const result = response.data.contacts;
 
-    if (!cursor || (response.data.items?.length ?? 0) === 0) {
+    contacts.push(...result.edges.map((edge, index) => toContactViewModel(edge.node, contacts.length + index)));
+    cursor = result.pageInfo.hasNextPage && result.pageInfo.endCursor ? [result.pageInfo.endCursor] : null;
+
+    if (!cursor || result.edges.length === 0) {
       break;
     }
   }

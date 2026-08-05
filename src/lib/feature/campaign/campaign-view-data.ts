@@ -1,6 +1,6 @@
-import { CampaignStatus as CampaignStatusEnum, type CampaignDto } from "$lib/api/index.schemas";
+import type { CampaignStatus$options } from "$houdini/graphql/enums";
 
-export type CampaignStatus = CampaignDto["status"];
+export type CampaignStatus = CampaignStatus$options;
 
 export interface CampaignViewModel {
   id: string;
@@ -14,21 +14,21 @@ export interface CampaignViewModel {
 }
 
 export const statusLabelMap: Record<NonNullable<CampaignStatus>, string> = {
-  [CampaignStatusEnum.PENDING]: "Pending",
-  [CampaignStatusEnum.SENDING]: "Sending",
-  [CampaignStatusEnum.PAUSED_BY_USER]: "Paused By User",
-  [CampaignStatusEnum.PAUSED_BY_BILLING]: "Paused By Billing",
-  [CampaignStatusEnum.CANCELLED_BY_USER]: "Cancelled By User",
-  [CampaignStatusEnum.CANCELLED_BY_TIMEOUT]: "Cancelled By Timeout",
-  [CampaignStatusEnum.SENT]: "Sent",
+  PENDING: "Pending",
+  SENDING: "Sending",
+  PAUSED_BY_USER: "Paused By User",
+  PAUSED_BY_BILLING: "Paused By Billing",
+  CANCELLED_BY_USER: "Cancelled By User",
+  CANCELLED_BY_TIMEOUT: "Cancelled By Timeout",
+  SENT: "Sent",
 };
 
 export const campaignStatusOptions: NonNullable<CampaignStatus>[] = [
-  CampaignStatusEnum.PENDING,
-  CampaignStatusEnum.SENDING,
-  CampaignStatusEnum.PAUSED_BY_USER,
-  CampaignStatusEnum.PAUSED_BY_BILLING,
-  CampaignStatusEnum.CANCELLED_BY_USER,
-  CampaignStatusEnum.CANCELLED_BY_TIMEOUT,
-  CampaignStatusEnum.SENT,
+  "PENDING",
+  "SENDING",
+  "PAUSED_BY_USER",
+  "PAUSED_BY_BILLING",
+  "CANCELLED_BY_USER",
+  "CANCELLED_BY_TIMEOUT",
+  "SENT",
 ];

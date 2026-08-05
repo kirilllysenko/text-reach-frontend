@@ -1,31 +1,34 @@
-import { fetchContactGroups as fetchContactGroupList } from "$lib/api/contact-group/contact-group";
-import { SortDirection } from "$lib/api/index.schemas";
+import { ContactGroupsStore } from "$houdini";
 import type { MultiComboboxLoadRequest, MultiComboboxLoadResult, MultiComboboxOption } from "$lib/components/dropdown";
+import { abortControllerFromSignal } from "$lib/graphql/abort";
 import { buildContactGroupRequest } from "./contact-group-query";
+
+const contactGroupsQuery = new ContactGroupsStore();
 
 export async function loadContactGroupComboboxOptions(
   request: MultiComboboxLoadRequest,
 ): Promise<MultiComboboxLoadResult> {
   try {
-    const response = await fetchContactGroupList(
-      buildContactGroupRequest({
+    const response = await contactGroupsQuery.fetch({
+      abortController: abortControllerFromSignal(request.signal),
+      variables: buildContactGroupRequest({
         pageSize: request.pageSize,
         cursor: request.cursor,
         direction: "next",
         search: request.search,
         filters: [],
-        sort: { name: { direction: SortDirection.ASC, order: 1 } },
+        sort: [{ name: { direction: "ASC" } }],
       }),
-      { credentials: "include", signal: request.signal },
-    );
+    });
 
-    if (response.status !== 200) {
+    if (response.errors || !response.data) {
       return emptyContactGroupOptions();
     }
 
+    const result = response.data.contactGroups;
     return {
-      items: (response.data.items ?? []).map(toContactGroupOption),
-      nextCursor: response.data.nextCursor ?? null,
+      items: result.edges.map((edge) => toContactGroupOption(edge.node)),
+      nextCursor: result.pageInfo.hasNextPage ? toCursor(result.pageInfo.endCursor) : null,
     };
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") {
@@ -34,6 +37,10 @@ export async function loadContactGroupComboboxOptions(
 
     return emptyContactGroupOptions();
   }
+}
+
+function toCursor(cursor: unknown): unknown[] | null {
+  return typeof cursor === "string" ? [cursor] : null;
 }
 
 function toContactGroupOption(group: { id: string; name: string }): MultiComboboxOption {

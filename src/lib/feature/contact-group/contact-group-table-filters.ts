@@ -1,7 +1,7 @@
-import type { ContactGroupFilterDto } from "$lib/api/index.schemas";
+import type { ContactGroupFilterInput } from "$houdini/graphql/inputs";
 import { TableBackendFilter } from "$lib/components/table";
 
-const contactGroupFilter = new TableBackendFilter<ContactGroupFilterDto>();
+const contactGroupFilter = new TableBackendFilter<ContactGroupFilterInput>();
 
 export const contactGroupTableFilters = contactGroupFilter.define([
   contactGroupFilter.comparison({

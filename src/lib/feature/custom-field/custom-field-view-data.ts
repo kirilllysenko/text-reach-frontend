@@ -1,4 +1,6 @@
-import type { CustomFieldDto, CustomFieldType, SortDirection } from "$lib/api/index.schemas";
+import type { CustomFieldType$options, SortDirection$options } from "$houdini/graphql/enums";
+
+export type CustomFieldType = CustomFieldType$options;
 
 export interface CustomFieldViewModel {
   id: string;
@@ -12,10 +14,14 @@ export type CustomFieldSortField = "name" | "type";
 export interface CustomFieldSortRule {
   id: string;
   field: CustomFieldSortField;
-  direction: SortDirection;
+  direction: SortDirection$options;
 }
 
-export type CustomFieldDtoLike = Pick<CustomFieldDto, "id" | "name" | "type">;
+export interface CustomFieldDtoLike {
+  id: string;
+  name: string;
+  type: CustomFieldType;
+}
 
 export const customFieldTypeOptions: CustomFieldType[] = ["TEXT", "NUMBER", "DATE"];
 export const customFieldSortFieldOptions: CustomFieldSortField[] = ["name", "type"];

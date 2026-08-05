@@ -1,5 +1,4 @@
-import type { ErrorResponse } from "$lib/api/index.schemas";
-import { countContacts as countContactList, fetchContacts as fetchContactList } from "$lib/api/contact/contact";
+import { ContactsStore } from "$houdini";
 import {
   DatagridCore,
   type DataTableLoadRequest,
@@ -7,8 +6,10 @@ import {
   type DataTableSort,
 } from "$lib/components/table";
 import { toContactViewModel } from "$lib/feature/contact/contact-display";
-import { buildContactFilter, buildContactRequest } from "$lib/feature/contact/contact-query";
+import { buildContactRequest } from "$lib/feature/contact/contact-query";
 import type { ContactViewModel } from "$lib/feature/contact/contact-view-data";
+import { abortControllerFromSignal } from "$lib/graphql/abort";
+import { toGraphQLErrorText } from "$lib/graphql/errors";
 import { contactTableFilters } from "../filter/filter.svelte";
 import { contactSortDefinitions, contactTableSorts } from "../sort/sort.svelte";
 import { createContactColumns } from "./column.svelte";
@@ -17,6 +18,7 @@ const initialSorting = [
   { sortId: "lastName", direction: "ascending" },
   { sortId: "firstName", direction: "ascending" },
 ] satisfies DataTableSort[];
+const contactsQuery = new ContactsStore();
 
 export const table = createContactTable();
 
@@ -40,8 +42,6 @@ function createContactTable(): DatagridCore<ContactViewModel> {
 
 async function fetchContactRows(request: DataTableLoadRequest): Promise<DataTableLoadResult<ContactViewModel>> {
   const filters = contactTableFilters.toDtos(request.filters);
-  const totalRows = await fetchContactCount(filters, request.signal);
-
   const pageRequest = buildContactRequest({
     pageSize: request.limit,
     cursor: request.cursor,
@@ -52,41 +52,28 @@ async function fetchContactRows(request: DataTableLoadRequest): Promise<DataTabl
   });
 
   try {
-    const response = await fetchContactList(pageRequest, { credentials: "include", signal: request.signal });
+    const response = await contactsQuery.fetch({
+      abortController: abortControllerFromSignal(request.signal),
+      variables: pageRequest,
+    });
 
-    if (response.status !== 200) {
-      throw new Error(getContactErrorMessage(response.data as ErrorResponse));
+    if (response.errors || !response.data) {
+      throw new Error(toGraphQLErrorText(response.errors));
     }
 
+    const result = response.data.contacts;
+
     return {
-      rows: (response.data.items ?? []).map((item, index) => toContactViewModel(item, index)),
-      nextCursor: response.data.nextCursor ?? null,
-      totalRows,
+      rows: result.edges.map((edge, index) => toContactViewModel(edge.node, index)),
+      nextCursor: result.pageInfo.hasNextPage ? toCursor(result.pageInfo.endCursor) : null,
+      previousCursor: result.pageInfo.hasPreviousPage ? toCursor(result.pageInfo.startCursor) : null,
+      totalRows: result.totalCount,
     };
   } catch (error) {
     throw error instanceof Error ? error : new Error("Could not load contacts from API.");
   }
 }
 
-async function fetchContactCount(
-  filters: Parameters<typeof buildContactFilter>[0],
-  signal?: AbortSignal,
-): Promise<number> {
-  const filter = buildContactFilter(filters);
-
-  try {
-    const response = await countContactList(filter ?? {}, { credentials: "include", signal });
-
-    if (response.status !== 200) {
-      throw new Error(getContactErrorMessage(response.data as ErrorResponse, "Could not count contacts."));
-    }
-
-    return response.data;
-  } catch (error) {
-    throw error instanceof Error ? error : new Error("Could not count contacts.");
-  }
-}
-
-function getContactErrorMessage(error?: ErrorResponse, fallback = "Could not load contacts from API."): string {
-  return error?.errorDescription ?? fallback;
+function toCursor(cursor: string | null | undefined): unknown[] | null {
+  return cursor ? [cursor] : null;
 }

@@ -1,11 +1,4 @@
-import {
-  ContainmentOperator,
-  NestedOperator,
-  PageDirection,
-  type PageRequestWalletTransactionFilterDtoWalletTransactionSortDto,
-  type WalletTransactionFilterDto,
-  type WalletTransactionSortDto,
-} from "$lib/api/index.schemas";
+import type { WalletTransactionFilterInput, WalletTransactionSortByInput } from "$houdini/graphql/inputs";
 import type { DataTableFilter } from "$lib/components/table";
 import { walletTransactionTableFilters } from "./payment-table-filters";
 
@@ -17,40 +10,44 @@ interface WalletTransactionRequestOptions {
   direction?: "next" | "previous";
   idSearch: string;
   filters: DataTableFilter[];
-  sort: WalletTransactionSortDto;
+  sort: readonly WalletTransactionSortByInput[];
 }
 
-export function buildWalletTransactionRequest(
-  options: WalletTransactionRequestOptions,
-): PageRequestWalletTransactionFilterDtoWalletTransactionSortDto {
+export function buildWalletTransactionRequest(options: WalletTransactionRequestOptions) {
+  const cursor = typeof options.cursor?.[0] === "string" ? options.cursor[0] : undefined;
   return {
-    pageSize: options.pageSize,
-    position: buildPosition(options),
     filter: buildWalletTransactionFilter(options.idSearch, options.filters),
-    sort: options.sort,
+    sortBy: [...options.sort],
+    ...(cursor && options.direction === "previous"
+      ? { before: cursor, last: options.pageSize }
+      : { after: cursor, first: options.pageSize }),
   };
 }
 
 export function buildWalletTransactionFilter(
   idSearch: string,
   filters: DataTableFilter[],
-): WalletTransactionFilterDto | undefined {
-  const nested: WalletTransactionFilterDto[] = [];
+): WalletTransactionFilterInput | undefined {
+  const nested: WalletTransactionFilterInput[] = [];
   const normalizedIdSearch = idSearch.trim().toUpperCase();
 
   if (isUlid(normalizedIdSearch)) {
     nested.push({
-      operator: NestedOperator.OR,
+      operator: "OR",
       nested: [
         {
+          nested: [],
+          operator: "AND",
           id: {
-            operator: ContainmentOperator.IN,
+            operator: "IN",
             value: [normalizedIdSearch],
           },
         },
         {
+          nested: [],
+          operator: "AND",
           sourceId: {
-            operator: ContainmentOperator.IN,
+            operator: "IN",
             value: [normalizedIdSearch],
           },
         },
@@ -65,25 +62,11 @@ export function buildWalletTransactionFilter(
   }
 
   return {
-    operator: NestedOperator.AND,
+    operator: "AND",
     nested,
   };
 }
 
 export function isUlid(value: string): boolean {
   return ULID_PATTERN.test(value.trim());
-}
-
-function buildPosition(
-  options: WalletTransactionRequestOptions,
-): PageRequestWalletTransactionFilterDtoWalletTransactionSortDto["position"] {
-  if (options.cursor) {
-    return {
-      type: "SEEK",
-      cursor: options.cursor as Record<string, never>[],
-      pageDirection: options.direction === "previous" ? PageDirection.PREVIOUS : PageDirection.NEXT,
-    };
-  }
-
-  return undefined;
 }

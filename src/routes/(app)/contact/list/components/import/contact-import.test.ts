@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import * as XLSX from "xlsx";
-import { RegularContactImportFieldDto } from "$lib/api/index.schemas";
 import {
   buildContactImportFields,
   buildContactImportRequest,
@@ -21,11 +20,11 @@ describe("contact import helpers", () => {
         mappings: [
           {
             columnIndex: 0,
-            value: createRegularContactImportMappingValue(RegularContactImportFieldDto.PhoneNumber),
+            value: createRegularContactImportMappingValue("PHONE_NUMBER"),
           },
           {
             columnIndex: 1,
-            value: createRegularContactImportMappingValue(RegularContactImportFieldDto.FirstName),
+            value: createRegularContactImportMappingValue("FIRST_NAME"),
           },
           {
             columnIndex: 2,
@@ -44,24 +43,15 @@ describe("contact import helpers", () => {
       fields: [
         {
           columnIndex: 0,
-          field: {
-            type: "REGULAR",
-            field: RegularContactImportFieldDto.PhoneNumber,
-          },
+          regularField: "PHONE_NUMBER",
         },
         {
           columnIndex: 1,
-          field: {
-            type: "REGULAR",
-            field: RegularContactImportFieldDto.FirstName,
-          },
+          regularField: "FIRST_NAME",
         },
         {
           columnIndex: 3,
-          field: {
-            type: "CUSTOM_FIELD",
-            custom_field_id: "custom-a",
-          },
+          customFieldId: "custom-a",
         },
       ],
     });
@@ -76,7 +66,7 @@ describe("contact import helpers", () => {
         mappings: [
           {
             columnIndex: 0,
-            value: createRegularContactImportMappingValue(RegularContactImportFieldDto.FirstName),
+            value: createRegularContactImportMappingValue("FIRST_NAME"),
           },
         ],
       }),
@@ -87,15 +77,15 @@ describe("contact import helpers", () => {
     const fields = buildContactImportFields([
       {
         columnIndex: 0,
-        value: createRegularContactImportMappingValue(RegularContactImportFieldDto.PhoneNumber),
+        value: createRegularContactImportMappingValue("PHONE_NUMBER"),
       },
       {
         columnIndex: 1,
-        value: createRegularContactImportMappingValue(RegularContactImportFieldDto.Email),
+        value: createRegularContactImportMappingValue("EMAIL"),
       },
       {
         columnIndex: 2,
-        value: createRegularContactImportMappingValue(RegularContactImportFieldDto.Email),
+        value: createRegularContactImportMappingValue("EMAIL"),
       },
     ]);
 

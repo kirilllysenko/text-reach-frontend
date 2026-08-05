@@ -13,6 +13,7 @@
     PATH_PAYMENT,
     PATH_PROFILE,
     PATH_SMART_GROUP,
+    PATH_USER,
   } from "$lib/app/paths";
   import Campaign from "$lib/icons/Campaign.svelte";
   import ChevronDown from "$lib/icons/ChevronDown.svelte";
@@ -21,6 +22,7 @@
   import Dashboard from "$lib/icons/Dashboard.svelte";
   import Logo from "$lib/icons/Logo.svelte";
   import Payment from "$lib/icons/Payment.svelte";
+  import Profile from "$lib/icons/Profile.svelte";
   import { sessionState } from "$lib/state/session.svelte";
 
   interface Props {
@@ -34,6 +36,7 @@
   const contactSectionActive = $derived(CONTACT_SECTION_PATH.includes(currentPath));
   const contactSubmenuOpen = $derived(showContactSubmenu);
   const paymentSectionActive = $derived(currentPath === PATH_PAYMENT || currentPath.startsWith(`${PATH_PAYMENT}/`));
+  const userSectionActive = $derived(currentPath === PATH_USER || currentPath.startsWith(`${PATH_USER}/`));
 
   $effect(() => {
     if (CONTACT_SECTION_PATH.includes(currentPath)) {
@@ -225,6 +228,24 @@
       </a>
     </li>
   </ul>
+
+  <li>
+    <a
+      href={PATH_USER}
+      class={[
+        `group flex w-full items-center gap-3 rounded-xl border px-2 py-3 font-medium
+          transition-colors`,
+        userSectionActive
+          ? "active text-sky-800 border-sky-200/90 bg-sky-100/90 shadow-sm"
+          : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
+             hover:bg-white/70 hover:text-slate-800`,
+      ]}
+      onclick={notifyItemClick}
+    >
+      <Profile class={["size-6", userSectionActive ? "fill-sky-700" : "fill-slate-500 group-hover:fill-sky-700"]} />
+      <span>Users</span>
+    </a>
+  </li>
 
   <li class="grow"></li>
 

@@ -1,8 +1,8 @@
-import type { MessageFilterDto } from "$lib/api/index.schemas";
+import type { MessageFilterInput } from "$houdini/graphql/inputs";
 import { TableBackendFilter } from "$lib/components/table";
 import type { MessageStatusValue } from "$lib/feature/message/message-view-data";
 
-const messageFilter = new TableBackendFilter<MessageFilterDto>();
+const messageFilter = new TableBackendFilter<MessageFilterInput>();
 
 export const messageTableFilters = messageFilter.define([
   messageFilter.containment({

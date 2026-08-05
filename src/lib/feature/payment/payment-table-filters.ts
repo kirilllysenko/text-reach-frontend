@@ -1,8 +1,8 @@
-import type { WalletTransactionFilterDto } from "$lib/api/index.schemas";
+import type { WalletTransactionFilterInput } from "$houdini/graphql/inputs";
 import { TableBackendFilter } from "$lib/components/table";
 import { dollarsToUsdMicros } from "$lib/feature/payment/payment-display";
 
-const paymentFilter = new TableBackendFilter<WalletTransactionFilterDto>();
+const paymentFilter = new TableBackendFilter<WalletTransactionFilterInput>();
 
 export const walletTransactionTableFilters = paymentFilter.define([
   paymentFilter.comparison({

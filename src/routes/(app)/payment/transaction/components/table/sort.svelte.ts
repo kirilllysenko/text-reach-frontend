@@ -1,19 +1,26 @@
-import type { WalletTransactionSortDto } from "$lib/api/index.schemas";
-import { TableBackendSort } from "$lib/components/table";
+import type { WalletTransactionSortByInput } from "$houdini/graphql/inputs";
+import { sortDefinition, type DataTableSort } from "$lib/components/table";
 
-const transactionSort = new TableBackendSort<WalletTransactionSortDto>();
-
-export const transactionTableSorts = transactionSort.define([
-  transactionSort.sort({
+const definitions = [
+  sortDefinition({
     sortId: "createdAt",
     fieldId: "createdAt",
     label: "Created",
     defaultDirection: "descending",
   }),
-  transactionSort.sort({ sortId: "amountUsdMicros", fieldId: "amountUsdMicros", label: "Amount" }),
-  transactionSort.sort({ sortId: "currency", fieldId: "currency", label: "Currency" }),
-  transactionSort.sort({ sortId: "entryType", fieldId: "entryType", label: "Entry Type" }),
-  transactionSort.sort({ sortId: "sourceType", fieldId: "sourceType", label: "Source Type" }),
-] as const);
+  sortDefinition({ sortId: "amountUsdMicros", fieldId: "amountUsdMicros", label: "Amount" }),
+  sortDefinition({ sortId: "currency", fieldId: "currency", label: "Currency" }),
+  sortDefinition({ sortId: "entryType", fieldId: "entryType", label: "Entry Type" }),
+  sortDefinition({ sortId: "sourceType", fieldId: "sourceType", label: "Source Type" }),
+] as const;
 
-export const transactionSortDefinitions = transactionTableSorts.definitions;
+export const transactionTableSorts = {
+  definitions,
+  toBackend(sorts: readonly DataTableSort[]): WalletTransactionSortByInput[] {
+    return sorts.map((sort) => ({
+      [sort.sortId]: { direction: sort.direction === "ascending" ? "ASC" : "DESC" },
+    }));
+  },
+};
+
+export const transactionSortDefinitions = definitions;

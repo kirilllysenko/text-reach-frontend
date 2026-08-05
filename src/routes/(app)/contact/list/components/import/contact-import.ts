@@ -1,19 +1,23 @@
 import Papa from "papaparse";
 import * as XLSX from "xlsx";
-import {
-  RegularContactImportFieldDto,
-  type ContactImportColumnDto,
-  type ContactImportDto,
-  type CustomFieldDto,
-  type RegularContactImportFieldDto as RegularContactImportField,
-  type TableImportFieldDto,
-  type Ulid,
-} from "$lib/api/index.schemas";
+import type { RegularContactImportField$options } from "$houdini/graphql/enums";
+import type { ContactImportColumnInput, ContactImportInput } from "$houdini/graphql/inputs";
 import type { DropdownOption } from "$lib/components/dropdown";
 
 export const CONTACT_IMPORT_IGNORE = "IGNORE";
 const REGULAR_MAPPING_PREFIX = "REGULAR:";
 const CUSTOM_MAPPING_PREFIX = "CUSTOM_FIELD:";
+
+export type RegularContactImportField = RegularContactImportField$options;
+
+export const regularContactImportFields = [
+  "PHONE_NUMBER",
+  "FIRST_NAME",
+  "LAST_NAME",
+  "EMAIL",
+  "BIRTHDAY",
+  "NOTES",
+] as const satisfies readonly RegularContactImportField[];
 
 export type ContactImportMappingValue =
   | typeof CONTACT_IMPORT_IGNORE
@@ -44,12 +48,12 @@ export interface ContactImportBuildOptions {
 }
 
 export const contactImportRegularFieldLabels = {
-  [RegularContactImportFieldDto.PhoneNumber]: "Phone number",
-  [RegularContactImportFieldDto.FirstName]: "First name",
-  [RegularContactImportFieldDto.LastName]: "Last name",
-  [RegularContactImportFieldDto.Email]: "Email",
-  [RegularContactImportFieldDto.Birthday]: "Birthday",
-  [RegularContactImportFieldDto.Notes]: "Notes",
+  PHONE_NUMBER: "Phone number",
+  FIRST_NAME: "First name",
+  LAST_NAME: "Last name",
+  EMAIL: "Email",
+  BIRTHDAY: "Birthday",
+  NOTES: "Notes",
 } satisfies Record<RegularContactImportField, string>;
 
 export async function parseContactImportFile(file: File): Promise<ContactImportParseResult> {
@@ -86,14 +90,14 @@ export async function parseContactImportFile(file: File): Promise<ContactImportP
 }
 
 export function createContactImportMappingOptions(
-  customFields: Pick<CustomFieldDto, "id" | "name">[],
+  customFields: { id: string; name: string }[],
 ): DropdownOption<ContactImportMappingValue>[] {
   return [
     {
       id: CONTACT_IMPORT_IGNORE,
       value: "Ignore column",
     },
-    ...Object.values(RegularContactImportFieldDto).map((field) => ({
+    ...regularContactImportFields.map((field) => ({
       id: createRegularContactImportMappingValue(field),
       value: contactImportRegularFieldLabels[field],
     })),
@@ -114,7 +118,7 @@ export function createCustomContactImportMappingValue(customFieldId: string): Co
 
 export function inferContactImportMapping(
   column: ContactImportPreviewColumn,
-  customFields: Pick<CustomFieldDto, "id" | "name">[],
+  customFields: { id: string; name: string }[],
 ): ContactImportMappingValue {
   const normalizedLabel = normalizeHeader(column.label);
   const regularField = contactImportHeaderFieldMap[normalizedLabel];
@@ -127,7 +131,7 @@ export function inferContactImportMapping(
   return customField ? createCustomContactImportMappingValue(customField.id) : CONTACT_IMPORT_IGNORE;
 }
 
-export function buildContactImportRequest(options: ContactImportBuildOptions): ContactImportDto {
+export function buildContactImportRequest(options: ContactImportBuildOptions): ContactImportInput {
   const fields = buildContactImportFields(options.mappings);
   const error = validateContactImportFields(fields);
 
@@ -138,13 +142,13 @@ export function buildContactImportRequest(options: ContactImportBuildOptions): C
   return {
     filename: options.filename,
     fields,
-    contactGroupIds: options.contactGroupIds as Ulid[],
+    contactGroupIds: options.contactGroupIds,
     skipFirstRow: options.skipFirstRow,
   };
 }
 
-export function buildContactImportFields(mappings: ContactImportMapping[]): ContactImportColumnDto[] {
-  return mappings.reduce<ContactImportColumnDto[]>((fields, mapping) => {
+export function buildContactImportFields(mappings: ContactImportMapping[]): ContactImportColumnInput[] {
+  return mappings.reduce<ContactImportColumnInput[]>((fields, mapping) => {
     const field = toContactImportField(mapping.value);
 
     if (!field) {
@@ -155,22 +159,20 @@ export function buildContactImportFields(mappings: ContactImportMapping[]): Cont
       ...fields,
       {
         columnIndex: mapping.columnIndex,
-        field,
+        ...field,
       },
     ];
   }, []);
 }
 
-export function validateContactImportFields(fields: ContactImportColumnDto[]): string | null {
-  const phoneFields = fields.filter(
-    (field) => field.field.type === "REGULAR" && field.field.field === RegularContactImportFieldDto.PhoneNumber,
-  );
+export function validateContactImportFields(fields: ContactImportColumnInput[]): string | null {
+  const phoneFields = fields.filter((field) => field.regularField === "PHONE_NUMBER");
 
   if (phoneFields.length !== 1) {
     return "Map exactly one column to Phone number.";
   }
 
-  const fieldKeys = fields.map((field) => getContactImportFieldKey(field.field));
+  const fieldKeys = fields.map(getContactImportFieldKey);
 
   if (new Set(fieldKeys).size !== fieldKeys.length) {
     return "Each contact field can only be mapped once.";
@@ -261,28 +263,26 @@ function shouldSkipFirstRow(rows: string[][]): boolean {
   return textLikeCells >= likelyHeaderCellCount && secondRowDataLikeCells > 0;
 }
 
-function toContactImportField(value: ContactImportMappingValue): TableImportFieldDto | null {
+function toContactImportField(value: ContactImportMappingValue): Omit<ContactImportColumnInput, "columnIndex"> | null {
   if (value === CONTACT_IMPORT_IGNORE) {
     return null;
   }
 
   if (value.startsWith(REGULAR_MAPPING_PREFIX)) {
     return {
-      type: "REGULAR",
-      field: value.slice(REGULAR_MAPPING_PREFIX.length) as RegularContactImportField,
+      regularField: value.slice(REGULAR_MAPPING_PREFIX.length) as RegularContactImportField,
     };
   }
 
   return {
-    type: "CUSTOM_FIELD",
-    custom_field_id: value.slice(CUSTOM_MAPPING_PREFIX.length) as Ulid,
+    customFieldId: value.slice(CUSTOM_MAPPING_PREFIX.length),
   };
 }
 
-function getContactImportFieldKey(field: TableImportFieldDto): string {
-  return field.type === "REGULAR"
-    ? `${REGULAR_MAPPING_PREFIX}${field.field}`
-    : `${CUSTOM_MAPPING_PREFIX}${field.custom_field_id}`;
+function getContactImportFieldKey(field: ContactImportColumnInput): string {
+  return field.regularField
+    ? `${REGULAR_MAPPING_PREFIX}${field.regularField}`
+    : `${CUSTOM_MAPPING_PREFIX}${field.customFieldId}`;
 }
 
 function normalizeHeader(value: string): string {
@@ -293,19 +293,19 @@ function normalizeHeader(value: string): string {
 }
 
 const contactImportHeaderFieldMap: Record<string, RegularContactImportField | undefined> = {
-  birthday: RegularContactImportFieldDto.Birthday,
-  birthdate: RegularContactImportFieldDto.Birthday,
-  dob: RegularContactImportFieldDto.Birthday,
-  email: RegularContactImportFieldDto.Email,
-  emailaddress: RegularContactImportFieldDto.Email,
-  firstname: RegularContactImportFieldDto.FirstName,
-  fname: RegularContactImportFieldDto.FirstName,
-  givenname: RegularContactImportFieldDto.FirstName,
-  lastname: RegularContactImportFieldDto.LastName,
-  lname: RegularContactImportFieldDto.LastName,
-  notes: RegularContactImportFieldDto.Notes,
-  phone: RegularContactImportFieldDto.PhoneNumber,
-  phonenumber: RegularContactImportFieldDto.PhoneNumber,
-  mobile: RegularContactImportFieldDto.PhoneNumber,
-  mobilenumber: RegularContactImportFieldDto.PhoneNumber,
+  birthday: "BIRTHDAY",
+  birthdate: "BIRTHDAY",
+  dob: "BIRTHDAY",
+  email: "EMAIL",
+  emailaddress: "EMAIL",
+  firstname: "FIRST_NAME",
+  fname: "FIRST_NAME",
+  givenname: "FIRST_NAME",
+  lastname: "LAST_NAME",
+  lname: "LAST_NAME",
+  notes: "NOTES",
+  phone: "PHONE_NUMBER",
+  phonenumber: "PHONE_NUMBER",
+  mobile: "PHONE_NUMBER",
+  mobilenumber: "PHONE_NUMBER",
 };

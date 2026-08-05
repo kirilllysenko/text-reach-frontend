@@ -1,5 +1,6 @@
 import tailwindcss from "@tailwindcss/vite";
 import { sveltekit } from "@sveltejs/kit/vite";
+import houdini from "houdini/vite";
 import type { ProxyOptions } from "vite";
 import { defineConfig } from "vite";
 
@@ -28,15 +29,10 @@ function createApiProxy(target: string): ProxyOptions {
 }
 
 export default defineConfig({
-  plugins: [tailwindcss(), sveltekit()],
+  plugins: [process.env.VITEST !== "true" && houdini(), tailwindcss(), sveltekit()],
   server: {
     proxy: {
-      "/auth": createApiProxy("http://localhost:8081"),
-      "/tenant": createApiProxy("http://localhost:8089"),
-      "^/contact(?:/|$)": createApiProxy("http://localhost:8083"),
-      "/phone": createApiProxy("http://localhost:8088"),
-      "/campaign": createApiProxy("http://localhost:8082"),
-      "/payment": createApiProxy("http://localhost:8091"),
+      "/graphql": createApiProxy("http://localhost:4000"),
     },
   },
 });

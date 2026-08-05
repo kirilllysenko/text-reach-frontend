@@ -1,6 +1,5 @@
-import { getContactUploadUrl, importContacts } from "$lib/api/contact/contact";
-import { listCustomFields } from "$lib/api/custom-field/custom-field";
-import type { CustomFieldDto, ErrorResponse } from "$lib/api/index.schemas";
+import { CustomFieldsStore, GenerateContactUploadUrlStore, ImportContactsStore } from "$houdini";
+import { toGraphQLErrorText } from "$lib/graphql/errors";
 import { notificationsState } from "$lib/state/notifications.svelte";
 import {
   buildContactImportRequest,
@@ -37,6 +36,9 @@ export function createContactImportState(table: ContactTableReloadTarget): Conta
 }
 
 class ContactImportState {
+  private readonly customFieldsQuery = new CustomFieldsStore();
+  private readonly generateUploadUrlMutation = new GenerateContactUploadUrlStore();
+  private readonly importContactsMutation = new ImportContactsStore();
   step = $state<ContactImportStep>("setup");
   file = $state<File | null>(null);
   contactGroupIds = $state<string[]>([]);
@@ -45,7 +47,7 @@ class ContactImportState {
   columns = $state<ContactImportPreviewColumn[]>([]);
   skipFirstRow = $state(false);
   mappings = $state<Record<number, ContactImportMappingValue>>({});
-  customFields = $state<CustomFieldDto[]>([]);
+  customFields = $state<{ id: string; name: string }[]>([]);
   customFieldsLoading = $state(false);
   customFieldsLoaded = $state(false);
   setupSubmitting = $state(false);
@@ -118,14 +120,14 @@ class ContactImportState {
     this.customFieldsLoading = true;
 
     try {
-      const response = await listCustomFields({ credentials: "include" });
+      const response = await this.customFieldsQuery.fetch();
 
-      if (response.status !== 200) {
-        this.error = toErrorText(response.data as ErrorResponse, "Could not load custom fields.");
+      if (response.errors || !response.data) {
+        this.error = toGraphQLErrorText(response.errors);
         return;
       }
 
-      this.customFields = response.data;
+      this.customFields = response.data.customFields.map((field) => ({ id: field.id, name: field.name }));
       this.customFieldsLoaded = true;
     } catch {
       this.error = "Could not load custom fields.";
@@ -145,14 +147,16 @@ class ContactImportState {
     try {
       await this.loadCustomFields();
       const parsedFile = await parseContactImportFile(this.file);
-      const uploadResponse = await getContactUploadUrl({ filename: this.file.name }, { credentials: "include" });
+      const uploadResponse = await this.generateUploadUrlMutation.mutate({ filename: this.file.name });
 
-      if (uploadResponse.status !== 200) {
-        this.error = toErrorText(uploadResponse.data as ErrorResponse, "Could not start contact file upload.");
+      if (uploadResponse.errors || !uploadResponse.data) {
+        this.error = toGraphQLErrorText(uploadResponse.errors);
         return;
       }
 
-      const uploadResult = await fetch(uploadResponse.data.url, {
+      const upload = uploadResponse.data.generateContactUploadUrl;
+
+      const uploadResult = await fetch(upload.url, {
         method: "PUT",
         headers: {
           "Content-Type": this.file.type || getFallbackContentType(this.file),
@@ -166,7 +170,7 @@ class ContactImportState {
       }
 
       this.applyParsedFile(parsedFile);
-      this.uploadedFilename = uploadResponse.data.newFilename;
+      this.uploadedFilename = upload.newFilename;
       this.step = "mapping";
     } catch (error) {
       this.error = error instanceof Error ? error.message : "Could not prepare contacts import.";
@@ -193,16 +197,16 @@ class ContactImportState {
           value: this.mappings[column.index] ?? CONTACT_IMPORT_IGNORE,
         })),
       });
-      const response = await importContacts(request, { credentials: "include" });
+      const response = await this.importContactsMutation.mutate({ input: request });
 
-      if (response.status !== 200) {
-        this.error = toErrorText(response.data as ErrorResponse, "Could not import contacts.");
+      if (response.errors || !response.data) {
+        this.error = toGraphQLErrorText(response.errors);
         return;
       }
 
-      this.importedCount = response.data.importedCount;
+      this.importedCount = response.data.importContacts.contactImport.importedRows;
       this.step = "complete";
-      notificationsState.showInfo(`Imported ${response.data.importedCount} contacts.`);
+      notificationsState.showInfo("Contact import has been queued.");
       await this.options.refreshTable();
     } catch (error) {
       this.error = error instanceof Error ? error.message : "Could not import contacts.";
@@ -219,10 +223,6 @@ class ContactImportState {
       parsedFile.columns.map((column) => [column.index, inferContactImportMapping(column, this.customFields)]),
     );
   }
-}
-
-function toErrorText(error: ErrorResponse | undefined, fallback: string): string {
-  return error?.errorDescription ?? fallback;
 }
 
 function getFallbackContentType(file: File): string {

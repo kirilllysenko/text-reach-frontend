@@ -1,20 +1,17 @@
 import { goto } from "$app/navigation";
-import {
-  createContactGroup,
-  type CreateContactGroupResponse,
-  type UpdateContactGroupResponse,
-  updateContactGroup,
-} from "$lib/api/contact-group/contact-group";
-import type { Ulid } from "$lib/api/index.schemas";
+import { cache, ContactGroupNameStore, CreateContactGroupStore, UpdateContactGroupStore } from "$houdini";
 import { PATH_CONTACT_GROUP } from "$lib/app/paths";
 import { createForm } from "$lib/form/form.svelte";
 import { networkErrorText } from "$lib/form/errors";
+import { toGraphQLErrorText } from "$lib/graphql/errors";
 import { notificationsState } from "$lib/state/notifications.svelte";
 import { z } from "zod";
 
 export type FormMode = "create" | "edit";
 
-type ContactGroupSubmitResponse = CreateContactGroupResponse | UpdateContactGroupResponse | ErrorSubmitResponse;
+type ContactGroupSubmitResponse = SuccessSubmitResponse | ErrorSubmitResponse;
+
+type SuccessSubmitResponse = Record<string, never>;
 
 type ErrorSubmitResponse = {
   data: {
@@ -35,6 +32,9 @@ export const initialValues: FormValues = {
 
 let formMode: FormMode = "create";
 let contactGroupId: string | undefined;
+const contactGroupNameFragment = new ContactGroupNameStore();
+const createContactGroupMutation = new CreateContactGroupStore();
+const updateContactGroupMutation = new UpdateContactGroupStore();
 
 export const form = createForm<FormValues, ContactGroupSubmitResponse>(initialValues, validator, submit);
 
@@ -51,32 +51,39 @@ export function setContactGroupFormValues(values: FormValues): void {
 async function submit(values: FormValues): Promise<ContactGroupSubmitResponse> {
   try {
     if (formMode === "create") {
-      const response = await createContactGroup({ name: values.name.trim() }, { credentials: "include" });
+      const result = await createContactGroupMutation.mutate({ input: { name: values.name.trim() } });
 
-      if (response.status === 200) {
-        notificationsState.showInfo("Contact group has been created");
-        await goto(PATH_CONTACT_GROUP);
+      if (result.errors || !result.data?.createContactGroup) {
+        return formErrorResponse(toGraphQLErrorText(result.errors));
       }
 
-      return response;
+      cache.markStale("ContactGroupConnection");
+      notificationsState.showInfo("Contact group has been created");
+      await goto(PATH_CONTACT_GROUP);
+      return {};
     }
 
     if (!contactGroupId) {
       return formErrorResponse("Contact group was not found.");
     }
 
-    const response = await updateContactGroup(
-      contactGroupId as Ulid,
-      { name: values.name.trim() },
-      { credentials: "include" },
-    );
+    const name = values.name.trim();
+    const result = await updateContactGroupMutation.mutate({
+      id: contactGroupId,
+      input: { name },
+    });
 
-    if (response.status === 200) {
-      notificationsState.showInfo("Contact group has been updated");
-      await goto(PATH_CONTACT_GROUP);
+    if (result.errors || !result.data?.updateContactGroup) {
+      return formErrorResponse(toGraphQLErrorText(result.errors));
     }
 
-    return response;
+    cache.get("ContactGroup", { id: contactGroupId }).write({
+      fragment: contactGroupNameFragment,
+      data: { id: contactGroupId, name },
+    });
+    notificationsState.showInfo("Contact group has been updated");
+    await goto(PATH_CONTACT_GROUP);
+    return {};
   } catch {
     return formErrorResponse(networkErrorText);
   }

@@ -12,7 +12,7 @@
 
 <section class="space-y-4">
   <div class="bg-emerald-50 text-emerald-900 rounded-xl border border-emerald-200 p-4 text-sm">
-    Imported <span class="font-semibold">{contactImport.importedCount}</span> contacts.
+    Contact import has been queued. Processing continues in the background.
   </div>
 
   <div class="flex justify-end">

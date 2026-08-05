@@ -1,4 +1,3 @@
-import type { MessageDto, PageMessageDtoItemsItem } from "$lib/api/index.schemas";
 import {
   messageStatusLabelMap,
   type MessageStatusValue,
@@ -24,19 +23,31 @@ export function formatMessageDate(value?: string | null): string {
   return dateTimeFormatter.format(date);
 }
 
-export function toMessageViewModel(message: MessageDto | PageMessageDtoItemsItem): MessageViewModel {
+interface MessageDtoLike {
+  campaign?: { id: string } | null;
+  contact?: { id: string } | null;
+  conversation?: { id: string } | null;
+  id: string;
+  sentAt?: string | null;
+  status: MessageStatusValue;
+  tenantPhone: { id: string };
+  tenantPhoneNumber: string;
+  text: string;
+}
+
+export function toMessageViewModel(message: MessageDtoLike): MessageViewModel {
   const status = message.status as MessageStatusValue;
 
   return {
     id: message.id,
-    campaignId: message.campaignId ?? "",
-    contactId: message.contactId ?? "",
-    conversationId: message.conversationId ?? "",
+    campaignId: message.campaign?.id ?? "",
+    contactId: message.contact?.id ?? "",
+    conversationId: message.conversation?.id ?? "",
     sentAt: message.sentAt ?? "",
     sentAtDisplay: formatMessageDate(message.sentAt),
     status,
     statusLabel: messageStatusLabelMap[status],
-    tenantPhoneId: message.tenantPhoneId,
+    tenantPhoneId: message.tenantPhone.id,
     tenantPhoneNumber: message.tenantPhoneNumber,
     text: message.text,
   };

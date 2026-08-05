@@ -1,8 +1,10 @@
 import { goto } from "$app/navigation";
-import { checkSession, signIn, type SignInResponse } from "$lib/api/auth/auth";
+import { CheckSessionStore, SignInStore } from "$houdini";
 import { PATH_DASHBOARD } from "$lib/app/paths";
 import { createForm } from "$lib/form/form.svelte";
+import { networkErrorText } from "$lib/form/errors";
 import { PasswordSchema } from "$lib/form/validators";
+import { toGraphQLErrorText } from "$lib/graphql/errors";
 import { z } from "zod";
 
 export const validator = z.object({
@@ -17,21 +19,35 @@ export const initialValues: FormValues = {
   password: "",
 };
 
-export const form = createForm<FormValues, SignInResponse>(initialValues, validator, submit);
+type SubmitResponse = Record<string, never> | { data: { errorDescription: string }; status: 0 };
+
+const checkSessionQuery = new CheckSessionStore();
+const signInMutation = new SignInStore();
+
+export const form = createForm<FormValues, SubmitResponse>(initialValues, validator, submit);
 
 export async function redirectActiveSession(): Promise<void> {
-  const response = await checkSession({ credentials: "include" });
-  if (response.status === 200) {
+  const response = await checkSessionQuery.fetch();
+  if (!response.errors && response.data?.checkSession) {
     await goto(PATH_DASHBOARD);
   }
 }
 
-async function submit(values: FormValues): Promise<SignInResponse> {
-  const response = await signIn(values, { credentials: "include" });
+async function submit(values: FormValues): Promise<SubmitResponse> {
+  try {
+    const response = await signInMutation.mutate({ input: values });
 
-  if (response.status === 200) {
-    await goto(PATH_DASHBOARD);
+    if (!response.errors && response.data?.signIn) {
+      await goto(PATH_DASHBOARD);
+      return {};
+    }
+
+    return formError(toGraphQLErrorText(response.errors));
+  } catch {
+    return formError(networkErrorText);
   }
+}
 
-  return response;
+function formError(errorDescription: string): SubmitResponse {
+  return { data: { errorDescription }, status: 0 };
 }

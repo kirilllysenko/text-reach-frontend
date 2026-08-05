@@ -1,0 +1,84 @@
+query Contacts(
+  $after: String
+  $before: String
+  $filter: ContactFilterInput
+  $first: Int
+  $last: Int
+  $offset: Int
+  $sortBy: [ContactSortByInput!]! = []
+) @cache(policy: NetworkOnly) {
+  contacts(
+    after: $after
+    before: $before
+    filter: $filter
+    first: $first
+    last: $last
+    offset: $offset
+    sortBy: $sortBy
+  ) {
+    edges {
+      node {
+        birthday
+        contactGroups {
+          id
+        }
+        email
+        firstName
+        id
+        lastName
+        notes
+        phoneNumber
+      }
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+      hasPreviousPage
+      startCursor
+    }
+    totalCount
+  }
+}
+
+query CustomFields @cache(policy: CacheOrNetwork) {
+  customFields {
+    fieldType
+    id
+    name
+    position
+  }
+}
+
+query CustomField($id: Ulid!) @cache(policy: CacheAndNetwork) {
+  customField(id: $id) {
+    fieldType
+    id
+    name
+    position
+  }
+}
+
+mutation CreateCustomField($input: CustomFieldWriteInput!) {
+  createCustomField(input: $input)
+}
+
+mutation UpdateCustomFieldName($id: Ulid!, $name: String!) {
+  updateCustomFieldName(id: $id, name: $name)
+}
+
+mutation GenerateContactUploadUrl($filename: String!) {
+  generateContactUploadUrl(filename: $filename) {
+    newFilename
+    url
+  }
+}
+
+mutation ImportContacts($input: ContactImportInput!) {
+  importContacts(input: $input) {
+    contactImport {
+      id
+      importedRows
+      status
+    }
+  }
+}

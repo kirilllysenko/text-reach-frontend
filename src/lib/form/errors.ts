@@ -1,6 +1,16 @@
-import type { ErrorCode } from "$lib/api/index.schemas";
-
-type ApiErrorCode = ErrorCode;
+export type ApiErrorCode =
+  | "ACCOUNT_ALREADY_EXISTS"
+  | "INTERNAL_ERROR"
+  | "INVALID_VALUE"
+  | "NOT_FOUND"
+  | "SESSION_CLIENT_CHANGED"
+  | "SESSION_EXPIRED"
+  | "SESSION_INVALID_USER"
+  | "TEN_DLC_BRAND_REQUIRED"
+  | "TOO_MANY_EMAIL_CODE_REQUESTS"
+  | "TOO_MANY_PHONE_CODE_REQUESTS"
+  | "VALUE_REQUIRED"
+  | (string & {});
 
 export const defaultErrorText = "Something went wrong. Please try again.";
 export const networkErrorText = "Please check your internet connection and try again.";

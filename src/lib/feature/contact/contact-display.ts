@@ -14,7 +14,7 @@ export function toContactViewModel(dto: ContactDtoLike, index: number): ContactV
     email: dto.email ?? "",
     birthday: formatBirthday(dto.birthday),
     notes: dto.notes ?? "",
-    contactGroupIds: dto.contactGroupIds ?? [],
+    contactGroupIds: dto.contactGroups?.map((group) => group.id) ?? [],
   };
 }
 

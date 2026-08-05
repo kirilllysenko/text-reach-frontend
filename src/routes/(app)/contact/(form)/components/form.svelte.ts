@@ -1,21 +1,18 @@
 import { goto } from "$app/navigation";
-import {
-  createContact,
-  type CreateContactResponse,
-  type UpdateContactResponse,
-  updateContact,
-} from "$lib/api/contact/contact";
-import type { ContactCreateDto, CustomFieldDto, Ulid } from "$lib/api/index.schemas";
+import { resolve } from "$app/paths";
+import { cache, graphql } from "$houdini";
+import type { ContactWriteInput } from "$houdini/graphql/inputs";
 import { PATH_CONTACT } from "$lib/app/paths";
 import { createForm } from "$lib/form/form.svelte";
 import { networkErrorText } from "$lib/form/errors";
+import { toGraphQLErrorText } from "$lib/graphql/errors";
 import { notificationsState } from "$lib/state/notifications.svelte";
 import { z } from "zod";
 
 export type FormMode = "create" | "edit";
 
-type ContactSubmitResponse = CreateContactResponse | UpdateContactResponse | ErrorSubmitResponse;
-type CustomFieldOption = Pick<CustomFieldDto, "id">;
+type ContactSubmitResponse = Record<string, never> | ErrorSubmitResponse;
+type CustomFieldOption = { id: string };
 
 type ErrorSubmitResponse = {
   data: {
@@ -24,20 +21,24 @@ type ErrorSubmitResponse = {
   status: 0;
 };
 
-export const validator = z.object({
+export const contactFormValidator = z.object({
   birthday: z.string(),
   contactGroupIds: z.array(z.string()),
   customFieldValues: z.record(z.string(), z.string()),
-  email: z.string(),
+  email: z
+    .string()
+    .trim()
+    .refine((value) => value === "" || z.email().safeParse(value).success, "Enter a valid email address"),
   firstName: z.string(),
   lastName: z.string(),
   notes: z.string(),
   phoneNumber: z.string().trim().min(1, "Required"),
 });
 
-export type FormValues = z.infer<typeof validator>;
+export type ContactFormValues = z.infer<typeof contactFormValidator>;
+type ContactValuesWithoutCustomFields = Omit<ContactFormValues, "customFieldValues">;
 
-export const initialValues: FormValues = {
+export const initialValues: ContactFormValues = {
   birthday: "",
   contactGroupIds: [],
   customFieldValues: {},
@@ -48,60 +49,177 @@ export const initialValues: FormValues = {
   phoneNumber: "",
 };
 
-let formMode: FormMode = "create";
-let contactId: string | undefined;
-let customFields: CustomFieldOption[] = [];
-
-export const form = createForm<FormValues, ContactSubmitResponse>(initialValues, validator, submit);
-
-export function configureContactForm(options: { id?: string; mode: FormMode }): void {
-  formMode = options.mode;
-  contactId = options.id;
-  customFields = [];
-  form.setValues(initialValues);
+interface ContactFormOptions {
+  id?: string;
+  mode: FormMode;
 }
 
-export function setContactCustomFields(fields: CustomFieldOption[]): void {
-  customFields = fields;
-  const values = form.toValues();
+export function createContactForm(options: ContactFormOptions) {
+  const createContactMutation = graphql(`
+    mutation CreateContact($input: ContactWriteInput!) {
+      createContact(input: $input)
+    }
+  `);
+  const updateContactMutation = graphql(`
+    mutation UpdateContact($id: Ulid!, $input: ContactWriteInput!) {
+      updateContact(id: $id, input: $input)
+    }
+  `);
 
-  form.setValues({
-    ...values,
-    customFieldValues: normalizeCustomFieldValues(values.customFieldValues),
-  });
-}
+  let customFields: CustomFieldOption[] = [];
+  let contactReady = $state(options.mode === "create");
+  let customFieldsReady = $state(false);
+  let pageLoading = $state(false);
+  let pageReady = $state(false);
+  let initialPayload = $state("");
+  let initialContactValues: ContactValuesWithoutCustomFields = {
+    birthday: initialValues.birthday,
+    contactGroupIds: initialValues.contactGroupIds,
+    email: initialValues.email,
+    firstName: initialValues.firstName,
+    lastName: initialValues.lastName,
+    notes: initialValues.notes,
+    phoneNumber: initialValues.phoneNumber,
+  };
+  let initialCustomFieldValues: Record<string, string> = {};
 
-export function setContactFormValues(values: FormValues): void {
-  form.setValues({
-    ...values,
-    customFieldValues: normalizeCustomFieldValues(values.customFieldValues),
-  });
-}
+  const form = createForm<ContactFormValues, ContactSubmitResponse>(initialValues, contactFormValidator, submit);
 
-export function serializeContactPayload(): string {
-  return JSON.stringify(toContactPayload());
-}
-
-export function toggleContactGroup(groupId: string): void {
-  form.contactGroupIds.value = form.contactGroupIds.value.includes(groupId)
-    ? form.contactGroupIds.value.filter((value) => value !== groupId)
-    : [...form.contactGroupIds.value, groupId];
-}
-
-function normalizeCustomFieldValues(values: Record<string, string>): Record<string, string> {
-  if (customFields.length === 0) {
-    return values;
+  function startPageLoad(): void {
+    pageLoading = true;
+    pageReady = false;
+    form.error = null;
   }
 
-  return Object.fromEntries(customFields.map((field) => [field.id, values[field.id] ?? ""]));
+  function finishPageLoad(): void {
+    pageLoading = false;
+  }
+
+  function setPageError(error: string): void {
+    form.error = error;
+    pageReady = false;
+  }
+
+  function setPageReady(): void {
+    pageReady = true;
+    markCleanWhenReady();
+  }
+
+  function setContact(values: ContactValuesWithoutCustomFields): void {
+    initialContactValues = values;
+    form.setValues({
+      ...values,
+      customFieldValues: form.toValues().customFieldValues,
+    });
+    contactReady = true;
+    markCleanWhenReady();
+  }
+
+  function setCustomFields(fields: CustomFieldOption[], values: Record<string, string> = {}): void {
+    customFields = fields;
+    const currentValues = form.toValues();
+    initialCustomFieldValues = Object.fromEntries(fields.map((field) => [field.id, values[field.id] ?? ""]));
+
+    form.setValues({
+      ...currentValues,
+      customFieldValues: initialCustomFieldValues,
+    });
+    customFieldsReady = true;
+    markCleanWhenReady();
+  }
+
+  function setCustomFieldsError(error: string): void {
+    customFieldsReady = false;
+    form.error = error;
+  }
+
+  function toggleContactGroup(groupId: string): void {
+    form.contactGroupIds.value = form.contactGroupIds.value.includes(groupId)
+      ? form.contactGroupIds.value.filter((value) => value !== groupId)
+      : [...form.contactGroupIds.value, groupId];
+  }
+
+  function serialize(): string {
+    return JSON.stringify(toContactWriteInput(form.toValues(), customFields));
+  }
+
+  function markCleanWhenReady(): void {
+    if (!contactReady || !customFieldsReady || !pageReady) {
+      return;
+    }
+
+    initialPayload = JSON.stringify(
+      toContactWriteInput(
+        {
+          ...initialContactValues,
+          customFieldValues: initialCustomFieldValues,
+        },
+        customFields,
+      ),
+    );
+  }
+
+  async function submit(values: ContactFormValues): Promise<ContactSubmitResponse> {
+    try {
+      const input = toContactWriteInput(values, customFields);
+
+      if (options.mode === "create") {
+        const response = await createContactMutation.mutate({ input });
+        if (response.errors || !response.data?.createContact) {
+          return formErrorResponse(toGraphQLErrorText(response.errors));
+        }
+      } else {
+        if (!options.id) {
+          return formErrorResponse("Contact was not found.");
+        }
+
+        const response = await updateContactMutation.mutate({ id: options.id, input });
+        if (response.errors || !response.data?.updateContact) {
+          return formErrorResponse(toGraphQLErrorText(response.errors));
+        }
+      }
+
+      cache.markStale("ContactConnection");
+      notificationsState.showInfo(options.mode === "create" ? "Contact has been created" : "Contact has been updated");
+      await goto(resolve(PATH_CONTACT));
+      return {};
+    } catch {
+      return formErrorResponse(networkErrorText);
+    }
+  }
+
+  return {
+    form,
+    finishPageLoad,
+    setContact,
+    setCustomFields,
+    setCustomFieldsError,
+    setPageError,
+    setPageReady,
+    startPageLoad,
+    toggleContactGroup,
+    get dirty() {
+      return contactReady && customFieldsReady && pageReady && serialize() !== initialPayload;
+    },
+    get pageLoading() {
+      return pageLoading;
+    },
+    get pageReady() {
+      return pageReady;
+    },
+    get ready() {
+      return contactReady && customFieldsReady && pageReady;
+    },
+  };
 }
 
-function optionalText(value: string): string | null {
-  const normalized = value.trim();
-  return normalized || null;
-}
+export type ContactFormController = ReturnType<typeof createContactForm>;
+export type ContactForm = ContactFormController["form"];
 
-function toContactPayload(values = form.toValues()): ContactCreateDto {
+export function toContactWriteInput(
+  values: ContactFormValues,
+  customFields: readonly CustomFieldOption[] = Object.keys(values.customFieldValues).map((id) => ({ id })),
+): ContactWriteInput {
   return {
     birthday: optionalText(values.birthday),
     contactGroupIds: values.contactGroupIds,
@@ -117,41 +235,14 @@ function toContactPayload(values = form.toValues()): ContactCreateDto {
   };
 }
 
-async function submit(values: FormValues): Promise<ContactSubmitResponse> {
-  try {
-    if (formMode === "create") {
-      const response = await createContact(toContactPayload(values), { credentials: "include" });
-
-      if (response.status === 200) {
-        notificationsState.showInfo("Contact has been created");
-        await goto(PATH_CONTACT);
-      }
-
-      return response;
-    }
-
-    if (!contactId) {
-      return formErrorResponse("Contact was not found.");
-    }
-
-    const response = await updateContact(contactId as Ulid, toContactPayload(values), { credentials: "include" });
-
-    if (response.status === 200) {
-      notificationsState.showInfo("Contact has been updated");
-      await goto(PATH_CONTACT);
-    }
-
-    return response;
-  } catch {
-    return formErrorResponse(networkErrorText);
-  }
+function optionalText(value: string): string | null {
+  const normalized = value.trim();
+  return normalized || null;
 }
 
 function formErrorResponse(errorDescription: string): ErrorSubmitResponse {
   return {
-    data: {
-      errorDescription,
-    },
+    data: { errorDescription },
     status: 0,
   };
 }

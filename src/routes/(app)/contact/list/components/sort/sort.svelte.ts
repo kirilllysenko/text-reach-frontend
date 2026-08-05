@@ -1,14 +1,21 @@
-import type { ContactSortDto } from "$lib/api/index.schemas";
-import { TableBackendSort } from "$lib/components/table";
+import type { ContactSortByInput } from "$houdini/graphql/inputs";
+import { sortDefinition, type DataTableSort } from "$lib/components/table";
 
-const contactSort = new TableBackendSort<ContactSortDto>();
+const definitions = [
+  sortDefinition({ sortId: "lastName", fieldId: "lastName", label: "Last name" }),
+  sortDefinition({ sortId: "firstName", fieldId: "firstName", label: "First name" }),
+  sortDefinition({ sortId: "phoneNumber", fieldId: "phoneNumber", label: "Phone" }),
+  sortDefinition({ sortId: "email", fieldId: "email", label: "Email" }),
+  sortDefinition({ sortId: "birthday", fieldId: "birthday", label: "Birthday" }),
+] as const;
 
-export const contactTableSorts = contactSort.define([
-  contactSort.sort({ sortId: "lastName", fieldId: "lastName", label: "Last name" }),
-  contactSort.sort({ sortId: "firstName", fieldId: "firstName", label: "First name" }),
-  contactSort.sort({ sortId: "phoneNumber", fieldId: "phoneNumber", label: "Phone" }),
-  contactSort.sort({ sortId: "email", fieldId: "email", label: "Email" }),
-  contactSort.sort({ sortId: "birthday", fieldId: "birthday", label: "Birthday" }),
-] as const);
+export const contactTableSorts = {
+  definitions,
+  toBackend(sorts: readonly DataTableSort[]): ContactSortByInput[] {
+    return sorts.map((sort) => ({
+      [sort.sortId]: { direction: sort.direction === "ascending" ? "ASC" : "DESC" },
+    }));
+  },
+};
 
-export const contactSortDefinitions = contactTableSorts.definitions;
+export const contactSortDefinitions = definitions;

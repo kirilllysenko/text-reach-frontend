@@ -1,0 +1,55 @@
+fragment ContactGroupName on ContactGroup {
+  id
+  name
+}
+
+query ContactGroup($id: Ulid!) @cache(policy: CacheAndNetwork) {
+  contactGroup(id: $id) {
+    id
+    contactCount
+    name
+  }
+}
+
+query ContactGroups(
+  $after: String
+  $before: String
+  $filter: ContactGroupFilterInput
+  $first: Int
+  $last: Int
+  $offset: Int
+  $sortBy: [ContactGroupSortByInput!]! = []
+) @cache(policy: CacheOrNetwork) {
+  contactGroups(
+    after: $after
+    before: $before
+    filter: $filter
+    first: $first
+    last: $last
+    offset: $offset
+    sortBy: $sortBy
+  ) {
+    edges {
+      node {
+        id
+        contactCount
+        name
+      }
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+      hasPreviousPage
+      startCursor
+    }
+    totalCount
+  }
+}
+
+mutation CreateContactGroup($input: ContactGroupWriteInput!) {
+  createContactGroup(input: $input)
+}
+
+mutation UpdateContactGroup($id: Ulid!, $input: ContactGroupWriteInput!) {
+  updateContactGroup(id: $id, input: $input)
+}

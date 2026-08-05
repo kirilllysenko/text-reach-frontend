@@ -15,6 +15,8 @@ export const PATH_PAYMENT = "/payment";
 export const PATH_PAYMENT_TOP_UP = "/payment/top-up";
 export const PATH_PAYMENT_TRANSACTION = "/payment/transaction";
 export const PATH_PROFILE = "/profile";
+export const PATH_USER = "/user";
+export const PATH_USER_ADD = "/user/add";
 
 export const CONTACT_SECTION_PATH = [PATH_CONTACT, PATH_CONTACT_GROUP, PATH_SMART_GROUP, PATH_CUSTOM_FIELD];
 
@@ -32,4 +34,8 @@ export function buildContactGroupEditPath(id: string): string {
 
 export function buildCampaignMessagesPath(id: string): string {
   return `/campaign/${id}/messages`;
+}
+
+export function buildUserEditPath(id: string): string {
+  return `/user/${id}/edit`;
 }

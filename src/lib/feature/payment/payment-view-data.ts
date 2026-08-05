@@ -1,4 +1,4 @@
-import { SortDirection, type SortDirection as SortDirectionValue } from "$lib/api/index.schemas";
+import type { SortDirection$options } from "$houdini/graphql/enums";
 
 export interface WalletTransactionViewModel {
   id: string;
@@ -19,7 +19,7 @@ export type WalletTransactionSortField = "amountUsdMicros" | "createdAt" | "curr
 export interface WalletTransactionSortRule {
   id: string;
   field: WalletTransactionSortField;
-  direction: SortDirectionValue;
+  direction: SortDirection$options;
 }
 
 export const walletTransactionSortFieldOptions: WalletTransactionSortField[] = [
@@ -42,6 +42,6 @@ export const defaultWalletTransactionSortRules: WalletTransactionSortRule[] = [
   {
     id: "createdAt",
     field: "createdAt",
-    direction: SortDirection.DESC,
+    direction: "DESC",
   },
 ];

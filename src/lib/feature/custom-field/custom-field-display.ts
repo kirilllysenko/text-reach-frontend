@@ -5,7 +5,7 @@ import type {
   CustomFieldViewModel,
 } from "$lib/feature/custom-field/custom-field-view-data";
 import { customFieldTypeLabelMap } from "$lib/feature/custom-field/custom-field-view-data";
-import type { CustomFieldType } from "$lib/api/index.schemas";
+import type { CustomFieldType } from "$lib/feature/custom-field/custom-field-view-data";
 
 export function toCustomFieldViewModel(dto: CustomFieldDtoLike, index: number): CustomFieldViewModel {
   const type = dto.type ?? "TEXT";

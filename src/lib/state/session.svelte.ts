@@ -1,10 +1,16 @@
 import { goto } from "$app/navigation";
+import { CheckSessionStore, ProfileStore, SignOutStore } from "$houdini";
 import { PATH_SIGN_IN } from "$lib/app/paths";
-import type { ErrorCode, ProfileDto } from "$lib/api/index.schemas";
-import { checkSession, signOut } from "$lib/api/auth/auth";
-import { getProfile } from "$lib/api/tenant/tenant";
+import type { ApiErrorCode } from "$lib/form/errors";
+import { graphQLErrorCode } from "$lib/graphql/errors";
 
-function buildSignInHref(errorCode?: ErrorCode): string {
+export interface ProfileData {
+  accessGroups: string[];
+  email: string;
+  name?: string | null;
+}
+
+function buildSignInHref(errorCode?: ApiErrorCode): string {
   if (!errorCode) {
     return PATH_SIGN_IN;
   }
@@ -14,47 +20,50 @@ function buildSignInHref(errorCode?: ErrorCode): string {
 }
 
 class SessionState {
+  private readonly checkSessionQuery = new CheckSessionStore();
+  private readonly profileQuery = new ProfileStore();
+  private readonly signOutMutation = new SignOutStore();
   ready = $state(false);
-  profile = $state<ProfileDto | null>(null);
+  profile = $state<ProfileData | null>(null);
 
   ensureAppAccess = async (): Promise<boolean> => {
     this.ready = false;
     let response;
 
     try {
-      response = await checkSession({ credentials: "include" });
+      response = await this.checkSessionQuery.fetch();
     } catch {
       this.profile = null;
       await goto(PATH_SIGN_IN);
       return false;
     }
 
-    if (response.status === 200) {
+    if (!response.errors && response.data?.checkSession) {
       this.ready = true;
       return true;
     }
 
     this.profile = null;
-    await goto(buildSignInHref(response.data?.errorCode));
+    await goto(buildSignInHref(graphQLErrorCode(response.errors)));
     return false;
   };
 
-  loadProfile = async (): Promise<ProfileDto | null> => {
-    const response = await getProfile({ credentials: "include" });
-    if (response.status !== 200) {
+  loadProfile = async (): Promise<ProfileData | null> => {
+    const response = await this.profileQuery.fetch();
+    if (response.errors || !response.data?.profile) {
       return null;
     }
 
-    this.profile = response.data;
-    return response.data;
+    this.profile = response.data.profile;
+    return response.data.profile;
   };
 
-  applyProfile = (profile: ProfileDto): void => {
+  applyProfile = (profile: ProfileData): void => {
     this.profile = profile;
   };
 
   signOutAndRedirect = async (): Promise<void> => {
-    await signOut({ credentials: "include" });
+    await this.signOutMutation.mutate(undefined);
     this.profile = null;
     this.ready = false;
     await goto(PATH_SIGN_IN);

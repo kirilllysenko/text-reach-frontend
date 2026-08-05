@@ -1,9 +1,18 @@
-import { CampaignStatus as CampaignStatusEnum, type CampaignDto, type ContactGroupDto } from "$lib/api/index.schemas";
 import type { CampaignViewModel } from "$lib/feature/campaign/campaign-view-data";
+
+export interface CampaignDtoLike {
+  contactGroups: readonly { id: string; name: string }[];
+  id: string;
+  messageCount: number;
+  messageTemplate: string;
+  name: string;
+  sentMessageCount: number;
+  status: CampaignViewModel["status"];
+}
 
 export function mergeContactGroupNames(
   currentNames: Record<string, string>,
-  groups: ContactGroupDto[],
+  groups: readonly { id: string; name: string }[],
 ): Record<string, string> {
   const names = { ...currentNames };
 
@@ -18,9 +27,9 @@ export function mergeContactGroupNames(
   return names;
 }
 
-export function toCampaignViewModel(dto: CampaignDto, index: number): CampaignViewModel {
+export function toCampaignViewModel(dto: CampaignDtoLike, index: number): CampaignViewModel {
   const id = dto.id ?? `campaign-${index + 1}`;
-  const status = dto.status ?? CampaignStatusEnum.PENDING;
+  const status = dto.status ?? "PENDING";
   const messageCount = Math.max(dto.messageCount ?? 0, dto.sentMessageCount ?? 0);
   const sentMessageCount = Math.min(Math.max(dto.sentMessageCount ?? 0, 0), messageCount);
   const pendingMessageCount = Math.max(messageCount - sentMessageCount, 0);
@@ -33,6 +42,6 @@ export function toCampaignViewModel(dto: CampaignDto, index: number): CampaignVi
     messageCount,
     sentMessageCount,
     pendingMessageCount,
-    contactGroupIds: dto.contactGroupIds ?? [],
+    contactGroupIds: dto.contactGroups.map((group) => group.id),
   };
 }

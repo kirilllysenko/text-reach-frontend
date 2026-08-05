@@ -1,0 +1,36 @@
+<script lang="ts">
+  import { onDestroy } from "svelte";
+  import { Input } from "$lib";
+  import type { DatagridCore } from "$lib/components/table";
+  import type { UserViewModel } from "$lib/feature/user/user-view-data";
+  import { debounce } from "$lib/utils/debounce";
+
+  interface Props {
+    search: DatagridCore<UserViewModel>["handlers"]["globalSearch"];
+    value: string;
+  }
+
+  const SEARCH_DEBOUNCE_MS = 150;
+
+  let { search, value = $bindable("") }: Props = $props();
+
+  const updateTableSearch = debounce((query: string) => {
+    search.updateSearchQuery(query.trim());
+  }, SEARCH_DEBOUNCE_MS);
+
+  function updateSearch(query: string): void {
+    value = query;
+    updateTableSearch(query);
+  }
+
+  onDestroy(() => {
+    updateTableSearch.cancel();
+  });
+</script>
+
+<Input
+  class="min-w-0 grow"
+  placeholder="Search users"
+  {value}
+  oninput={(event) => updateSearch(event.currentTarget.value)}
+/>

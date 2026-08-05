@@ -1,10 +1,10 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import { CustomFieldStore } from "$houdini";
   import { BackButton, Button, Field, FieldError, FieldLabel, Input, PageTitle, Select } from "$lib";
   import { PATH_CUSTOM_FIELD } from "$lib/app/paths";
-  import type { ErrorResponse, Ulid } from "$lib/api/index.schemas";
-  import { getCustomField } from "$lib/api/custom-field/custom-field";
-  import { networkErrorText, toErrorText } from "$lib/form/errors";
+  import { networkErrorText } from "$lib/form/errors";
+  import { toGraphQLErrorText } from "$lib/graphql/errors";
   import {
     configureCustomFieldForm,
     form,
@@ -25,6 +25,7 @@
   let initialName = $state("");
   let loadingField = $state(false);
   let selectedType = $state<TypeOption>(typeOptions[0]);
+  const customFieldQuery = new CustomFieldStore();
 
   const title = $derived(mode === "create" ? "Add custom field" : "Edit custom field");
   const submitLabel = $derived(mode === "create" ? "Create" : "Save");
@@ -42,10 +43,6 @@
     }
   });
 
-  function getResponseError(error?: ErrorResponse): string {
-    return error?.errorDescription ?? toErrorText(error?.errorCode);
-  }
-
   async function loadCustomField(): Promise<void> {
     if (!id) {
       form.error = "Custom field was not found.";
@@ -54,19 +51,21 @@
     }
 
     try {
-      const response = await getCustomField(id as Ulid, { credentials: "include" });
+      const response = await customFieldQuery.fetch({ variables: { id } });
 
-      if (response.status !== 200) {
-        form.error = getResponseError(response.data);
+      if (response.errors || !response.data) {
+        form.error = toGraphQLErrorText(response.errors);
         return;
       }
 
+      const field = response.data.customField;
+
       setCustomFieldFormValues({
-        name: response.data.name,
-        type: response.data.type,
+        name: field.name,
+        type: field.fieldType,
       });
-      initialName = response.data.name.trim();
-      selectedType = getTypeOption(response.data.type);
+      initialName = field.name.trim();
+      selectedType = getTypeOption(field.fieldType);
     } catch {
       form.error = networkErrorText;
     } finally {

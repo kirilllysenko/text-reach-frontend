@@ -1,8 +1,8 @@
-import { SortDirection, type CustomFieldType, type ErrorResponse } from "$lib/api/index.schemas";
-import { listCustomFields as listCustomFieldList } from "$lib/api/custom-field/custom-field";
+import { CustomFieldsStore } from "$houdini";
 import type { DataTableFilter, DataTableLoadRequest, DataTableLoadResult, DataTableSort } from "$lib/components/table";
 import {
   customFieldSortFieldOptions,
+  type CustomFieldType,
   type CustomFieldSortField,
   type CustomFieldSortRule,
   type CustomFieldViewModel,
@@ -13,11 +13,12 @@ const defaultSortRules: CustomFieldSortRule[] = [
   {
     id: "name",
     field: "name",
-    direction: SortDirection.ASC,
+    direction: "ASC",
   },
 ];
 
 export class CustomFieldState {
+  private readonly customFieldsQuery = new CustomFieldsStore();
   totalRows = $state(0);
   loadingError = $state<string | null>(null);
   search = $state("");
@@ -46,14 +47,14 @@ export class CustomFieldState {
 
   private getFilteredFields(sorting: DataTableSort[], filters: DataTableFilter[]): CustomFieldViewModel[] {
     const sortableFields = new Set<CustomFieldSortField>(customFieldSortFieldOptions);
-    const tableSortRules = sorting
+    const tableSortRules: CustomFieldSortRule[] = sorting
       .filter((sort): sort is DataTableSort & { sortId: CustomFieldSortField } =>
         sortableFields.has(sort.sortId as CustomFieldSortField),
       )
       .map((sort) => ({
         id: sort.sortId,
         field: sort.sortId,
-        direction: sort.direction === "ascending" ? SortDirection.ASC : SortDirection.DESC,
+        direction: sort.direction === "ascending" ? "ASC" : "DESC",
       }));
 
     const typeFilters = getCustomFieldTypeFilters(filters);
@@ -66,14 +67,16 @@ export class CustomFieldState {
 
   private async load(): Promise<void> {
     try {
-      const response = await listCustomFieldList({ credentials: "include" });
+      const response = await this.customFieldsQuery.fetch();
 
-      if (response.status !== 200) {
-        this.handleResponseError(response.data as ErrorResponse);
+      if (response.errors || !response.data) {
+        this.handleResponseError();
         return;
       }
 
-      this.fields = response.data.map(toCustomFieldViewModel);
+      this.fields = response.data.customFields.map((field) =>
+        toCustomFieldViewModel({ id: field.id, name: field.name, type: field.fieldType }, 0),
+      );
       this.loadingError = null;
       this.loaded = true;
     } catch {
@@ -81,8 +84,8 @@ export class CustomFieldState {
     }
   }
 
-  private handleResponseError(error?: ErrorResponse): void {
-    this.loadingError = error?.errorDescription ?? "Could not load custom fields from API.";
+  private handleResponseError(): void {
+    this.loadingError = "Could not load custom fields from API.";
     this.fields = [];
     this.loaded = true;
   }

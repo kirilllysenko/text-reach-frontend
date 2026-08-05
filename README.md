@@ -13,13 +13,7 @@ bun install
 bun run dev
 ```
 
-The local dev server proxies API calls to the backend services on these ports:
-
-- `/auth` -> `http://localhost:8081`
-- `/tenant` -> `http://localhost:8089`
-- `/contact` -> `http://localhost:8083`
-- `/phone` -> `http://localhost:8088`
-- `/campaign` -> `http://localhost:8082`
+The local dev server proxies `/graphql` to the Hive Router at `http://localhost:4000`.
 
 ## Build
 
@@ -32,40 +26,23 @@ Build output is generated in the `build/` folder.
 
 ## API Client Generation
 
-This project uses Orval with the `fetch` client.
+This project uses Houdini and generates its GraphQL client by introspecting the running Hive Router.
 
 ```sh
-bun run generate:api
+bun run generate:graphql
 ```
 
-The script:
-
-- downloads OpenAPI specs from local backend services
-- merges them into one schema
-- runs Orval generation from `merged.yaml`
-
-Main files:
-
-- `generate-api-client.sh`
-- `orval.config.ts`
-- `src/lib/api/generated/` (generated)
+Set `HIVE_ROUTER_URL` if the router is not available at the default URL.
 
 Example usage:
 
 ```ts
-import { listCampaigns } from "$lib/api/generated/campaign/campaign";
+import { CampaignListStore } from "$houdini";
 
-const result = await listCampaigns();
-console.log(result.data, result.status, result.headers);
+const store = new CampaignListStore();
+const result = await store.fetch({ variables: { first: 25 } });
+console.log(result.data?.campaigns);
 ```
-
-Override default docs URLs via env vars:
-
-- `TENANT_API_DOCS_URL`
-- `AUTH_API_DOCS_URL`
-- `CONTACT_API_DOCS_URL`
-- `PHONE_API_DOCS_URL`
-- `CAMPAIGN_API_DOCS_URL`
 
 ## Capacitor-ready notes
 

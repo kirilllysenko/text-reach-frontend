@@ -1,9 +1,10 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
+  import { SendSignUpPhoneCodeStore } from "$houdini";
   import { Button, Input } from "$lib";
-  import { sendPhoneCode } from "$lib/api/tenant/tenant";
   import { Field, FieldError, FieldLabel } from "$lib/components/field";
-  import { defaultErrorText, networkErrorText, toErrorText } from "$lib/form/errors";
+  import { defaultErrorText, networkErrorText } from "$lib/form/errors";
+  import { toGraphQLErrorText } from "$lib/graphql/errors";
   import { notificationsState } from "$lib/state/notifications.svelte";
   import { Countdown } from "$lib/utils/countdown.svelte";
   import { normalizePhoneNumber, OTP_LENGTH, PhoneNumberSchema } from "$lib/form/validators";
@@ -14,6 +15,7 @@
   let codeLoading = $state(false);
 
   const countdown = new Countdown();
+  const sendPhoneCodeMutation = new SendSignUpPhoneCodeStore();
 
   async function sendCodeClick(): Promise<void> {
     const phoneResult = PhoneNumberSchema.safeParse(phoneNumber.value);
@@ -26,17 +28,16 @@
     codeLoading = true;
 
     try {
-      const response = await sendPhoneCode(
-        { phoneNumber: normalizePhoneNumber(phoneNumber.value) },
-        { credentials: "include" },
-      );
+      const response = await sendPhoneCodeMutation.mutate({
+        phoneNumber: normalizePhoneNumber(phoneNumber.value),
+      });
 
-      if (response.status === 200) {
+      if (!response.errors && response.data?.sendSignUpPhoneCode) {
         countdown.start(60);
         return;
       }
 
-      notificationsState.showError(toErrorText(response.data.errorCode));
+      notificationsState.showError(toGraphQLErrorText(response.errors));
     } catch {
       notificationsState.showError(networkErrorText);
     } finally {

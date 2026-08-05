@@ -1,6 +1,6 @@
-import { MessageStatus, SortDirection, type SortDirection as SortDirectionValue } from "$lib/api/index.schemas";
+import type { MessageStatus$options, SortDirection$options } from "$houdini/graphql/enums";
 
-export type MessageStatusValue = (typeof MessageStatus)[keyof typeof MessageStatus];
+export type MessageStatusValue = MessageStatus$options;
 
 export interface MessageViewModel {
   id: string;
@@ -21,19 +21,16 @@ export type MessageSortField = "sentAt" | "status" | "tenantPhoneNumber" | "text
 export interface MessageSortRule {
   id: string;
   field: MessageSortField;
-  direction: SortDirectionValue;
+  direction: SortDirection$options;
 }
 
-export const messageStatusOptions: MessageStatusValue[] = [
-  MessageStatus.PENDING,
-  MessageStatus.SENT,
-  MessageStatus.FAILED,
-];
+export const messageStatusOptions: MessageStatusValue[] = ["PENDING", "QUEUED", "SENT", "FAILED"];
 
 export const messageStatusLabelMap: Record<MessageStatusValue, string> = {
-  [MessageStatus.PENDING]: "Pending",
-  [MessageStatus.SENT]: "Sent",
-  [MessageStatus.FAILED]: "Failed",
+  PENDING: "Pending",
+  QUEUED: "Queued",
+  SENT: "Sent",
+  FAILED: "Failed",
 };
 
 export const messageSortFieldOptions: MessageSortField[] = ["sentAt", "status", "tenantPhoneNumber", "text"];
@@ -49,6 +46,6 @@ export const defaultMessageSortRules: MessageSortRule[] = [
   {
     id: "sentAt",
     field: "sentAt",
-    direction: SortDirection.DESC,
+    direction: "DESC",
   },
 ];

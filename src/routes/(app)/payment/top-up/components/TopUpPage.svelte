@@ -1,15 +1,24 @@
 <script lang="ts">
   import { onDestroy, onMount } from "svelte";
+  import { CreateTopupCheckoutSessionStore, PaymentConfigStore } from "$houdini";
   import { loadStripe, type StripeCheckoutLoadActionsSuccess, type StripePaymentElement } from "@stripe/stripe-js";
   import { Button, Input, PageTitle } from "$lib";
-  import { getConfig, createCheckoutSession } from "$lib/api/default/default";
-  import type { ErrorResponse, PaymentConfigDto } from "$lib/api/index.schemas";
   import { PATH_PAYMENT } from "$lib/app/paths";
   import { dollarsToUsdMicros, formatUsdMicros } from "$lib/feature/payment/payment-display";
 
   const PRESET_AMOUNTS = [10, 25, 50, 100];
 
-  let paymentConfig = $state<PaymentConfigDto | null>(null);
+  interface PaymentConfigData {
+    currency: string;
+    maxTopupUsdMicros: number;
+    minTopupUsdMicros: number;
+    stripePublishableKey: string;
+  }
+
+  const paymentConfigQuery = new PaymentConfigStore();
+  const createCheckoutSessionMutation = new CreateTopupCheckoutSessionStore();
+
+  let paymentConfig = $state<PaymentConfigData | null>(null);
   let loadingConfig = $state(false);
   let startingSession = $state(false);
   let confirming = $state(false);
@@ -44,17 +53,17 @@
     loadingConfig = true;
 
     try {
-      const response = await getConfig({ credentials: "include" });
+      const response = await paymentConfigQuery.fetch();
 
-      if (response.status !== 200) {
-        handleError(response.data as ErrorResponse, "Could not load payment settings.");
+      if (response.errors || !response.data) {
+        handleError("Could not load payment settings.");
         return;
       }
 
-      paymentConfig = response.data;
+      paymentConfig = response.data.paymentConfig;
       error = null;
     } catch {
-      handleError(undefined, "Could not load payment settings.");
+      handleError("Could not load payment settings.");
     } finally {
       loadingConfig = false;
     }
@@ -73,15 +82,16 @@
     paymentElement = null;
 
     try {
-      const response = await createCheckoutSession(
-        { amountUsdMicros: selectedAmountMicros },
-        { credentials: "include" },
-      );
+      const response = await createCheckoutSessionMutation.mutate({
+        input: { amountUsdMicros: selectedAmountMicros },
+      });
 
-      if (response.status !== 200) {
-        handleError(response.data as ErrorResponse, "Could not start top up.");
+      if (response.errors || !response.data) {
+        handleError("Could not start top up.");
         return;
       }
+
+      const session = response.data.createTopupCheckoutSession;
 
       const stripe = await loadStripe(paymentConfig.stripePublishableKey);
 
@@ -91,7 +101,7 @@
       }
 
       const checkout = stripe.initCheckoutElementsSdk({
-        clientSecret: response.data.clientSecret,
+        clientSecret: session.clientSecret,
         elementsOptions: {
           appearance: {
             theme: "stripe",
@@ -109,7 +119,7 @@
       element.mount(paymentElementContainer);
       paymentElement = element;
       checkoutActions = actionsResult.actions;
-      message = `${formatUsdMicros(response.data.amountUsdMicros)} top up is ready.`;
+      message = `${formatUsdMicros(session.amountUsdMicros)} top up is ready.`;
     } catch {
       error = "Could not start top up.";
     } finally {
@@ -149,8 +159,8 @@
     customAmount = "";
   }
 
-  function handleError(apiError: ErrorResponse | undefined, fallback: string): void {
-    error = apiError?.errorDescription ?? fallback;
+  function handleError(fallback: string): void {
+    error = fallback;
   }
 </script>
 

@@ -1,15 +1,14 @@
 import { goto } from "$app/navigation";
-import {
-  createCustomField,
-  type CreateCustomFieldResponse,
-  type UpdateCustomFieldNameResponse,
-  updateCustomFieldName,
-} from "$lib/api/custom-field/custom-field";
-import type { CustomFieldType, Ulid } from "$lib/api/index.schemas";
+import { CreateCustomFieldStore, UpdateCustomFieldNameStore, cache } from "$houdini";
 import { PATH_CUSTOM_FIELD } from "$lib/app/paths";
-import { customFieldTypeLabelMap, customFieldTypeOptions } from "$lib/feature/custom-field/custom-field-view-data";
+import {
+  customFieldTypeLabelMap,
+  customFieldTypeOptions,
+  type CustomFieldType,
+} from "$lib/feature/custom-field/custom-field-view-data";
 import { createForm } from "$lib/form/form.svelte";
 import { networkErrorText } from "$lib/form/errors";
+import { toGraphQLErrorText } from "$lib/graphql/errors";
 import { notificationsState } from "$lib/state/notifications.svelte";
 import { z } from "zod";
 
@@ -20,7 +19,7 @@ export interface TypeOption {
   value: string;
 }
 
-type CustomFieldSubmitResponse = CreateCustomFieldResponse | UpdateCustomFieldNameResponse | ErrorSubmitResponse;
+type CustomFieldSubmitResponse = Record<string, never> | ErrorSubmitResponse;
 
 type ErrorSubmitResponse = {
   data: {
@@ -48,6 +47,8 @@ export const initialValues: FormValues = {
 
 let formMode: FormMode = "create";
 let customFieldId: string | undefined;
+const createCustomFieldMutation = new CreateCustomFieldStore();
+const updateCustomFieldNameMutation = new UpdateCustomFieldNameStore();
 
 export const form = createForm<FormValues, CustomFieldSubmitResponse>(initialValues, validator, submit);
 
@@ -68,38 +69,37 @@ export function setCustomFieldFormValues(values: FormValues): void {
 async function submit(values: FormValues): Promise<CustomFieldSubmitResponse> {
   try {
     if (formMode === "create") {
-      const response = await createCustomField(
-        {
+      const response = await createCustomFieldMutation.mutate({
+        input: {
           name: values.name.trim(),
-          type: values.type,
+          fieldType: values.type,
         },
-        { credentials: "include" },
-      );
+      });
 
-      if (response.status === 200) {
+      if (!response.errors && response.data?.createCustomField) {
+        cache.markStale("CustomField");
         notificationsState.showInfo("Custom field has been created");
         await goto(PATH_CUSTOM_FIELD);
+        return {};
       }
 
-      return response;
+      return formErrorResponse(toGraphQLErrorText(response.errors));
     }
 
     if (!customFieldId) {
       return formErrorResponse("Custom field was not found.");
     }
 
-    const response = await updateCustomFieldName(
-      customFieldId as Ulid,
-      { name: values.name.trim() },
-      { credentials: "include" },
-    );
+    const response = await updateCustomFieldNameMutation.mutate({ id: customFieldId, name: values.name.trim() });
 
-    if (response.status === 200) {
+    if (!response.errors && response.data?.updateCustomFieldName) {
+      cache.markStale("CustomField");
       notificationsState.showInfo("Custom field has been updated");
       await goto(PATH_CUSTOM_FIELD);
+      return {};
     }
 
-    return response;
+    return formErrorResponse(toGraphQLErrorText(response.errors));
   } catch {
     return formErrorResponse(networkErrorText);
   }

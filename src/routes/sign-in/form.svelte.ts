@@ -1,7 +1,7 @@
 import { goto } from "$app/navigation";
 import { CheckSessionStore, SignInStore } from "$houdini";
 import { PATH_DASHBOARD } from "$lib/app/paths";
-import { createForm } from "$lib/form/form.svelte";
+import { createForm, type FormSubmitResult } from "$lib/form/form.svelte";
 import { networkErrorText } from "$lib/form/errors";
 import { PasswordSchema } from "$lib/form/validators";
 import { toGraphQLErrorText } from "$lib/graphql/errors";
@@ -19,12 +19,10 @@ export const initialValues: FormValues = {
   password: "",
 };
 
-type SubmitResponse = Record<string, never> | { data: { errorDescription: string }; status: 0 };
-
 const checkSessionQuery = new CheckSessionStore();
 const signInMutation = new SignInStore();
 
-export const form = createForm<FormValues, SubmitResponse>(initialValues, validator, submit);
+export const form = createForm(initialValues, validator, submit);
 
 export async function redirectActiveSession(): Promise<void> {
   const response = await checkSessionQuery.fetch();
@@ -33,7 +31,7 @@ export async function redirectActiveSession(): Promise<void> {
   }
 }
 
-async function submit(values: FormValues): Promise<SubmitResponse> {
+async function submit(values: FormValues): Promise<FormSubmitResult> {
   try {
     const response = await signInMutation.mutate({ input: values });
 
@@ -48,6 +46,6 @@ async function submit(values: FormValues): Promise<SubmitResponse> {
   }
 }
 
-function formError(errorDescription: string): SubmitResponse {
-  return { data: { errorDescription }, status: 0 };
+function formError(error: string): FormSubmitResult {
+  return { error };
 }

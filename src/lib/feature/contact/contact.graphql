@@ -49,23 +49,6 @@ query CustomFields @cache(policy: CacheOrNetwork) {
   }
 }
 
-query CustomField($id: Ulid!) @cache(policy: CacheAndNetwork) {
-  customField(id: $id) {
-    fieldType
-    id
-    name
-    position
-  }
-}
-
-mutation CreateCustomField($input: CustomFieldWriteInput!) {
-  createCustomField(input: $input)
-}
-
-mutation UpdateCustomFieldName($id: Ulid!, $name: String!) {
-  updateCustomFieldName(id: $id, name: $name)
-}
-
 mutation GenerateContactUploadUrl($filename: String!) {
   generateContactUploadUrl(filename: $filename) {
     newFilename

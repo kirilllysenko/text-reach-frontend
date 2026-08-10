@@ -19,6 +19,7 @@
     inputId?: string;
     disabled?: boolean;
     error?: string | null;
+    loading?: boolean;
     class?: ClassValue | null;
     onChange?: (option: DropdownOption<T>) => void;
     onBlur?: () => void;
@@ -39,6 +40,7 @@
     inputId = `${uid}-input`,
     disabled = false,
     error = "",
+    loading = false,
     onChange,
     onBlur,
     labelAddon,
@@ -55,6 +57,7 @@
   const popupId = `${uid}-popup`;
   const currentLabel = $derived(value?.value ?? "");
   const popupMaxHeight = $derived(`${18 + popupVisibleItems * 36}px`);
+  const unavailable = $derived(disabled || loading);
 
   function getOptionButtons(): HTMLButtonElement[] {
     if (!popup) return [];
@@ -62,7 +65,7 @@
   }
 
   function handleInputClick(): void {
-    if (disabled) return;
+    if (unavailable) return;
     popupVisible = !popupVisible;
   }
 
@@ -159,7 +162,7 @@
 
 <svelte:document onpointerdown={handleDocumentPointerDown} />
 
-<div bind:this={container} class={["relative mb-1 min-w-10", inputProps.class]}>
+<div bind:this={container} class={["relative mb-1 min-w-10", inputProps.class]} aria-busy={loading}>
   <div class="mb-1 flex items-center">
     <label
       for={inputId}
@@ -173,8 +176,10 @@
   <div
     class={[
       `focus-within:border-sky-400 flex h-9 items-center gap-2 rounded-xl border bg-white/80 px-2 shadow-sm
-        backdrop-blur-sm focus-within:outline focus-within:outline-sky-500/60`,
-      disabled
+        backdrop-blur-sm transition-[box-shadow,background-color] duration-200 focus-within:outline
+        focus-within:outline-sky-500/60`,
+      loading && "skeleton-loading",
+      unavailable
         ? `cursor-not-allowed border-slate-300/70 bg-slate-200/90 shadow-inner
           focus-within:border-slate-300/70 focus-within:outline-none`
         : popupVisible
@@ -189,8 +194,11 @@
       {...inputProps}
       bind:this={input}
       readonly
-      class={`grow cursor-default bg-transparent text-base/7 text-slate-700
-        placeholder:text-slate-400 placeholder:italic focus:outline-none disabled:text-slate-500`}
+      class={[
+        `grow cursor-default bg-transparent text-base/7 text-slate-700 transition-opacity duration-200
+        placeholder:text-slate-400 placeholder:italic focus:outline-none disabled:text-slate-500`,
+        loading && "opacity-0",
+      ]}
       {placeholder}
       type="text"
       id={inputId}
@@ -200,7 +208,7 @@
         (event.currentTarget as HTMLInputElement).setSelectionRange(0, 0);
       }}
       onclick={handleInputClick}
-      {disabled}
+      disabled={unavailable}
       value={currentLabel}
       aria-expanded={popupVisible}
       aria-controls={popupId}
@@ -209,8 +217,8 @@
 
     {@render rightAddon?.()}
 
-    {#if !disabled}
-      <ChevronDown class="size-5 fill-slate-500" />
+    {#if !unavailable}
+      <ChevronDown class={loading ? "opacity-0" : "size-5 fill-slate-500"} />
     {/if}
   </div>
 
@@ -228,5 +236,7 @@
     />
   {/if}
 
-  <div class="cursor-default text-sm text-rose-600">{error || "\u00A0"}</div>
+  <div class={["cursor-default text-sm text-rose-600 transition-opacity duration-200", loading && "opacity-0"]}>
+    {error || "\u00A0"}
+  </div>
 </div>

@@ -15,6 +15,7 @@
     searchDebounceMs?: number;
     placeholder?: string;
     label?: string;
+    loading?: boolean;
     id?: string;
     emptyText?: string;
     loadingText?: string;
@@ -35,6 +36,7 @@
     searchDebounceMs = 250,
     placeholder = "Search options",
     label = "",
+    loading = false,
     id = `${uid}-input`,
     disabled = false,
     emptyText = "No options found",
@@ -49,7 +51,7 @@
   let container = $state<HTMLDivElement | null>(null);
   let input = $state<HTMLInputElement | null>(null);
   let displayByValue = $state<Record<string, string>>({});
-  let loading = $state(false);
+  let searching = $state(false);
   let loadingMore = $state(false);
   let popupVisible = $state(false);
   let searchQuery = $state("");
@@ -57,6 +59,7 @@
   let lastLoadMoreTrigger = "";
 
   const selectedValues = $derived(new Set(value));
+  const interactionDisabled = $derived(disabled || loading);
   const selectedOptions = $derived(
     value.map((current) => ({
       value: current,
@@ -75,12 +78,12 @@
   });
 
   $effect(() => {
-    if (!popupVisible || disabled || !onSearch) {
+    if (!popupVisible || interactionDisabled || !onSearch) {
       return;
     }
 
     const requestSequence = ++searchSequence;
-    loading = true;
+    searching = true;
     lastLoadMoreTrigger = "";
 
     const timer = setTimeout(() => {
@@ -96,14 +99,14 @@
   }
 
   function openPopup(): void {
-    if (disabled) return;
+    if (interactionDisabled) return;
     popupVisible = true;
   }
 
   function closePopup(): void {
     popupVisible = false;
     searchSequence += 1;
-    loading = false;
+    searching = false;
   }
 
   async function focusEdgeOption(direction: "ArrowDown" | "ArrowUp"): Promise<void> {
@@ -240,13 +243,13 @@
       // The data owner decides how failed searches affect the controlled options.
     } finally {
       if (requestSequence === searchSequence) {
-        loading = false;
+        searching = false;
       }
     }
   }
 
   async function loadNextPage(): Promise<void> {
-    if (!hasNextPage || loading || loadingMore || !onLoadNextPage) {
+    if (!hasNextPage || searching || loadingMore || !onLoadNextPage) {
       return;
     }
 
@@ -263,7 +266,7 @@
   }
 
   function handleVisibleRange(range: { end: number; start: number }): void {
-    if (!hasNextPage || loading || loadingMore || range.end < options.length - 1) {
+    if (!hasNextPage || searching || loadingMore || range.end < options.length - 1) {
       return;
     }
 
@@ -287,10 +290,13 @@
   {/if}
 
   <div
+    aria-busy={loading}
     class={[
       `focus-within:border-sky-400 flex min-h-9 flex-wrap items-center gap-1.5 rounded-xl border bg-white/80 px-2
-        py-1 shadow-sm backdrop-blur-sm focus-within:outline focus-within:outline-sky-500/60`,
-      disabled
+        py-1 shadow-sm backdrop-blur-sm focus-within:outline focus-within:outline-sky-500/60
+        [&>*]:transition-opacity [&>*]:duration-200`,
+      loading && "skeleton-loading [&>*]:opacity-0",
+      interactionDisabled
         ? `cursor-not-allowed border-slate-300/70 bg-slate-200/90 shadow-inner
           focus-within:border-slate-300/70 focus-within:outline-none`
         : popupVisible
@@ -307,7 +313,7 @@
           class="text-slate-500 hover:cursor-pointer hover:text-slate-800"
           aria-label={`Remove ${option.display}`}
           onclick={() => removeSelectedOption(option.value)}
-          {disabled}
+          disabled={interactionDisabled}
         >
           <Close class="size-3 fill-current" />
         </button>
@@ -325,7 +331,7 @@
       onkeydown={inputKeyDown}
       oninput={handleInput}
       onfocus={handleFocus}
-      {disabled}
+      disabled={interactionDisabled}
       value={searchQuery}
       aria-autocomplete="list"
       aria-expanded={popupVisible}
@@ -333,9 +339,9 @@
       role="combobox"
     />
 
-    {#if loading}
+    {#if searching}
       <Spinner class="size-4 animate-spin fill-none stroke-slate-500" />
-    {:else if !disabled}
+    {:else if !interactionDisabled}
       <ChevronDown class="size-5 fill-slate-500" />
     {/if}
   </div>
@@ -350,7 +356,7 @@
       role="listbox"
       aria-multiselectable="true"
     >
-      {#if loading && options.length === 0}
+      {#if searching && options.length === 0}
         <div class="flex h-full items-center justify-center text-sm text-slate-500">{loadingText}</div>
       {:else if options.length === 0}
         <div class="px-2 py-1 text-sm text-slate-500">{emptyText}</div>

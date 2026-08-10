@@ -34,8 +34,3 @@ export async function fetchAllUsers(): Promise<UserDtoLike[]> {
     after = cursor;
   }
 }
-
-export async function fetchUserById(id: string): Promise<UserDtoLike | null> {
-  const users = await fetchAllUsers();
-  return users.find((user) => user.id === id) ?? null;
-}

@@ -16,14 +16,6 @@ query Users($after: String, $first: Int, $sortBy: [TenantUserSortByInput!]! = []
   }
 }
 
-mutation CreateUser($input: CreateUserInput!) {
-  createUser(input: $input)
-}
-
-mutation UpdateUser($input: UpdateUserInput!) {
-  updateUser(input: $input)
-}
-
 mutation DeleteUser($id: Ulid!) {
   deleteUser(id: $id)
 }

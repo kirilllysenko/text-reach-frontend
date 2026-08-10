@@ -1,0 +1,3 @@
+mutation CreateContactGroup($input: ContactGroupWriteInput!) {
+  createContactGroup(input: $input)
+}

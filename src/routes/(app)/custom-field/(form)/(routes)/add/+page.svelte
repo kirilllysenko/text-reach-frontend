@@ -1,5 +1,46 @@
 <script lang="ts">
-  import CustomFieldFormPage from "../../components/CustomFieldFormPage.svelte";
+  import { goto } from "$app/navigation";
+  import { resolve } from "$app/paths";
+  import { cache, CreateCustomFieldStore } from "$houdini";
+  import { BackButton, Card, PageTitle } from "$lib";
+  import { PATH_CUSTOM_FIELD } from "$lib/app/paths";
+  import { networkErrorText } from "$lib/form/errors";
+  import type { FormSubmitResult } from "$lib/form/form.svelte";
+  import { notificationsState } from "$lib/state/notifications.svelte";
+  import CustomFieldForm from "../../components/CustomFieldForm.svelte";
+  import { createCustomFieldForm, type SubmitValues } from "../../components/form/form.svelte";
+
+  const createCustomFieldMutation = new CreateCustomFieldStore();
+  const form = createCustomFieldForm(submit);
+
+  async function submit(input: SubmitValues): Promise<FormSubmitResult> {
+    try {
+      const response = await createCustomFieldMutation.mutate({ input });
+      if (response.errors) {
+        return { error: "There was an error." };
+      }
+
+      cache.markStale("CustomField");
+      notificationsState.showInfo("Custom field has been created");
+      await goto(resolve(PATH_CUSTOM_FIELD));
+      return {};
+    } catch {
+      return { error: networkErrorText };
+    }
+  }
 </script>
 
-<CustomFieldFormPage mode="create" />
+<div
+  class="flex h-dvh min-h-0 flex-col rounded-2xl bg-linear-to-br from-slate-100 via-slate-50
+    to-stone-100 p-2 sm:h-[calc(100dvh-3rem)] sm:p-3"
+>
+  <PageTitle title="Add custom field">
+    <BackButton />
+  </PageTitle>
+
+  <div class="flex min-h-0 grow justify-center overflow-y-auto pt-4 pb-18 sm:items-start">
+    <Card variant="panel" class="w-full max-w-xl p-4 sm:p-6">
+      <CustomFieldForm {form} submitLabel="Add Custom Field" />
+    </Card>
+  </div>
+</div>

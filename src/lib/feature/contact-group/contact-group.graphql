@@ -1,16 +1,3 @@
-fragment ContactGroupName on ContactGroup {
-  id
-  name
-}
-
-query ContactGroup($id: Ulid!) @cache(policy: CacheAndNetwork) {
-  contactGroup(id: $id) {
-    id
-    contactCount
-    name
-  }
-}
-
 query ContactGroups(
   $after: String
   $before: String
@@ -44,37 +31,4 @@ query ContactGroups(
     }
     totalCount
   }
-}
-
-query ContactGroupComboboxQuery(
-  $after: String
-  $before: String
-  $filter: ContactGroupFilterInput
-  $first: Int = 50
-  $last: Int
-  $sortBy: [ContactGroupSortByInput!]! = []
-) @cache(policy: NetworkOnly) {
-  contactGroups(after: $after, before: $before, filter: $filter, first: $first, last: $last, sortBy: $sortBy)
-    @paginate {
-    edges {
-      node {
-        id
-        name
-      }
-    }
-    pageInfo {
-      endCursor
-      hasNextPage
-      hasPreviousPage
-      startCursor
-    }
-  }
-}
-
-mutation CreateContactGroup($input: ContactGroupWriteInput!) {
-  createContactGroup(input: $input)
-}
-
-mutation UpdateContactGroup($id: Ulid!, $input: ContactGroupWriteInput!) {
-  updateContactGroup(id: $id, input: $input)
 }

@@ -1,0 +1,7 @@
+query CustomFieldFormEditQuery($id: Ulid!) @cache(policy: NetworkOnly) {
+  customField(id: $id) {
+    fieldType
+    id
+    name
+  }
+}

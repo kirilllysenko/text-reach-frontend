@@ -1,5 +1,46 @@
 <script lang="ts">
-  import UserFormPage from "../../components/UserFormPage.svelte";
+  import { goto } from "$app/navigation";
+  import { resolve } from "$app/paths";
+  import { cache, CreateUserStore } from "$houdini";
+  import { BackButton, Card, PageTitle } from "$lib";
+  import { PATH_USER } from "$lib/app/paths";
+  import { networkErrorText } from "$lib/form/errors";
+  import type { FormSubmitResult } from "$lib/form/form.svelte";
+  import { notificationsState } from "$lib/state/notifications.svelte";
+  import UserForm from "../../components/UserForm.svelte";
+  import { createUserForm, type SubmitValues } from "../../components/form/form.svelte";
+
+  const createUserMutation = new CreateUserStore();
+  const form = createUserForm("create", submit);
+
+  async function submit(input: SubmitValues): Promise<FormSubmitResult> {
+    try {
+      const response = await createUserMutation.mutate({ input });
+      if (response.errors) {
+        return { error: "There was an error." };
+      }
+
+      cache.markStale("TenantUserConnection");
+      notificationsState.showInfo("User has been created");
+      await goto(resolve(PATH_USER));
+      return {};
+    } catch {
+      return { error: networkErrorText };
+    }
+  }
 </script>
 
-<UserFormPage mode="create" />
+<div
+  class="flex h-dvh min-h-0 flex-col rounded-2xl bg-linear-to-br from-slate-100 via-slate-50
+    to-stone-100 p-2 sm:h-[calc(100dvh-3rem)] sm:p-3"
+>
+  <PageTitle title="Add user">
+    <BackButton />
+  </PageTitle>
+
+  <div class="flex min-h-0 grow justify-center overflow-y-auto pt-4 pb-18 sm:items-start">
+    <Card variant="panel" class="w-full max-w-2xl p-4 sm:p-6">
+      <UserForm {form} mode="create" submitLabel="Add User" />
+    </Card>
+  </div>
+</div>

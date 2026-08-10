@@ -1,6 +1,6 @@
 import { normalizePhoneNumber, OTP_LENGTH, PasswordSchema, PhoneNumberSchema } from "$lib/form/validators";
 import { z } from "zod";
-import { createForm } from "$lib/form/form.svelte";
+import { createForm, type FormSubmitResult } from "$lib/form/form.svelte";
 import { goto } from "$app/navigation";
 import { SignUpStore } from "$houdini";
 import { networkErrorText } from "$lib/form/errors";
@@ -31,13 +31,11 @@ export const initialValues: FormValues = {
   password: "",
 };
 
-type SubmitResponse = Record<string, never> | { data: { errorDescription: string }; status: 0 };
-
 const signUpMutation = new SignUpStore();
 
-export const form = createForm<FormValues, SubmitResponse>(initialValues, validator, submit);
+export const form = createForm(initialValues, validator, submit);
 
-async function submit(values: FormValues): Promise<SubmitResponse> {
+async function submit(values: FormValues): Promise<FormSubmitResult> {
   try {
     const response = await signUpMutation.mutate({
       input: {
@@ -60,6 +58,6 @@ async function submit(values: FormValues): Promise<SubmitResponse> {
   }
 }
 
-function formError(errorDescription: string): SubmitResponse {
-  return { data: { errorDescription }, status: 0 };
+function formError(error: string): FormSubmitResult {
+  return { error };
 }

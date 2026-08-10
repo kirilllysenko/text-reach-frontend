@@ -2,12 +2,16 @@ import { describe, expect, it, vi } from "vitest";
 import { createContactForm, type FormValues, initialValues, validator } from "./form.svelte";
 
 describe("contact form helpers", () => {
+  const contactGroupIdA = "01ARZ3NDEKTSV4RRFFQ69G5FAV";
+  const contactGroupIdB = "01ARZ3NDEKTSV4RRFFQ69G5FAW";
+  const customFieldId = "01ARZ3NDEKTSV4RRFFQ69G5FAX";
+
   it("normalizes form values into the GraphQL input", () => {
     expect(
       validator.parse({
         birthday: "1990-06-15",
-        contactGroupIds: ["group-a", "group-b"],
-        customFieldValues: { "field-a": "  Important  " },
+        contactGroupIds: [contactGroupIdA, contactGroupIdB],
+        customFields: { [customFieldId]: "  Important  " },
         email: " avery@example.com ",
         firstName: " Avery ",
         lastName: " Johnson ",
@@ -16,8 +20,8 @@ describe("contact form helpers", () => {
       }),
     ).toEqual({
       birthday: "1990-06-15",
-      contactGroupIds: ["group-a", "group-b"],
-      customFields: [{ id: "field-a", value: "Important" }],
+      contactGroupIds: [contactGroupIdA, contactGroupIdB],
+      customFields: [{ id: customFieldId, value: "Important" }],
       email: "avery@example.com",
       firstName: "Avery",
       lastName: "Johnson",
@@ -31,7 +35,7 @@ describe("contact form helpers", () => {
       validator.parse({
         birthday: "",
         contactGroupIds: [],
-        customFieldValues: {},
+        customFields: {},
         email: " ",
         firstName: "",
         lastName: "",
@@ -72,8 +76,8 @@ describe("contact form helpers", () => {
     const form = createContactForm(submit);
     const values: FormValues = {
       ...initialValues,
-      contactGroupIds: ["group-a"],
-      customFieldValues: { "field-a": "Original" },
+      contactGroupIds: [contactGroupIdA],
+      customFields: { [customFieldId]: "Original" },
       firstName: "Avery",
       phoneNumber: "5551234567",
     };
@@ -84,8 +88,8 @@ describe("contact form helpers", () => {
     expect(form.toValues()).toEqual(values);
     expect(submit).toHaveBeenCalledWith({
       birthday: null,
-      contactGroupIds: ["group-a"],
-      customFields: [{ id: "field-a", value: "Original" }],
+      contactGroupIds: [contactGroupIdA],
+      customFields: [{ id: customFieldId, value: "Original" }],
       email: null,
       firstName: "Avery",
       lastName: null,

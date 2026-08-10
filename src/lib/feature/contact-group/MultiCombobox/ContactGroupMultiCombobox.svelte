@@ -17,7 +17,7 @@
   const contactGroupsQuery = new ContactGroupComboboxQueryStore();
 
   const options = $derived($contactGroupsQuery.data?.contactGroups.edges.map((edge) => toOption(edge.node)) ?? []);
-  const hasNextPage = $derived($contactGroupsQuery.pageInfo.hasNextPage);
+  const hasNextPage = $derived($contactGroupsQuery.pageInfo?.hasNextPage ?? false);
 
   async function search(searchValue: string): Promise<void> {
     const response = await contactGroupsQuery.fetch({

@@ -1,20 +1,20 @@
-query GetContactFormById($id: Ulid!) @cache(policy: NetworkOnly) {
-    contact(id: $id) {
-        birthday
-        contactGroups {
-            id
-            name
-        }
-        customFields {
-            customField {
-                id
-            }
-            value
-        }
-        email
-        firstName
-        lastName
-        notes
-        phoneNumber
+query ContactFormEditQuery($id: Ulid!) @cache(policy: NetworkOnly) {
+  contact(id: $id) {
+    birthday
+    contactGroups {
+      id
+      name
     }
+    customFields {
+      customField {
+        id
+      }
+      value
+    }
+    email
+    firstName
+    lastName
+    notes
+    phoneNumber
+  }
 }

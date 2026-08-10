@@ -1,10 +1,13 @@
 import type { ZodType } from "zod";
 import { forEachObj } from "remeda";
-import { toErrorText } from "./errors";
 
 type FormValues = Record<string, any>;
 type FormErrorKey<Values> = keyof Values | "general";
-type SubmitHandler<Values, Response> = (values: Values) => Promise<Response>;
+type SubmitHandler<Values> = (values: Values) => Promise<FormSubmitResult>;
+
+export interface FormSubmitResult {
+  error?: string;
+}
 
 const formFieldSymbol = Symbol("form-field");
 const reservedKeys = new Set([
@@ -137,18 +140,14 @@ function getNodeAtPath(shape: unknown, path: Array<string | number>): unknown {
   return current;
 }
 
-class FormController<Values extends FormValues, Response = void, ParsedValues = Values> {
+class FormController<Values extends FormValues, ParsedValues = Values> {
   error: string | null;
   loading: boolean;
   private readonly fields: FormShape<Values>;
   private readonly validator: ZodType<ParsedValues, Values>;
-  private readonly onSubmit: SubmitHandler<ParsedValues, Response>;
+  private readonly onSubmit: SubmitHandler<ParsedValues>;
 
-  constructor(
-    initialValues: Values,
-    validator: ZodType<ParsedValues, Values>,
-    onSubmit: SubmitHandler<ParsedValues, Response>,
-  ) {
+  constructor(initialValues: Values, validator: ZodType<ParsedValues, Values>, onSubmit: SubmitHandler<ParsedValues>) {
     for (const key of Object.keys(initialValues)) {
       if (reservedKeys.has(key)) {
         throw new Error(`Form field name "${key}" conflicts with a reserved Form property.`);
@@ -213,7 +212,7 @@ class FormController<Values extends FormValues, Response = void, ParsedValues = 
 
     try {
       const response = await this.onSubmit(result.data);
-      this.setErrorsFromResponse(response);
+      this.error = response.error ?? null;
     } finally {
       this.loading = false;
     }
@@ -243,30 +242,15 @@ class FormController<Values extends FormValues, Response = void, ParsedValues = 
 
     return { success: false };
   };
-
-  private setErrorsFromResponse = (response: any): void => {
-    if (response.data && response.data.errorDescription) {
-      this.error = response.data.errorDescription;
-      return;
-    }
-
-    if (response.data && response.data.errorCode) {
-      this.error = toErrorText(response.data.errorCode);
-    }
-  };
 }
 
-export type Form<Values extends FormValues, Response = void, ParsedValues = Values> = FormController<
-  Values,
-  Response,
-  ParsedValues
-> &
+export type Form<Values extends FormValues, ParsedValues = Values> = FormController<Values, ParsedValues> &
   FormShape<Values>;
 
-export function createForm<Values extends FormValues, Response = void, ParsedValues = Values>(
+export function createForm<Values extends FormValues, ParsedValues = Values>(
   initialValues: Values,
   validator: ZodType<ParsedValues, Values>,
-  onSubmit: SubmitHandler<ParsedValues, Response>,
-): Form<Values, Response, ParsedValues> {
-  return new FormController(initialValues, validator, onSubmit) as Form<Values, Response, ParsedValues>;
+  onSubmit: SubmitHandler<ParsedValues>,
+): Form<Values, ParsedValues> {
+  return new FormController(initialValues, validator, onSubmit) as Form<Values, ParsedValues>;
 }

@@ -3,16 +3,14 @@
   import { resolve } from "$app/paths";
   import { page } from "$app/state";
   import { cache, ContactFormEditQueryStore, UpdateContactStore } from "$houdini";
+  import { BackButton, Button, Card, FieldError, PageTitle } from "$lib";
   import { PATH_CONTACT } from "$lib/app/paths";
-  import { BackButton, Button, Field, FieldError, FieldLabel, Input, PageTitle, TextArea } from "$lib/components";
   import { networkErrorText } from "$lib/form/errors";
-  import { toGraphQLErrorText } from "$lib/graphql/errors";
+  import type { FormSubmitResult } from "$lib/form/form.svelte";
   import { notificationsState } from "$lib/state/notifications.svelte";
   import { onMount } from "svelte";
-  import ContactFormCustomFields from "../../../components/ContactFormCustomFields/ContactFormCustomFields.svelte";
+  import ContactForm from "../../../components/ContactForm.svelte";
   import { createContactForm, type FormValues, type SubmitValues } from "../../../components/form/form.svelte";
-  import ContactGroupMultiCombobox from "$lib/feature/contact-group/MultiCombobox/ContactGroupMultiCombobox.svelte";
-  import Card from "$lib";
 
   const contactId = page.params.id;
   const editFormQuery = new ContactFormEditQueryStore();
@@ -40,7 +38,7 @@
       const contactResponse = await editFormQuery.fetch({ variables: { id: contactId } });
 
       if (contactResponse.errors || !contactResponse.data?.contact) {
-        loadError = toGraphQLErrorText(contactResponse.errors);
+        loadError = "There was an error.";
         return;
       }
 
@@ -50,7 +48,7 @@
       );
 
       const values: FormValues = {
-        birthday: contact.birthday?.slice(0, 10) ?? "",
+        birthday: contact.birthday ?? "",
         contactGroupIds: contact.contactGroups.map((group) => group.id),
         customFields: currentCustomFieldValues,
         email: contact.email ?? "",
@@ -68,10 +66,10 @@
     }
   }
 
-  async function submit(input: SubmitValues): Promise {
+  async function submit(input: SubmitValues): Promise<FormSubmitResult> {
     try {
       if (!contactId) {
-        return contactFormError("Contact was not found.");
+        return { error: "Contact was not found." };
       }
 
       const response = await updateContactMutation.mutate({
@@ -79,15 +77,16 @@
         input,
       });
 
-      if (response.errors || !response.data?.updateContact) {
-        return contactFormError(toGraphQLErrorText(response.errors));
+      if (response.errors) {
+        return { error: "There was an error." };
       }
 
       cache.markStale("ContactConnection");
       notificationsState.showInfo("Contact has been updated");
       await goto(resolve(PATH_CONTACT));
+      return {};
     } catch {
-      return contactFormError(networkErrorText);
+      return { error: networkErrorText };
     }
   }
 </script>
@@ -102,83 +101,13 @@
 
   <div class="flex min-h-0 grow justify-center overflow-y-auto pt-4 pb-18 sm:items-start">
     <Card variant="panel" class="w-full max-w-3xl p-4 sm:p-6">
-      {#if loading}
-        <p class="py-8 text-center text-sm text-slate-500">Loading contact form…</p>
-      {:else if loadError}
+      {#if loadError}
         <div class="space-y-4 py-6 text-center">
           <FieldError error={loadError} />
-          {#if onRetry}
-            <Button variant="secondary" onclick={onRetry}>Try again</Button>
-          {/if}
+          <Button variant="secondary" onclick={loadForm}>Try again</Button>
         </div>
       {:else}
-        <form onsubmit={form.submit} inert={form.loading || undefined}>
-          <div class="grid gap-4 sm:grid-cols-2">
-            <Field>
-              <FieldLabel for="contact-first-name">First name</FieldLabel>
-              <Input id="contact-first-name" bind:value={form.firstName.value} maxlength={100} placeholder="Avery" />
-            </Field>
-
-            <Field>
-              <FieldLabel for="contact-last-name">Last name</FieldLabel>
-              <Input id="contact-last-name" bind:value={form.lastName.value} maxlength={100} placeholder="Johnson" />
-            </Field>
-
-            <Field>
-              <FieldLabel for="contact-phone-number">Phone</FieldLabel>
-              <Input
-                id="contact-phone-number"
-                bind:value={form.phoneNumber.value}
-                maxlength={40}
-                placeholder="+1 415 555 0127"
-                error={form.phoneNumber.error}
-              />
-              <FieldError error={form.phoneNumber.error} />
-            </Field>
-
-            <Field>
-              <FieldLabel for="contact-email">Email</FieldLabel>
-              <Input
-                id="contact-email"
-                bind:value={form.email.value}
-                maxlength={255}
-                placeholder="avery@example.com"
-                type="email"
-                error={form.email.error}
-              />
-              <FieldError error={form.email.error} />
-            </Field>
-
-            <Field>
-              <FieldLabel for="contact-birthday">Birthday</FieldLabel>
-              <Input id="contact-birthday" bind:value={form.birthday.value} type="date" />
-            </Field>
-          </div>
-
-          <Field class="mt-4">
-            <FieldLabel for="contact-notes">Notes</FieldLabel>
-            <TextArea
-              id="contact-notes"
-              bind:value={form.notes.value}
-              maxlength={1000}
-              rows={4}
-              placeholder="Prefers afternoon texts"
-            />
-          </Field>
-
-          <section class="mt-5">
-            <ContactGroupMultiCombobox bind:value={form.contactGroupIds.value} id="contact-groups" />
-          </section>
-
-          <ContactFormCustomFields values={form.customFields} />
-
-          <FieldError class="mt-3" error={form.error} />
-
-          <div class="mt-5 flex justify-end gap-2">
-            <Button variant="secondary" onclick={() => window.history.back()}>Cancel</Button>
-            <Button submit spinner={form.loading} disabled={form.loading}>Update Contact</Button>
-          </div>
-        </form>
+        <ContactForm {form} {loading} submitLabel="Update Contact" />
       {/if}
     </Card>
   </div>

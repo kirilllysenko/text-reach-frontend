@@ -1,15 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
-import { contactFormValidator, createContactForm, toContactWriteInput } from "./form.svelte";
-
-vi.mock("$houdini", () => ({
-  cache: { markStale: vi.fn() },
-  graphql: vi.fn(() => ({ mutate: vi.fn() })),
-}));
+import { createContactForm, type FormValues, initialValues, validator } from "./form.svelte";
 
 describe("contact form helpers", () => {
   it("normalizes form values into the GraphQL input", () => {
     expect(
-      toContactWriteInput({
+      validator.parse({
         birthday: "1990-06-15",
         contactGroupIds: ["group-a", "group-b"],
         customFieldValues: { "field-a": "  Important  " },
@@ -33,7 +28,7 @@ describe("contact form helpers", () => {
 
   it("normalizes empty optional fields to null", () => {
     expect(
-      toContactWriteInput({
+      validator.parse({
         birthday: "",
         contactGroupIds: [],
         customFieldValues: {},
@@ -56,18 +51,12 @@ describe("contact form helpers", () => {
   });
 
   it("validates the required phone number and optional email", () => {
-    const values = {
-      birthday: "",
-      contactGroupIds: [],
-      customFieldValues: {},
-      email: "not-an-email",
-      firstName: "",
-      lastName: "",
-      notes: "",
-      phoneNumber: "",
-    };
+    expect(validator.safeParse({ ...initialValues, phoneNumber: "5551234567" }).success).toBe(true);
 
-    const result = contactFormValidator.safeParse(values);
+    const result = validator.safeParse({
+      ...initialValues,
+      email: "not-an-email",
+    });
 
     expect(result.success).toBe(false);
     if (!result.success) {
@@ -78,26 +67,30 @@ describe("contact form helpers", () => {
     }
   });
 
-  it("keeps edits dirty when custom fields finish loading later", () => {
-    const contactForm = createContactForm({ id: "contact-a", mode: "edit" });
-
-    contactForm.startPageLoad();
-    contactForm.setContact({
-      birthday: "",
-      contactGroupIds: [],
-      email: "",
+  it("installs loaded edit values and delegates submission", async () => {
+    const submit = vi.fn(async () => ({}));
+    const form = createContactForm(submit);
+    const values: FormValues = {
+      ...initialValues,
+      contactGroupIds: ["group-a"],
+      customFieldValues: { "field-a": "Original" },
       firstName: "Avery",
-      lastName: "",
-      notes: "",
+      phoneNumber: "5551234567",
+    };
+
+    form.setValues(values);
+    await form.submit({ preventDefault: vi.fn() } as unknown as SubmitEvent);
+
+    expect(form.toValues()).toEqual(values);
+    expect(submit).toHaveBeenCalledWith({
+      birthday: null,
+      contactGroupIds: ["group-a"],
+      customFields: [{ id: "field-a", value: "Original" }],
+      email: null,
+      firstName: "Avery",
+      lastName: null,
+      notes: null,
       phoneNumber: "5551234567",
     });
-    contactForm.setPageReady();
-    contactForm.finishPageLoad();
-
-    contactForm.form.firstName.value = "Avery Updated";
-    contactForm.setCustomFields([{ id: "field-a" }], { "field-a": "Original" });
-
-    expect(contactForm.ready).toBe(true);
-    expect(contactForm.dirty).toBe(true);
   });
 });

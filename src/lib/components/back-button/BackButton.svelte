@@ -1,24 +1,16 @@
 <script lang="ts">
-  import type { ClassValue, HTMLAnchorAttributes } from "svelte/elements";
+  import type { ComponentProps } from "svelte";
+  import Button from "../button/Button.svelte";
 
-  interface Props extends Omit<HTMLAnchorAttributes, "class"> {
-    class?: ClassValue | null;
-  }
+  interface Props extends Omit<ComponentProps<typeof Button>, "onclick" | "variant"> {}
 
-  let { children, ...anchorProps }: Props = $props();
+  let { children, ...buttonProps }: Props = $props();
 </script>
 
-<a
-  {...anchorProps}
-  class={[
-    `flex h-9 items-center justify-center rounded-xl border border-white/80 bg-white/80 px-3
-      text-base font-medium text-slate-700 shadow-sm backdrop-blur-sm hover:bg-white`,
-    anchorProps.class,
-  ]}
->
+<Button {...buttonProps} variant="secondary" onclick={() => window.history.back()}>
   {#if children}
     {@render children()}
   {:else}
     Back
   {/if}
-</a>
+</Button>

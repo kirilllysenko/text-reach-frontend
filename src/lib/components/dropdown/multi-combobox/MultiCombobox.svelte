@@ -1,31 +1,27 @@
 <script lang="ts">
-  import { onDestroy, tick } from "svelte";
+  import { tick, untrack } from "svelte";
   import { VirtualList } from "svelte-virtuallists";
-  import type { ClassValue, HTMLInputAttributes } from "svelte/elements";
+  import type { HTMLInputAttributes } from "svelte/elements";
   import Check from "$lib/icons/Check.svelte";
   import ChevronDown from "$lib/icons/ChevronDown.svelte";
   import Close from "$lib/icons/Close.svelte";
   import Spinner from "$lib/icons/Spinner.svelte";
-  import type {
-    MultiComboboxLoadRequest,
-    MultiComboboxLoadResult,
-    MultiComboboxOption,
-  } from "../components/dropdown-types";
+  import type { MultiComboboxOption } from "$lib/components";
 
-  interface Props extends Omit<HTMLInputAttributes, "class" | "value" | "id" | "disabled" | "type"> {
+  interface Props extends Omit<HTMLInputAttributes, "value" | "type"> {
     value?: string[];
-    loadOptions: (request: MultiComboboxLoadRequest) => Promise<MultiComboboxLoadResult>;
-    pageSize?: number;
+    options: MultiComboboxOption[];
+    hasNextPage?: boolean;
     searchDebounceMs?: number;
     placeholder?: string;
     label?: string;
-    inputId?: string;
-    disabled?: boolean;
+    id?: string;
     emptyText?: string;
     loadingText?: string;
-    class?: ClassValue | null;
+    initialOptions?: MultiComboboxOption[];
     onChange?: (values: string[]) => void;
-    onOptionsLoaded?: (items: MultiComboboxOption[]) => void;
+    onSearch?: (search: string) => void | Promise<void>;
+    onLoadNextPage?: () => void | Promise<void>;
   }
 
   const uid = crypto.randomUUID();
@@ -34,32 +30,30 @@
 
   let {
     value = $bindable<string[]>([]),
-    loadOptions,
-    pageSize = 50,
+    options,
+    hasNextPage = false,
     searchDebounceMs = 250,
     placeholder = "Search options",
     label = "",
-    inputId = `${uid}-input`,
+    id = `${uid}-input`,
     disabled = false,
     emptyText = "No options found",
     loadingText = "Loading options...",
+    initialOptions = [],
     onChange,
-    onOptionsLoaded,
+    onSearch,
+    onLoadNextPage,
     ...inputProps
   }: Props = $props();
 
-  let abortController: AbortController | null = null;
   let container = $state<HTMLDivElement | null>(null);
   let input = $state<HTMLInputElement | null>(null);
-  let options = $state<MultiComboboxOption[]>([]);
-  let cursor = $state<unknown[] | null>(null);
   let displayByValue = $state<Record<string, string>>({});
   let loading = $state(false);
   let loadingMore = $state(false);
   let popupVisible = $state(false);
   let searchQuery = $state("");
-  let hasNextPage = $state(false);
-  let loadSequence = 0;
+  let searchSequence = 0;
   let lastLoadMoreTrigger = "";
 
   const selectedValues = $derived(new Set(value));
@@ -72,21 +66,28 @@
   const virtualItems = $derived<(MultiComboboxOption | null)[]>(hasNextPage ? [...options, null] : options);
 
   $effect(() => {
-    if (!popupVisible || disabled) {
+    const loadedOptions = options;
+    const selectedInitialOptions = initialOptions;
+    untrack(() => {
+      mergeOptionDisplays(selectedInitialOptions);
+      mergeOptionDisplays(loadedOptions);
+    });
+  });
+
+  $effect(() => {
+    if (!popupVisible || disabled || !onSearch) {
       return;
     }
 
+    const requestSequence = ++searchSequence;
     loading = true;
+    lastLoadMoreTrigger = "";
 
     const timer = setTimeout(() => {
-      void loadOptionPage({ reset: true, search: searchQuery });
+      void searchOptions(searchQuery, requestSequence);
     }, searchDebounceMs);
 
     return () => clearTimeout(timer);
-  });
-
-  onDestroy(() => {
-    abortController?.abort();
   });
 
   function getOptionButtons(): HTMLButtonElement[] {
@@ -101,9 +102,8 @@
 
   function closePopup(): void {
     popupVisible = false;
-    abortController?.abort();
+    searchSequence += 1;
     loading = false;
-    loadingMore = false;
   }
 
   async function focusEdgeOption(direction: "ArrowDown" | "ArrowUp"): Promise<void> {
@@ -233,69 +233,32 @@
     displayByValue = nextDisplayByValue;
   }
 
-  function mergeOptions(
-    currentOptions: MultiComboboxOption[],
-    nextOptions: MultiComboboxOption[],
-  ): MultiComboboxOption[] {
-    const optionByValue = new Map(currentOptions.map((option) => [option.value, option]));
-
-    for (const option of nextOptions) {
-      optionByValue.set(option.value, option);
+  async function searchOptions(search: string, requestSequence: number): Promise<void> {
+    try {
+      await onSearch?.(search.trim());
+    } catch {
+      // The data owner decides how failed searches affect the controlled options.
+    } finally {
+      if (requestSequence === searchSequence) {
+        loading = false;
+      }
     }
-
-    return Array.from(optionByValue.values());
   }
 
-  async function loadOptionPage({ reset, search }: { reset: boolean; search: string }): Promise<void> {
-    if (!reset && (!hasNextPage || loading || loadingMore)) {
+  async function loadNextPage(): Promise<void> {
+    if (!hasNextPage || loading || loadingMore || !onLoadNextPage) {
       return;
     }
 
-    abortController?.abort();
-    abortController = new AbortController();
-    const requestSequence = ++loadSequence;
-
-    if (reset) {
-      loading = true;
-      cursor = null;
-      lastLoadMoreTrigger = "";
-    } else {
-      loadingMore = true;
-    }
+    loadingMore = true;
 
     try {
-      const response = await loadOptions({
-        search: search.trim(),
-        cursor: reset ? null : cursor,
-        pageSize,
-        signal: abortController.signal,
-      });
-
-      if (requestSequence !== loadSequence) {
-        return;
-      }
-
-      mergeOptionDisplays(response.items);
-      onOptionsLoaded?.(response.items);
-
-      options = reset ? response.items : mergeOptions(options, response.items);
-      cursor = response.nextCursor;
-      hasNextPage = Boolean(response.nextCursor && response.items.length > 0);
-    } catch (error) {
-      if (error instanceof DOMException && error.name === "AbortError") {
-        return;
-      }
-
-      if (reset) {
-        options = [];
-        cursor = null;
-        hasNextPage = false;
-      }
+      await onLoadNextPage();
+    } catch {
+      // The data owner decides how failed pagination affects the controlled options.
+      lastLoadMoreTrigger = "";
     } finally {
-      if (requestSequence === loadSequence) {
-        loading = false;
-        loadingMore = false;
-      }
+      loadingMore = false;
     }
   }
 
@@ -310,7 +273,7 @@
     }
 
     lastLoadMoreTrigger = nextTrigger;
-    void loadOptionPage({ reset: false, search: searchQuery });
+    void loadNextPage();
   }
 </script>
 
@@ -319,7 +282,7 @@
 <div bind:this={container} class={["relative mb-1 min-w-10", inputProps.class]}>
   {#if label}
     <div class="mb-1 flex items-center">
-      <label for={inputId} class="grow text-sm font-medium text-slate-700">{label}</label>
+      <label for={id} class="grow text-sm font-medium text-slate-700">{label}</label>
     </div>
   {/if}
 
@@ -358,7 +321,7 @@
         placeholder:italic focus:outline-none disabled:text-slate-500`}
       {placeholder}
       type="text"
-      id={inputId}
+      {id}
       onkeydown={inputKeyDown}
       oninput={handleInput}
       onfocus={handleFocus}
@@ -403,7 +366,7 @@
                   tabindex="0"
                   type="button"
                   onclick={() => toggleOption(item)}
-                  onfocusin={(event) => optionFocusIn(event.currentTarget as HTMLButtonElement)}
+                  onfocusin={(event) => optionFocusIn(event.currentTarget)}
                   onkeydown={(event) => handleOptionKeyDown(event, item)}
                   role="option"
                   aria-selected={selectedValues.has(item.value)}

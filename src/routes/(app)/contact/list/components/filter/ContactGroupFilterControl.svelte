@@ -1,13 +1,12 @@
 <script lang="ts">
-  import { MultiCombobox, type DataTableContainmentFilterComponentProps } from "$lib";
-  import { loadContactGroupComboboxOptions } from "$lib/feature/contact-group/contact-group-combobox";
+  import { type DataTableContainmentFilterComponentProps } from "$lib";
+  import ContactGroupCombobox from "$lib/feature/contact-group/ContactGroupCombobox.svelte";
 
   let { value, setValue }: DataTableContainmentFilterComponentProps = $props();
 </script>
 
-<MultiCombobox
+<ContactGroupCombobox
   value={value ?? []}
-  loadOptions={loadContactGroupComboboxOptions}
   placeholder="Search groups"
   emptyText="No groups found"
   loadingText="Loading groups..."

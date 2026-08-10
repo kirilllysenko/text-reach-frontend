@@ -46,6 +46,31 @@ query ContactGroups(
   }
 }
 
+query ContactGroupComboboxQuery(
+  $after: String
+  $before: String
+  $filter: ContactGroupFilterInput
+  $first: Int = 50
+  $last: Int
+  $sortBy: [ContactGroupSortByInput!]! = []
+) @cache(policy: NetworkOnly) {
+  contactGroups(after: $after, before: $before, filter: $filter, first: $first, last: $last, sortBy: $sortBy)
+    @paginate {
+    edges {
+      node {
+        id
+        name
+      }
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+      hasPreviousPage
+      startCursor
+    }
+  }
+}
+
 mutation CreateContactGroup($input: ContactGroupWriteInput!) {
   createContactGroup(input: $input)
 }

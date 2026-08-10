@@ -1,0 +1,7 @@
+query CustomFieldsQuery @cache(policy: NetworkOnly) {
+  customFields {
+    fieldType
+    id
+    name
+  }
+}

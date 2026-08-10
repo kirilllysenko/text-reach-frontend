@@ -4,7 +4,7 @@ import { toErrorText } from "./errors";
 
 type FormValues = Record<string, any>;
 type FormErrorKey<Values> = keyof Values | "general";
-type SubmitHandler<Values extends FormValues, Response> = (values: Values) => Promise<Response>;
+type SubmitHandler<Values, Response> = (values: Values) => Promise<Response>;
 
 const formFieldSymbol = Symbol("form-field");
 const reservedKeys = new Set([
@@ -110,6 +110,10 @@ function setShapeValues(shape: unknown, value: unknown): void {
   }
 }
 
+export function setFormShapeValue<Value>(shape: FormShape<Value>, value: Value): void {
+  setShapeValues(shape, value);
+}
+
 function extractValues<Value>(shape: FormShape<Value>): Value {
   if (isFormField(shape)) {
     return shape.value as Value;
@@ -133,14 +137,18 @@ function getNodeAtPath(shape: unknown, path: Array<string | number>): unknown {
   return current;
 }
 
-class FormController<Values extends FormValues, Response = void> {
+class FormController<Values extends FormValues, Response = void, ParsedValues = Values> {
   error: string | null;
   loading: boolean;
   private readonly fields: FormShape<Values>;
-  private readonly validator: ZodType<Values>;
-  private readonly onSubmit: SubmitHandler<Values, Response>;
+  private readonly validator: ZodType<ParsedValues, Values>;
+  private readonly onSubmit: SubmitHandler<ParsedValues, Response>;
 
-  constructor(initialValues: Values, validator: ZodType<Values>, onSubmit: SubmitHandler<Values, Response>) {
+  constructor(
+    initialValues: Values,
+    validator: ZodType<ParsedValues, Values>,
+    onSubmit: SubmitHandler<ParsedValues, Response>,
+  ) {
     for (const key of Object.keys(initialValues)) {
       if (reservedKeys.has(key)) {
         throw new Error(`Form field name "${key}" conflicts with a reserved Form property.`);
@@ -191,12 +199,32 @@ class FormController<Values extends FormValues, Response = void> {
   };
 
   validate = (): boolean => {
-    const values = this.toValues();
+    return this.parseValues(this.toValues()).success;
+  };
+
+  submit = async (event: SubmitEvent): Promise<void> => {
+    event.preventDefault();
+    const result = this.parseValues(this.toValues());
+    if (!result.success) {
+      return;
+    }
+
+    this.loading = true;
+
+    try {
+      const response = await this.onSubmit(result.data);
+      this.setErrorsFromResponse(response);
+    } finally {
+      this.loading = false;
+    }
+  };
+
+  private parseValues = (values: Values): { success: true; data: ParsedValues } | { success: false } => {
     const result = this.validator.safeParse(values);
 
     if (result.success) {
       this.clearErrors();
-      return true;
+      return result;
     }
 
     this.clearErrors();
@@ -213,23 +241,7 @@ class FormController<Values extends FormValues, Response = void> {
       }
     }
 
-    return false;
-  };
-
-  submit = async (event: SubmitEvent): Promise<void> => {
-    event.preventDefault();
-    if (!this.validate()) {
-      return;
-    }
-
-    this.loading = true;
-
-    try {
-      const response = await this.onSubmit(this.toValues());
-      this.setErrorsFromResponse(response);
-    } finally {
-      this.loading = false;
-    }
+    return { success: false };
   };
 
   private setErrorsFromResponse = (response: any): void => {
@@ -244,12 +256,17 @@ class FormController<Values extends FormValues, Response = void> {
   };
 }
 
-export type Form<Values extends FormValues, Response = void> = FormController<Values, Response> & FormShape<Values>;
+export type Form<Values extends FormValues, Response = void, ParsedValues = Values> = FormController<
+  Values,
+  Response,
+  ParsedValues
+> &
+  FormShape<Values>;
 
-export function createForm<Values extends FormValues, Response = void>(
+export function createForm<Values extends FormValues, Response = void, ParsedValues = Values>(
   initialValues: Values,
-  validator: ZodType<Values>,
-  onSubmit: SubmitHandler<Values, Response>,
-): Form<Values, Response> {
-  return new FormController(initialValues, validator, onSubmit) as Form<Values, Response>;
+  validator: ZodType<ParsedValues, Values>,
+  onSubmit: SubmitHandler<ParsedValues, Response>,
+): Form<Values, Response, ParsedValues> {
+  return new FormController(initialValues, validator, onSubmit) as Form<Values, Response, ParsedValues>;
 }

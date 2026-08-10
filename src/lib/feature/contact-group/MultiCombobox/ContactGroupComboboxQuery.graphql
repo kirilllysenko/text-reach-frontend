@@ -1,0 +1,24 @@
+query ContactGroupComboboxQuery(
+  $after: String
+  $before: String
+  $filter: ContactGroupFilterInput
+  $first: Int = 50
+  $last: Int
+  $sortBy: [ContactGroupSortByInput!]! = []
+) @cache(policy: NetworkOnly) @dedupe(cancelFirst: true) {
+  contactGroups(after: $after, before: $before, filter: $filter, first: $first, last: $last, sortBy: $sortBy)
+    @paginate {
+    edges {
+      node {
+        id
+        name
+      }
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+      hasPreviousPage
+      startCursor
+    }
+  }
+}

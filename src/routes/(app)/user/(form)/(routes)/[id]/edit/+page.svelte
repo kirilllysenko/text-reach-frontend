@@ -3,19 +3,21 @@
   import { resolve } from "$app/paths";
   import { page } from "$app/state";
   import { cache, UpdateUserStore, UserFormEditQueryStore } from "$houdini";
-  import { BackButton, Button, Card, FieldError, PageTitle } from "$lib";
+  import { BackButton, Button, Card, Field, FieldError, FieldLabel, Input, PageTitle, Select } from "$lib";
   import { PATH_USER } from "$lib/app/paths";
+  import { userRoleLabelMap, userRoleOptions } from "$lib/feature/user/user-view-data";
   import { networkErrorText } from "$lib/form/errors";
   import type { FormSubmitResult } from "$lib/form/form.svelte";
   import { notificationsState } from "$lib/state/notifications.svelte";
   import { onMount } from "svelte";
-  import UserForm from "../../../components/UserForm.svelte";
   import { createUserForm, type FormValues, type SubmitValues } from "../../../components/form/form.svelte";
 
   const userId = page.params.id;
   const editFormQuery = new UserFormEditQueryStore();
   const updateUserMutation = new UpdateUserStore();
   const form = createUserForm("edit", submit);
+  const roleOptions = userRoleOptions.map((role) => ({ id: role, value: userRoleLabelMap[role] }));
+  const selectedRole = $derived(roleOptions.find((option) => option.id === form.role.value) ?? roleOptions[0]);
 
   let loadError = $state<string | null>(null);
   let loading = $state(true);
@@ -23,6 +25,10 @@
   onMount(() => {
     void loadForm();
   });
+
+  function selectRole(option: (typeof roleOptions)[number]): void {
+    form.role.value = option.id;
+  }
 
   async function loadForm(): Promise<void> {
     loading = true;
@@ -102,7 +108,55 @@
           <Button variant="secondary" onclick={loadForm}>Try again</Button>
         </div>
       {:else}
-        <UserForm {form} {loading} mode="edit" submitLabel="Update User" />
+        <form onsubmit={form.submit} inert={form.loading || undefined} aria-busy={loading}>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <Field>
+              <FieldLabel for="user-name">Name</FieldLabel>
+              <Input
+                id="user-name"
+                bind:value={form.name.value}
+                {loading}
+                maxlength={50}
+                placeholder="Avery Johnson"
+                error={form.name.error}
+              />
+              <FieldError error={form.name.error} />
+            </Field>
+
+            <Field>
+              <Select
+                value={selectedRole}
+                options={roleOptions}
+                label="Role"
+                inputId="user-role"
+                {loading}
+                onChange={selectRole}
+              />
+            </Field>
+
+            <Field class="sm:col-span-2">
+              <FieldLabel for="user-email">Email</FieldLabel>
+              <Input
+                id="user-email"
+                bind:value={form.email.value}
+                {loading}
+                maxlength={255}
+                placeholder="avery@example.com"
+                type="email"
+                disabled
+                error={form.email.error}
+              />
+              <FieldError error={form.email.error} />
+            </Field>
+          </div>
+
+          <FieldError class="mt-3" error={form.error} />
+
+          <div class="mt-5 flex justify-end gap-2">
+            <Button variant="secondary" onclick={() => window.history.back()}>Cancel</Button>
+            <Button submit spinner={form.loading} disabled={loading || form.loading}>Update User</Button>
+          </div>
+        </form>
       {/if}
     </Card>
   </div>

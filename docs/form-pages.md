@@ -10,7 +10,7 @@ Keep each concern in one place:
 | Concern                                                                                                   | Owner                               |
 | --------------------------------------------------------------------------------------------------------- | ----------------------------------- |
 | Page title, `Card`, load state, load errors, queries, mutations, cache updates, notifications, navigation | `+page.svelte`                      |
-| Repeated add/edit form markup and action buttons                                                          | Route-local form component          |
+| Form markup, primary fields, general error, and action buttons                                            | `+page.svelte`                      |
 | Independent sections with their own query or section-local state                                          | Route-local section component       |
 | Input shape, initial values, validation, normalization, API input transformation                          | `components/form/form.svelte.ts`    |
 | Field state, validation execution, submit state, and error assignment                                     | `src/lib/form/form.svelte.ts`       |
@@ -30,14 +30,13 @@ feature/(form)/
 │   ├── add/+page.svelte
 │   └── [id]/edit/+page.svelte
 └── components/
-    ├── FeatureForm.svelte
     ├── FeatureFormSection.svelte
     └── form/form.svelte.ts
 ```
 
-- `FeatureForm.svelte` is appropriate when add and edit render substantially the same fields.
-- Keep a small form directly in each page only when extracting it would add indirection without removing meaningful
-  duplication.
+- Keep the whole `<form>`, primary fields, general error, and actions directly in both add and edit pages. The parallel
+  markup is intentional because each route should remain explicit and independently changeable.
+- Do not create shared `FeatureForm.svelte` or `FeatureFormPage.svelte` components to remove add/edit duplication.
 - A section such as custom fields should be separate when it owns a query, effects, dynamic field shape, or distinct
   loading and error states.
 - Keep page-only components in the route group. Promote them to `src/lib` only when another route group genuinely
@@ -76,7 +75,7 @@ Rules:
 
 ## Form Markup
 
-The shared form component or page markup should follow this shape:
+Each add and edit page should follow this shape:
 
 ```svelte
 <form onsubmit={form.submit} inert={form.loading || undefined} aria-busy={loading}>
@@ -169,7 +168,7 @@ When the initial load fails, replace the form inside the card with a concise err
     <Button variant="secondary" onclick={loadForm}>Try again</Button>
   </div>
 {:else}
-  <FeatureForm {form} {loading} submitLabel="Update item" />
+  <!-- Render the edit form and its fields directly here. -->
 {/if}
 ```
 
@@ -256,19 +255,10 @@ const form = createItemForm(submit);
 The add page renders immediately from `initialValues`. The edit page additionally owns the query and maps query data to
 `FormValues` before calling `form.setValues()`.
 
-If add and edit share markup, the route-local form component should receive semantic props rather than a long list of
-forwarded primitive props:
-
-```ts
-interface Props {
-  form: ReturnType<typeof createItemForm>;
-  loading?: boolean;
-  submitLabel: string;
-}
-```
-
-Keep `Card`, load-error switching, and data operations in the page. Let the shared component own the `<form>`, fields,
-sections, general error, and actions. This keeps add and edit visually identical without coupling their data flows.
+Add and edit pages both own their complete form markup. Keep their field order, responsive grid, spacing, validation
+placement, and actions visually aligned, but do not hide that markup behind a shared whole-form component. Extract only
+independent sections that justify their own boundary through a query, effects, dynamic field shape, or substantial
+section-local behavior.
 
 ## Submission Contract And Errors
 

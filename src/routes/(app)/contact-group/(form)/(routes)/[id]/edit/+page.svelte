@@ -3,13 +3,12 @@
   import { resolve } from "$app/paths";
   import { page } from "$app/state";
   import { cache, ContactGroupFormEditQueryStore, UpdateContactGroupStore } from "$houdini";
-  import { BackButton, Button, Card, FieldError, PageTitle } from "$lib";
+  import { BackButton, Button, Card, Field, FieldError, FieldLabel, Input, PageTitle } from "$lib";
   import { PATH_CONTACT_GROUP } from "$lib/app/paths";
   import { networkErrorText } from "$lib/form/errors";
   import type { FormSubmitResult } from "$lib/form/form.svelte";
   import { notificationsState } from "$lib/state/notifications.svelte";
   import { onMount } from "svelte";
-  import ContactGroupForm from "../../../components/ContactGroupForm.svelte";
   import { createContactGroupForm, type FormValues, type SubmitValues } from "../../../components/form/form.svelte";
 
   const contactGroupId = page.params.id;
@@ -90,7 +89,27 @@
           <Button variant="secondary" onclick={loadForm}>Try again</Button>
         </div>
       {:else}
-        <ContactGroupForm {form} {loading} submitLabel="Update Contact Group" />
+        <form onsubmit={form.submit} inert={form.loading || undefined} aria-busy={loading}>
+          <Field>
+            <FieldLabel for="contact-group-name">Name</FieldLabel>
+            <Input
+              id="contact-group-name"
+              bind:value={form.name.value}
+              {loading}
+              maxlength={100}
+              placeholder="Newsletter subscribers"
+              error={form.name.error}
+            />
+            <FieldError error={form.name.error} />
+          </Field>
+
+          <FieldError class="mt-3" error={form.error} />
+
+          <div class="mt-5 flex justify-end gap-2">
+            <Button variant="secondary" onclick={() => window.history.back()}>Cancel</Button>
+            <Button submit spinner={form.loading} disabled={loading || form.loading}>Update Contact Group</Button>
+          </div>
+        </form>
       {/if}
     </Card>
   </div>

@@ -39,7 +39,9 @@ relevant section when working in that area.
 - Use `Card` with `variant="panel"` as the single form surface. Keep `PageTitle` and navigation outside the card.
 - Edit pages keep the page and form layout visible while loading. Pass `loading` through form sections to input
   primitives so they use the global animated skeleton; do not replace the whole page with a loading message.
-- When add and edit repeat the same fields, extract the form markup into a component shared inside that route group.
+- Keep the `<form>`, primary fields, general error, and actions directly in each add/edit `+page.svelte`. Do not create
+  shared `...Form` or `...FormPage` components; extract only independent sections with their own state, query, or
+  substantial markup.
 
 ## Workflow
 

@@ -1,5 +1,6 @@
 import type { ColumnDef } from "./column-types";
 import type { DataTableLoader, DataLoadingFeatureConfig } from "./features/data-loading.svelte";
+import type { DataTableFilter } from "./features/column-filtering.svelte";
 import type { InitialState, FeatureOverrides } from "./features/types";
 import type { DataTableSort } from "./features/sorting.svelte";
 import type { LifecycleHooks } from "./managers/lifecycle-hooks-manager.svelte";
@@ -28,21 +29,24 @@ type SharedDatagridCoreConfig<TOriginalRow, C extends ColumnDef<TOriginalRow>> =
   default?: DatagridCoreConfigDefaults;
 };
 
-type LocalDatagridCoreConfig<TOriginalRow, TSort> = {
+type LocalDatagridCoreConfig<TOriginalRow, TSort, TFilter> = {
   data: TOriginalRow[];
-  initialState?: InitialState<TOriginalRow, TSort>;
+  initialState?: InitialState<TOriginalRow, TSort, TFilter>;
 };
 
-type LoaderDatagridCoreConfig<TOriginalRow, TSort> = {
+type LoaderDatagridCoreConfig<TOriginalRow, TSort, TFilter> = {
   data?: TOriginalRow[];
-  initialState: InitialState<TOriginalRow, TSort> & {
-    dataLoading: DataLoadingFeatureConfig<TOriginalRow, TSort> & { loader: DataTableLoader<TOriginalRow, TSort> };
+  initialState: InitialState<TOriginalRow, TSort, TFilter> & {
+    dataLoading: DataLoadingFeatureConfig<TOriginalRow, TSort, TFilter> & {
+      loader: DataTableLoader<TOriginalRow, TSort, TFilter>;
+    };
   };
 };
 
 export type DatagridCoreConfig<
   TOriginalRow,
   TSort = DataTableSort,
+  TFilter = DataTableFilter,
   C extends ColumnDef<TOriginalRow> = ColumnDef<TOriginalRow>,
 > = SharedDatagridCoreConfig<TOriginalRow, C> &
-  (LocalDatagridCoreConfig<TOriginalRow, TSort> | LoaderDatagridCoreConfig<TOriginalRow, TSort>);
+  (LocalDatagridCoreConfig<TOriginalRow, TSort, TFilter> | LoaderDatagridCoreConfig<TOriginalRow, TSort, TFilter>);

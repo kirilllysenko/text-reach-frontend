@@ -1,35 +1,45 @@
 import type { MessageFilterInput } from "$houdini/graphql/inputs";
-import { TableBackendFilter } from "$lib/components/table";
+import { backendFilterDefinition } from "$lib/components/table";
 import type { MessageStatusValue } from "$lib/feature/message/message-view-data";
 
-const messageFilter = new TableBackendFilter<MessageFilterInput>();
+const messageFilter = backendFilterDefinition<MessageFilterInput>();
 
-export const messageTableFilters = messageFilter.define([
+export const messageFilterDefinitions = [
   messageFilter.containment({
     filterId: "status",
-    fieldId: "status",
+    field: "status",
     label: "Status",
     defaultOperator: "IN",
-    backend: { mapValue: (value) => value as MessageStatusValue[] },
+    value: { toBackend: (value) => value as MessageStatusValue[] },
   }),
   messageFilter.comparison({
     filterId: "sentFrom",
-    fieldId: "sentAt",
+    field: "sentAt",
     label: "Sent from",
     defaultOperator: "GREATER_OR_EQUAL",
-    backend: { mapValue: (value) => `${value}T00:00:00.000Z` },
+    value: {
+      fromBackend: toDateInputValue,
+      toBackend: (value) => `${value}T00:00:00.000Z`,
+    },
   }),
   messageFilter.comparison({
     filterId: "sentTo",
-    fieldId: "sentAt",
+    field: "sentAt",
     label: "Sent to",
     defaultOperator: "LESS_OR_EQUAL",
-    backend: { mapValue: (value) => `${value}T23:59:59.999Z` },
+    value: {
+      fromBackend: toDateInputValue,
+      toBackend: (value) => `${value}T23:59:59.999Z`,
+    },
   }),
   messageFilter.text({
     filterId: "tenantPhoneNumber",
-    fieldId: "tenantPhoneNumber",
+    field: "tenantPhoneNumber",
     label: "Tenant phone",
     defaultOperator: "CONTAINS",
   }),
-] as const);
+] as const;
+
+function toDateInputValue(value: string): string {
+  return value.slice(0, 10);
+}

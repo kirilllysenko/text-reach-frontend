@@ -11,7 +11,7 @@
     column: LeafColumn<TData>;
     row: GridBasicRow<TData>;
     rowIndex: number;
-    table: DatagridCore<TData, any>;
+    table: DatagridCore<TData, any, any>;
   }
 
   let { column, row, rowIndex, table }: Props = $props();

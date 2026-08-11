@@ -1,10 +1,11 @@
 <script lang="ts">
+  import type { ContactFilterInput } from "$houdini/graphql/inputs";
   import { onDestroy } from "svelte";
   import { Input, type FilteringService } from "$lib";
   import { debounce } from "$lib/utils/debounce";
 
   interface Props {
-    filtering: FilteringService;
+    filtering: FilteringService<ContactFilterInput>;
     value: string;
   }
 
@@ -20,12 +21,7 @@
       return;
     }
 
-    filtering.setFilter("search", {
-      filterId: "search",
-      operator: "CONTAINS",
-      type: "text",
-      value: normalizedSearch,
-    });
+    filtering.setFilterValue("search", normalizedSearch, "CONTAINS");
   }, SEARCH_DEBOUNCE_MS);
 
   function updateSearch(search: string): void {

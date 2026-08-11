@@ -7,7 +7,7 @@
   import { getColumnSizeRootStyle } from "./column-size-style";
 
   interface Props {
-    table: DatagridCore<TData, any>;
+    table: DatagridCore<TData, any, any>;
     error?: string | null;
     loading?: boolean;
   }

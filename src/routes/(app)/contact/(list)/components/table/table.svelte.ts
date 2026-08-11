@@ -1,23 +1,23 @@
 import { ContactTableQueryStore } from "$houdini";
 import type { ContactTableQuery$input } from "$houdini/artifacts/ContactTableQuery";
-import type { ContactSortByInput } from "$houdini/graphql/inputs";
+import type { ContactFilterInput, ContactSortByInput } from "$houdini/graphql/inputs";
 import { DatagridCore, type DataTableLoadRequest, type DataTableLoadResult } from "$lib/components/table";
 import { abortControllerFromSignal } from "$lib/graphql/abort";
-import { contactTableFilters } from "../filter/filter.svelte";
+import { contactFilterDefinitions } from "../filter/filter.svelte";
 import { contactSortDefinitions, initialContactSorts } from "../sort/sort.svelte";
 import { createContactColumns, type ContactTableRow } from "./column.svelte";
 
-export function createContactTable(): DatagridCore<ContactTableRow, ContactSortByInput> {
+export function createContactTable(): DatagridCore<ContactTableRow, ContactSortByInput, ContactFilterInput> {
   const contactsQuery = new ContactTableQueryStore();
 
-  return new DatagridCore<ContactTableRow, ContactSortByInput>({
+  return new DatagridCore<ContactTableRow, ContactSortByInput, ContactFilterInput>({
     columns: createContactColumns(),
     initialState: {
       dataLoading: {
         loader: (request) => fetchContactRows(contactsQuery, request),
       },
       filtering: {
-        filterDefinitions: contactTableFilters.definitions,
+        filterDefinitions: contactFilterDefinitions,
       },
       sorting: {
         sortDefinitions: contactSortDefinitions,
@@ -29,12 +29,11 @@ export function createContactTable(): DatagridCore<ContactTableRow, ContactSortB
 
 async function fetchContactRows(
   contactsQuery: ContactTableQueryStore,
-  request: DataTableLoadRequest<ContactSortByInput>,
+  request: DataTableLoadRequest<ContactSortByInput, ContactFilterInput>,
 ): Promise<DataTableLoadResult<ContactTableRow>> {
-  const filters = contactTableFilters.toDtos(request.filters);
   const cursor = typeof request.cursor?.[0] === "string" ? request.cursor[0] : undefined;
   const variables: ContactTableQuery$input = {
-    filter: filters.length > 0 ? { operator: "AND", nested: filters } : undefined,
+    filter: request.filters.length > 0 ? { operator: "AND", nested: request.filters } : undefined,
     sortBy: request.sorts,
     ...(cursor && request.direction === "previous"
       ? { before: cursor, last: request.limit }

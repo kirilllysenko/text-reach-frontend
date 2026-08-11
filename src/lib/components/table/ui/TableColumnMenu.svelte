@@ -4,7 +4,7 @@
 
   interface Props {
     column: LeafColumn<TData>;
-    table: DatagridCore<TData, any>;
+    table: DatagridCore<TData, any, any>;
   }
 
   let { column, table }: Props = $props();

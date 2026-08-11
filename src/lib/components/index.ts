@@ -15,7 +15,7 @@ export { default as TextArea } from "./text-area/TextArea.svelte";
 export { default as LinkButton } from "./link-button/LinkButton.svelte";
 export { default as Field, FieldError, FieldLabel } from "./field";
 export { default as FilterPanel } from "./filter-panel/FilterPanel.svelte";
-export type { FilterPanelConfig, FilterPanelController, FilterPanelField } from "./filter-panel/filter-panel-types";
+export type { FilterPanelConfig, FilterPanelField } from "./filter-panel/filter-panel-types";
 export { default as SortPanel } from "./sort-panel/SortPanel.svelte";
 export { default as Notification } from "./notification/Notification.svelte";
 export { default as PopupMenu } from "./popup-menu/PopupMenu.svelte";

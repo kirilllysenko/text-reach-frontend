@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Button, Field, FieldError, FieldLabel } from "$lib";
-  import ContactGroupCombobox from "$lib/feature/contact-group/ContactGroupCombobox.svelte";
+  import ContactGroupMultiCombobox from "$lib/feature/contact-group/MultiCombobox/ContactGroupMultiCombobox.svelte";
   import Upload from "$lib/icons/Upload.svelte";
   import type { ContactImportState } from "../contact-import-state.svelte";
 
@@ -40,7 +40,7 @@
   </Field>
 
   <Field>
-    <ContactGroupCombobox
+    <ContactGroupMultiCombobox
       value={contactImport.contactGroupIds}
       label="Contact groups"
       placeholder="Search groups"

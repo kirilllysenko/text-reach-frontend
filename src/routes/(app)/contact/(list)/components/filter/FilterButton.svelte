@@ -1,9 +1,10 @@
 <script lang="ts">
+  import type { ContactFilterInput } from "$houdini/graphql/inputs";
   import { Button, FilterPanel, ResponsiveDialog, type FilteringService } from "$lib";
   import Filter from "$lib/icons/Filter.svelte";
 
   interface Props {
-    filtering: FilteringService;
+    filtering: FilteringService<ContactFilterInput>;
   }
 
   let { filtering }: Props = $props();

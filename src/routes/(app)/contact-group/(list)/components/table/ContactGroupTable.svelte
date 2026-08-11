@@ -1,10 +1,10 @@
 <script lang="ts">
-  import type { ContactGroupSortByInput } from "$houdini/graphql/inputs";
+  import type { ContactGroupFilterInput, ContactGroupSortByInput } from "$houdini/graphql/inputs";
   import { Card, Table, type DatagridCore } from "$lib";
   import type { ContactGroupViewModel } from "$lib/feature/contact-group/contact-group-view-data";
 
   interface Props {
-    table: DatagridCore<ContactGroupViewModel, ContactGroupSortByInput>;
+    table: DatagridCore<ContactGroupViewModel, ContactGroupSortByInput, ContactGroupFilterInput>;
   }
 
   let { table }: Props = $props();

@@ -1,24 +1,24 @@
 import type { ContactGroupFilterInput } from "$houdini/graphql/inputs";
-import { TableBackendFilter } from "$lib/components/table";
+import { backendFilterDefinition } from "$lib/components/table";
 
-const contactGroupFilter = new TableBackendFilter<ContactGroupFilterInput>();
+const contactGroupFilter = backendFilterDefinition<ContactGroupFilterInput>();
 
-export const contactGroupTableFilters = contactGroupFilter.define([
+export const contactGroupFilterDefinitions = [
   contactGroupFilter.comparison({
     filterId: "minContactCount",
-    fieldId: "contactCount",
+    field: "contactCount",
     label: "Min contacts",
     defaultOperator: "GREATER_OR_EQUAL",
-    backend: { mapValue: toContactCount },
+    value: { toBackend: toContactCount },
   }),
   contactGroupFilter.comparison({
     filterId: "maxContactCount",
-    fieldId: "contactCount",
+    field: "contactCount",
     label: "Max contacts",
     defaultOperator: "LESS_OR_EQUAL",
-    backend: { mapValue: toContactCount },
+    value: { toBackend: toContactCount },
   }),
-] as const);
+] as const;
 
 function toContactCount(value: string | number): number | undefined {
   const count = Number(value);

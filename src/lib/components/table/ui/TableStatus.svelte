@@ -2,7 +2,7 @@
   import type { DatagridCore } from "../core/index.svelte";
 
   interface Props {
-    table: DatagridCore<TData, any>;
+    table: DatagridCore<TData, any, any>;
   }
 
   let { table }: Props = $props();

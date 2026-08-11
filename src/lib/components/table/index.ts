@@ -1,7 +1,7 @@
 import { accessorColumn, computedColumn, displayColumn, columnGroup } from "./core/column-creation";
 import { DatagridCore } from "./core/index.svelte";
 import { comparisonFilter, containmentFilter, textFilter } from "./core/features/column-filtering.svelte";
-import { TableBackendFilter, TableBackendFilterRegistry } from "./core/features/table-backend-filter";
+import { backendFilterDefinition } from "./core/features/backend-filter-definition";
 import { backendSortDefinition } from "./core/features/backend-sort-definition";
 import { sortDefinition } from "./core/features/sorting.svelte";
 import { getCellContent } from "./core/utils.svelte";
@@ -22,6 +22,7 @@ import type {
   DataTableFilterDefinition,
   DataTableFilterFromDefinition,
   DataTableFilterFromDefinitions,
+  DataTableFilterValue,
   DataTableTextFilter,
   DataTableTextFilterComponentProps,
   DataTableTextFilterDefinition,
@@ -48,6 +49,7 @@ export {
   getCellContent,
   Table,
   accessorColumn,
+  backendFilterDefinition,
   backendSortDefinition,
   columnGroup,
   comparisonFilter,
@@ -56,8 +58,6 @@ export {
   displayColumn,
   sortDefinition,
   textFilter,
-  TableBackendFilter,
-  TableBackendFilterRegistry,
   FilteringService,
   SortingService,
 };
@@ -78,6 +78,7 @@ export type {
   DataTableFilterDefinition,
   DataTableFilterFromDefinition,
   DataTableFilterFromDefinitions,
+  DataTableFilterValue,
   DataTableLoadRequest,
   DataTableLoadResult,
   DataTableLoader,

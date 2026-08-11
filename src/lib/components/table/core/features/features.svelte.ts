@@ -1,6 +1,7 @@
 import type { DatagridCoreConfig } from "../config";
 import type { DatagridCore } from "../index.svelte";
 import type { DataTableSort } from "./sorting.svelte";
+import type { DataTableFilter } from "./column-filtering.svelte";
 import {
   ColumnFacetingFeature,
   ColumnFilteringFeature,
@@ -19,13 +20,13 @@ import {
   SortingFeature,
 } from "../features";
 
-export class DatagridFeatures<TOriginalRow = any, TSort = DataTableSort> {
-  readonly datagrid: DatagridCore<TOriginalRow, TSort>;
-  readonly dataLoading: DataLoadingFeature<TOriginalRow, TSort>;
+export class DatagridFeatures<TOriginalRow = any, TSort = DataTableSort, TFilter = DataTableFilter> {
+  readonly datagrid: DatagridCore<TOriginalRow, TSort, TFilter>;
+  readonly dataLoading: DataLoadingFeature<TOriginalRow, TSort, TFilter>;
   readonly pagination: PaginationFeature<TOriginalRow>;
   readonly sorting: SortingFeature<TSort>;
   readonly grouping: GroupingFeature;
-  readonly filtering: ColumnFilteringFeature<TOriginalRow>;
+  readonly filtering: ColumnFilteringFeature<TOriginalRow, TFilter>;
   readonly globalSearch: GlobalSearchFeature;
   readonly columnSizing: ColumnSizingFeature<TOriginalRow>;
   readonly columnVisibility: ColumnVisibilityFeature<TOriginalRow>;
@@ -37,19 +38,26 @@ export class DatagridFeatures<TOriginalRow = any, TSort = DataTableSort> {
   readonly rowSelection: RowSelectionFeature<TOriginalRow>;
   readonly rowPinning: RowPinningFeature<TOriginalRow>;
 
-  constructor(datagrid: DatagridCore<TOriginalRow, TSort>, config?: DatagridCoreConfig<TOriginalRow, TSort>) {
+  constructor(
+    datagrid: DatagridCore<TOriginalRow, TSort, TFilter>,
+    config?: DatagridCoreConfig<TOriginalRow, TSort, TFilter>,
+  ) {
     this.datagrid = datagrid;
     const overrides = config?.features;
     const initial = config?.initialState;
 
     const SortingConstructor = (overrides?.sorting ?? SortingFeature) as new (
-      datagrid: DatagridCore<TOriginalRow, TSort>,
+      datagrid: DatagridCore<TOriginalRow, TSort, TFilter>,
       config: NonNullable<typeof initial>["sorting"],
     ) => SortingFeature<TSort>;
     const DataLoadingConstructor = (overrides?.dataLoading ?? DataLoadingFeature) as new (
-      datagrid: DatagridCore<TOriginalRow, TSort>,
+      datagrid: DatagridCore<TOriginalRow, TSort, TFilter>,
       config: NonNullable<typeof initial>["dataLoading"],
-    ) => DataLoadingFeature<TOriginalRow, TSort>;
+    ) => DataLoadingFeature<TOriginalRow, TSort, TFilter>;
+    const FilteringConstructor = (overrides?.filtering ?? ColumnFilteringFeature) as new (
+      datagrid: DatagridCore<TOriginalRow, TSort, TFilter>,
+      config: NonNullable<typeof initial>["filtering"],
+    ) => ColumnFilteringFeature<TOriginalRow, TFilter>;
 
     this.sorting = new SortingConstructor(datagrid, initial?.sorting ?? {});
     this.dataLoading = new DataLoadingConstructor(datagrid, initial?.dataLoading ?? {});
@@ -88,7 +96,7 @@ export class DatagridFeatures<TOriginalRow = any, TSort = DataTableSort> {
       datagrid as any,
       initial?.columnOrdering ?? {},
     );
-    this.filtering = new (overrides?.filtering ?? ColumnFilteringFeature)(datagrid as any, initial?.filtering ?? {});
+    this.filtering = new FilteringConstructor(datagrid, initial?.filtering ?? {});
     this.columnFaceting = new (overrides?.faceting ?? ColumnFacetingFeature)(datagrid as any, initial?.faceting ?? {});
   }
 }

@@ -10,11 +10,12 @@ import { PaginationService } from "../services/pagination-service";
 import { RowService } from "../services/row-service.svelte";
 import { SortingService } from "../services/sorting-service";
 import type { DataTableSort } from "../features/sorting.svelte";
+import type { DataTableFilter } from "../features/column-filtering.svelte";
 
-export class HandlersManager<TOriginalRow = any, TSort = DataTableSort> {
+export class HandlersManager<TOriginalRow = any, TSort = DataTableSort, TFilter = DataTableFilter> {
   readonly column: ColumnControlService;
   readonly dataLoading: DataLoadingService<TOriginalRow>;
-  readonly filtering: FilteringService;
+  readonly filtering: FilteringService<TFilter>;
   readonly globalSearch: SearchService;
   readonly grouping: GroupingService;
   readonly pagination: PaginationService;
@@ -22,10 +23,10 @@ export class HandlersManager<TOriginalRow = any, TSort = DataTableSort> {
   readonly sorting: SortingService<TSort>;
   readonly editing: EditingService<TOriginalRow>;
 
-  constructor(datagrid: DatagridCore<TOriginalRow, TSort>, events: EventService) {
+  constructor(datagrid: DatagridCore<TOriginalRow, TSort, TFilter>, events: EventService) {
     this.column = new ColumnControlService(datagrid, events);
     this.dataLoading = new DataLoadingService<TOriginalRow>(datagrid, events);
-    this.filtering = new FilteringService(datagrid, events);
+    this.filtering = new FilteringService<TFilter>(datagrid, events);
     this.globalSearch = new SearchService(datagrid, events);
     this.grouping = new GroupingService(datagrid, events);
     this.pagination = new PaginationService(datagrid, events);

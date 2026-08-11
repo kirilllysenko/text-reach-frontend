@@ -1,16 +1,12 @@
 import { CampaignsStore } from "$houdini";
-import type { CampaignSortInput } from "$houdini/graphql/inputs";
-import { DatagridCore, accessorColumn, type DataTableFilter, type SortingService } from "$lib/components/table";
+import type { CampaignFilterInput, CampaignSortInput } from "$houdini/graphql/inputs";
+import { DatagridCore, accessorColumn, type FilteringService, type SortingService } from "$lib/components/table";
 import { debounce } from "$lib/utils/debounce";
 import { toGraphQLErrorText } from "$lib/graphql/errors";
-import {
-  campaignStatusOptions,
-  statusLabelMap,
-  type CampaignStatus,
-  type CampaignViewModel,
-} from "$lib/feature/campaign/campaign-view-data";
+import type { CampaignViewModel } from "$lib/feature/campaign/campaign-view-data";
 import { buildCampaignRequest } from "./campaign-query";
 import { campaignSortDefinitions, initialCampaignSorts } from "./campaign-table-sorts";
+import { campaignFilterDefinitions } from "./campaign-table-filters";
 import { mergeContactGroupNames, toCampaignViewModel } from "./campaign-display";
 
 type MobileView = "list" | "details";
@@ -27,10 +23,6 @@ export class CampaignState {
   contactGroupNameById = $state<Record<string, string>>({});
 
   search = $state("");
-  statusFilters = $state<NonNullable<CampaignStatus>[]>([]);
-  createdAfter = $state("");
-  minSentMessageCount = $state("");
-  minMessageCount = $state("");
   desktopExpanded = $state(false);
   filtersOpen = $state(false);
   sortOpen = $state(false);
@@ -43,7 +35,7 @@ export class CampaignState {
   private readonly scheduleRefresh = debounce(() => {
     void this.resetAndLoadCampaignList();
   }, SEARCH_DEBOUNCE_MS);
-  private readonly sortingTable = new DatagridCore<CampaignViewModel, CampaignSortInput>({
+  private readonly table = new DatagridCore<CampaignViewModel, CampaignSortInput, CampaignFilterInput>({
     columns: [
       accessorColumn<CampaignViewModel, "id", unknown>({
         accessorKey: "id",
@@ -53,15 +45,18 @@ export class CampaignState {
     ],
     data: [],
     initialState: {
+      filtering: {
+        filterDefinitions: campaignFilterDefinitions,
+      },
       sorting: {
         sortDefinitions: campaignSortDefinitions,
         sorts: [...initialCampaignSorts],
       },
     },
   });
-  readonly sorting: SortingService<CampaignSortInput> = this.sortingTable.handlers.sorting;
+  readonly filtering: FilteringService<CampaignFilterInput> = this.table.handlers.filtering;
+  readonly sorting: SortingService<CampaignSortInput> = this.table.handlers.sorting;
 
-  statusOptions = campaignStatusOptions;
   selectedCampaign = $derived.by(() => {
     const selectedCampaignId = this.selectedCampaignId;
     if (!selectedCampaignId) {
@@ -71,29 +66,7 @@ export class CampaignState {
     return this.campaigns.find((campaign) => campaign.id === selectedCampaignId);
   });
 
-  activeFilterChips = $derived.by(() => {
-    const chips: string[] = [];
-
-    if (this.statusFilters.length > 0) {
-      chips.push(`Status: ${this.statusFilters.map((status) => this.statusLabel(status)).join(", ")}`);
-    }
-
-    if (this.createdAfter) {
-      chips.push(`Created after: ${this.createdAfter}`);
-    }
-
-    if (this.minSentMessageCount) {
-      chips.push(`Min sent: ${this.minSentMessageCount}`);
-    }
-
-    if (this.minMessageCount) {
-      chips.push(`Min all messages: ${this.minMessageCount}`);
-    }
-
-    return chips;
-  });
-
-  activeFilterCount = $derived(this.activeFilterChips.length);
+  activeFilterCount = $derived(this.filtering.getVisibleActiveFilterCount());
 
   sortChips = $derived.by(() =>
     this.sorting.sorts.map((rule, index) => {
@@ -115,50 +88,9 @@ export class CampaignState {
   });
 
   constructor() {
-    this.sortingTable.events.on("onSortingChange", this.handleSortingChange);
+    this.table.events.on("onFilterChange", this.handleTableChange);
+    this.table.events.on("onSortingChange", this.handleTableChange);
     void this.load();
-  }
-
-  get filters(): DataTableFilter[] {
-    const filters: DataTableFilter[] = [];
-
-    if (this.statusFilters.length > 0) {
-      filters.push({
-        filterId: "status",
-        operator: "IN",
-        type: "containment",
-        value: this.statusFilters,
-      });
-    }
-
-    if (this.createdAfter) {
-      filters.push({
-        filterId: "createdAfter",
-        operator: "GREATER_OR_EQUAL",
-        type: "comparison",
-        value: this.createdAfter,
-      });
-    }
-
-    if (this.minSentMessageCount) {
-      filters.push({
-        filterId: "minSentMessageCount",
-        operator: "GREATER_OR_EQUAL",
-        type: "comparison",
-        value: Number(this.minSentMessageCount),
-      });
-    }
-
-    if (this.minMessageCount) {
-      filters.push({
-        filterId: "minMessageCount",
-        operator: "GREATER_OR_EQUAL",
-        type: "comparison",
-        value: Number(this.minMessageCount),
-      });
-    }
-
-    return filters;
   }
 
   load = async (): Promise<void> => {
@@ -168,18 +100,6 @@ export class CampaignState {
   updateSearch = (value: string): void => {
     this.search = value;
     this.scheduleRefresh();
-  };
-
-  setFilter = (filterId: string, filter: DataTableFilter): void => {
-    this.setFilters([...this.filters.filter((current) => current.filterId !== filterId), { ...filter, filterId }]);
-  };
-
-  removeFilter = (filterId: string): void => {
-    this.setFilters(this.filters.filter((filter) => filter.filterId !== filterId));
-  };
-
-  clearFilters = (): void => {
-    this.setFilters([]);
   };
 
   selectCampaign = (campaignId: string): void => {
@@ -239,56 +159,15 @@ export class CampaignState {
 
   isCampaignSelected = (campaignId: string): boolean => this.selectedCampaignId === campaignId;
 
-  statusLabel = (status: NonNullable<CampaignStatus>): string => statusLabelMap[status];
-
   dispose = (): void => {
-    this.sortingTable.events.off("onSortingChange", this.handleSortingChange);
+    this.table.events.off("onFilterChange", this.handleTableChange);
+    this.table.events.off("onSortingChange", this.handleTableChange);
     this.scheduleRefresh.cancel();
   };
 
-  private setFilters(filters: DataTableFilter[]): void {
-    this.applyFeatureFilters(filters);
-    void this.resetAndLoadCampaignList();
-  }
-
-  private handleSortingChange = (): void => {
+  private handleTableChange = (): void => {
     void this.resetAndLoadCampaignList();
   };
-
-  private applyFeatureFilters(filters: DataTableFilter[]): void {
-    const statusFilter = filters.find(
-      (filter) => filter.type === "containment" && filter.filterId === "status" && filter.operator === "IN",
-    );
-    const createdAfterFilter = filters.find(
-      (filter) =>
-        filter.type === "comparison" && filter.filterId === "createdAfter" && filter.operator === "GREATER_OR_EQUAL",
-    );
-    const minSentFilter = filters.find(
-      (filter) =>
-        filter.type === "comparison" &&
-        filter.filterId === "minSentMessageCount" &&
-        filter.operator === "GREATER_OR_EQUAL",
-    );
-    const minAllFilter = filters.find(
-      (filter) =>
-        filter.type === "comparison" && filter.filterId === "minMessageCount" && filter.operator === "GREATER_OR_EQUAL",
-    );
-
-    this.statusFilters =
-      statusFilter?.type === "containment" ? (statusFilter.value as NonNullable<CampaignStatus>[]) : [];
-    this.createdAfter =
-      createdAfterFilter?.type === "comparison" && typeof createdAfterFilter.value === "string"
-        ? createdAfterFilter.value
-        : "";
-    this.minSentMessageCount =
-      minSentFilter?.type === "comparison" && typeof minSentFilter.value !== "undefined"
-        ? String(minSentFilter.value)
-        : "";
-    this.minMessageCount =
-      minAllFilter?.type === "comparison" && typeof minAllFilter.value !== "undefined"
-        ? String(minAllFilter.value)
-        : "";
-  }
 
   private async resetAndLoadCampaignList(): Promise<void> {
     this.requestVersion += 1;
@@ -318,11 +197,8 @@ export class CampaignState {
         variables: buildCampaignRequest({
           pageSize: DEFAULT_PAGE_SIZE,
           cursor: this.nextCursor,
+          filters: this.filtering.filters,
           search: this.search,
-          statusFilters: this.statusFilters,
-          createdAfter: this.createdAfter,
-          minSentMessageCount: this.minSentMessageCount,
-          minMessageCount: this.minMessageCount,
           sort: this.sorting.sorts,
         }),
       });

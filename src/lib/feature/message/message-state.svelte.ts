@@ -1,5 +1,5 @@
 import { MessagesStore } from "$houdini";
-import type { MessageSortByInput } from "$houdini/graphql/inputs";
+import type { MessageFilterInput, MessageSortByInput } from "$houdini/graphql/inputs";
 import type { DataTableLoadRequest, DataTableLoadResult } from "$lib/components/table";
 import { toMessageViewModel } from "$lib/feature/message/message-display";
 import { buildMessageRequest } from "$lib/feature/message/message-query";
@@ -15,7 +15,7 @@ export class CampaignMessagesState {
   constructor(private readonly campaignId: string) {}
 
   fetchRows = async (
-    request: DataTableLoadRequest<MessageSortByInput>,
+    request: DataTableLoadRequest<MessageSortByInput, MessageFilterInput>,
   ): Promise<DataTableLoadResult<MessageViewModel>> => {
     const pageRequest = buildMessageRequest({
       campaignId: this.campaignId,

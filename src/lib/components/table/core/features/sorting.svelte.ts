@@ -75,7 +75,7 @@ export type ISortingFeature<TSort = DataTableSort> = {
 export type SortingFeatureConfig<TSort = DataTableSort> = Partial<SortingFeatureState<TSort>>;
 
 export class SortingFeature<TSort = DataTableSort> implements ISortingFeature<TSort> {
-  datagrid: DatagridCore<any, any>;
+  datagrid: DatagridCore<any, any, any>;
   sortDefinitions: readonly DataTableSortDefinition<string, any, TSort>[] = [];
   sorts: TSort[] = $state([]);
   isManual: boolean = $state(false);
@@ -83,7 +83,7 @@ export class SortingFeature<TSort = DataTableSort> implements ISortingFeature<TS
   maxMultiSortColumns: number = $state(Infinity);
   onSortingChange: (config: SortingFeature<TSort>) => void = () => {};
 
-  constructor(datagrid: DatagridCore<any, any>, config: SortingFeatureConfig<TSort> = {}) {
+  constructor(datagrid: DatagridCore<any, any, any>, config: SortingFeatureConfig<TSort> = {}) {
     this.datagrid = datagrid;
     this.sortDefinitions = config.sortDefinitions ?? [];
     this.sorts = config.sorts ?? [];

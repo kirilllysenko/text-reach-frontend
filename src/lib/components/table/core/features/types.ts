@@ -1,5 +1,5 @@
 import type { ColumnFacetingFeature } from "./column-faceting.svelte";
-import type { ColumnFilteringFeature } from "./column-filtering.svelte";
+import type { ColumnFilteringFeature, DataTableFilter } from "./column-filtering.svelte";
 import type { ColumnGroupingFeature } from "./column-grouping.svelte";
 import type { ColumnOrderingFeature } from "./column-ordering.svelte";
 import type { ColumnPinningFeature } from "./column-pinning.svelte";
@@ -52,11 +52,11 @@ export type FeatureConstructor<T> = {
   new (datagrid: DatagridCore<any>, config?: any): T;
 };
 
-export type InitialState<TOriginalRow = any, TSort = DataTableSort> = {
-  dataLoading?: DataLoadingFeatureConfig<TOriginalRow, TSort>;
+export type InitialState<TOriginalRow = any, TSort = DataTableSort, TFilter = DataTableFilter> = {
+  dataLoading?: DataLoadingFeatureConfig<TOriginalRow, TSort, TFilter>;
   sorting?: SortingFeatureConfig<TSort>;
   pagination?: PaginationFeatureConfig;
-  filtering?: ColumnFilteringFeatureConfig;
+  filtering?: ColumnFilteringFeatureConfig<TFilter>;
   faceting?: ColumnFacetingFeatureConfig;
   globalSearch?: GlobalSearchFeatureConfig;
   grouping?: GroupingFeatureConfig;

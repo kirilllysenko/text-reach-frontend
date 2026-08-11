@@ -1,18 +1,4 @@
-import type {
-  DataTableComparisonOperator,
-  DataTableContainmentOperator,
-  DataTableFilter,
-  DataTableFilterDefinition,
-  DataTableTextOperator,
-} from "../table";
-
-export interface FilterPanelController {
-  filters: DataTableFilter[];
-  filterDefinitions: readonly DataTableFilterDefinition[];
-  setFilter: (filterId: string, filter: DataTableFilter) => void;
-  removeFilter: (filterId: string) => void;
-  clearFilters: () => void;
-}
+import type { DataTableComparisonOperator, DataTableContainmentOperator, DataTableTextOperator } from "../table";
 
 export interface FilterPanelOption {
   value: string;

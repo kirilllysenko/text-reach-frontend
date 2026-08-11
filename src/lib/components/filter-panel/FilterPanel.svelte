@@ -1,28 +1,26 @@
-<script lang="ts">
+<script lang="ts" generics="TFilter">
   import Input from "../input/Input.svelte";
   import type {
-    DataTableComparisonFilter,
     DataTableComparisonFilterComponentProps,
     DataTableComparisonFilterDefinition,
-    DataTableContainmentFilter,
     DataTableContainmentFilterComponentProps,
     DataTableContainmentFilterDefinition,
     DataTableFilter,
     DataTableFilterDefinition,
-    DataTableTextFilter,
+    DataTableFilterValue,
     DataTableTextFilterComponentProps,
     DataTableTextFilterDefinition,
+    FilteringService,
   } from "../table";
   import type {
     FilterPanelCheckboxGroup,
     FilterPanelConfig,
-    FilterPanelController,
     FilterPanelField,
     FilterPanelInput,
   } from "./filter-panel-types";
 
   interface Props {
-    filtering: FilterPanelController;
+    filtering: FilteringService<TFilter>;
     clearLabel?: string;
     compact?: boolean;
     config?: FilterPanelConfig;
@@ -42,46 +40,48 @@
   const filterDefinitions = $derived(filtering.filterDefinitions?.filter((definition) => !definition.hidden) ?? []);
   const visibleFilterIds = $derived(new Set(filterDefinitions.map((definition) => definition.filterId)));
   const chips = $derived.by(() =>
-    filtering.filters.filter((filter) => config || visibleFilterIds.has(filter.filterId)).map(formatChip),
+    filtering.filters.filter((filter) => config || visibleFilterIds.has(filtering.getFilterId(filter))).map(formatChip),
   );
   const panelTitle = $derived(config?.title ?? title);
   const panelDescription = $derived(config?.description ?? description);
   const panelClearLabel = $derived(config?.clearLabel ?? clearLabel ?? "Clear filters");
 
   function getContainmentValues(field: FilterPanelCheckboxGroup): string[] {
-    const filter = filtering.filters.find(
-      (current) =>
-        current.type === "containment" &&
-        current.filterId === field.filterId &&
-        current.operator === (field.operator ?? "IN"),
-    );
+    const filter = filtering.getFilter(field.filterId);
 
-    return filter?.type === "containment" ? filter.value : [];
+    if (!filter || filtering.getFilterOperator(filter) !== (field.operator ?? "IN")) {
+      return [];
+    }
+
+    const value = filtering.getFilterValue(filter);
+    return Array.isArray(value) ? value : [];
   }
 
-  function getDefinitionFilter(definition: DataTableFilterDefinition): DataTableFilter | null {
-    return (
-      filtering.filters.find(
-        (current) => current.filterId === definition.filterId && current.operator === getDefinitionOperator(definition),
-      ) ?? null
-    );
+  function getDefinitionFilter(definition: DataTableFilterDefinition<string, any, TFilter>): TFilter | null {
+    const filter = filtering.getFilter(definition.filterId);
+    return filter && filtering.getFilterOperator(filter) === getDefinitionOperator(definition) ? filter : null;
   }
 
-  function getDefinitionValue(definition: DataTableFilterDefinition): DataTableFilter["value"] | null {
-    return getDefinitionFilter(definition)?.value ?? null;
+  function getDefinitionValue(
+    definition: DataTableFilterDefinition<string, any, TFilter>,
+  ): DataTableFilterValue | null {
+    const filter = getDefinitionFilter(definition);
+    return filter ? filtering.getFilterValue(filter) : null;
   }
 
   function getInputValue(input: FilterPanelInput): string {
-    const filter = filtering.filters.find(
-      (current) =>
-        current.type === input.filterType && current.filterId === input.filterId && current.operator === input.operator,
-    );
+    const filter = filtering.getFilter(input.filterId);
 
-    if (!filter || filter.type === "containment" || typeof filter.value === "undefined" || filter.value === null) {
+    if (
+      !filter ||
+      filtering.getFilterType(filter) !== input.filterType ||
+      filtering.getFilterOperator(filter) !== input.operator
+    ) {
       return "";
     }
 
-    return String(filter.value);
+    const value = filtering.getFilterValue(filter);
+    return Array.isArray(value) || typeof value === "undefined" || value === null ? "" : String(value);
   }
 
   function updateCheckbox(field: FilterPanelCheckboxGroup, value: string): void {
@@ -101,16 +101,10 @@
       return;
     }
 
-    filtering.setFilter(field.filterId, {
-      filterId: field.filterId,
-      operator,
-      type: "containment",
-      value: nextValues,
-    });
+    filtering.setFilterValue(field.filterId, nextValues, operator);
   }
 
   function updateInput(input: FilterPanelInput, value: string): void {
-    const filterKey = { filterId: input.filterId, operator: input.operator, type: input.filterType };
     const normalizedValue = value.trim();
 
     if (!normalizedValue) {
@@ -118,32 +112,28 @@
       return;
     }
 
-    filtering.setFilter(input.filterId, {
-      ...filterKey,
-      value: input.valueKind === "number" ? Number(normalizedValue) : normalizedValue,
-    } as DataTableFilter);
+    filtering.setFilterValue(
+      input.filterId,
+      input.valueKind === "number" ? Number(normalizedValue) : normalizedValue,
+      input.operator,
+    );
   }
 
   function setDefinitionValue(
-    definition: DataTableFilterDefinition,
-    nextValue: DataTableFilter["value"] | null | undefined,
+    definition: DataTableFilterDefinition<string, any, TFilter>,
+    nextValue: DataTableFilterValue | null | undefined,
   ): void {
     if (shouldClearDefinition(definition, nextValue)) {
       filtering.removeFilter(definition.filterId);
       return;
     }
 
-    filtering.setFilter(definition.filterId, {
-      filterId: definition.filterId,
-      operator: getDefinitionOperator(definition),
-      type: definition.type,
-      value: nextValue,
-    } as DataTableFilter);
+    filtering.setFilterValue(definition.filterId, nextValue, getDefinitionOperator(definition));
   }
 
   function shouldClearDefinition(
-    definition: DataTableFilterDefinition,
-    value: DataTableFilter["value"] | null | undefined,
+    definition: DataTableFilterDefinition<string, any, TFilter>,
+    value: DataTableFilterValue | null | undefined,
   ): boolean {
     if (value === null || typeof value === "undefined") {
       return true;
@@ -160,7 +150,9 @@
     return value === "";
   }
 
-  function getDefinitionOperator(definition: DataTableFilterDefinition): DataTableFilter["operator"] {
+  function getDefinitionOperator(
+    definition: DataTableFilterDefinition<string, any, TFilter>,
+  ): DataTableFilter["operator"] {
     if (definition.type === "comparison") {
       return definition.defaultOperator ?? "EQUAL";
     }
@@ -172,7 +164,7 @@
     return definition.defaultOperator ?? "CONTAINS";
   }
 
-  function getDefinitionInputType(definition: DataTableFilterDefinition): "date" | "search" {
+  function getDefinitionInputType(definition: DataTableFilterDefinition<string, any, TFilter>): "date" | "search" {
     const dateLikeId = definition.filterId.toLowerCase();
 
     if (definition.type === "comparison" && (dateLikeId.includes("birthday") || dateLikeId.includes("date"))) {
@@ -182,37 +174,44 @@
     return "search";
   }
 
-  function formatChip(filter: DataTableFilter): string {
+  function formatChip(filter: TFilter): string {
+    const filterId = filtering.getFilterId(filter);
+    const operator = filtering.getFilterOperator(filter);
+    const type = filtering.getFilterType(filter);
+    const value = filtering.getFilterValue(filter);
     if (!config) {
       return formatDefinitionChip(filter);
     }
 
     const field = getFilterFields().find((current) => {
-      const operator = current.kind === "input" ? current.operator : (current.operator ?? "IN");
-      return current.filterId === filter.filterId && operator === filter.operator;
+      const currentOperator = current.kind === "input" ? current.operator : (current.operator ?? "IN");
+      return current.filterId === filterId && currentOperator === operator;
     });
-    const label = field?.label ?? filter.filterId;
+    const label = field?.label ?? filterId;
 
-    if (filter.type === "containment") {
-      return `${label}: ${formatContainmentChip(field, filter.value)}`;
+    if (type === "containment" && Array.isArray(value)) {
+      return `${label}: ${formatContainmentChip(field, value)}`;
     }
 
-    return `${label}: ${filter.value ?? ""}`;
+    return `${label}: ${value ?? ""}`;
   }
 
-  function formatDefinitionChip(filter: DataTableFilter): string {
-    const definition = filtering.filterDefinitions?.find((current) => current.filterId === filter.filterId);
-    const label = definition?.label ?? filter.filterId;
+  function formatDefinitionChip(filter: TFilter): string {
+    const filterId = filtering.getFilterId(filter);
+    const type = filtering.getFilterType(filter);
+    const value = filtering.getFilterValue(filter);
+    const definition = filtering.filterDefinitions.find((current) => current.filterId === filterId);
+    const label = definition?.label ?? filterId;
 
     if (definition?.formatValue) {
-      return `${label}: ${definition.formatValue(filter.value, filter)}`;
+      return `${label}: ${definition.formatValue(value, filter)}`;
     }
 
-    if (filter.type === "containment") {
-      return `${label}: ${filter.value.join(", ")}`;
+    if (type === "containment" && Array.isArray(value)) {
+      return `${label}: ${value.join(", ")}`;
     }
 
-    return `${label}: ${filter.value ?? ""}`;
+    return `${label}: ${value ?? ""}`;
   }
 
   function formatContainmentChip(
@@ -252,58 +251,38 @@
   }
 
   function getTextComponentProps(
-    definition: DataTableTextFilterDefinition,
+    definition: DataTableTextFilterDefinition<string, any, TFilter>,
   ): DataTableTextFilterComponentProps {
-    return getComponentProps(definition, isTextFilter);
+    return getComponentProps(definition) as DataTableTextFilterComponentProps;
   }
 
   function getComparisonComponentProps(
-    definition: DataTableComparisonFilterDefinition,
+    definition: DataTableComparisonFilterDefinition<string, any, TFilter>,
   ): DataTableComparisonFilterComponentProps {
-    return getComponentProps(definition, isComparisonFilter);
+    return getComponentProps(definition) as DataTableComparisonFilterComponentProps;
   }
 
   function getContainmentComponentProps(
-    definition: DataTableContainmentFilterDefinition,
+    definition: DataTableContainmentFilterDefinition<string, any, TFilter>,
   ): DataTableContainmentFilterComponentProps {
-    return getComponentProps(definition, isContainmentFilter);
+    return getComponentProps(definition) as DataTableContainmentFilterComponentProps;
   }
 
-  function getComponentProps<TFilter extends DataTableFilter>(
-    definition: DataTableFilterDefinition,
-    isExpectedFilter: (filter: DataTableFilter) => filter is TFilter,
-  ): FilterComponentProps<TFilter> {
-    const getFilter = () => {
-      const filter = getDefinitionFilter(definition);
-      return filter && isExpectedFilter(filter) ? filter : null;
-    };
+  function getComponentProps(definition: DataTableFilterDefinition<string, any, TFilter>): FilterComponentProps {
+    const getValue = () => getDefinitionValue(definition) ?? null;
 
     return {
-      filter: getFilter(),
-      value: getFilter()?.value ?? null,
-      getValue: () => getFilter()?.value ?? null,
-      setValue: (nextValue: DataTableFilter["value"] | null | undefined) => setDefinitionValue(definition, nextValue),
+      value: getValue(),
+      getValue,
+      setValue: (nextValue: DataTableFilterValue | null | undefined) => setDefinitionValue(definition, nextValue),
       clear: () => filtering.removeFilter(definition.filterId),
     };
   }
 
-  function isTextFilter(filter: DataTableFilter): filter is DataTableTextFilter {
-    return filter.type === "text";
-  }
-
-  function isComparisonFilter(filter: DataTableFilter): filter is DataTableComparisonFilter {
-    return filter.type === "comparison";
-  }
-
-  function isContainmentFilter(filter: DataTableFilter): filter is DataTableContainmentFilter {
-    return filter.type === "containment";
-  }
-
-  type FilterComponentProps<TFilter extends DataTableFilter> = {
-    filter: TFilter | null;
-    value: TFilter["value"] | null;
-    getValue: () => TFilter["value"] | null;
-    setValue: (nextValue: TFilter["value"] | null | undefined) => void;
+  type FilterComponentProps = {
+    value: DataTableFilterValue | null;
+    getValue: () => DataTableFilterValue | null;
+    setValue: (nextValue: DataTableFilterValue | null | undefined) => void;
     clear: () => void;
   };
 </script>

@@ -1,6 +1,4 @@
 import type { WalletTransactionFilterInput, WalletTransactionSortByInput } from "$houdini/graphql/inputs";
-import type { DataTableFilter } from "$lib/components/table";
-import { walletTransactionTableFilters } from "./payment-table-filters";
 
 const ULID_PATTERN = /^[0-9A-HJKMNP-TV-Z]{26}$/i;
 
@@ -9,7 +7,7 @@ interface WalletTransactionRequestOptions {
   cursor: unknown[] | null;
   direction?: "next" | "previous";
   idSearch: string;
-  filters: DataTableFilter[];
+  filters: WalletTransactionFilterInput[];
   sort: readonly WalletTransactionSortByInput[];
 }
 
@@ -26,7 +24,7 @@ export function buildWalletTransactionRequest(options: WalletTransactionRequestO
 
 export function buildWalletTransactionFilter(
   idSearch: string,
-  filters: DataTableFilter[],
+  filters: WalletTransactionFilterInput[],
 ): WalletTransactionFilterInput | undefined {
   const nested: WalletTransactionFilterInput[] = [];
   const normalizedIdSearch = idSearch.trim().toUpperCase();
@@ -36,26 +34,16 @@ export function buildWalletTransactionFilter(
       operator: "OR",
       nested: [
         {
-          nested: [],
-          operator: "AND",
-          id: {
-            operator: "IN",
-            value: [normalizedIdSearch],
-          },
+          id: { in: [normalizedIdSearch] },
         },
         {
-          nested: [],
-          operator: "AND",
-          sourceId: {
-            operator: "IN",
-            value: [normalizedIdSearch],
-          },
+          sourceId: { in: [normalizedIdSearch] },
         },
       ],
     });
   }
 
-  nested.push(...walletTransactionTableFilters.toDtos(filters));
+  nested.push(...filters);
 
   if (nested.length === 0) {
     return undefined;

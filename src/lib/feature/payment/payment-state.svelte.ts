@@ -1,5 +1,5 @@
 import { PaymentOverviewStore, WalletTransactionsStore } from "$houdini";
-import type { WalletTransactionSortByInput } from "$houdini/graphql/inputs";
+import type { WalletTransactionFilterInput, WalletTransactionSortByInput } from "$houdini/graphql/inputs";
 import type { DataTableLoadRequest, DataTableLoadResult } from "$lib/components/table";
 import { toWalletTransactionViewModel, type WalletBalanceData } from "./payment-display";
 import { buildWalletTransactionFilter, buildWalletTransactionRequest, isUlid } from "./payment-query";
@@ -46,7 +46,7 @@ export class WalletTransactionState {
   activeIdSearchIsInvalid = $derived(Boolean(this.idSearch.trim()) && !isUlid(this.idSearch));
 
   fetchRows = async (
-    request: DataTableLoadRequest<WalletTransactionSortByInput>,
+    request: DataTableLoadRequest<WalletTransactionSortByInput, WalletTransactionFilterInput>,
   ): Promise<DataTableLoadResult<WalletTransactionViewModel>> => {
     const filter = buildWalletTransactionFilter(this.idSearch, request.filters);
 

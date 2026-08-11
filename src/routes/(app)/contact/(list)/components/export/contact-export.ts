@@ -3,9 +3,7 @@ import type {
   ContactExportContactsQuery$input,
   ContactExportContactsQuery$result,
 } from "$houdini/artifacts/ContactExportContactsQuery";
-import type { ContactSortByInput } from "$houdini/graphql/inputs";
-import type { DataTableFilter } from "$lib/components/table";
-import { contactTableFilters } from "../filter/filter.svelte";
+import type { ContactFilterInput, ContactSortByInput } from "$houdini/graphql/inputs";
 
 const EXPORT_PAGE_SIZE = 500;
 const MAX_EXPORT_PAGES = 200;
@@ -14,7 +12,7 @@ const contactsQuery = new ContactExportContactsQueryStore();
 export type ContactExportRow = ContactExportContactsQuery$result["contacts"]["edges"][number]["node"];
 
 export interface ContactExportSnapshot {
-  filters: DataTableFilter[];
+  filters: ContactFilterInput[];
   search: string;
   sorts: ContactSortByInput[];
 }
@@ -23,7 +21,7 @@ export function buildContactExportRequest(
   snapshot: ContactExportSnapshot,
   cursor: string | null,
 ): ContactExportContactsQuery$input {
-  const filters = contactTableFilters.toDtos(getContactExportFilters(snapshot));
+  const filters = getContactExportFilters(snapshot);
 
   return {
     after: cursor,
@@ -33,13 +31,13 @@ export function buildContactExportRequest(
   };
 }
 
-function getContactExportFilters(snapshot: ContactExportSnapshot): DataTableFilter[] {
+function getContactExportFilters(snapshot: ContactExportSnapshot): ContactFilterInput[] {
   const search = snapshot.search.trim();
-  if (!search || snapshot.filters.some((filter) => filter.filterId === "search")) {
+  if (!search || snapshot.filters.some((filter) => typeof filter.filter === "string")) {
     return snapshot.filters;
   }
 
-  return [{ filterId: "search", type: "text", operator: "CONTAINS", value: search }, ...snapshot.filters];
+  return [{ filter: search }, ...snapshot.filters];
 }
 
 export async function loadContactExportList(snapshot: ContactExportSnapshot): Promise<ContactExportRow[]> {

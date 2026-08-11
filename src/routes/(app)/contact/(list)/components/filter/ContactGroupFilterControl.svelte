@@ -1,11 +1,11 @@
 <script lang="ts">
   import { type DataTableContainmentFilterComponentProps } from "$lib";
-  import ContactGroupCombobox from "$lib/feature/contact-group/ContactGroupCombobox.svelte";
+  import ContactGroupMultiCombobox from "$lib/feature/contact-group/MultiCombobox/ContactGroupMultiCombobox.svelte";
 
   let { value, setValue }: DataTableContainmentFilterComponentProps = $props();
 </script>
 
-<ContactGroupCombobox
+<ContactGroupMultiCombobox
   value={value ?? []}
   placeholder="Search groups"
   emptyText="No groups found"

@@ -41,39 +41,49 @@ export type DataTableFilter<TFilterId extends string = string> =
   | DataTableComparisonFilter<TFilterId>
   | DataTableContainmentFilter<TFilterId>;
 
+export type DataTableFilterValue = DataTableFilter["value"];
+
 interface FilterComponentProps<TFilter extends DataTableFilter> {
-  filter: TFilter | null;
   value: TFilter["value"] | null;
   getValue: () => TFilter["value"] | null;
   setValue: (nextValue: TFilter["value"] | null | undefined) => void;
   clear: () => void;
 }
 
-export type DataTableTextFilterComponentProps<TFilterId extends string = string> =
-  FilterComponentProps<DataTableTextFilter<TFilterId>>;
+export type DataTableTextFilterComponentProps<TFilterId extends string = string> = FilterComponentProps<
+  DataTableTextFilter<TFilterId>
+>;
 
-export type DataTableComparisonFilterComponentProps<TFilterId extends string = string> =
-  FilterComponentProps<DataTableComparisonFilter<TFilterId>>;
+export type DataTableComparisonFilterComponentProps<TFilterId extends string = string> = FilterComponentProps<
+  DataTableComparisonFilter<TFilterId>
+>;
 
-export type DataTableContainmentFilterComponentProps<TFilterId extends string = string> =
-  FilterComponentProps<DataTableContainmentFilter<TFilterId>>;
+export type DataTableContainmentFilterComponentProps<TFilterId extends string = string> = FilterComponentProps<
+  DataTableContainmentFilter<TFilterId>
+>;
 
 export interface DataTableBaseFilterDefinition<
   TFilterId extends string = string,
   TOriginalRow = any,
+  TFilter = DataTableFilter<TFilterId>,
 > {
+  createFilter?: (value: DataTableFilterValue, operator: DataTableFilter["operator"]) => TFilter | null;
   filterId: TFilterId;
-  formatValue?: (value: DataTableFilter["value"], filter: DataTableFilter) => string;
+  formatValue?: (value: DataTableFilterValue, filter: any) => string;
   fieldId?: string;
+  getOperator?: (filter: any) => DataTableFilter["operator"];
+  getValue?: (filter: any) => DataTableFilterValue;
   getValueFn?: GetValueFn<TOriginalRow>;
   hidden?: boolean;
+  isFilter?: (filter: any) => boolean;
   label?: string;
 }
 
 export interface DataTableTextFilterDefinition<
   TFilterId extends string = string,
   TOriginalRow = any,
-> extends DataTableBaseFilterDefinition<TFilterId, TOriginalRow> {
+  TFilter = DataTableTextFilter<TFilterId>,
+> extends DataTableBaseFilterDefinition<TFilterId, TOriginalRow, TFilter> {
   component?: Component<DataTableTextFilterComponentProps>;
   type: "text";
   defaultOperator?: DataTableTextOperator;
@@ -83,7 +93,8 @@ export interface DataTableTextFilterDefinition<
 export interface DataTableComparisonFilterDefinition<
   TFilterId extends string = string,
   TOriginalRow = any,
-> extends DataTableBaseFilterDefinition<TFilterId, TOriginalRow> {
+  TFilter = DataTableComparisonFilter<TFilterId>,
+> extends DataTableBaseFilterDefinition<TFilterId, TOriginalRow, TFilter> {
   component?: Component<DataTableComparisonFilterComponentProps>;
   type: "comparison";
   defaultOperator?: DataTableComparisonOperator;
@@ -93,26 +104,25 @@ export interface DataTableComparisonFilterDefinition<
 export interface DataTableContainmentFilterDefinition<
   TFilterId extends string = string,
   TOriginalRow = any,
-> extends DataTableBaseFilterDefinition<TFilterId, TOriginalRow> {
+  TFilter = DataTableContainmentFilter<TFilterId>,
+> extends DataTableBaseFilterDefinition<TFilterId, TOriginalRow, TFilter> {
   component?: Component<DataTableContainmentFilterComponentProps>;
   type: "containment";
   defaultOperator?: DataTableContainmentOperator;
   operators?: readonly DataTableContainmentOperator[];
 }
 
-export type DataTableFilterDefinition<TFilterId extends string = string, TOriginalRow = any> =
-  | DataTableTextFilterDefinition<TFilterId, TOriginalRow>
-  | DataTableComparisonFilterDefinition<TFilterId, TOriginalRow>
-  | DataTableContainmentFilterDefinition<TFilterId, TOriginalRow>;
+export type DataTableFilterDefinition<
+  TFilterId extends string = string,
+  TOriginalRow = any,
+  TFilter = DataTableFilter<TFilterId>,
+> =
+  | DataTableTextFilterDefinition<TFilterId, TOriginalRow, TFilter>
+  | DataTableComparisonFilterDefinition<TFilterId, TOriginalRow, TFilter>
+  | DataTableContainmentFilterDefinition<TFilterId, TOriginalRow, TFilter>;
 
 export type DataTableFilterFromDefinition<TDefinition> =
-  TDefinition extends DataTableTextFilterDefinition<infer TFilterId>
-    ? DataTableTextFilter<TFilterId>
-    : TDefinition extends DataTableComparisonFilterDefinition<infer TFilterId>
-      ? DataTableComparisonFilter<TFilterId>
-      : TDefinition extends DataTableContainmentFilterDefinition<infer TFilterId>
-        ? DataTableContainmentFilter<TFilterId>
-        : never;
+  TDefinition extends DataTableFilterDefinition<any, any, infer TFilter> ? TFilter : never;
 
 export type DataTableFilterFromDefinitions<TDefinitions extends readonly DataTableFilterDefinition[]> =
   DataTableFilterFromDefinition<TDefinitions[number]>;
@@ -135,32 +145,26 @@ export function containmentFilter<const TFilterId extends string, TOriginalRow =
   return { ...definition, type: "containment" };
 }
 
-export type ColumnFilteringState<TFilter extends DataTableFilter = DataTableFilter> = {
-  filterDefinitions: readonly DataTableFilterDefinition[];
+export type ColumnFilteringState<TFilter = DataTableFilter> = {
+  filterDefinitions: readonly DataTableFilterDefinition<string, any, TFilter>[];
   filters: Map<string, TFilter> | TFilter[];
   isManual: boolean;
 };
 
-export type ColumnFilteringFeatureConfig<TFilter extends DataTableFilter = DataTableFilter> = Partial<
-  ColumnFilteringState<TFilter>
->;
-export type IColumnFilteringFeature = ColumnFilteringFeature;
+export type ColumnFilteringFeatureConfig<TFilter = DataTableFilter> = Partial<ColumnFilteringState<TFilter>>;
 
 /**
  * Manages active table filters using the shared DataTableFilter shape.
  */
-export class ColumnFilteringFeature<
-  TOriginalRow = any,
-  TFilter extends DataTableFilter = DataTableFilter,
-> implements IColumnFilteringFeature {
-  datagrid: DatagridCore;
+export class ColumnFilteringFeature<TOriginalRow = any, TFilter = DataTableFilter> {
+  datagrid: DatagridCore<any, any, any>;
 
-  filterDefinitions: readonly DataTableFilterDefinition[] = [];
+  filterDefinitions: readonly DataTableFilterDefinition<string, any, TFilter>[] = [];
   isManual: boolean = $state(false);
 
   private filtersById = $state.raw(new Map<string, TFilter>());
 
-  constructor(datagrid: DatagridCore, config: ColumnFilteringFeatureConfig<TFilter> = {}) {
+  constructor(datagrid: DatagridCore<any, any, any>, config: ColumnFilteringFeatureConfig<TFilter> = {}) {
     this.datagrid = datagrid;
     this.filterDefinitions = config.filterDefinitions ?? [];
     this.isManual = config.isManual ?? false;
@@ -182,19 +186,66 @@ export class ColumnFilteringFeature<
     return (this.filtersById.get(filterId) as TCurrentFilter | undefined) ?? null;
   }
 
-  getFilterValue(filterId: string): TFilter["value"] | null {
-    return this.getFilter(filterId)?.value ?? null;
+  getFilterId(filter: TFilter): string {
+    const definition = this.getDefinitionForFilter(filter);
+    if (definition) {
+      return definition.filterId;
+    }
+
+    const filterId = (filter as DataTableFilter).filterId;
+    if (typeof filterId === "string") {
+      return filterId;
+    }
+
+    throw new Error("Filter does not match a definition");
   }
 
-  getFilterOperator(filterId: string): TFilter["operator"] | null {
-    return this.getFilter(filterId)?.operator ?? null;
+  getFilterValue(filter: TFilter): DataTableFilterValue {
+    const definition = this.getDefinitionForFilter(filter);
+    if (definition?.getValue) {
+      return definition.getValue(filter);
+    }
+
+    return (filter as DataTableFilter).value;
+  }
+
+  getFilterOperator(filter: TFilter): DataTableFilter["operator"] {
+    const definition = this.getDefinitionForFilter(filter);
+    if (definition?.getOperator) {
+      return definition.getOperator(filter);
+    }
+
+    return (filter as DataTableFilter).operator;
+  }
+
+  getFilterType(filter: TFilter): DataTableFilter["type"] {
+    const definition = this.getDefinitionForFilter(filter);
+    if (definition) {
+      return definition.type;
+    }
+
+    return (filter as DataTableFilter).type;
+  }
+
+  createFilter(filterId: string, value: DataTableFilterValue, operator?: DataTableFilter["operator"]): TFilter | null {
+    const definition = this.getDefinition(filterId);
+    const nextOperator = operator ?? getDefinitionOperator(definition);
+    if (definition?.createFilter) {
+      return definition.createFilter(value, nextOperator);
+    }
+
+    if (!definition) {
+      throw new Error(`Filter ${filterId} not found`);
+    }
+
+    return { filterId, operator: nextOperator, type: definition.type, value } as TFilter;
   }
 
   setFilter(filterId: string, filter: TFilter): void {
     this.assertFilterDefinition(filterId, filter);
 
     const nextFilters = new Map(this.filtersById);
-    nextFilters.set(filterId, { ...filter, filterId });
+    nextFilters.set(filterId, filter);
     this.filtersById = nextFilters;
   }
 
@@ -221,37 +272,38 @@ export class ColumnFilteringFeature<
 
     if (Array.isArray(filters)) {
       filters.forEach((filter) => {
-        this.assertFilterDefinition(filter.filterId, filter);
-        nextFilters.set(filter.filterId, filter);
+        const filterId = this.getFilterId(filter);
+        this.assertFilterDefinition(filterId, filter);
+        nextFilters.set(filterId, filter);
       });
     } else {
       filters.forEach((filter, filterId) => {
         this.assertFilterDefinition(filterId, filter);
-        nextFilters.set(filterId, { ...filter, filterId });
+        nextFilters.set(filterId, filter);
       });
     }
 
     this.filtersById = nextFilters;
   }
 
-  getFilterFieldId(filter: DataTableFilter): string {
-    return (
-      this.filterDefinitions.find((definition) => definition.filterId === filter.filterId)?.fieldId ?? filter.filterId
-    );
+  getFilterFieldId(filter: TFilter): string {
+    const definition = this.getDefinitionForFilter(filter);
+    return definition?.fieldId ?? definition?.filterId ?? this.getFilterId(filter);
   }
 
-  getFilterValueGetter(filter: DataTableFilter): GetValueFn<any> {
-    const definition = this.filterDefinitions.find((current) => current.filterId === filter.filterId);
+  getFilterValueGetter(filter: TFilter): GetValueFn<any> {
+    const definition = this.getDefinitionForFilter(filter);
     if (definition?.getValueFn) return definition.getValueFn;
 
-    const fieldId = definition?.fieldId ?? filter.filterId;
+    const fieldId = definition?.fieldId ?? definition?.filterId ?? this.getFilterId(filter);
     const column = this.datagrid.columns.findColumnById(fieldId);
     if (column?.type === "accessor" || column?.type === "computed") return column.getValueFn;
 
-    throw new Error(`Filter ${filter.filterId} has no local value getter`);
+    throw new Error(`Filter ${this.getFilterId(filter)} has no local value getter`);
   }
 
-  evaluateFilter(cellValue: unknown, filter: DataTableFilter): boolean {
+  evaluateFilter(cellValue: unknown, sourceFilter: TFilter): boolean {
+    const filter = this.toDataTableFilter(sourceFilter);
     if (filter.type === "text") {
       const value = filter.value?.toLowerCase() ?? "";
       const textValue = String(cellValue ?? "").toLowerCase();
@@ -300,26 +352,70 @@ export class ColumnFilteringFeature<
     return filter.operator === "IN" ? matches : !matches;
   }
 
-  isFilterActive(filter: DataTableFilter): boolean {
-    if (filter.type === "text") {
-      return Boolean(filter.value?.trim());
+  isFilterActive(filter: TFilter): boolean {
+    const type = this.getFilterType(filter);
+    const value = this.getFilterValue(filter);
+
+    if (type === "text") {
+      return typeof value === "string" && Boolean(value.trim());
     }
 
-    if (filter.type === "comparison") {
-      return typeof filter.value !== "undefined";
+    if (type === "comparison") {
+      return typeof value !== "undefined" && value !== "";
     }
 
-    return filter.value.length > 0;
+    return Array.isArray(value) && value.length > 0;
   }
 
-  private assertFilterDefinition(filterId: string, filter: DataTableFilter): void {
-    if (filter.filterId !== filterId) {
-      throw new Error(`Filter id ${filter.filterId} does not match target filter id ${filterId}`);
+  private assertFilterDefinition(filterId: string, filter: TFilter): void {
+    if (this.getFilterId(filter) !== filterId) {
+      throw new Error(`Filter does not match target filter id ${filterId}`);
     }
 
-    const definition = this.filterDefinitions.find((current) => current.filterId === filterId);
-    if (definition && definition.type !== filter.type) {
+    const definition = this.getDefinition(filterId);
+    if (definition && definition.type !== this.getFilterType(filter)) {
       throw new Error(`Filter ${filterId} must be a ${definition.type} filter`);
     }
   }
+
+  private getDefinition(filterId: string): DataTableFilterDefinition<string, any, TFilter> | undefined {
+    return this.filterDefinitions.find((definition) => definition.filterId === filterId);
+  }
+
+  private getDefinitionForFilter(filter: TFilter): DataTableFilterDefinition<string, any, TFilter> | undefined {
+    const adaptedDefinition = this.filterDefinitions.find((definition) => definition.isFilter?.(filter));
+    if (adaptedDefinition) {
+      return adaptedDefinition;
+    }
+
+    const filterId = (filter as DataTableFilter).filterId;
+    return typeof filterId === "string" ? this.getDefinition(filterId) : undefined;
+  }
+
+  private toDataTableFilter(filter: TFilter): DataTableFilter {
+    return {
+      filterId: this.getFilterId(filter),
+      operator: this.getFilterOperator(filter),
+      type: this.getFilterType(filter),
+      value: this.getFilterValue(filter),
+    } as DataTableFilter;
+  }
+}
+
+function getDefinitionOperator(
+  definition: DataTableFilterDefinition<string, any, any> | undefined,
+): DataTableFilter["operator"] {
+  if (!definition) {
+    return "EQUAL";
+  }
+
+  if (definition.type === "comparison") {
+    return definition.defaultOperator ?? "EQUAL";
+  }
+
+  if (definition.type === "containment") {
+    return definition.defaultOperator ?? "IN";
+  }
+
+  return definition.defaultOperator ?? "CONTAINS";
 }

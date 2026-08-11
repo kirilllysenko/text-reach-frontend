@@ -4,10 +4,10 @@ import type { DataTableFilter } from "./column-filtering.svelte";
 import type { DataTableSort } from "./sorting.svelte";
 import type { EventPayloadMap, OnPageChangePayload } from "../services/event-service";
 
-export interface DataTableLoadRequest<TSort = DataTableSort> {
+export interface DataTableLoadRequest<TSort = DataTableSort, TFilter = DataTableFilter> {
   cursor: DataTableCursor;
   direction?: DataTablePageDirection;
-  filters: DataTableFilter[];
+  filters: TFilter[];
   limit: number;
   offset?: number;
   page?: number;
@@ -31,8 +31,8 @@ export type DataTableLoadReason =
   | "search"
   | "sorting";
 
-export type DataTableLoader<TData, TSort = DataTableSort> = (
-  request: DataTableLoadRequest<TSort>,
+export type DataTableLoader<TData, TSort = DataTableSort, TFilter = DataTableFilter> = (
+  request: DataTableLoadRequest<TSort, TFilter>,
 ) => DataTableLoadResult<TData> | Promise<DataTableLoadResult<TData>>;
 
 /**
@@ -42,7 +42,7 @@ export type DataTableLoader<TData, TSort = DataTableSort> = (
  * It listens to pagination and search events, builds a DataTableLoadRequest,
  * calls the configured loader, and applies the returned rows back to the table.
  */
-export type DataLoadingFeatureState<TOriginalRow = any, TSort = DataTableSort> = {
+export type DataLoadingFeatureState<TOriginalRow = any, TSort = DataTableSort, TFilter = DataTableFilter> = {
   /** Whether the feature should subscribe to table events and allow loads. */
   enabled: boolean;
 
@@ -55,7 +55,7 @@ export type DataLoadingFeatureState<TOriginalRow = any, TSort = DataTableSort> =
    * The loader receives the current page request and AbortSignal. It returns
    * display-ready rows plus pagination cursor metadata.
    */
-  loader: DataTableLoader<TOriginalRow, TSort> | null;
+  loader: DataTableLoader<TOriginalRow, TSort, TFilter> | null;
 
   /** Whether a load is currently in progress. */
   loading: boolean;
@@ -72,15 +72,15 @@ export type DataLoadingFeatureState<TOriginalRow = any, TSort = DataTableSort> =
   manualFeatures: boolean;
 
   /** Called after a loader failure that belongs to the current request. */
-  onLoadError: (error: unknown, request: DataTableLoadRequest<TSort>, reason: DataTableLoadReason) => void;
+  onLoadError: (error: unknown, request: DataTableLoadRequest<TSort, TFilter>, reason: DataTableLoadReason) => void;
 
   /** Called immediately before the loader runs. */
-  onLoadStart: (request: DataTableLoadRequest<TSort>, reason: DataTableLoadReason) => void;
+  onLoadStart: (request: DataTableLoadRequest<TSort, TFilter>, reason: DataTableLoadReason) => void;
 
   /** Called after a successful current request has been applied to the table. */
   onLoadSuccess: (
     result: DataTableLoadResult<TOriginalRow>,
-    request: DataTableLoadRequest<TSort>,
+    request: DataTableLoadRequest<TSort, TFilter>,
     reason: DataTableLoadReason,
   ) => void;
 };
@@ -88,8 +88,8 @@ export type DataLoadingFeatureState<TOriginalRow = any, TSort = DataTableSort> =
 /**
  * Partial configuration accepted by DatagridCore initialState.dataLoading.
  */
-export type DataLoadingFeatureConfig<TOriginalRow = any, TSort = DataTableSort> = Partial<
-  DataLoadingFeatureState<TOriginalRow, TSort>
+export type DataLoadingFeatureConfig<TOriginalRow = any, TSort = DataTableSort, TFilter = DataTableFilter> = Partial<
+  DataLoadingFeatureState<TOriginalRow, TSort, TFilter>
 >;
 
 /**
@@ -105,32 +105,34 @@ export type DataLoadingFeatureConfig<TOriginalRow = any, TSort = DataTableSort> 
  * It intentionally does not expose page navigation helpers. Use PaginationService
  * for movement; this feature reacts to that movement and fetches the right data.
  */
-export class DataLoadingFeature<TOriginalRow = any, TSort = DataTableSort> implements DataLoadingFeatureState<
-  TOriginalRow,
-  TSort
-> {
+export class DataLoadingFeature<
+  TOriginalRow = any,
+  TSort = DataTableSort,
+  TFilter = DataTableFilter,
+> implements DataLoadingFeatureState<TOriginalRow, TSort, TFilter> {
   /** The table instance this feature coordinates. */
-  datagrid: DatagridCore<TOriginalRow, TSort>;
+  datagrid: DatagridCore<TOriginalRow, TSort, TFilter>;
 
   enabled = $state(false);
   error = $state<string | null>(null);
   loading = $state(false);
 
-  loader: DataTableLoader<TOriginalRow, TSort> | null = null;
+  loader: DataTableLoader<TOriginalRow, TSort, TFilter> | null = null;
   loadOnStart = true;
   manualFeatures = true;
 
   /** Last request sent to the loader, useful for debugging and tests. */
-  lastRequest = $state.raw<DataTableLoadRequest<TSort> | null>(null);
+  lastRequest = $state.raw<DataTableLoadRequest<TSort, TFilter> | null>(null);
 
   /** Last successful loader result, useful for debugging and tests. */
   lastResult = $state.raw<DataTableLoadResult<TOriginalRow> | null>(null);
 
-  onLoadError: (error: unknown, request: DataTableLoadRequest<TSort>, reason: DataTableLoadReason) => void = () => {};
-  onLoadStart: (request: DataTableLoadRequest<TSort>, reason: DataTableLoadReason) => void = () => {};
+  onLoadError: (error: unknown, request: DataTableLoadRequest<TSort, TFilter>, reason: DataTableLoadReason) => void =
+    () => {};
+  onLoadStart: (request: DataTableLoadRequest<TSort, TFilter>, reason: DataTableLoadReason) => void = () => {};
   onLoadSuccess: (
     result: DataTableLoadResult<TOriginalRow>,
-    request: DataTableLoadRequest<TSort>,
+    request: DataTableLoadRequest<TSort, TFilter>,
     reason: DataTableLoadReason,
   ) => void = () => {};
 
@@ -143,7 +145,10 @@ export class DataLoadingFeature<TOriginalRow = any, TSort = DataTableSort> imple
   /**
    * Creates the feature. Passing a loader enables it by default.
    */
-  constructor(datagrid: DatagridCore<TOriginalRow, TSort>, config?: DataLoadingFeatureConfig<TOriginalRow, TSort>) {
+  constructor(
+    datagrid: DatagridCore<TOriginalRow, TSort, TFilter>,
+    config?: DataLoadingFeatureConfig<TOriginalRow, TSort, TFilter>,
+  ) {
     this.datagrid = datagrid;
     Object.assign(this, config);
     this.enabled = config?.enabled ?? Boolean(config?.loader);
@@ -275,7 +280,7 @@ export class DataLoadingFeature<TOriginalRow = any, TSort = DataTableSort> imple
       page: pageRequest.page,
       signal,
       sorts: this.datagrid.features.sorting.sorts,
-    } satisfies DataTableLoadRequest<TSort>;
+    } satisfies DataTableLoadRequest<TSort, TFilter>;
   }
 
   private applyManualFeatureMode(): void {

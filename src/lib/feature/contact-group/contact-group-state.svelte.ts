@@ -1,5 +1,5 @@
 import { ContactGroupsStore } from "$houdini";
-import type { ContactGroupSortByInput } from "$houdini/graphql/inputs";
+import type { ContactGroupFilterInput, ContactGroupSortByInput } from "$houdini/graphql/inputs";
 import type { DataTableLoadRequest, DataTableLoadResult } from "$lib/components/table";
 import type { ContactGroupViewModel } from "$lib/feature/contact-group/contact-group-view-data";
 import { abortControllerFromSignal } from "$lib/graphql/abort";
@@ -14,7 +14,7 @@ export function createContactGroupState() {
     loadingError: null as string | null,
     search: "",
     fetchRows: async (
-      request: DataTableLoadRequest<ContactGroupSortByInput>,
+      request: DataTableLoadRequest<ContactGroupSortByInput, ContactGroupFilterInput>,
     ): Promise<DataTableLoadResult<ContactGroupViewModel>> => {
       const pageRequest = buildContactGroupRequest({
         pageSize: request.limit,

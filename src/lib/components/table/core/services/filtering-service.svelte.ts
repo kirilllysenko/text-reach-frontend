@@ -1,17 +1,47 @@
 import type { LeafColumn } from "../column-types";
-import type { DataTableFilter, DataTableFilterDefinition } from "../features/column-filtering.svelte";
+import type {
+  ColumnFilteringFeature,
+  DataTableFilter,
+  DataTableFilterDefinition,
+  DataTableFilterValue,
+} from "../features/column-filtering.svelte";
 import { BaseService } from "./base-service";
 
 /**
  * Service for mutating active filters in the data grid.
  */
-export class FilteringService extends BaseService {
-  get filters(): DataTableFilter[] {
-    return this.datagrid.features.filtering.filters;
+export class FilteringService<TFilter = DataTableFilter> extends BaseService {
+  get filters(): TFilter[] {
+    return this.filtering.filters;
   }
 
-  get filterDefinitions(): readonly DataTableFilterDefinition[] {
-    return this.datagrid.features.filtering.filterDefinitions;
+  get filterDefinitions(): readonly DataTableFilterDefinition<string, any, TFilter>[] {
+    return this.filtering.filterDefinitions;
+  }
+
+  getFilter<TCurrentFilter extends TFilter = TFilter>(filterId: string): TCurrentFilter | null {
+    return this.filtering.getFilter<TCurrentFilter>(filterId);
+  }
+
+  getFilterId(filter: TFilter): string {
+    return this.filtering.getFilterId(filter);
+  }
+
+  getFilterOperator(filter: TFilter): DataTableFilter["operator"] {
+    return this.filtering.getFilterOperator(filter);
+  }
+
+  getFilterType(filter: TFilter): DataTableFilter["type"] {
+    return this.filtering.getFilterType(filter);
+  }
+
+  getFilterValue(filter: TFilter): DataTableFilterValue {
+    return this.filtering.getFilterValue(filter);
+  }
+
+  getFilterValueById(filterId: string): DataTableFilterValue | null {
+    const filter = this.getFilter(filterId);
+    return filter ? this.getFilterValue(filter) : null;
   }
 
   getVisibleActiveFilterCount(): number {
@@ -19,33 +49,48 @@ export class FilteringService extends BaseService {
       this.filterDefinitions.filter((definition) => !definition.hidden).map((definition) => definition.filterId),
     );
 
-    return this.filters.filter((filter) => visibleFilterIds.has(filter.filterId)).length;
+    return this.filters.filter((filter) => visibleFilterIds.has(this.getFilterId(filter))).length;
   }
 
-  setColumnFilter(column: LeafColumn<any>, filter: DataTableFilter): void {
+  setColumnFilter(column: LeafColumn<any>, filter: TFilter): void {
     this.setFilter(column.columnId, filter, column);
   }
 
-  setFilter(filterId: string, filter: DataTableFilter, column?: LeafColumn<any>): void {
-    if (filter.filterId !== filterId) {
-      throw new Error(`Filter id ${filter.filterId} does not match target filter id ${filterId}`);
+  setFilter(filterId: string, filter: TFilter, column?: LeafColumn<any>): void {
+    if (this.getFilterId(filter) !== filterId) {
+      throw new Error(`Filter does not match target filter id ${filterId}`);
     }
 
     if (!this.isFilterable(filterId)) {
       return;
     }
 
-    this.datagrid.features.filtering.setFilter(filterId, filter);
+    this.filtering.setFilter(filterId, filter);
     this.refreshFiltering(filterId, column);
   }
 
+  setFilterValue(filterId: string, value: DataTableFilterValue, operator?: DataTableFilter["operator"]): void {
+    if (!this.isFilterable(filterId)) {
+      return;
+    }
+
+    const filter = this.filtering.createFilter(filterId, value, operator);
+    if (!filter || !this.filtering.isFilterActive(filter)) {
+      this.removeFilter(filterId);
+      return;
+    }
+
+    this.filtering.setFilter(filterId, filter);
+    this.refreshFiltering(filterId);
+  }
+
   removeFilter(filterId: string): void {
-    this.datagrid.features.filtering.removeFilter(filterId);
+    this.filtering.removeFilter(filterId);
     this.refreshFiltering(filterId);
   }
 
   clearFilters(): void {
-    this.datagrid.features.filtering.clearFilters();
+    this.filtering.clearFilters();
     this.refreshFiltering();
   }
 
@@ -57,6 +102,10 @@ export class FilteringService extends BaseService {
     if (column?.type === "accessor" || column?.type === "computed") return column.options.filterable;
 
     throw new Error(`Filter ${filterId} not found`);
+  }
+
+  private get filtering(): ColumnFilteringFeature<any, TFilter> {
+    return this.datagrid.features.filtering as ColumnFilteringFeature<any, TFilter>;
   }
 
   private refreshFiltering(filterId?: string, column?: LeafColumn<any>): void {

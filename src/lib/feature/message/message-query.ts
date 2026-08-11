@@ -1,12 +1,10 @@
 import type { MessageFilterInput, MessageSortByInput } from "$houdini/graphql/inputs";
-import type { DataTableFilter } from "$lib/components/table";
-import { messageTableFilters } from "$lib/feature/message/message-table-filters";
 
 interface MessageRequestOptions {
   campaignId: string;
   cursor: unknown[] | null;
   direction?: "next" | "previous";
-  filters: DataTableFilter[];
+  filters: MessageFilterInput[];
   pageSize: number;
   search: string;
   sort: readonly MessageSortByInput[];
@@ -23,15 +21,10 @@ export function buildMessageRequest(options: MessageRequestOptions) {
   };
 }
 
-function buildMessageFilter(campaignId: string, search: string, filters: DataTableFilter[]): MessageFilterInput {
+function buildMessageFilter(campaignId: string, search: string, filters: MessageFilterInput[]): MessageFilterInput {
   const nested: MessageFilterInput[] = [
     {
-      nested: [],
-      operator: "AND",
-      campaignId: {
-        operator: "IN",
-        value: [campaignId],
-      },
+      campaignId: { in: [campaignId] },
     },
   ];
   const normalizedSearch = search.trim();
@@ -41,26 +34,16 @@ function buildMessageFilter(campaignId: string, search: string, filters: DataTab
       operator: "OR",
       nested: [
         {
-          nested: [],
-          operator: "AND",
-          text: {
-            operator: "CONTAINS",
-            value: normalizedSearch,
-          },
+          text: { contains: normalizedSearch },
         },
         {
-          nested: [],
-          operator: "AND",
-          tenantPhoneNumber: {
-            operator: "CONTAINS",
-            value: normalizedSearch,
-          },
+          tenantPhoneNumber: { contains: normalizedSearch },
         },
       ],
     });
   }
 
-  nested.push(...messageTableFilters.toDtos(filters));
+  nested.push(...filters);
 
   return {
     operator: "AND",

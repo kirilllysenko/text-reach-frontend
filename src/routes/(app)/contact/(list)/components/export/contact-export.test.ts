@@ -1,29 +1,19 @@
 import { describe, expect, it } from "vitest";
-import type { ContactSortByInput } from "$houdini/graphql/inputs";
-import type { DataTableFilter } from "$lib/components/table";
+import type { ContactFilterInput, ContactSortByInput } from "$houdini/graphql/inputs";
 import { buildContactExportRequest, toContactCsv, type ContactExportRow } from "./contact-export";
 
 const filteredSnapshot = {
   filters: [
     {
-      filterId: "contactGroup",
-      operator: "IN",
-      type: "containment",
-      value: ["group-b"],
+      contactGroupId: { in: ["group-b"] },
     },
     {
-      filterId: "birthdayAfter",
-      operator: "GREATER_OR_EQUAL",
-      type: "comparison",
-      value: "1990-01-01",
+      birthday: { greaterOrEqual: "1990-01-01" },
     },
     {
-      filterId: "emailContains",
-      operator: "CONTAINS",
-      type: "text",
-      value: "example.com",
+      email: { contains: "example.com" },
     },
-  ] satisfies DataTableFilter[],
+  ] satisfies ContactFilterInput[],
   search: "a",
   sorts: [{ firstName: { direction: "DESC" } }] satisfies ContactSortByInput[],
 };
@@ -71,20 +61,17 @@ describe("contact export helpers", () => {
           },
           {
             contactGroupId: {
-              operator: "IN",
-              value: ["group-b"],
+              in: ["group-b"],
             },
           },
           {
             birthday: {
-              operator: "GREATER_OR_EQUAL",
-              value: "1990-01-01",
+              greaterOrEqual: "1990-01-01",
             },
           },
           {
             email: {
-              operator: "CONTAINS",
-              value: "example.com",
+              contains: "example.com",
             },
           },
         ],

@@ -4,7 +4,7 @@
   import TableRow from "./TableRow.svelte";
 
   interface Props {
-    table: DatagridCore<TData, any>;
+    table: DatagridCore<TData, any, any>;
     height?: string;
   }
 

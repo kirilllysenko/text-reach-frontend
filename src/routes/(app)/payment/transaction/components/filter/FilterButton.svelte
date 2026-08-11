@@ -1,9 +1,10 @@
 <script lang="ts">
+  import type { WalletTransactionFilterInput } from "$houdini/graphql/inputs";
   import { Button, FilterPanel, ResponsiveDialog, type FilteringService, type FilterPanelConfig } from "$lib";
   import Filter from "$lib/icons/Filter.svelte";
 
   interface Props {
-    filtering: FilteringService;
+    filtering: FilteringService<WalletTransactionFilterInput>;
   }
 
   let { filtering }: Props = $props();

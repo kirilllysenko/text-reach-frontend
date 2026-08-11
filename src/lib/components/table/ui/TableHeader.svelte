@@ -5,7 +5,7 @@
   import { getColumnSizeStyle, setColumnSizeStyleProperty } from "./column-size-style";
 
   interface Props {
-    table: DatagridCore<TData, any>;
+    table: DatagridCore<TData, any, any>;
   }
 
   let { table }: Props = $props();

@@ -1,10 +1,11 @@
 <script lang="ts">
+  import type { MessageFilterInput } from "$houdini/graphql/inputs";
   import { Button, FilterPanel, ResponsiveDialog, type FilteringService, type FilterPanelConfig } from "$lib";
   import { messageStatusLabelMap, messageStatusOptions } from "$lib/feature/message/message-view-data";
   import Filter from "$lib/icons/Filter.svelte";
 
   interface Props {
-    filtering: FilteringService;
+    filtering: FilteringService<MessageFilterInput>;
   }
 
   let { filtering }: Props = $props();

@@ -1,35 +1,34 @@
 import type { ContactFilterInput } from "$houdini/graphql/inputs";
-import { TableBackendFilter } from "$lib/components/table";
+import { backendFilterDefinition } from "$lib/components/table";
 import ContactGroupFilterControl from "./ContactGroupFilterControl.svelte";
 
-const contactFilter = new TableBackendFilter<ContactFilterInput>();
+const contactFilter = backendFilterDefinition<ContactFilterInput>();
 
-export const contactTableFilters = contactFilter.define([
-  contactFilter.text({
+export const contactFilterDefinitions = [
+  contactFilter.value({
     filterId: "search",
-    fieldId: "filter",
+    field: "filter",
     label: "Search",
     defaultOperator: "CONTAINS",
-    backend: { mode: "value" },
     hidden: true,
   }),
   contactFilter.containment({
     filterId: "contactGroup",
-    fieldId: "contactGroupId",
+    field: "contactGroupId",
     label: "Groups",
     defaultOperator: "IN",
     component: ContactGroupFilterControl,
   }),
   contactFilter.comparison({
     filterId: "birthdayAfter",
-    fieldId: "birthday",
+    field: "birthday",
     label: "Birthday after",
     defaultOperator: "GREATER_OR_EQUAL",
   }),
   contactFilter.text({
     filterId: "emailContains",
-    fieldId: "email",
+    field: "email",
     label: "Email contains",
     defaultOperator: "CONTAINS",
   }),
-]);
+] as const;

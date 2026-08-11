@@ -4,9 +4,9 @@ import {
   type DataTableLoadRequest,
   type DataTableLoadResult,
 } from "$lib/components/table";
-import type { MessageSortByInput } from "$houdini/graphql/inputs";
+import type { MessageFilterInput, MessageSortByInput } from "$houdini/graphql/inputs";
 import type { CampaignMessagesState } from "$lib/feature/message/message-state.svelte";
-import { messageTableFilters } from "$lib/feature/message/message-table-filters";
+import { messageFilterDefinitions } from "$lib/feature/message/message-table-filters";
 import type { MessageViewModel } from "$lib/feature/message/message-view-data";
 import { createMessageColumns } from "./column.svelte";
 
@@ -22,15 +22,17 @@ const definitions = [
   messageSort({ field: "text", label: "Text" }),
 ] as const;
 
-export function createMessageTable(state: CampaignMessagesState): DatagridCore<MessageViewModel, MessageSortByInput> {
-  return new DatagridCore<MessageViewModel, MessageSortByInput>({
+export function createMessageTable(
+  state: CampaignMessagesState,
+): DatagridCore<MessageViewModel, MessageSortByInput, MessageFilterInput> {
+  return new DatagridCore<MessageViewModel, MessageSortByInput, MessageFilterInput>({
     columns: createMessageColumns(),
     initialState: {
       dataLoading: {
         loader: (request) => fetchMessageRows(state, request),
       },
       filtering: {
-        filterDefinitions: messageTableFilters.definitions,
+        filterDefinitions: messageFilterDefinitions,
       },
       sorting: {
         sortDefinitions: definitions,
@@ -42,7 +44,7 @@ export function createMessageTable(state: CampaignMessagesState): DatagridCore<M
 
 function fetchMessageRows(
   state: CampaignMessagesState,
-  request: DataTableLoadRequest<MessageSortByInput>,
+  request: DataTableLoadRequest<MessageSortByInput, MessageFilterInput>,
 ): Promise<DataTableLoadResult<MessageViewModel>> {
   return state.fetchRows(request);
 }

@@ -1,7 +1,7 @@
-import type { WalletTransactionSortByInput } from "$houdini/graphql/inputs";
+import type { WalletTransactionFilterInput, WalletTransactionSortByInput } from "$houdini/graphql/inputs";
 import { DatagridCore } from "$lib/components/table";
 import type { WalletTransactionState } from "$lib/feature/payment/payment-state.svelte";
-import { walletTransactionTableFilters } from "$lib/feature/payment/payment-table-filters";
+import { walletTransactionFilterDefinitions } from "$lib/feature/payment/payment-table-filters";
 import type { WalletTransactionViewModel } from "$lib/feature/payment/payment-view-data";
 import { createTransactionColumns } from "./column.svelte";
 import { initialTransactionSorts, transactionSortDefinitions } from "./sort.svelte";
@@ -12,15 +12,15 @@ interface TransactionTableOptions {
 
 export function createTransactionTable(
   props: TransactionTableOptions,
-): DatagridCore<WalletTransactionViewModel, WalletTransactionSortByInput> {
-  return new DatagridCore<WalletTransactionViewModel, WalletTransactionSortByInput>({
+): DatagridCore<WalletTransactionViewModel, WalletTransactionSortByInput, WalletTransactionFilterInput> {
+  return new DatagridCore<WalletTransactionViewModel, WalletTransactionSortByInput, WalletTransactionFilterInput>({
     columns: createTransactionColumns(),
     initialState: {
       dataLoading: {
         loader: props.transactionState.fetchRows,
       },
       filtering: {
-        filterDefinitions: walletTransactionTableFilters.definitions,
+        filterDefinitions: walletTransactionFilterDefinitions,
       },
       sorting: {
         sortDefinitions: transactionSortDefinitions,

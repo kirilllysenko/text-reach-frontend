@@ -1,49 +1,65 @@
 import type { WalletTransactionFilterInput } from "$houdini/graphql/inputs";
-import { TableBackendFilter } from "$lib/components/table";
-import { dollarsToUsdMicros } from "$lib/feature/payment/payment-display";
+import { backendFilterDefinition } from "$lib/components/table";
+import { dollarsToUsdMicros, usdMicrosToDollars } from "$lib/feature/payment/payment-display";
 
-const paymentFilter = new TableBackendFilter<WalletTransactionFilterInput>();
+const paymentFilter = backendFilterDefinition<WalletTransactionFilterInput>();
 
-export const walletTransactionTableFilters = paymentFilter.define([
+export const walletTransactionFilterDefinitions = [
   paymentFilter.comparison({
     filterId: "minAmount",
-    fieldId: "amountUsdMicros",
+    field: "amountUsdMicros",
     label: "Min amount",
     defaultOperator: "GREATER_OR_EQUAL",
-    backend: { mapValue: (value) => dollarsToUsdMicros(Number(value)) },
+    value: {
+      fromBackend: usdMicrosToDollars,
+      toBackend: (value) => dollarsToUsdMicros(Number(value)),
+    },
   }),
   paymentFilter.comparison({
     filterId: "maxAmount",
-    fieldId: "amountUsdMicros",
+    field: "amountUsdMicros",
     label: "Max amount",
     defaultOperator: "LESS_OR_EQUAL",
-    backend: { mapValue: (value) => dollarsToUsdMicros(Number(value)) },
+    value: {
+      fromBackend: usdMicrosToDollars,
+      toBackend: (value) => dollarsToUsdMicros(Number(value)),
+    },
   }),
   paymentFilter.comparison({
     filterId: "createdFrom",
-    fieldId: "createdAt",
+    field: "createdAt",
     label: "Created from",
     defaultOperator: "GREATER_OR_EQUAL",
-    backend: { mapValue: (value) => `${value}T00:00:00.000Z` },
+    value: {
+      fromBackend: toDateInputValue,
+      toBackend: (value) => `${value}T00:00:00.000Z`,
+    },
   }),
   paymentFilter.comparison({
     filterId: "createdTo",
-    fieldId: "createdAt",
+    field: "createdAt",
     label: "Created to",
     defaultOperator: "LESS_OR_EQUAL",
-    backend: { mapValue: (value) => `${value}T23:59:59.999Z` },
+    value: {
+      fromBackend: toDateInputValue,
+      toBackend: (value) => `${value}T23:59:59.999Z`,
+    },
   }),
-  paymentFilter.text({ filterId: "currency", fieldId: "currency", label: "Currency", defaultOperator: "CONTAINS" }),
+  paymentFilter.text({ filterId: "currency", field: "currency", label: "Currency", defaultOperator: "CONTAINS" }),
   paymentFilter.text({
     filterId: "entryType",
-    fieldId: "entryType",
+    field: "entryType",
     label: "Entry type",
     defaultOperator: "CONTAINS",
   }),
   paymentFilter.text({
     filterId: "sourceType",
-    fieldId: "sourceType",
+    field: "sourceType",
     label: "Source type",
     defaultOperator: "CONTAINS",
   }),
-] as const);
+] as const;
+
+function toDateInputValue(value: string): string {
+  return value.slice(0, 10);
+}

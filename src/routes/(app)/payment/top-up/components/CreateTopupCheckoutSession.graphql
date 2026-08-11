@@ -1,0 +1,12 @@
+mutation CreateTopupCheckoutSession($input: CreateTopupCheckoutSessionInput!) {
+  createTopupCheckoutSession(input: $input) {
+    amountUsdMicros
+    clientSecret
+    currency
+    stripeAmountCents
+    topup {
+      id
+      status
+    }
+  }
+}

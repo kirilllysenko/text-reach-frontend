@@ -46,8 +46,7 @@ export class WalletTransactionState {
   activeIdSearchIsInvalid = $derived(Boolean(this.idSearch.trim()) && !isUlid(this.idSearch));
 
   fetchRows = async (
-    request: DataTableLoadRequest,
-    sort: WalletTransactionSortByInput[],
+    request: DataTableLoadRequest<WalletTransactionSortByInput>,
   ): Promise<DataTableLoadResult<WalletTransactionViewModel>> => {
     const filter = buildWalletTransactionFilter(this.idSearch, request.filters);
 
@@ -57,7 +56,7 @@ export class WalletTransactionState {
       direction: "next",
       idSearch: this.idSearch,
       filters: request.filters,
-      sort,
+      sort: request.sorts,
     });
 
     try {

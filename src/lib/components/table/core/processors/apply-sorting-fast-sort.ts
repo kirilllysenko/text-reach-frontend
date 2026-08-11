@@ -32,7 +32,7 @@ export function applySorting<TOriginalRow>(datagrid: DatagridCore<TOriginalRow>,
     .map((sort) => {
       return {
         getValue: datagrid.features.sorting.getSortValueGetter(sort),
-        direction: sort.direction,
+        direction: datagrid.features.sorting.getActiveSortDirection(sort),
       };
     })
     .filter(Boolean) as { getValue: (row: TOriginalRow) => any; direction: DataTableActiveSortDirection }[];

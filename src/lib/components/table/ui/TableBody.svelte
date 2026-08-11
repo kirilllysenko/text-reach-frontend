@@ -3,7 +3,7 @@
   import TableRow from "./TableRow.svelte";
 
   interface Props {
-    table: DatagridCore<TData>;
+    table: DatagridCore<TData, any>;
     error?: string | null;
     loading?: boolean;
   }

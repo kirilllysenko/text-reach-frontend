@@ -1,0 +1,7 @@
+query Profile @cache(policy: NetworkOnly) {
+  profile {
+    accessGroups
+    email
+    name
+  }
+}

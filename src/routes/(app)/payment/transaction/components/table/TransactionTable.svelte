@@ -1,9 +1,10 @@
 <script lang="ts">
+  import type { WalletTransactionSortByInput } from "$houdini/graphql/inputs";
   import { Card, Table, type DatagridCore } from "$lib";
   import type { WalletTransactionViewModel } from "$lib/feature/payment/payment-view-data";
 
   interface Props {
-    table: DatagridCore<WalletTransactionViewModel>;
+    table: DatagridCore<WalletTransactionViewModel, WalletTransactionSortByInput>;
   }
 
   let { table }: Props = $props();

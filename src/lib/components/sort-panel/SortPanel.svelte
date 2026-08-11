@@ -1,24 +1,27 @@
-<script lang="ts">
+<script lang="ts" generics="TSort">
   import Plus from "$lib/icons/Plus.svelte";
   import Trash from "$lib/icons/Trash.svelte";
-  import type { DataTableSortDirection, SortingService } from "../table";
+  import type { DataTableActiveSortDirection, SortingService } from "../table";
 
   interface Props {
-    sorting: SortingService;
+    sorting: SortingService<TSort>;
   }
 
   let { sorting }: Props = $props();
 
   const fieldOptions = $derived(
     sorting.sortDefinitions.map((definition) => ({
-      value: definition.sortId,
       label: definition.label ?? definition.sortId,
+      value: definition.sortId,
     })),
   );
-  const directionOptions = ["ascending", "descending"] satisfies Exclude<DataTableSortDirection, "intermediate">[];
+  const directionOptions = [
+    { label: "Ascending", value: "ascending" },
+    { label: "Descending", value: "descending" },
+  ] satisfies { label: string; value: DataTableActiveSortDirection }[];
 
   function addRule(): void {
-    const usedFields = new Set(sorting.sorts.map((sort) => sort.sortId));
+    const usedFields = new Set(sorting.sorts.map((sort) => sorting.getSortId(sort)));
     const field = fieldOptions.find((option) => !usedFields.has(option.value)) ?? fieldOptions[0];
 
     if (field) {
@@ -29,7 +32,7 @@
 
 <div class="space-y-3 text-sm">
   <div class="space-y-2">
-    {#each sorting.sorts as rule, index (`${rule.sortId}-${index}`)}
+    {#each sorting.sorts as rule, index (`${sorting.getSortId(rule)}-${index}`)}
       <div class="grid grid-cols-[1.75rem_minmax(0,1fr)_minmax(7.5rem,0.7fr)_2.5rem] items-center gap-2">
         <span class="flex size-7 items-center justify-center text-sm font-semibold text-slate-500">
           {index + 1}
@@ -37,7 +40,7 @@
 
         <select
           class="min-w-0 rounded-xl border border-white/80 bg-white/90 px-3 py-2 text-sm text-slate-700 shadow-sm"
-          value={rule.sortId}
+          value={sorting.getSortId(rule)}
           onchange={(event) => sorting.updateSortId(index, event.currentTarget.value)}
         >
           {#each fieldOptions as field (field.value)}
@@ -47,15 +50,12 @@
 
         <select
           class="min-w-0 rounded-xl border border-white/80 bg-white/90 px-3 py-2 text-sm text-slate-700 shadow-sm"
-          value={rule.direction}
+          value={sorting.getSortDirection(rule)}
           onchange={(event) =>
-            sorting.updateSortDirection(
-              index,
-              event.currentTarget.value as Exclude<DataTableSortDirection, "intermediate">,
-            )}
+            sorting.updateSortDirection(index, event.currentTarget.value as DataTableActiveSortDirection)}
         >
-          {#each directionOptions as direction (direction)}
-            <option value={direction}>{direction}</option>
+          {#each directionOptions as direction (direction.value)}
+            <option value={direction.value}>{direction.label}</option>
           {/each}
         </select>
 

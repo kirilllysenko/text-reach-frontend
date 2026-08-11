@@ -1,6 +1,7 @@
 import type { ColumnDef } from "./column-types";
 import type { DataTableLoader, DataLoadingFeatureConfig } from "./features/data-loading.svelte";
 import type { InitialState, FeatureOverrides } from "./features/types";
+import type { DataTableSort } from "./features/sorting.svelte";
 import type { LifecycleHooks } from "./managers/lifecycle-hooks-manager.svelte";
 
 export type DefaultColumnSize = {
@@ -27,20 +28,21 @@ type SharedDatagridCoreConfig<TOriginalRow, C extends ColumnDef<TOriginalRow>> =
   default?: DatagridCoreConfigDefaults;
 };
 
-type LocalDatagridCoreConfig<TOriginalRow> = {
+type LocalDatagridCoreConfig<TOriginalRow, TSort> = {
   data: TOriginalRow[];
-  initialState?: InitialState<TOriginalRow>;
+  initialState?: InitialState<TOriginalRow, TSort>;
 };
 
-type LoaderDatagridCoreConfig<TOriginalRow> = {
+type LoaderDatagridCoreConfig<TOriginalRow, TSort> = {
   data?: TOriginalRow[];
-  initialState: InitialState<TOriginalRow> & {
-    dataLoading: DataLoadingFeatureConfig<TOriginalRow> & { loader: DataTableLoader<TOriginalRow> };
+  initialState: InitialState<TOriginalRow, TSort> & {
+    dataLoading: DataLoadingFeatureConfig<TOriginalRow, TSort> & { loader: DataTableLoader<TOriginalRow, TSort> };
   };
 };
 
 export type DatagridCoreConfig<
   TOriginalRow,
+  TSort = DataTableSort,
   C extends ColumnDef<TOriginalRow> = ColumnDef<TOriginalRow>,
 > = SharedDatagridCoreConfig<TOriginalRow, C> &
-  (LocalDatagridCoreConfig<TOriginalRow> | LoaderDatagridCoreConfig<TOriginalRow>);
+  (LocalDatagridCoreConfig<TOriginalRow, TSort> | LoaderDatagridCoreConfig<TOriginalRow, TSort>);

@@ -1,24 +1,18 @@
 import type { CampaignSortInput } from "$houdini/graphql/inputs";
-import { sortDefinition, type DataTableSort } from "$lib/components/table";
+import { backendSortDefinition } from "$lib/components/table";
 
-const definitions = [
-  sortDefinition({
-    sortId: "createdAt",
-    fieldId: "createdAt",
+const defineSort = backendSortDefinition<CampaignSortInput>();
+
+export const campaignSortDefinitions = [
+  defineSort({
+    field: "createdAt",
     label: "Created Date",
-    defaultDirection: "descending",
+    defaultDirection: "DESC",
   }),
-  sortDefinition({ sortId: "name", fieldId: "name", label: "Name" }),
-  sortDefinition({ sortId: "status", fieldId: "status", label: "Status" }),
-  sortDefinition({ sortId: "messageCount", fieldId: "messageCount", label: "All Messages" }),
-  sortDefinition({ sortId: "sentMessageCount", fieldId: "sentMessageCount", label: "Sent Messages" }),
+  defineSort({ field: "name", label: "Name" }),
+  defineSort({ field: "status", label: "Status" }),
+  defineSort({ field: "messageCount", label: "All Messages" }),
+  defineSort({ field: "sentMessageCount", label: "Sent Messages" }),
 ] as const;
 
-export const campaignTableSorts = {
-  definitions,
-  toBackend(sorts: readonly DataTableSort[]): CampaignSortInput[] {
-    return sorts.map((sort) => ({
-      [sort.sortId]: { direction: sort.direction === "ascending" ? "ASC" : "DESC" },
-    }));
-  },
-};
+export const initialCampaignSorts: CampaignSortInput[] = [{ createdAt: { direction: "DESC" } }];

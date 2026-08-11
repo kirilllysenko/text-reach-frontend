@@ -1,0 +1,3 @@
+query SignInSessionQuery @cache(policy: NetworkOnly) {
+  checkSession
+}

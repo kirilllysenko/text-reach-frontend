@@ -15,7 +15,3 @@ query Users($after: String, $first: Int, $sortBy: [TenantUserSortByInput!]! = []
     totalCount
   }
 }
-
-mutation DeleteUser($id: Ulid!) {
-  deleteUser(id: $id)
-}

@@ -9,8 +9,9 @@ import { GroupingService } from "../services/grouping-service";
 import { PaginationService } from "../services/pagination-service";
 import { RowService } from "../services/row-service.svelte";
 import { SortingService } from "../services/sorting-service";
+import type { DataTableSort } from "../features/sorting.svelte";
 
-export class HandlersManager<TOriginalRow = any> {
+export class HandlersManager<TOriginalRow = any, TSort = DataTableSort> {
   readonly column: ColumnControlService;
   readonly dataLoading: DataLoadingService<TOriginalRow>;
   readonly filtering: FilteringService;
@@ -18,10 +19,10 @@ export class HandlersManager<TOriginalRow = any> {
   readonly grouping: GroupingService;
   readonly pagination: PaginationService;
   readonly rows: RowService;
-  readonly sorting: SortingService;
+  readonly sorting: SortingService<TSort>;
   readonly editing: EditingService<TOriginalRow>;
 
-  constructor(datagrid: DatagridCore<TOriginalRow>, events: EventService) {
+  constructor(datagrid: DatagridCore<TOriginalRow, TSort>, events: EventService) {
     this.column = new ColumnControlService(datagrid, events);
     this.dataLoading = new DataLoadingService<TOriginalRow>(datagrid, events);
     this.filtering = new FilteringService(datagrid, events);
@@ -29,7 +30,7 @@ export class HandlersManager<TOriginalRow = any> {
     this.grouping = new GroupingService(datagrid, events);
     this.pagination = new PaginationService(datagrid, events);
     this.rows = new RowService(datagrid, events);
-    this.sorting = new SortingService(datagrid, events);
+    this.sorting = new SortingService<TSort>(datagrid, events);
     this.editing = new EditingService<TOriginalRow>(datagrid, events);
   }
 }

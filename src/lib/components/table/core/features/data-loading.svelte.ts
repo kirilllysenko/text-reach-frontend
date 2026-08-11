@@ -4,7 +4,7 @@ import type { DataTableFilter } from "./column-filtering.svelte";
 import type { DataTableSort } from "./sorting.svelte";
 import type { EventPayloadMap, OnPageChangePayload } from "../services/event-service";
 
-export interface DataTableLoadRequest {
+export interface DataTableLoadRequest<TSort = DataTableSort> {
   cursor: DataTableCursor;
   direction?: DataTablePageDirection;
   filters: DataTableFilter[];
@@ -12,7 +12,7 @@ export interface DataTableLoadRequest {
   offset?: number;
   page?: number;
   signal?: AbortSignal;
-  sorts: DataTableSort[];
+  sorts: TSort[];
 }
 
 export interface DataTableLoadResult<TData> {
@@ -31,8 +31,8 @@ export type DataTableLoadReason =
   | "search"
   | "sorting";
 
-export type DataTableLoader<TData> = (
-  request: DataTableLoadRequest,
+export type DataTableLoader<TData, TSort = DataTableSort> = (
+  request: DataTableLoadRequest<TSort>,
 ) => DataTableLoadResult<TData> | Promise<DataTableLoadResult<TData>>;
 
 /**
@@ -42,7 +42,7 @@ export type DataTableLoader<TData> = (
  * It listens to pagination and search events, builds a DataTableLoadRequest,
  * calls the configured loader, and applies the returned rows back to the table.
  */
-export type DataLoadingFeatureState<TOriginalRow = any> = {
+export type DataLoadingFeatureState<TOriginalRow = any, TSort = DataTableSort> = {
   /** Whether the feature should subscribe to table events and allow loads. */
   enabled: boolean;
 
@@ -55,7 +55,7 @@ export type DataLoadingFeatureState<TOriginalRow = any> = {
    * The loader receives the current page request and AbortSignal. It returns
    * display-ready rows plus pagination cursor metadata.
    */
-  loader: DataTableLoader<TOriginalRow> | null;
+  loader: DataTableLoader<TOriginalRow, TSort> | null;
 
   /** Whether a load is currently in progress. */
   loading: boolean;
@@ -72,15 +72,15 @@ export type DataLoadingFeatureState<TOriginalRow = any> = {
   manualFeatures: boolean;
 
   /** Called after a loader failure that belongs to the current request. */
-  onLoadError: (error: unknown, request: DataTableLoadRequest, reason: DataTableLoadReason) => void;
+  onLoadError: (error: unknown, request: DataTableLoadRequest<TSort>, reason: DataTableLoadReason) => void;
 
   /** Called immediately before the loader runs. */
-  onLoadStart: (request: DataTableLoadRequest, reason: DataTableLoadReason) => void;
+  onLoadStart: (request: DataTableLoadRequest<TSort>, reason: DataTableLoadReason) => void;
 
   /** Called after a successful current request has been applied to the table. */
   onLoadSuccess: (
     result: DataTableLoadResult<TOriginalRow>,
-    request: DataTableLoadRequest,
+    request: DataTableLoadRequest<TSort>,
     reason: DataTableLoadReason,
   ) => void;
 };
@@ -88,7 +88,9 @@ export type DataLoadingFeatureState<TOriginalRow = any> = {
 /**
  * Partial configuration accepted by DatagridCore initialState.dataLoading.
  */
-export type DataLoadingFeatureConfig<TOriginalRow = any> = Partial<DataLoadingFeatureState<TOriginalRow>>;
+export type DataLoadingFeatureConfig<TOriginalRow = any, TSort = DataTableSort> = Partial<
+  DataLoadingFeatureState<TOriginalRow, TSort>
+>;
 
 /**
  * Coordinates server-backed data loading for a table.
@@ -103,29 +105,32 @@ export type DataLoadingFeatureConfig<TOriginalRow = any> = Partial<DataLoadingFe
  * It intentionally does not expose page navigation helpers. Use PaginationService
  * for movement; this feature reacts to that movement and fetches the right data.
  */
-export class DataLoadingFeature<TOriginalRow = any> implements DataLoadingFeatureState<TOriginalRow> {
+export class DataLoadingFeature<TOriginalRow = any, TSort = DataTableSort> implements DataLoadingFeatureState<
+  TOriginalRow,
+  TSort
+> {
   /** The table instance this feature coordinates. */
-  datagrid: DatagridCore<TOriginalRow>;
+  datagrid: DatagridCore<TOriginalRow, TSort>;
 
   enabled = $state(false);
   error = $state<string | null>(null);
   loading = $state(false);
 
-  loader: DataTableLoader<TOriginalRow> | null = null;
+  loader: DataTableLoader<TOriginalRow, TSort> | null = null;
   loadOnStart = true;
   manualFeatures = true;
 
   /** Last request sent to the loader, useful for debugging and tests. */
-  lastRequest = $state.raw<DataTableLoadRequest | null>(null);
+  lastRequest = $state.raw<DataTableLoadRequest<TSort> | null>(null);
 
   /** Last successful loader result, useful for debugging and tests. */
   lastResult = $state.raw<DataTableLoadResult<TOriginalRow> | null>(null);
 
-  onLoadError: (error: unknown, request: DataTableLoadRequest, reason: DataTableLoadReason) => void = () => {};
-  onLoadStart: (request: DataTableLoadRequest, reason: DataTableLoadReason) => void = () => {};
+  onLoadError: (error: unknown, request: DataTableLoadRequest<TSort>, reason: DataTableLoadReason) => void = () => {};
+  onLoadStart: (request: DataTableLoadRequest<TSort>, reason: DataTableLoadReason) => void = () => {};
   onLoadSuccess: (
     result: DataTableLoadResult<TOriginalRow>,
-    request: DataTableLoadRequest,
+    request: DataTableLoadRequest<TSort>,
     reason: DataTableLoadReason,
   ) => void = () => {};
 
@@ -138,7 +143,7 @@ export class DataLoadingFeature<TOriginalRow = any> implements DataLoadingFeatur
   /**
    * Creates the feature. Passing a loader enables it by default.
    */
-  constructor(datagrid: DatagridCore<TOriginalRow>, config?: DataLoadingFeatureConfig<TOriginalRow>) {
+  constructor(datagrid: DatagridCore<TOriginalRow, TSort>, config?: DataLoadingFeatureConfig<TOriginalRow, TSort>) {
     this.datagrid = datagrid;
     Object.assign(this, config);
     this.enabled = config?.enabled ?? Boolean(config?.loader);
@@ -270,7 +275,7 @@ export class DataLoadingFeature<TOriginalRow = any> implements DataLoadingFeatur
       page: pageRequest.page,
       signal,
       sorts: this.datagrid.features.sorting.sorts,
-    } satisfies DataTableLoadRequest;
+    } satisfies DataTableLoadRequest<TSort>;
   }
 
   private applyManualFeatureMode(): void {

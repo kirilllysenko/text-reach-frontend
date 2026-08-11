@@ -2,7 +2,7 @@
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
   import { page } from "$app/state";
-  import { cache, ContactFormEditQueryStore, UpdateContactStore } from "$houdini";
+  import { cache, ContactFormEditQueryStore, GetContactFormByIdStore, UpdateContactStore } from "$houdini";
   import { BackButton, Button, Card, Field, FieldError, FieldLabel, Input, PageTitle, TextArea } from "$lib";
   import { PATH_CONTACT } from "$lib/app/paths";
   import { networkErrorText } from "$lib/form/errors";
@@ -14,7 +14,7 @@
   import { createContactForm, type FormValues, type SubmitValues } from "../../../components/form/form.svelte";
 
   const contactId = page.params.id;
-  const editFormQuery = new ContactFormEditQueryStore();
+  const formByIdQuery = new GetContactFormByIdStore();
   const updateContactMutation = new UpdateContactStore();
   const form = createContactForm(submit);
 
@@ -36,7 +36,7 @@
         return;
       }
 
-      const contactResponse = await editFormQuery.fetch({ variables: { id: contactId } });
+      const contactResponse = await formByIdQuery.fetch({ variables: { id: contactId } });
 
       if (contactResponse.errors || !contactResponse.data?.contact) {
         loadError = "There was an error.";

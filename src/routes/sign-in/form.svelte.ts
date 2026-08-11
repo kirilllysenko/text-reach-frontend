@@ -1,5 +1,5 @@
 import { goto } from "$app/navigation";
-import { CheckSessionStore, SignInStore } from "$houdini";
+import { SignInSessionQueryStore, SignInStore } from "$houdini";
 import { PATH_DASHBOARD } from "$lib/app/paths";
 import { createForm, type FormSubmitResult } from "$lib/form/form.svelte";
 import { networkErrorText } from "$lib/form/errors";
@@ -19,7 +19,7 @@ export const initialValues: FormValues = {
   password: "",
 };
 
-const checkSessionQuery = new CheckSessionStore();
+const checkSessionQuery = new SignInSessionQueryStore();
 const signInMutation = new SignInStore();
 
 export const form = createForm(initialValues, validator, submit);

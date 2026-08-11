@@ -7,15 +7,18 @@ import { HandlersManager } from "./managers/handler-manager";
 import { LifecycleHooks } from "./managers/lifecycle-hooks-manager.svelte";
 import { ColumnProcessor, DataProcessor } from "./processors";
 import type { GridRowIdentifier } from "./row-types";
+import type { DataTableSort } from "./features/sorting.svelte";
 import { EventService } from "./services/event-service";
 import { flattenColumnStructureAndClearGroups } from "./utils.svelte";
 
-type NormalizedDatagridConfig<TOriginalRow> = DatagridCoreConfig<TOriginalRow> & { data: TOriginalRow[] };
+type NormalizedDatagridConfig<TOriginalRow, TSort> = DatagridCoreConfig<TOriginalRow, TSort> & {
+  data: TOriginalRow[];
+};
 
-export class DatagridCore<TOriginalRow = any, TMeta = any> {
+export class DatagridCore<TOriginalRow = any, TSort = DataTableSort, TMeta = any> {
   readonly events: EventService;
   readonly performanceMetrics: PerformanceMetrics;
-  readonly handlers: HandlersManager<TOriginalRow>;
+  readonly handlers: HandlersManager<TOriginalRow, TSort>;
   readonly columns: ColumnsManager<TOriginalRow>;
   readonly rows: RowsManager<TOriginalRow>;
   readonly processors: {
@@ -24,7 +27,7 @@ export class DatagridCore<TOriginalRow = any, TMeta = any> {
   };
   readonly cacheManager: DatagridCacheManager<TOriginalRow>;
   readonly lifecycleHooks: LifecycleHooks<TOriginalRow>;
-  readonly features: DatagridFeatures<TOriginalRow>;
+  readonly features: DatagridFeatures<TOriginalRow, TSort>;
 
   originalState = $state.raw({
     columns: [] as ColumnDef<TOriginalRow, TMeta>[],
@@ -36,7 +39,7 @@ export class DatagridCore<TOriginalRow = any, TMeta = any> {
   rowIdGetter: (row: TOriginalRow) => GridRowIdentifier;
   rowIndexGetter: (row: TOriginalRow, parentIndex: string | null, index: number) => string;
 
-  constructor(config: DatagridCoreConfig<TOriginalRow>) {
+  constructor(config: DatagridCoreConfig<TOriginalRow, TSort>) {
     const normalizedConfig = this.normalizeConfiguration(config);
 
     this.events = new EventService();
@@ -47,11 +50,11 @@ export class DatagridCore<TOriginalRow = any, TMeta = any> {
     this.rowIndexGetter = normalizedConfig.rowIndexGetter ?? this.defaultRowIndexGetter;
 
     this.cacheManager = new DatagridCacheManager();
-    this.columns = new ColumnsManager(this);
-    this.rows = new RowsManager(this);
+    this.columns = new ColumnsManager(this as DatagridCore<TOriginalRow, any>);
+    this.rows = new RowsManager(this as DatagridCore<TOriginalRow, any>);
     this.processors = {
-      column: new ColumnProcessor(this),
-      data: new DataProcessor(this),
+      column: new ColumnProcessor(this as DatagridCore<TOriginalRow, any>),
+      data: new DataProcessor(this as DatagridCore<TOriginalRow, any>),
     };
     this.features = new DatagridFeatures(this, normalizedConfig);
     this.handlers = new HandlersManager(this, this.events);
@@ -88,7 +91,7 @@ export class DatagridCore<TOriginalRow = any, TMeta = any> {
     if (this.measurePerformance) console.log(`Operation took ${performance.now() - timeStart}ms`);
   }
 
-  private initializeGridState(config: NormalizedDatagridConfig<TOriginalRow>): void {
+  private initializeGridState(config: NormalizedDatagridConfig<TOriginalRow, TSort>): void {
     this.initializeSourceColumns(config.columns, config.default?.column);
     this.initializeSourceData(config.data);
     this._columns = this.processors.column.initializeColumns(this.originalState.columns);
@@ -108,7 +111,9 @@ export class DatagridCore<TOriginalRow = any, TMeta = any> {
     this.originalState.data = this.lifecycleHooks.executePostProcessData(preprocessedData);
   }
 
-  private normalizeConfiguration(config: DatagridCoreConfig<TOriginalRow>): NormalizedDatagridConfig<TOriginalRow> {
+  private normalizeConfiguration(
+    config: DatagridCoreConfig<TOriginalRow, TSort>,
+  ): NormalizedDatagridConfig<TOriginalRow, TSort> {
     if (!Array.isArray(config.columns) || config.columns.length === 0) {
       throw new Error("Columns must be a non-empty array");
     }

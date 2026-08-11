@@ -1,5 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
-import { accessorColumn, columnGroup, DatagridCore, sortDefinition, textFilter, type ColumnDef } from "../index";
+import {
+  accessorColumn,
+  columnGroup,
+  DatagridCore,
+  sortDefinition,
+  textFilter,
+  type ColumnDef,
+  type DataTableSort,
+} from "../index";
 import { SortingFeature } from "../core/features/sorting.svelte";
 
 interface Row {
@@ -15,8 +23,8 @@ describe("DatagridCore structure", () => {
   it("constructs each feature override once", () => {
     const constructorSpy = vi.fn();
 
-    class TestSortingFeature extends SortingFeature {
-      constructor(...args: ConstructorParameters<typeof SortingFeature>) {
+    class TestSortingFeature extends SortingFeature<DataTableSort> {
+      constructor(...args: ConstructorParameters<typeof SortingFeature<DataTableSort>>) {
         super(...args);
         constructorSpy();
       }

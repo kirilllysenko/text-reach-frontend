@@ -1,0 +1,3 @@
+query CheckSession @cache(policy: NetworkOnly) {
+  checkSession
+}

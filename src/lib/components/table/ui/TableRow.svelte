@@ -6,7 +6,7 @@
   interface Props {
     row: GridBasicRow<TData>;
     rowIndex: number;
-    table: DatagridCore<TData>;
+    table: DatagridCore<TData, any>;
   }
 
   let { row, rowIndex, table }: Props = $props();

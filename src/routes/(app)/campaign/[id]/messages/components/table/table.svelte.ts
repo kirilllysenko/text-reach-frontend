@@ -1,6 +1,6 @@
 import {
+  backendSortDefinition,
   DatagridCore,
-  sortDefinition,
   type DataTableLoadRequest,
   type DataTableLoadResult,
 } from "$lib/components/table";
@@ -10,28 +10,20 @@ import { messageTableFilters } from "$lib/feature/message/message-table-filters"
 import type { MessageViewModel } from "$lib/feature/message/message-view-data";
 import { createMessageColumns } from "./column.svelte";
 
-const initialSorting = [{ sortId: "sentAt", direction: "descending" }] as const;
+const messageSort = backendSortDefinition<MessageSortByInput>();
+const initialSorting = [{ sentAt: { direction: "DESC" } }] satisfies MessageSortByInput[];
 const definitions = [
-  sortDefinition({ sortId: "sentAt", fieldId: "sentAt", label: "Sent At", defaultDirection: "descending" }),
-  sortDefinition({ sortId: "status", fieldId: "status", label: "Status" }),
-  sortDefinition({
-    sortId: "tenantPhoneNumber",
-    fieldId: "tenantPhoneNumber",
+  messageSort({ field: "sentAt", label: "Sent At", defaultDirection: "DESC" }),
+  messageSort({ field: "status", label: "Status" }),
+  messageSort({
+    field: "tenantPhoneNumber",
     label: "Tenant Phone",
   }),
-  sortDefinition({ sortId: "text", fieldId: "text", label: "Text" }),
+  messageSort({ field: "text", label: "Text" }),
 ] as const;
-const messageTableSorts = {
-  definitions,
-  toBackend(sorts: readonly { sortId: string; direction: "ascending" | "descending" }[]): MessageSortByInput[] {
-    return sorts.map((sort) => ({
-      [sort.sortId]: { direction: sort.direction === "ascending" ? "ASC" : "DESC" },
-    }));
-  },
-};
 
-export function createMessageTable(state: CampaignMessagesState): DatagridCore<MessageViewModel> {
-  return new DatagridCore<MessageViewModel>({
+export function createMessageTable(state: CampaignMessagesState): DatagridCore<MessageViewModel, MessageSortByInput> {
+  return new DatagridCore<MessageViewModel, MessageSortByInput>({
     columns: createMessageColumns(),
     initialState: {
       dataLoading: {
@@ -41,7 +33,7 @@ export function createMessageTable(state: CampaignMessagesState): DatagridCore<M
         filterDefinitions: messageTableFilters.definitions,
       },
       sorting: {
-        sortDefinitions: messageTableSorts.definitions,
+        sortDefinitions: definitions,
         sorts: [...initialSorting],
       },
     },
@@ -50,7 +42,7 @@ export function createMessageTable(state: CampaignMessagesState): DatagridCore<M
 
 function fetchMessageRows(
   state: CampaignMessagesState,
-  request: DataTableLoadRequest,
+  request: DataTableLoadRequest<MessageSortByInput>,
 ): Promise<DataTableLoadResult<MessageViewModel>> {
-  return state.fetchRows(request, messageTableSorts.toBackend(request.sorts));
+  return state.fetchRows(request);
 }

@@ -1,0 +1,3 @@
+mutation SendSignUpEmailCode($email: String!) {
+  sendSignUpEmailCode(email: $email)
+}

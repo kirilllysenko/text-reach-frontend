@@ -1,37 +1,46 @@
 import type { LeafColumn } from "../column-types";
-import type { DataTableActiveSortDirection, DataTableSort, DataTableSortDefinition } from "../features/sorting.svelte";
+import type {
+  DataTableActiveSortDirection,
+  DataTableSort,
+  DataTableSortDefinition,
+  SortingFeature,
+} from "../features/sorting.svelte";
 import { BaseService } from "./base-service";
 
-/**
- * Interface for sorting-related services in a data grid.
- */
-export type ISortingService = {
+export type ISortingService<TSort = DataTableSort> = {
+  addSort(sortId: string, direction?: DataTableActiveSortDirection): void;
+  applyAscendingSort(column: LeafColumn<any>): void;
+  applyAscendingSortByField(fieldId: string): void;
+  applyDescendingSort(column: LeafColumn<any>): void;
+  applyDescendingSortByField(fieldId: string): void;
+  clearColumnSort(column: LeafColumn<any>): void;
+  clearFieldSort(fieldId: string): void;
+  clearSorts(): void;
+  getSortDirection(sort: TSort): DataTableActiveSortDirection;
+  getSortId(sort: TSort): string;
+  removeSortAt(index: number): void;
+  setSorts(sorts: TSort[]): void;
   toggleColumnSort(column: LeafColumn<any>, multisort: boolean): void;
   toggleSort(sortId: string, multisort: boolean): void;
-  applyAscendingSort(column: LeafColumn<any>): void;
-  applyDescendingSort(column: LeafColumn<any>): void;
-  clearColumnSort(column: LeafColumn<any>): void;
-  applyAscendingSortByField(fieldId: string): void;
-  applyDescendingSortByField(fieldId: string): void;
-  clearFieldSort(fieldId: string): void;
-  addSort(sortId: string, direction?: DataTableActiveSortDirection): void;
-  removeSortAt(index: number): void;
-  setSorts(sorts: DataTableSort[]): void;
   updateSortDirection(index: number, direction: DataTableActiveSortDirection): void;
   updateSortId(index: number, sortId: string): void;
-  clearSorts(): void;
 };
 
-/**
- * Class responsible for managing ordered sorting rules in a data grid.
- */
-export class SortingService extends BaseService {
-  get sorts(): DataTableSort[] {
-    return this.datagrid.features.sorting.sorts;
+export class SortingService<TSort = DataTableSort> extends BaseService {
+  get sorts(): TSort[] {
+    return this.sorting.sorts;
   }
 
-  get sortDefinitions(): readonly DataTableSortDefinition[] {
-    return this.datagrid.features.sorting.sortDefinitions;
+  get sortDefinitions(): readonly DataTableSortDefinition<string, any, TSort>[] {
+    return this.sorting.sortDefinitions;
+  }
+
+  getSortId(sort: TSort): string {
+    return this.sorting.getSortId(sort);
+  }
+
+  getSortDirection(sort: TSort): DataTableActiveSortDirection {
+    return this.sorting.getActiveSortDirection(sort);
   }
 
   toggleColumnSort(column: LeafColumn<any>, multisort: boolean): void {
@@ -44,19 +53,18 @@ export class SortingService extends BaseService {
       return;
     }
 
-    const sorting = this.datagrid.features.sorting;
-    const sort = sorting.getSort(sortId);
-    const useMultiSort = multisort && sorting.allowMultiSort;
-    const defaultDirection = sorting.getSortDefaultDirection(sortId);
+    const sort = this.sorting.getSort(sortId);
+    const useMultiSort = multisort && this.sorting.allowMultiSort;
+    const defaultDirection = this.sorting.getSortDefaultDirection(sortId);
     const alternateDirection = this.getAlternateDirection(defaultDirection);
 
     if (!useMultiSort) {
       if (!sort) {
-        sorting.setSorts([{ direction: defaultDirection, sortId }]);
-      } else if (sort.direction === defaultDirection) {
-        sorting.setSorts([{ direction: alternateDirection, sortId }]);
+        this.sorting.setSorts([this.sorting.createSort(sortId, defaultDirection)]);
+      } else if (this.sorting.getActiveSortDirection(sort) === defaultDirection) {
+        this.sorting.setSorts([this.sorting.createSort(sortId, alternateDirection)]);
       } else {
-        sorting.clearSorts();
+        this.sorting.clearSorts();
       }
 
       this.refreshSorting(sortId, column, multisort);
@@ -64,16 +72,16 @@ export class SortingService extends BaseService {
     }
 
     if (!sort) {
-      const nextSorts = sorting.sorts.slice();
-      if (nextSorts.length >= sorting.maxMultiSortColumns) {
+      const nextSorts = this.sorting.sorts.slice();
+      if (nextSorts.length >= this.sorting.maxMultiSortColumns) {
         nextSorts.shift();
       }
 
-      sorting.setSorts([...nextSorts, { direction: defaultDirection, sortId }]);
-    } else if (sort.direction === defaultDirection) {
-      sorting.updateSort(sortId, alternateDirection);
+      this.sorting.setSorts([...nextSorts, this.sorting.createSort(sortId, defaultDirection)]);
+    } else if (this.sorting.getActiveSortDirection(sort) === defaultDirection) {
+      this.sorting.updateSort(sortId, alternateDirection);
     } else {
-      sorting.removeSort(sortId);
+      this.sorting.removeSort(sortId);
     }
 
     this.refreshSorting(sortId, column, multisort);
@@ -111,7 +119,7 @@ export class SortingService extends BaseService {
       return;
     }
 
-    this.datagrid.features.sorting.addSort(sortId, direction);
+    this.sorting.addSort(sortId, direction);
     this.refreshSorting(sortId);
   }
 
@@ -123,11 +131,11 @@ export class SortingService extends BaseService {
 
     this.replaceSorts(
       this.sorts.filter((_, currentIndex) => currentIndex !== index),
-      sort.sortId,
+      this.getSortId(sort),
     );
   }
 
-  setSorts(sorts: DataTableSort[]): void {
+  setSorts(sorts: TSort[]): void {
     this.replaceSorts(sorts);
   }
 
@@ -137,11 +145,12 @@ export class SortingService extends BaseService {
       return;
     }
 
+    const sortId = this.getSortId(sort);
     this.replaceSorts(
       this.sorts.map((currentSort, currentIndex) =>
-        currentIndex === index ? { ...currentSort, direction } : currentSort,
+        currentIndex === index ? this.sorting.createSort(sortId, direction) : currentSort,
       ),
-      sort.sortId,
+      sortId,
     );
   }
 
@@ -154,11 +163,7 @@ export class SortingService extends BaseService {
     this.replaceSorts(
       this.sorts.map((currentSort, currentIndex) =>
         currentIndex === index
-          ? {
-              ...currentSort,
-              direction: this.datagrid.features.sorting.getSortDefaultDirection(sortId),
-              sortId,
-            }
+          ? this.sorting.createSort(sortId, this.sorting.getSortDefaultDirection(sortId))
           : currentSort,
       ),
       sortId,
@@ -166,8 +171,12 @@ export class SortingService extends BaseService {
   }
 
   clearSorts(): void {
-    this.datagrid.features.sorting.clearSorts();
+    this.sorting.clearSorts();
     this.refreshSorting();
+  }
+
+  private get sorting(): SortingFeature<TSort> {
+    return this.datagrid.features.sorting as SortingFeature<TSort>;
   }
 
   private applySort(sortId: string, direction: DataTableActiveSortDirection, column?: LeafColumn<any>): void {
@@ -175,11 +184,10 @@ export class SortingService extends BaseService {
       return;
     }
 
-    const sorting = this.datagrid.features.sorting;
-    if (sorting.getSort(sortId)) {
-      sorting.updateSort(sortId, direction);
+    if (this.sorting.getSort(sortId)) {
+      this.sorting.updateSort(sortId, direction);
     } else {
-      sorting.addSort(sortId, direction);
+      this.sorting.addSort(sortId, direction);
     }
 
     this.refreshSorting(sortId, column);
@@ -187,13 +195,13 @@ export class SortingService extends BaseService {
 
   private removeSortById(sortId: string, column?: LeafColumn<any>): void {
     this.validateSort(sortId);
-    this.datagrid.features.sorting.removeSort(sortId);
+    this.sorting.removeSort(sortId);
     this.refreshSorting(sortId, column);
   }
 
-  private replaceSorts(sorts: DataTableSort[], sortId?: string): void {
-    sorts.forEach((sort) => this.validateSort(sort.sortId));
-    this.datagrid.features.sorting.setSorts(sorts);
+  private replaceSorts(sorts: TSort[], sortId?: string): void {
+    sorts.forEach((sort) => this.validateSort(this.getSortId(sort)));
+    this.sorting.setSorts(sorts);
     this.refreshSorting(sortId);
   }
 
@@ -218,7 +226,7 @@ export class SortingService extends BaseService {
   private refreshSorting(sortId?: string, column?: LeafColumn<any>, multisort?: boolean): void {
     this.datagrid.cacheManager.invalidate("sortedData");
     this.datagrid.processors.data.executeFullDataTransformation();
-    this.datagrid.features.sorting.onSortingChange(this.datagrid.features.sorting);
+    this.sorting.onSortingChange(this.sorting);
     this.datagrid.events.emit("onSortingChange", { column, multisort, sortId });
   }
 }

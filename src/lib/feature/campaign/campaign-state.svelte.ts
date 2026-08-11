@@ -1,4 +1,5 @@
 import { CampaignsStore } from "$houdini";
+import type { CampaignSortInput } from "$houdini/graphql/inputs";
 import { DatagridCore, accessorColumn, type DataTableFilter, type SortingService } from "$lib/components/table";
 import { debounce } from "$lib/utils/debounce";
 import { toGraphQLErrorText } from "$lib/graphql/errors";
@@ -9,15 +10,13 @@ import {
   type CampaignViewModel,
 } from "$lib/feature/campaign/campaign-view-data";
 import { buildCampaignRequest } from "./campaign-query";
-import { campaignTableSorts } from "./campaign-table-sorts";
+import { campaignSortDefinitions, initialCampaignSorts } from "./campaign-table-sorts";
 import { mergeContactGroupNames, toCampaignViewModel } from "./campaign-display";
 
 type MobileView = "list" | "details";
 
 const DEFAULT_PAGE_SIZE = 50;
 const SEARCH_DEBOUNCE_MS = 250;
-const INITIAL_SORTING = [{ sortId: "createdAt", direction: "descending" }] as const;
-
 export class CampaignState {
   private readonly campaignsQuery = new CampaignsStore();
   loading = $state(true);
@@ -44,7 +43,7 @@ export class CampaignState {
   private readonly scheduleRefresh = debounce(() => {
     void this.resetAndLoadCampaignList();
   }, SEARCH_DEBOUNCE_MS);
-  private readonly sortingTable = new DatagridCore<CampaignViewModel>({
+  private readonly sortingTable = new DatagridCore<CampaignViewModel, CampaignSortInput>({
     columns: [
       accessorColumn<CampaignViewModel, "id", unknown>({
         accessorKey: "id",
@@ -55,12 +54,12 @@ export class CampaignState {
     data: [],
     initialState: {
       sorting: {
-        sortDefinitions: campaignTableSorts.definitions,
-        sorts: [...INITIAL_SORTING],
+        sortDefinitions: campaignSortDefinitions,
+        sorts: [...initialCampaignSorts],
       },
     },
   });
-  readonly sorting: SortingService = this.sortingTable.handlers.sorting;
+  readonly sorting: SortingService<CampaignSortInput> = this.sortingTable.handlers.sorting;
 
   statusOptions = campaignStatusOptions;
   selectedCampaign = $derived.by(() => {
@@ -98,9 +97,10 @@ export class CampaignState {
 
   sortChips = $derived.by(() =>
     this.sorting.sorts.map((rule, index) => {
-      const definition = this.sorting.sortDefinitions.find((current) => current.sortId === rule.sortId);
-      const direction = rule.direction === "ascending" ? "ASC" : "DESC";
-      return `#${index + 1} ${definition?.label ?? rule.sortId} ${direction}`;
+      const sortId = this.sorting.getSortId(rule);
+      const definition = this.sorting.sortDefinitions.find((current) => current.sortId === sortId);
+      const direction = this.sorting.getSortDirection(rule) === "ascending" ? "ASC" : "DESC";
+      return `#${index + 1} ${definition?.label ?? sortId} ${direction}`;
     }),
   );
 
@@ -323,7 +323,7 @@ export class CampaignState {
           createdAfter: this.createdAfter,
           minSentMessageCount: this.minSentMessageCount,
           minMessageCount: this.minMessageCount,
-          sort: campaignTableSorts.toBackend(this.sorting.sorts),
+          sort: this.sorting.sorts,
         }),
       });
       if (version !== this.requestVersion) {

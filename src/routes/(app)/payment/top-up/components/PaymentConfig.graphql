@@ -1,0 +1,8 @@
+query PaymentConfig @cache(policy: CacheOrNetwork) {
+  paymentConfig {
+    currency
+    maxTopupUsdMicros
+    minTopupUsdMicros
+    stripePublishableKey
+  }
+}

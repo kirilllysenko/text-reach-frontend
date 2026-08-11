@@ -15,8 +15,7 @@ export class CampaignMessagesState {
   constructor(private readonly campaignId: string) {}
 
   fetchRows = async (
-    request: DataTableLoadRequest,
-    sort: MessageSortByInput[],
+    request: DataTableLoadRequest<MessageSortByInput>,
   ): Promise<DataTableLoadResult<MessageViewModel>> => {
     const pageRequest = buildMessageRequest({
       campaignId: this.campaignId,
@@ -25,7 +24,7 @@ export class CampaignMessagesState {
       direction: request.direction,
       search: this.search,
       filters: request.filters,
-      sort,
+      sort: request.sorts,
     });
 
     try {

@@ -1,0 +1,9 @@
+mutation ImportContacts($input: ContactImportInput!) {
+  importContacts(input: $input) {
+    contactImport {
+      id
+      importedRows
+      status
+    }
+  }
+}

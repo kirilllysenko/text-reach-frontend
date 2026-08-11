@@ -14,8 +14,7 @@ export function createContactGroupState() {
     loadingError: null as string | null,
     search: "",
     fetchRows: async (
-      request: DataTableLoadRequest,
-      sort: readonly ContactGroupSortByInput[],
+      request: DataTableLoadRequest<ContactGroupSortByInput>,
     ): Promise<DataTableLoadResult<ContactGroupViewModel>> => {
       const pageRequest = buildContactGroupRequest({
         pageSize: request.limit,
@@ -24,7 +23,7 @@ export function createContactGroupState() {
         offset: request.offset,
         search: state.search,
         filters: request.filters,
-        sort,
+        sort: request.sorts,
       });
 
       try {

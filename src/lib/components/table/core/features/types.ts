@@ -29,6 +29,7 @@ import type { RowExpansionConfig } from "./row-expanding.svelte";
 import type { RowPinningFeatureConfig } from "./row-pinning.svelte";
 import type { RowSelectionFeatureConfig } from "./row-selection.svelte";
 import type { SortingFeatureConfig } from "./sorting.svelte";
+import type { DataTableSort } from "./sorting.svelte";
 
 export type BuiltInFeature =
   | ColumnFacetingFeature
@@ -51,9 +52,9 @@ export type FeatureConstructor<T> = {
   new (datagrid: DatagridCore<any>, config?: any): T;
 };
 
-export type InitialState<TOriginalRow = any> = {
-  dataLoading?: DataLoadingFeatureConfig<TOriginalRow>;
-  sorting?: SortingFeatureConfig;
+export type InitialState<TOriginalRow = any, TSort = DataTableSort> = {
+  dataLoading?: DataLoadingFeatureConfig<TOriginalRow, TSort>;
+  sorting?: SortingFeatureConfig<TSort>;
   pagination?: PaginationFeatureConfig;
   filtering?: ColumnFilteringFeatureConfig;
   faceting?: ColumnFacetingFeatureConfig;

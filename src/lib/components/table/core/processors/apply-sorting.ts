@@ -28,7 +28,7 @@ export function applySorting<TOriginalRow>(datagrid: DatagridCore<TOriginalRow>,
   const sorts: { getValue: (row: TOriginalRow) => any; direction: DataTableActiveSortDirection }[] =
     datagrid.features.sorting.sorts.map((sort) => ({
       getValue: datagrid.features.sorting.getSortValueGetter(sort),
-      direction: sort.direction,
+      direction: datagrid.features.sorting.getActiveSortDirection(sort),
     }));
 
   // Schwartzian Transform: Precompute sort values

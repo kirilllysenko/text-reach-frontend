@@ -1,9 +1,10 @@
 <script lang="ts">
+  import type { WalletTransactionSortByInput } from "$houdini/graphql/inputs";
   import { Button, ResponsiveDialog, SortPanel, type SortingService } from "$lib";
   import Sort from "$lib/icons/Sort.svelte";
 
   interface Props {
-    sorting: SortingService;
+    sorting: SortingService<WalletTransactionSortByInput>;
   }
 
   let { sorting }: Props = $props();

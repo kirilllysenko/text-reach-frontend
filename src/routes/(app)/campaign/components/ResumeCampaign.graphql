@@ -1,0 +1,6 @@
+mutation ResumeCampaign($id: Ulid!) {
+  resumeCampaign(id: $id) {
+    id
+    status
+  }
+}

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import PageTitle from "$lib/components/page-title/PageTitle.svelte";
+  import PageTitle from "text-reach-frontend-library/components/page-title/PageTitle.svelte";
   import ProfileNameForm from "./components/ProfileNameForm.svelte";
   import ProfilePasswordForm from "./components/ProfilePasswordForm.svelte";
 </script>

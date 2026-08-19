@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { statusLabelMap, type CampaignStatus } from "$lib/feature/campaign/campaign-view-data";
+  import { statusLabelMap, type CampaignStatus } from "./campaign-view-data";
 
   interface Props {
     status?: CampaignStatus;
@@ -7,7 +7,7 @@
 
   let { status = "PENDING" }: Props = $props();
 
-  const pausedStatuses: NonNullable<CampaignStatus>[] = ["PAUSED_BY_USER", "PAUSED_BY_BILLING"];
+  const pausedStatuses: NonNullable<CampaignStatus>[] = ["PAUSED_BY_USER", "PAUSED_LOW_BALANCE"];
   const cancelledStatuses: NonNullable<CampaignStatus>[] = ["CANCELLED_BY_USER", "CANCELLED_BY_TIMEOUT"];
 
   const usesAccentColor = $derived(

@@ -2,19 +2,19 @@
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
   import { page } from "$app/state";
-  import { cache, ContactFormEditQueryStore, GetContactFormByIdStore, UpdateContactStore } from "$houdini";
+  import { cache, ContactFormByIdStore, UpdateContactStore } from "$houdini";
   import { BackButton, Button, Card, Field, FieldError, FieldLabel, Input, PageTitle, TextArea } from "$lib";
   import { PATH_CONTACT } from "$lib/app/paths";
   import { networkErrorText } from "$lib/form/errors";
   import type { FormSubmitResult } from "$lib/form/form.svelte";
-  import { notificationsState } from "$lib/state/notifications.svelte";
+  import { notificationsState } from "text-reach-frontend-library/state/notifications.svelte";
   import { onMount } from "svelte";
   import ContactGroupMultiCombobox from "$lib/feature/contact-group/MultiCombobox/ContactGroupMultiCombobox.svelte";
   import ContactFormCustomFields from "../../../components/ContactFormCustomFields/ContactFormCustomFields.svelte";
   import { createContactForm, type FormValues, type SubmitValues } from "../../../components/form/form.svelte";
 
   const contactId = page.params.id;
-  const formByIdQuery = new GetContactFormByIdStore();
+  const formByIdQuery = new ContactFormByIdStore();
   const updateContactMutation = new UpdateContactStore();
   const form = createContactForm(submit);
 

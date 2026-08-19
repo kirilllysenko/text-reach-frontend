@@ -1,0 +1,6 @@
+mutation PauseCampaign($id: Ulid!) {
+  pauseCampaign(id: $id) {
+    id
+    status
+  }
+}

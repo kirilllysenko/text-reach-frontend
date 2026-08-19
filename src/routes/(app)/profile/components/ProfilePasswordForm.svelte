@@ -4,7 +4,7 @@
   import { networkErrorText } from "$lib/form/errors";
   import { PasswordSchema } from "$lib/form/validators";
   import { toGraphQLErrorText } from "$lib/graphql/errors";
-  import { notificationsState } from "$lib/state/notifications.svelte";
+  import { notificationsState } from "text-reach-frontend-library/state/notifications.svelte";
 
   const changePasswordMutation = new ChangePasswordStore();
 

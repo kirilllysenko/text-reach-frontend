@@ -2,10 +2,10 @@
   import { onDestroy } from "svelte";
   import { SendSignUpPhoneCodeStore } from "$houdini";
   import { Button, Input } from "$lib";
-  import { Field, FieldError, FieldLabel } from "$lib/components/field";
+  import { Field, FieldError, FieldLabel } from "text-reach-frontend-library/components/field";
   import { defaultErrorText, networkErrorText } from "$lib/form/errors";
   import { toGraphQLErrorText } from "$lib/graphql/errors";
-  import { notificationsState } from "$lib/state/notifications.svelte";
+  import { notificationsState } from "text-reach-frontend-library/state/notifications.svelte";
   import { Countdown } from "$lib/utils/countdown.svelte";
   import { normalizePhoneNumber, OTP_LENGTH, PhoneNumberSchema } from "$lib/form/validators";
   import { form } from "../form.svelte";

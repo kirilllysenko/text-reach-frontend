@@ -17,7 +17,9 @@ relevant section when working in that area.
 - Keep `+page.svelte` and `+layout.svelte` thin. Put page-only components/helpers beside the route, usually in `components/`.
 - Never import from one route directory into another; promote shared code to `src/lib`.
 - Use `src/lib/feature/<feature>` for reused feature state, display mapping, query assembly, and business logic. Match suffixes: `*-state.svelte.ts`, `*-view-data.ts`, `*-display.ts`, `*-query.ts`.
-- Use `src/lib/components` for generic UI, `src/lib/state` for app-wide state, `src/lib/form` for form logic, `src/lib/utils` for utilities, and `src/lib/icons` for icons.
+- Use `text-reach-frontend-library` for generic UI, shared table infrastructure, and shared icons. Keep only
+  app-specific component composition (such as the customer sidebar) in `src/lib/components`; use `src/lib/state` for
+  app-wide product state, `src/lib/form` for form logic, and `src/lib/utils` for product utilities.
 - Put component-owned GraphQL operations beside their component. Put genuinely shared feature operations under
   `src/lib/feature`, and use the generated Houdini stores. Do not add REST clients for application business operations.
 
@@ -42,6 +44,14 @@ relevant section when working in that area.
 - Keep the `<form>`, primary fields, general error, and actions directly in each add/edit `+page.svelte`. Do not create
   shared `...Form` or `...FormPage` components; extract only independent sections with their own state, query, or
   substantial markup.
+
+## Table Pages
+
+- Follow [`table-pages.md`](table-pages.md) when creating or changing a table or a list page with table-style sorting
+  and filtering.
+- Keep page composition in the route `+page.svelte`; do not add `...Page.svelte` or a pass-through `...Table.svelte`.
+- Keep the query and loader beside `table.svelte.ts`, and pass generated Houdini filter and sort input objects directly
+  between the table services and GraphQL variables.
 
 ## Workflow
 

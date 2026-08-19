@@ -1,0 +1,10 @@
+query CampaignFormSenderPhones @cache(policy: NetworkOnly) {
+  tenantPhones(first: 300, sortBy: [{ phoneNumber: { direction: ASC } }]) {
+    edges {
+      node {
+        id
+        phoneNumber
+      }
+    }
+  }
+}

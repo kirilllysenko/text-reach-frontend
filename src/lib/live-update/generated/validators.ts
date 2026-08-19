@@ -183,6 +183,7 @@ const contract = {
         "custom-fields",
         "campaigns",
         "messages",
+        "conversations",
         "tenant-phones",
         "ten-dlc-brand",
         "ten-dlc-campaigns",

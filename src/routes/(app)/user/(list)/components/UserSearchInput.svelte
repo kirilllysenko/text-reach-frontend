@@ -1,12 +1,10 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
   import { Input } from "$lib";
-  import type { DatagridCore } from "$lib/components/table";
-  import type { UserViewModel } from "$lib/feature/user/user-view-data";
   import { debounce } from "$lib/utils/debounce";
 
   interface Props {
-    search: DatagridCore<UserViewModel>["handlers"]["globalSearch"];
+    search: { updateSearchQuery: (query: string) => void };
     value: string;
   }
 

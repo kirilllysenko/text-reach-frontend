@@ -1,5 +1,5 @@
 import type { ContactFilterInput } from "$houdini/graphql/inputs";
-import { backendFilterDefinition } from "$lib/components/table";
+import { backendFilterDefinition } from "text-reach-frontend-library/components/table";
 import ContactGroupFilterControl from "./ContactGroupFilterControl.svelte";
 
 const contactFilter = backendFilterDefinition<ContactFilterInput>();

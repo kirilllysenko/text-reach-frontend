@@ -1,17 +1,6 @@
-import type { WalletTransactionViewModel } from "./payment-view-data";
-
 export interface WalletBalanceData {
   balanceUsdMicros: number;
   currency: string;
-}
-
-interface WalletTransactionData {
-  amountUsdMicros: number;
-  createdAt: string;
-  currency: string;
-  entryType: string;
-  id: string;
-  source: { __typename: string; id: string };
 }
 
 const USD_MICROS_PER_DOLLAR = 1_000_000;
@@ -60,20 +49,4 @@ export function formatPaymentType(value: string): string {
     .filter(Boolean)
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
     .join(" ");
-}
-
-export function toWalletTransactionViewModel(transaction: WalletTransactionData): WalletTransactionViewModel {
-  return {
-    id: transaction.id,
-    amountDisplay: formatUsdMicros(transaction.amountUsdMicros),
-    amountUsdMicros: transaction.amountUsdMicros,
-    createdAt: transaction.createdAt,
-    createdAtDisplay: formatPaymentDate(transaction.createdAt),
-    currency: transaction.currency,
-    entryType: transaction.entryType,
-    entryTypeLabel: formatPaymentType(transaction.entryType),
-    sourceId: transaction.source.id,
-    sourceType: transaction.source.__typename,
-    sourceTypeLabel: formatPaymentType(transaction.source.__typename),
-  };
 }

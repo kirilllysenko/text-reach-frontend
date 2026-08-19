@@ -1,11 +1,10 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
-  import { Input, type DatagridCore } from "$lib";
-  import type { MessageViewModel } from "$lib/feature/message/message-view-data";
+  import { Input } from "$lib";
   import { debounce } from "$lib/utils/debounce";
 
   interface Props {
-    dataLoading: Pick<DatagridCore<MessageViewModel>["handlers"]["dataLoading"], "reload">;
+    dataLoading: { reload: (reason: "search") => Promise<unknown> };
     value: string;
   }
 

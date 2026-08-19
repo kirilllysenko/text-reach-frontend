@@ -1,30 +1,35 @@
-import { DatagridCore, type DataTableSort } from "$lib/components/table";
-import type { CustomFieldState } from "$lib/feature/custom-field/custom-field-state.svelte";
-import type { CustomFieldViewModel } from "$lib/feature/custom-field/custom-field-view-data";
+import { CustomFieldsStore } from "$houdini";
+import { DatagridCore, filteringFeature, sortingFeature, type DataTableSort } from "text-reach-frontend-library/components/table";
+import { customFieldFilterDefinitions } from "../filter/filter.svelte";
+import { customFieldSortDefinitions } from "../sort/sort.svelte";
 import { createCustomFieldColumns } from "./column.svelte";
-import { customFieldFilterDefinitions } from "./filter.svelte";
-import { customFieldSortDefinitions } from "./sort.svelte";
+import type { CustomFieldTableRow } from "./column.svelte";
 
 const initialSorting = [{ sortId: "name", direction: "ascending" }] satisfies DataTableSort[];
 
-interface CustomFieldTableOptions {
-  customFieldsState: CustomFieldState;
+export function createCustomFieldTable(): DatagridCore<CustomFieldTableRow> {
+  return new DatagridCore<CustomFieldTableRow>({
+    columns: createCustomFieldColumns(),
+    data: [],
+    features: [
+      sortingFeature<DataTableSort>({ definitions: customFieldSortDefinitions, initialSorts: initialSorting }),
+      filteringFeature({ definitions: customFieldFilterDefinitions }),
+    ],
+  });
 }
 
-export function createCustomFieldTable(props: CustomFieldTableOptions): DatagridCore<CustomFieldViewModel> {
-  return new DatagridCore<CustomFieldViewModel>({
-    columns: createCustomFieldColumns(),
-    initialState: {
-      dataLoading: {
-        loader: (request) => props.customFieldsState.fetchRows(request),
-      },
-      filtering: {
-        filterDefinitions: customFieldFilterDefinitions,
-      },
-      sorting: {
-        sortDefinitions: customFieldSortDefinitions,
-        sorts: initialSorting,
-      },
-    },
-  });
+export async function loadCustomFields(): Promise<CustomFieldTableRow[]> {
+  const customFieldsQuery = new CustomFieldsStore();
+
+  try {
+    const response = await customFieldsQuery.fetch();
+
+    if (response.errors || !response.data) {
+      throw new Error("Could not load custom fields.");
+    }
+
+    return response.data.customFields;
+  } catch {
+    throw new Error("Could not load custom fields.");
+  }
 }

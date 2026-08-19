@@ -1,9 +1,9 @@
 <script lang="ts">
   import { Button, Input } from "$lib";
-  import Filter from "$lib/icons/Filter.svelte";
-  import Sort from "$lib/icons/Sort.svelte";
+  import Filter from "text-reach-frontend-library/icons/Filter.svelte";
+  import Sort from "text-reach-frontend-library/icons/Sort.svelte";
   import CampaignVirtualList from "./CampaignVirtualList.svelte";
-  import type { CampaignState } from "$lib/feature/campaign/campaign-state.svelte";
+  import type { CampaignState } from "./campaign-state.svelte";
 
   interface Props {
     state: CampaignState;
@@ -27,13 +27,7 @@
         oninput={(event) => state.updateSearch(event.currentTarget.value)}
       />
 
-      <Button
-        variant="secondary"
-        icon={Sort}
-        class="size-9 p-0"
-        aria-label="Sort campaigns"
-        onclick={state.openSort}
-      />
+      <Button variant="secondary" icon={Sort} class="size-9 p-0" aria-label="Sort campaigns" onclick={state.openSort} />
 
       <Button
         variant="secondary"

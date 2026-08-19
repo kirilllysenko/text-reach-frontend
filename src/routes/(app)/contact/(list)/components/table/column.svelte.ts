@@ -1,5 +1,5 @@
 import type { ContactTableQuery$result } from "$houdini/artifacts/ContactTableQuery";
-import { accessorColumn, computedColumn, displayColumn, type ColumnDef } from "$lib/components/table";
+import { accessorColumn, computedColumn, displayColumn, type ColumnDef } from "text-reach-frontend-library/components/table";
 import ContactActionCell from "./ContactTableActionCell.svelte";
 
 export type ContactTableRow = ContactTableQuery$result["contacts"]["edges"][number]["node"];

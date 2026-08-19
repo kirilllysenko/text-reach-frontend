@@ -1,0 +1,3 @@
+mutation MarkConversationRead($conversationId: Ulid!, $throughMessageId: Ulid) {
+  markConversationRead(conversationId: $conversationId, throughMessageId: $throughMessageId)
+}

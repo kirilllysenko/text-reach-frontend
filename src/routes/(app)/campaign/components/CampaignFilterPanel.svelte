@@ -1,7 +1,7 @@
 <script lang="ts">
   import { FilterPanel, type FilterPanelConfig } from "$lib";
-  import type { CampaignState } from "$lib/feature/campaign/campaign-state.svelte";
-  import { campaignStatusOptions, statusLabelMap } from "$lib/feature/campaign/campaign-view-data";
+  import type { CampaignState } from "./campaign-state.svelte";
+  import { campaignStatusOptions, statusLabelMap } from "./campaign-view-data";
 
   interface Props {
     state: CampaignState;

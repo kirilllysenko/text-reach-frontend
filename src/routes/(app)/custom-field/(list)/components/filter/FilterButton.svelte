@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Button, FilterPanel, ResponsiveDialog, type FilteringService, type FilterPanelConfig } from "$lib";
   import { customFieldTypeLabelMap, customFieldTypeOptions } from "$lib/feature/custom-field/custom-field-view-data";
-  import Filter from "$lib/icons/Filter.svelte";
+  import Filter from "text-reach-frontend-library/icons/Filter.svelte";
 
   interface Props {
     filtering: FilteringService;

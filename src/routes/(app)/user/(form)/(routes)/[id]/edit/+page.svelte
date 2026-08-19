@@ -8,7 +8,7 @@
   import { userRoleLabelMap, userRoleOptions } from "$lib/feature/user/user-view-data";
   import { networkErrorText } from "$lib/form/errors";
   import type { FormSubmitResult } from "$lib/form/form.svelte";
-  import { notificationsState } from "$lib/state/notifications.svelte";
+  import { notificationsState } from "text-reach-frontend-library/state/notifications.svelte";
   import { onMount } from "svelte";
   import { createUserForm, type FormValues, type SubmitValues } from "../../../components/form/form.svelte";
 

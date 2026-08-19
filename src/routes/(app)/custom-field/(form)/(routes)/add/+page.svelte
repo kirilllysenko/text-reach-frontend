@@ -6,7 +6,7 @@
   import { PATH_CUSTOM_FIELD } from "$lib/app/paths";
   import { networkErrorText } from "$lib/form/errors";
   import type { FormSubmitResult } from "$lib/form/form.svelte";
-  import { notificationsState } from "$lib/state/notifications.svelte";
+  import { notificationsState } from "text-reach-frontend-library/state/notifications.svelte";
   import {
     createCustomFieldForm,
     getTypeOption,

@@ -1,29 +1,28 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
-  import { Input, type DatagridCore } from "$lib";
-  import type { CustomFieldViewModel } from "$lib/feature/custom-field/custom-field-view-data";
+  import { Input } from "$lib";
   import { debounce } from "$lib/utils/debounce";
 
   interface Props {
-    dataLoading: Pick<DatagridCore<CustomFieldViewModel>["handlers"]["dataLoading"], "reload">;
+    search: { updateSearchQuery: (query: string) => void };
     value: string;
   }
 
   const SEARCH_DEBOUNCE_MS = 250;
 
-  let { dataLoading, value = $bindable("") }: Props = $props();
+  let { search, value = $bindable("") }: Props = $props();
 
-  const reloadSearch = debounce(() => {
-    void dataLoading.reload("search");
+  const updateTableSearch = debounce((query: string) => {
+    search.updateSearchQuery(query.trim());
   }, SEARCH_DEBOUNCE_MS);
 
-  function updateSearch(search: string): void {
-    value = search;
-    reloadSearch();
+  function updateSearch(query: string): void {
+    value = query;
+    updateTableSearch(query);
   }
 
   onDestroy(() => {
-    reloadSearch.cancel();
+    updateTableSearch.cancel();
   });
 </script>
 

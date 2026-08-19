@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import Sidebar from "$lib/components/sidebar/Sidebar.svelte";
-  import { appShellState } from "$lib/state/app-shell.svelte";
+  import { appShellState } from "text-reach-frontend-library/state/app-shell.svelte";
   import { sessionState } from "$lib/state/session.svelte";
 
   let { children } = $props();

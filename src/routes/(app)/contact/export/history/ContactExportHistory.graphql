@@ -1,0 +1,24 @@
+query ContactExportHistory(
+  $after: String
+  $first: Int!
+  $sortBy: [ContactExportSortInput!]! = [{ createdAt: { direction: DESC } }]
+) @cache(policy: NetworkOnly) {
+  contactExports(after: $after, first: $first, sortBy: $sortBy) {
+    edges {
+      node {
+        createdAt
+        fileSize
+        filename
+        id
+        processedRows
+        startedAt
+        status
+        totalRows
+      }
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+  }
+}

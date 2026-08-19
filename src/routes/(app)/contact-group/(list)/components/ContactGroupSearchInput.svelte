@@ -1,11 +1,10 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
-  import { Input, type DatagridCore } from "$lib";
-  import type { ContactGroupViewModel } from "$lib/feature/contact-group/contact-group-view-data";
+  import { Input } from "$lib";
   import { debounce } from "$lib/utils/debounce";
 
   interface Props {
-    dataLoading: Pick<DatagridCore<ContactGroupViewModel>["handlers"]["dataLoading"], "reload">;
+    dataLoading: { reload: (reason: "search") => Promise<unknown> };
     value: string;
   }
 

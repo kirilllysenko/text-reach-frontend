@@ -4,11 +4,11 @@
   import { cache, CreateUserStore } from "$houdini";
   import { BackButton, Button, Card, Field, FieldError, FieldLabel, Input, PageTitle, Select } from "$lib";
   import { PATH_USER } from "$lib/app/paths";
-  import PasswordInput from "$lib/components/password-input/PasswordInput.svelte";
+  import PasswordInput from "text-reach-frontend-library/components/password-input/PasswordInput.svelte";
   import { userRoleLabelMap, userRoleOptions } from "$lib/feature/user/user-view-data";
   import { networkErrorText } from "$lib/form/errors";
   import type { FormSubmitResult } from "$lib/form/form.svelte";
-  import { notificationsState } from "$lib/state/notifications.svelte";
+  import { notificationsState } from "text-reach-frontend-library/state/notifications.svelte";
   import { createUserForm, type SubmitValues } from "../../components/form/form.svelte";
 
   const createUserMutation = new CreateUserStore();

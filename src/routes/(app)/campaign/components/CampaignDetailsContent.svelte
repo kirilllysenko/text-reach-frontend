@@ -1,16 +1,18 @@
 <script lang="ts">
   import { LinkButton } from "$lib";
   import { buildCampaignMessagesPath } from "$lib/app/paths";
+  import CampaignActions from "./CampaignActions.svelte";
   import CampaignStatusBadge from "./CampaignStatusBadge.svelte";
-  import type { CampaignViewModel } from "$lib/feature/campaign/campaign-view-data";
+  import type { CampaignStatus, CampaignViewModel } from "./campaign-view-data";
 
   interface Props {
     campaign?: CampaignViewModel;
     groupNames?: string[];
     mobile?: boolean;
+    onStatusChanged: (campaignId: string, status: CampaignStatus) => void;
   }
 
-  let { campaign, groupNames = [], mobile = false }: Props = $props();
+  let { campaign, groupNames = [], mobile = false, onStatusChanged }: Props = $props();
 
   function percent(value: number, total: number): number {
     if (total <= 0) {
@@ -29,15 +31,19 @@
     {#if !mobile}
       <div class="flex flex-wrap items-start justify-between gap-3 border-b border-white/70 pb-4">
         <h2 class="text-lg font-semibold text-slate-800 sm:text-xl">{campaign.name}</h2>
-        <div class="flex flex-wrap items-center gap-2">
-          <CampaignStatusBadge status={campaign.status} />
-          <LinkButton class="text-sm" href={buildCampaignMessagesPath(campaign.id)}>View messages</LinkButton>
+        <div class="flex flex-wrap items-center justify-end gap-2">
+          <div class="flex items-center gap-2">
+            <CampaignStatusBadge status={campaign.status} />
+            <LinkButton class="text-sm" href={buildCampaignMessagesPath(campaign.id)}>View messages</LinkButton>
+          </div>
+          <CampaignActions {campaign} {onStatusChanged} />
         </div>
       </div>
     {/if}
 
     {#if mobile}
-      <div class="flex justify-end">
+      <div class="flex flex-wrap items-center justify-end gap-2">
+        <CampaignActions {campaign} {onStatusChanged} />
         <LinkButton class="text-sm" href={buildCampaignMessagesPath(campaign.id)}>View messages</LinkButton>
       </div>
     {/if}

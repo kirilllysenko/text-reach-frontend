@@ -11,6 +11,7 @@ export const LIVE_UPDATE_CHANNELS = [
   "custom-fields",
   "campaigns",
   "messages",
+  "conversations",
   "tenant-phones",
   "ten-dlc-brand",
   "ten-dlc-campaigns",

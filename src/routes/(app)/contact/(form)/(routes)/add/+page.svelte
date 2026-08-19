@@ -6,13 +6,13 @@
   import { PATH_CONTACT } from "$lib/app/paths";
   import { networkErrorText } from "$lib/form/errors";
   import type { FormSubmitResult } from "$lib/form/form.svelte";
-  import { notificationsState } from "$lib/state/notifications.svelte";
+  import { notificationsState } from "text-reach-frontend-library/state/notifications.svelte";
   import ContactGroupMultiCombobox from "$lib/feature/contact-group/MultiCombobox/ContactGroupMultiCombobox.svelte";
   import ContactFormCustomFields from "../../components/ContactFormCustomFields/ContactFormCustomFields.svelte";
-  import { createContactForm, type SubmitValues } from "../../components/form/form.svelte";
+  import { createAddContactForm, type SubmitValues } from "../../components/form/form.svelte";
 
   const createContactMutation = new CreateContactStore();
-  const form = createContactForm(submit);
+  const form = createAddContactForm(submit);
 
   async function submit(input: SubmitValues): Promise<FormSubmitResult> {
     try {
@@ -99,6 +99,33 @@
         </section>
 
         <ContactFormCustomFields values={form.customFields} />
+
+        <Field class="mt-5">
+          <label
+            class={[
+              `flex cursor-pointer items-start gap-3 rounded-xl border bg-white/70 p-4 transition-colors
+              focus-within:ring-2 focus-within:ring-sky-500/25`,
+              form.messagingConsent.error ? "border-rose-400" : "border-slate-200",
+            ]}
+          >
+            <input
+              id="contact-messaging-consent"
+              class="accent-sky-600 mt-0.5 size-5 shrink-0 rounded border-slate-300"
+              type="checkbox"
+              bind:checked={form.messagingConsent.value}
+              aria-describedby="contact-messaging-consent-description"
+              aria-invalid={!!form.messagingConsent.error}
+              aria-required="true"
+            />
+            <span class="min-w-0">
+              <span class="block text-sm font-semibold text-slate-800">Messaging consent</span>
+              <span id="contact-messaging-consent-description" class="mt-1 block text-sm leading-5 text-slate-600">
+                I confirm this contact gave consent to receive text messages from this organization.
+              </span>
+            </span>
+          </label>
+          <FieldError error={form.messagingConsent.error} />
+        </Field>
 
         <FieldError class="mt-3" error={form.error} />
 

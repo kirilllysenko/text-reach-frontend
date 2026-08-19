@@ -1,5 +1,8 @@
-import { accessorColumn, type ColumnDef } from "$lib/components/table";
-import type { WalletTransactionViewModel } from "$lib/feature/payment/payment-view-data";
+import type { WalletTransactions$result } from "$houdini/artifacts/WalletTransactions";
+import { accessorColumn, computedColumn, type ColumnDef } from "text-reach-frontend-library/components/table";
+import { formatPaymentDate, formatPaymentType, formatUsdMicros } from "$lib/feature/payment/payment-display";
+
+export type WalletTransactionTableRow = WalletTransactions$result["walletTransactions"]["edges"][number]["node"];
 
 function size(width: number, maxWidth: number) {
   return {
@@ -9,51 +12,52 @@ function size(width: number, maxWidth: number) {
   };
 }
 
-export function createTransactionColumns(): ColumnDef<WalletTransactionViewModel>[] {
+export function createTransactionColumns(): ColumnDef<WalletTransactionTableRow>[] {
   return [
-    accessorColumn<WalletTransactionViewModel, "createdAtDisplay", unknown>({
-      accessorKey: "createdAtDisplay",
+    computedColumn<WalletTransactionTableRow, unknown>({
       columnId: "createdAt",
+      getValueFn: (transaction) => formatPaymentDate(transaction.createdAt),
       header: "Created",
       options: { sortable: true },
       state: { size: size(190, 360) },
     }),
-    accessorColumn<WalletTransactionViewModel, "amountDisplay", unknown>({
-      accessorKey: "amountDisplay",
+    computedColumn<WalletTransactionTableRow, unknown>({
       columnId: "amountUsdMicros",
+      getValueFn: (transaction) => formatUsdMicros(transaction.amountUsdMicros),
       header: "Amount",
       options: { sortable: true },
       state: { size: size(140, 220) },
     }),
-    accessorColumn<WalletTransactionViewModel, "currency", unknown>({
+    accessorColumn<WalletTransactionTableRow, "currency", unknown>({
       accessorKey: "currency",
       header: "Currency",
       options: { sortable: true },
       state: { size: size(120, 180) },
     }),
-    accessorColumn<WalletTransactionViewModel, "entryTypeLabel", unknown>({
-      accessorKey: "entryTypeLabel",
+    computedColumn<WalletTransactionTableRow, unknown>({
       columnId: "entryType",
+      getValueFn: (transaction) => formatPaymentType(transaction.entryType),
       header: "Entry Type",
       options: { sortable: true },
       state: { size: size(150, 260) },
     }),
-    accessorColumn<WalletTransactionViewModel, "sourceTypeLabel", unknown>({
-      accessorKey: "sourceTypeLabel",
+    computedColumn<WalletTransactionTableRow, unknown>({
       columnId: "sourceType",
+      getValueFn: (transaction) => (transaction.source ? formatPaymentType(transaction.source.__typename) : "—"),
       header: "Source Type",
       options: { sortable: true },
       state: { size: size(150, 260) },
     }),
-    accessorColumn<WalletTransactionViewModel, "sourceId", unknown>({
-      accessorKey: "sourceId",
+    computedColumn<WalletTransactionTableRow, unknown>({
+      columnId: "sourceId",
+      getValueFn: (transaction) => transaction.source?.id ?? "—",
       header: "Source ID",
       state: { size: size(280, 520) },
     }),
-    accessorColumn<WalletTransactionViewModel, "id", unknown>({
+    accessorColumn<WalletTransactionTableRow, "id", unknown>({
       accessorKey: "id",
       header: "Transaction ID",
       state: { size: size(280, 520) },
     }),
-  ] satisfies ColumnDef<WalletTransactionViewModel>[];
+  ] satisfies ColumnDef<WalletTransactionTableRow>[];
 }

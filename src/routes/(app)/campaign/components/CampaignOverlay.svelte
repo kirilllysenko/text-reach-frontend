@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Button, ResponsiveDialog, SortPanel } from "$lib";
-  import type { CampaignState } from "$lib/feature/campaign/campaign-state.svelte";
+  import type { CampaignState } from "./campaign-state.svelte";
   import CampaignFilterPanel from "./CampaignFilterPanel.svelte";
 
   interface Props {

@@ -1,0 +1,5 @@
+query ContactExportHistoryDownloadUrl($id: Ulid!) @cache(policy: NetworkOnly) {
+  contactExportDownloadUrl(id: $id) {
+    url
+  }
+}

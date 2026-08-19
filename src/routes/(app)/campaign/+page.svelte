@@ -1,14 +1,20 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
-  import PageTitle from "$lib/components/page-title/PageTitle.svelte";
-  import { CampaignState } from "$lib/feature/campaign/campaign-state.svelte";
+  import { LinkButton, PageTitle } from "$lib";
+  import { PATH_CAMPAIGN_ADD } from "$lib/app/paths";
+  import { phoneFilterState } from "$lib/state/phone-filter.svelte";
+  import { CampaignState } from "./components/campaign-state.svelte";
   import CampaignDesktopSidebar from "./components/CampaignDesktopSidebar.svelte";
   import CampaignDetailsPanel from "./components/CampaignDetailsPanel.svelte";
   import CampaignMobileDetails from "./components/CampaignMobileDetails.svelte";
   import CampaignMobileList from "./components/CampaignMobileList.svelte";
   import CampaignOverlay from "./components/CampaignOverlay.svelte";
 
-  const state = new CampaignState();
+  const state = new CampaignState(phoneFilterState.selectedPhoneId);
+
+  $effect(() => {
+    state.setPhoneFilter(phoneFilterState.selectedPhoneId);
+  });
 
   onDestroy(() => state.dispose());
 </script>
@@ -18,7 +24,9 @@
     to-stone-100 p-2 sm:p-3"
 >
   <div class="hidden sm:block">
-    <PageTitle title="Campaigns" />
+    <PageTitle title="Campaigns">
+      <LinkButton href={PATH_CAMPAIGN_ADD}>Create campaign</LinkButton>
+    </PageTitle>
   </div>
 
   {#if state.loadingError}

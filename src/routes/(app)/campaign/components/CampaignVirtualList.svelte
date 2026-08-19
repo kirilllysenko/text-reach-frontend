@@ -1,7 +1,7 @@
 <script lang="ts">
   import { VirtualList } from "svelte-virtuallists";
   import CampaignListItem from "./CampaignListItem.svelte";
-  import type { CampaignViewModel } from "$lib/feature/campaign/campaign-view-data";
+  import type { CampaignViewModel } from "./campaign-view-data";
 
   interface Props {
     campaigns: CampaignViewModel[];

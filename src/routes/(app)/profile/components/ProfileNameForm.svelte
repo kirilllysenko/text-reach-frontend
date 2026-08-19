@@ -3,7 +3,7 @@
   import { Button, Field, FieldError, FieldLabel, Input } from "$lib";
   import { networkErrorText } from "$lib/form/errors";
   import { toGraphQLErrorText } from "$lib/graphql/errors";
-  import { notificationsState } from "$lib/state/notifications.svelte";
+  import { notificationsState } from "text-reach-frontend-library/state/notifications.svelte";
   import { sessionState } from "$lib/state/session.svelte";
 
   const changeNameMutation = new ChangeProfileNameStore();

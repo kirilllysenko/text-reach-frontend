@@ -1,30 +1,34 @@
 <script lang="ts">
-  import ContactImportDialog from "./dialog/ContactImportDialog.svelte";
-  import ContactImportTrigger from "./ContactImportTrigger.svelte";
-  import { createContactImportState } from "./contact-import-state.svelte";
+  import { ContactImportJobsStore } from "$houdini";
+  import { PATH_CONTACT_IMPORT, PATH_CONTACT_IMPORT_HISTORY } from "$lib/app/paths";
+  import { createContactJobPoller } from "$lib/feature/contact-job/contact-job-poller.svelte";
+  import Upload from "text-reach-frontend-library/icons/Upload.svelte";
+  import { onMount } from "svelte";
+  import ContactActionDropdown from "../ContactActionDropdown.svelte";
+  import { loadContactImportJobs } from "./contact-import-jobs";
 
   interface Props {
     onImported: () => Promise<void> | void;
   }
 
   let { onImported }: Props = $props();
-  const contactImport = createContactImportState({ refreshTable: () => onImported() });
-  let open = $state(false);
 
-  function openImportDialog(): void {
-    open = true;
-    void contactImport.loadCustomFields();
-  }
+  const jobsQuery = new ContactImportJobsStore();
+  const jobs = createContactJobPoller({
+    load: () => loadContactImportJobs(jobsQuery),
+    onCompleted: () => onImported(),
+  });
 
-  function closeImportDialog(): void {
-    if (contactImport.setupSubmitting || contactImport.importSubmitting) {
-      return;
-    }
-
-    open = false;
-    contactImport.reset();
-  }
+  onMount(jobs.start);
 </script>
 
-<ContactImportTrigger {open} onOpen={openImportDialog} />
-<ContactImportDialog {open} {contactImport} onClose={closeImportDialog} />
+<ContactActionDropdown
+  label="Import"
+  icon={Upload}
+  fileLabel="Import File"
+  fileIcon={Upload}
+  historyLabel="Import History"
+  activeJobs={jobs.active}
+  fileHref={PATH_CONTACT_IMPORT}
+  historyHref={PATH_CONTACT_IMPORT_HISTORY}
+/>

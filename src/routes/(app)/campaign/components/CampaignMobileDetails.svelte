@@ -2,7 +2,7 @@
   import CampaignDetailsContent from "./CampaignDetailsContent.svelte";
   import CampaignStatusBadge from "./CampaignStatusBadge.svelte";
   import { Button } from "$lib";
-  import type { CampaignState } from "$lib/feature/campaign/campaign-state.svelte";
+  import type { CampaignState } from "./campaign-state.svelte";
 
   interface Props {
     state: CampaignState;
@@ -24,7 +24,12 @@
     </header>
 
     <main class="min-h-0 grow overflow-y-auto p-3">
-      <CampaignDetailsContent campaign={state.selectedCampaign} groupNames={state.selectedCampaignGroupNames} mobile />
+      <CampaignDetailsContent
+        campaign={state.selectedCampaign}
+        groupNames={state.selectedCampaignGroupNames}
+        onStatusChanged={state.updateCampaignStatus}
+        mobile
+      />
     </main>
   {:else}
     <div class="flex h-full min-h-60 items-center justify-center text-sm text-slate-500">No campaign selected</div>

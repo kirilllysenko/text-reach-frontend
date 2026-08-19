@@ -1,0 +1,20 @@
+mutation SendConversationMessage($input: SendConversationMessageInput!) {
+  sendConversationMessage(input: $input) {
+    campaign {
+      id
+      name
+    }
+    createdAt
+    direction
+    id
+    media {
+      contentType
+      sizeBytes
+      url
+    }
+    receivedAt
+    sentAt
+    status
+    text
+  }
+}

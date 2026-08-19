@@ -1,6 +1,9 @@
-import { accessorColumn, displayColumn, type ColumnDef } from "$lib/components/table";
-import type { UserViewModel } from "$lib/feature/user/user-view-data";
-import UserActionCell from "../UserActionCell.svelte";
+import type { Users$result } from "$houdini/artifacts/Users";
+import { accessorColumn, computedColumn, displayColumn, type ColumnDef } from "text-reach-frontend-library/components/table";
+import { userRoleLabelMap } from "$lib/feature/user/user-view-data";
+import UserActionCell from "./UserActionCell.svelte";
+
+export type UserTableRow = Users$result["users"]["edges"][number]["node"];
 
 function size(width: number) {
   return {
@@ -11,42 +14,43 @@ function size(width: number) {
 }
 
 interface UserColumnOptions {
-  onDelete: (user: UserViewModel) => Promise<boolean>;
+  onDeleted: () => Promise<unknown>;
 }
 
-export function createUserColumns(options: UserColumnOptions): ColumnDef<UserViewModel>[] {
+export function createUserColumns(options: UserColumnOptions): ColumnDef<UserTableRow>[] {
   return [
-    accessorColumn<UserViewModel, "name", unknown>({
-      accessorKey: "name",
+    computedColumn<UserTableRow, unknown>({
+      columnId: "name",
+      getValueFn: (user) => user.name?.trim() || "Unnamed user",
       header: "Name",
       options: { sortable: true },
       state: { size: size(240) },
     }),
-    accessorColumn<UserViewModel, "email", unknown>({
+    accessorColumn<UserTableRow, "email", unknown>({
       accessorKey: "email",
       header: "Email",
       options: { sortable: true },
       state: { size: size(300) },
     }),
-    accessorColumn<UserViewModel, "roleLabel", unknown>({
-      accessorKey: "roleLabel",
+    computedColumn<UserTableRow, unknown>({
       columnId: "role",
+      getValueFn: (user) => userRoleLabelMap[user.role],
       header: "Role",
       options: { sortable: true },
       state: { size: size(160) },
     }),
-    accessorColumn<UserViewModel, "id", unknown>({
+    accessorColumn<UserTableRow, "id", unknown>({
       accessorKey: "id",
       header: "ID",
       options: { searchable: false, sortable: false },
       state: { size: size(280) },
     }),
-    displayColumn<UserViewModel, unknown>({
+    displayColumn<UserTableRow, unknown>({
       columnId: "actions",
       header: "",
       cell: ({ row }) => ({
         component: UserActionCell,
-        props: { onDelete: options.onDelete, user: row.original },
+        props: { onDeleted: options.onDeleted, user: row.original },
       }),
       options: {
         hideable: false,
@@ -57,5 +61,5 @@ export function createUserColumns(options: UserColumnOptions): ColumnDef<UserVie
       },
       state: { size: { maxWidth: 180, minWidth: 144, width: 144 } },
     }),
-  ] satisfies ColumnDef<UserViewModel>[];
+  ] satisfies ColumnDef<UserTableRow>[];
 }

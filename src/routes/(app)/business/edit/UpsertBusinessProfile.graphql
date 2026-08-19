@@ -1,0 +1,7 @@
+mutation UpsertBusinessProfile($input: BusinessProfileUpdateInput!) {
+  upsertBusinessProfile(input: $input) {
+    id
+    displayName
+    updatedAt
+  }
+}

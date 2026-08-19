@@ -1,5 +1,5 @@
 import type { WalletTransactionSortByInput } from "$houdini/graphql/inputs";
-import { backendSortDefinition } from "$lib/components/table";
+import { backendSortDefinition } from "text-reach-frontend-library/components/table";
 
 const transactionSort = backendSortDefinition<WalletTransactionSortByInput>();
 

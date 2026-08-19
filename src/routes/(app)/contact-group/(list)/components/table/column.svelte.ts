@@ -1,6 +1,8 @@
-import { accessorColumn, displayColumn, type ColumnDef } from "$lib/components/table";
-import type { ContactGroupViewModel } from "$lib/feature/contact-group/contact-group-view-data";
-import ContactGroupActionCell from "../ContactGroupActionCell.svelte";
+import type { ContactGroups$result } from "$houdini/artifacts/ContactGroups";
+import { accessorColumn, displayColumn, type ColumnDef } from "text-reach-frontend-library/components/table";
+import ContactGroupActionCell from "./ContactGroupActionCell.svelte";
+
+export type ContactGroupTableRow = ContactGroups$result["contactGroups"]["edges"][number]["node"];
 
 function size(width: number) {
   return {
@@ -10,27 +12,27 @@ function size(width: number) {
   };
 }
 
-export function createContactGroupColumns(): ColumnDef<ContactGroupViewModel>[] {
+export function createContactGroupColumns(): ColumnDef<ContactGroupTableRow>[] {
   return [
-    accessorColumn<ContactGroupViewModel, "name", unknown>({
+    accessorColumn<ContactGroupTableRow, "name", unknown>({
       accessorKey: "name",
       header: "Name",
       options: { sortable: true },
       state: { size: size(280) },
     }),
-    accessorColumn<ContactGroupViewModel, "contactCount", unknown>({
+    accessorColumn<ContactGroupTableRow, "contactCount", unknown>({
       accessorKey: "contactCount",
       header: "Contacts",
       options: { sortable: true },
       state: { size: size(140) },
     }),
-    accessorColumn<ContactGroupViewModel, "id", unknown>({
+    accessorColumn<ContactGroupTableRow, "id", unknown>({
       accessorKey: "id",
       header: "ID",
       options: { sortable: false },
       state: { size: size(280) },
     }),
-    displayColumn<ContactGroupViewModel, unknown>({
+    displayColumn<ContactGroupTableRow, unknown>({
       columnId: "actions",
       header: "",
       cell: ({ row }) => ({
@@ -51,5 +53,5 @@ export function createContactGroupColumns(): ColumnDef<ContactGroupViewModel>[] 
         },
       },
     }),
-  ] satisfies ColumnDef<ContactGroupViewModel>[];
+  ] satisfies ColumnDef<ContactGroupTableRow>[];
 }

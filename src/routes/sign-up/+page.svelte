@@ -1,12 +1,12 @@
 <script lang="ts">
   import { Button } from "$lib";
-  import { Field, FieldError, FieldLabel } from "$lib/components/field";
+  import { Field, FieldError, FieldLabel } from "text-reach-frontend-library/components/field";
   import EmailSection from "./components/EmailSection.svelte";
   import PhoneSection from "./components/PhoneSection.svelte";
-  import Alert from "$lib/components/alert/Alert.svelte";
-  import Card from "$lib/components/card/Card.svelte";
+  import Alert from "text-reach-frontend-library/components/alert/Alert.svelte";
+  import Card from "text-reach-frontend-library/components/card/Card.svelte";
   import { form } from "./form.svelte";
-  import PasswordInput from "$lib/components/password-input/PasswordInput.svelte";
+  import PasswordInput from "text-reach-frontend-library/components/password-input/PasswordInput.svelte";
 
   let { password } = form;
 </script>

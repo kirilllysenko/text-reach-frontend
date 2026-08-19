@@ -1,6 +1,8 @@
 <script lang="ts">
   import { Card, LinkButton, PageTitle, Table } from "$lib";
   import { PATH_CONTACT_ADD } from "$lib/app/paths";
+  import type { ContactFilterInput } from "$houdini/graphql/inputs";
+  import ContactDeleteButton from "./components/ContactDeleteButton.svelte";
   import ContactSearchInput from "./components/ContactSearchInput.svelte";
   import ContactExportButton from "./components/export/ContactExportButton.svelte";
   import FilterButton from "./components/filter/FilterButton.svelte";
@@ -10,9 +12,20 @@
 
   let search = $state("");
   const table = createContactTable();
+  const selectedContactIds = $derived(
+    table.features.rowSelection.getSelectedRowsIds().map((identifier) => String(identifier)),
+  );
+  const selectedContactFilter = $derived<ContactFilterInput | null>(
+    selectedContactIds.length > 0 ? { id: { in: selectedContactIds } } : null,
+  );
 
   async function refreshContacts(): Promise<void> {
     await table.handlers.dataLoading.reload();
+  }
+
+  async function refreshAfterDelete(): Promise<void> {
+    table.features.rowSelection.clearSelection();
+    await refreshContacts();
   }
 </script>
 
@@ -43,6 +56,11 @@
       <div class="flex items-center gap-2">
         <FilterButton filtering={table.handlers.filtering} />
         <SortButton sorting={table.handlers.sorting} />
+        <ContactDeleteButton
+          filter={selectedContactFilter}
+          onDeleted={refreshAfterDelete}
+          selectedCount={selectedContactIds.length}
+        />
       </div>
     </div>
   </Card>

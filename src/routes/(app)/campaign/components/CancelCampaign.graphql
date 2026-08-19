@@ -1,0 +1,6 @@
+mutation CancelCampaign($id: Ulid!) {
+  cancelCampaign(id: $id) {
+    id
+    status
+  }
+}

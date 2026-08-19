@@ -7,7 +7,7 @@
   import { PATH_CONTACT_GROUP } from "$lib/app/paths";
   import { networkErrorText } from "$lib/form/errors";
   import type { FormSubmitResult } from "$lib/form/form.svelte";
-  import { notificationsState } from "$lib/state/notifications.svelte";
+  import { notificationsState } from "text-reach-frontend-library/state/notifications.svelte";
   import { onMount } from "svelte";
   import { createContactGroupForm, type FormValues, type SubmitValues } from "../../../components/form/form.svelte";
 

@@ -1,0 +1,12 @@
+query PhoneNumbers @cache(policy: NetworkOnly) {
+  tenantPhones(first: 100, sortBy: [{ phoneNumber: { direction: ASC } }]) {
+    edges {
+      node {
+        id
+        phoneNumber
+        phoneType
+      }
+    }
+    totalCount
+  }
+}

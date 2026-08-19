@@ -1,0 +1,32 @@
+query BusinessProfileEdit @cache(policy: NetworkOnly) {
+  businessProfile {
+    id
+    legalCompanyName
+    displayName
+    entityType
+    registrationCountry
+    hasTaxId
+    taxIdIssuingCountry
+    taxIdLastFour
+    industry
+    address {
+      street
+      city
+      region
+      postalCode
+      country
+    }
+    website
+    businessPhone
+    businessEmail
+    authorizedContact {
+      firstName
+      lastName
+      title
+      phone
+      email
+    }
+    privacyPolicyUrl
+    termsOfServiceUrl
+  }
+}

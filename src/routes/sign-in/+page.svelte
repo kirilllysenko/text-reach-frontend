@@ -1,14 +1,14 @@
 <script lang="ts">
   import { browser } from "$app/environment";
   import { page } from "$app/state";
-  import Button from "$lib/components/button/Button.svelte";
+  import Button from "text-reach-frontend-library/components/button/Button.svelte";
   import { form, redirectActiveSession } from "./form.svelte";
   import { Input } from "$lib";
-  import { Field, FieldError, FieldLabel } from "$lib/components/field";
+  import { Field, FieldError, FieldLabel } from "text-reach-frontend-library/components/field";
   import PasswordInput from "./components/PasswordInput.svelte";
   import { onMount } from "svelte";
-  import Alert from "$lib/components/alert/Alert.svelte";
-  import Card from "$lib/components/card/Card.svelte";
+  import Alert from "text-reach-frontend-library/components/alert/Alert.svelte";
+  import Card from "text-reach-frontend-library/components/card/Card.svelte";
 
   let render = $state(false);
 

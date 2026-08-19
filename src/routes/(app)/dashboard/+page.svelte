@@ -1,5 +1,5 @@
 <script lang="ts">
-  import AppPlaceholderPage from "$lib/components/app-placeholder/AppPlaceholderPage.svelte";
+  import AppPlaceholderPage from "text-reach-frontend-library/components/app-placeholder/AppPlaceholderPage.svelte";
 </script>
 
 <AppPlaceholderPage

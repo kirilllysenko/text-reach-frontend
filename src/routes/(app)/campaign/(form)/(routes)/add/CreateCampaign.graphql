@@ -1,0 +1,5 @@
+mutation CreateCampaign($input: CreateCampaignInput!) {
+  createCampaign(input: $input) {
+    id
+  }
+}

@@ -3,6 +3,7 @@ import { CheckSessionStore, ProfileStore, SignOutStore } from "$houdini";
 import { PATH_SIGN_IN } from "$lib/app/paths";
 import type { ApiErrorCode } from "$lib/form/errors";
 import { graphQLErrorCode } from "$lib/graphql/errors";
+import { phoneFilterState } from "$lib/state/phone-filter.svelte";
 
 export interface ProfileData {
   accessGroups: string[];
@@ -33,6 +34,7 @@ class SessionState {
     try {
       response = await this.checkSessionQuery.fetch();
     } catch {
+      phoneFilterState.reset();
       this.profile = null;
       await goto(PATH_SIGN_IN);
       return false;
@@ -43,6 +45,7 @@ class SessionState {
       return true;
     }
 
+    phoneFilterState.reset();
     this.profile = null;
     await goto(buildSignInHref(graphQLErrorCode(response.errors)));
     return false;
@@ -64,6 +67,7 @@ class SessionState {
 
   signOutAndRedirect = async (): Promise<void> => {
     await this.signOutMutation.mutate(undefined);
+    phoneFilterState.reset();
     this.profile = null;
     this.ready = false;
     await goto(PATH_SIGN_IN);

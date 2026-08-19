@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Button, ResponsiveDialog, SortPanel, type SortingService } from "$lib";
-  import Sort from "$lib/icons/Sort.svelte";
+  import Sort from "text-reach-frontend-library/icons/Sort.svelte";
 
   interface Props {
     sorting: SortingService;

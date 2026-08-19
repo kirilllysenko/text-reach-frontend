@@ -1,6 +1,9 @@
-import { accessorColumn, displayColumn, type ColumnDef } from "$lib/components/table";
-import type { CustomFieldViewModel } from "$lib/feature/custom-field/custom-field-view-data";
-import CustomFieldActionCell from "../CustomFieldActionCell.svelte";
+import type { CustomFields$result } from "$houdini/artifacts/CustomFields";
+import { accessorColumn, computedColumn, displayColumn, type ColumnDef } from "text-reach-frontend-library/components/table";
+import { customFieldTypeLabelMap } from "$lib/feature/custom-field/custom-field-view-data";
+import CustomFieldActionCell from "./CustomFieldActionCell.svelte";
+
+export type CustomFieldTableRow = CustomFields$result["customFields"][number];
 
 function size(width: number, maxWidth: number) {
   return {
@@ -10,22 +13,22 @@ function size(width: number, maxWidth: number) {
   };
 }
 
-export function createCustomFieldColumns(): ColumnDef<CustomFieldViewModel>[] {
+export function createCustomFieldColumns(): ColumnDef<CustomFieldTableRow>[] {
   return [
-    accessorColumn<CustomFieldViewModel, "name", unknown>({
+    accessorColumn<CustomFieldTableRow, "name", unknown>({
       accessorKey: "name",
       header: "Name",
       options: { sortable: true },
       state: { size: size(280, 1200) },
     }),
-    accessorColumn<CustomFieldViewModel, "typeLabel", unknown>({
-      accessorKey: "typeLabel",
+    computedColumn<CustomFieldTableRow, unknown>({
       columnId: "type",
       header: "Type",
+      getValueFn: (field) => customFieldTypeLabelMap[field.fieldType],
       options: { sortable: true },
       state: { size: size(160, 320) },
     }),
-    displayColumn<CustomFieldViewModel, unknown>({
+    displayColumn<CustomFieldTableRow, unknown>({
       columnId: "actions",
       header: "",
       cell: ({ row }) => ({
@@ -40,5 +43,5 @@ export function createCustomFieldColumns(): ColumnDef<CustomFieldViewModel>[] {
       },
       state: { size: size(88, 120) },
     }),
-  ] satisfies ColumnDef<CustomFieldViewModel>[];
+  ] satisfies ColumnDef<CustomFieldTableRow>[];
 }

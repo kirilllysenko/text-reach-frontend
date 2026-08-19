@@ -1,0 +1,6 @@
+mutation BuyPhoneNumber($input: BuyTenantPhoneInput!) {
+  buyTenantPhone(input: $input) {
+    phoneNumber
+    phoneType
+  }
+}

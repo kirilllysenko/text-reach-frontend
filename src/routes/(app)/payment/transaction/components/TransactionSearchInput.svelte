@@ -1,11 +1,10 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
-  import { Input, type DatagridCore } from "$lib";
-  import type { WalletTransactionViewModel } from "$lib/feature/payment/payment-view-data";
+  import { Input } from "$lib";
   import { debounce } from "$lib/utils/debounce";
 
   interface Props {
-    dataLoading: Pick<DatagridCore<WalletTransactionViewModel>["handlers"]["dataLoading"], "reload">;
+    dataLoading: { reload: (reason: "search") => Promise<unknown> };
     value: string;
   }
 

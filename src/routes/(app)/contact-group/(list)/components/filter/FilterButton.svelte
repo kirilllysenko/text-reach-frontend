@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { ContactGroupFilterInput } from "$houdini/graphql/inputs";
   import { Button, FilterPanel, ResponsiveDialog, type FilteringService, type FilterPanelConfig } from "$lib";
-  import Filter from "$lib/icons/Filter.svelte";
+  import Filter from "text-reach-frontend-library/icons/Filter.svelte";
 
   interface Props {
     filtering: FilteringService<ContactGroupFilterInput>;

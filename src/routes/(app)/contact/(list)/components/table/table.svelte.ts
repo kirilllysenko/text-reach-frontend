@@ -1,7 +1,15 @@
 import { ContactTableQueryStore } from "$houdini";
 import type { ContactTableQuery$input } from "$houdini/artifacts/ContactTableQuery";
 import type { ContactFilterInput, ContactSortByInput } from "$houdini/graphql/inputs";
-import { DatagridCore, type DataTableLoadRequest, type DataTableLoadResult } from "$lib/components/table";
+import {
+  dataLoadingFeature,
+  DatagridCore,
+  filteringFeature,
+  rowSelectionFeature,
+  sortingFeature,
+  type DataTableLoadRequest,
+  type DataTableLoadResult,
+} from "text-reach-frontend-library/components/table";
 import { abortControllerFromSignal } from "$lib/graphql/abort";
 import { contactFilterDefinitions } from "../filter/filter.svelte";
 import { contactSortDefinitions, initialContactSorts } from "../sort/sort.svelte";
@@ -12,18 +20,18 @@ export function createContactTable(): DatagridCore<ContactTableRow, ContactSortB
 
   return new DatagridCore<ContactTableRow, ContactSortByInput, ContactFilterInput>({
     columns: createContactColumns(),
-    initialState: {
-      dataLoading: {
+    features: [
+      sortingFeature<ContactSortByInput>({
+        definitions: contactSortDefinitions,
+        initialSorts: [...initialContactSorts],
+      }),
+      filteringFeature<ContactFilterInput>({ definitions: contactFilterDefinitions }),
+      rowSelectionFeature(),
+      dataLoadingFeature<ContactTableRow, ContactSortByInput, ContactFilterInput>({
+        combineFilters: combineContactFilters,
         loader: (request) => fetchContactRows(contactsQuery, request),
-      },
-      filtering: {
-        filterDefinitions: contactFilterDefinitions,
-      },
-      sorting: {
-        sortDefinitions: contactSortDefinitions,
-        sorts: [...initialContactSorts],
-      },
-    },
+      }),
+    ],
   });
 }
 
@@ -31,14 +39,14 @@ async function fetchContactRows(
   contactsQuery: ContactTableQueryStore,
   request: DataTableLoadRequest<ContactSortByInput, ContactFilterInput>,
 ): Promise<DataTableLoadResult<ContactTableRow>> {
-  const cursor = typeof request.cursor?.[0] === "string" ? request.cursor[0] : undefined;
   const variables: ContactTableQuery$input = {
-    filter: request.filters.length > 0 ? { operator: "AND", nested: request.filters } : undefined,
+    after: request.after,
+    before: request.before,
+    filter: request.filter,
+    first: request.first,
+    last: request.last,
+    offset: request.offset,
     sortBy: request.sorts,
-    ...(cursor && request.direction === "previous"
-      ? { before: cursor, last: request.limit }
-      : { after: cursor, first: request.limit }),
-    ...(cursor ? {} : { offset: request.offset }),
   };
 
   try {
@@ -55,8 +63,8 @@ async function fetchContactRows(
 
     return {
       rows: result.edges.map((edge) => edge.node),
-      nextCursor: result.pageInfo.hasNextPage ? toCursor(result.pageInfo.endCursor) : null,
-      previousCursor: result.pageInfo.hasPreviousPage ? toCursor(result.pageInfo.startCursor) : null,
+      nextCursor: result.pageInfo.hasNextPage ? (result.pageInfo.endCursor ?? null) : null,
+      previousCursor: result.pageInfo.hasPreviousPage ? (result.pageInfo.startCursor ?? null) : null,
       totalRows: result.totalCount,
     };
   } catch {
@@ -64,6 +72,6 @@ async function fetchContactRows(
   }
 }
 
-function toCursor(cursor: string | null | undefined): unknown[] | null {
-  return cursor ? [cursor] : null;
+function combineContactFilters(filters: ContactFilterInput[]): ContactFilterInput | undefined {
+  return filters.length > 0 ? { operator: "AND", nested: filters } : undefined;
 }

@@ -13,6 +13,7 @@ import {
 describe("generated live-update contract", () => {
   it("exports the contract channel and action literals", () => {
     expect(LIVE_UPDATE_CHANNELS).toContain("messages");
+    expect(LIVE_UPDATE_CHANNELS).toContain("conversations");
     expect(LIVE_UPDATE_CHANNELS).toContain("wallet-transactions");
     expect(LIVE_UPDATE_ACTIONS).toEqual(["created", "updated", "deleted", "invalidated"]);
   });

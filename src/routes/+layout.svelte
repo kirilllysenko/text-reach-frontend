@@ -1,6 +1,6 @@
 <script lang="ts">
   import "./layout.css";
-  import favicon from "$lib/icons/favicon.svg";
+  import favicon from "text-reach-frontend-library/icons/favicon.svg";
   import { NotificationsLayout } from "$lib";
   import { onNavigate } from "$app/navigation";
 

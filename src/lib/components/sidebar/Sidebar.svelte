@@ -1,29 +1,34 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
+  import { resolve } from "$app/paths";
   import { page } from "$app/state";
-  import ProfileButton from "$lib/components/profile-button/ProfileButton.svelte";
+  import ProfileButton from "text-reach-frontend-library/components/profile-button/ProfileButton.svelte";
   import {
     CONTACT_SECTION_PATH,
     PATH_CAMPAIGN,
+    PATH_BUSINESS,
     PATH_CONTACT_GROUP,
     PATH_CONTACT,
     PATH_CONVERSATION,
     PATH_CUSTOM_FIELD,
     PATH_DASHBOARD,
     PATH_PAYMENT,
+    PATH_PHONE,
     PATH_PROFILE,
     PATH_SMART_GROUP,
     PATH_USER,
   } from "$lib/app/paths";
-  import Campaign from "$lib/icons/Campaign.svelte";
-  import ChevronDown from "$lib/icons/ChevronDown.svelte";
-  import Contact from "$lib/icons/Contact.svelte";
-  import Conversation from "$lib/icons/Conversation.svelte";
-  import Dashboard from "$lib/icons/Dashboard.svelte";
-  import Logo from "$lib/icons/Logo.svelte";
-  import Payment from "$lib/icons/Payment.svelte";
-  import Profile from "$lib/icons/Profile.svelte";
+  import Campaign from "text-reach-frontend-library/icons/Campaign.svelte";
+  import ChevronDown from "text-reach-frontend-library/icons/ChevronDown.svelte";
+  import Contact from "text-reach-frontend-library/icons/Contact.svelte";
+  import Conversation from "text-reach-frontend-library/icons/Conversation.svelte";
+  import Dashboard from "text-reach-frontend-library/icons/Dashboard.svelte";
+  import Logo from "text-reach-frontend-library/icons/Logo.svelte";
+  import Payment from "text-reach-frontend-library/icons/Payment.svelte";
+  import Phone from "text-reach-frontend-library/icons/Phone.svelte";
+  import Profile from "text-reach-frontend-library/icons/Profile.svelte";
   import { sessionState } from "$lib/state/session.svelte";
+  import PhoneFilter from "./PhoneFilter.svelte";
 
   interface Props {
     onItemClicked?: () => void;
@@ -34,15 +39,15 @@
 
   const currentPath = $derived(page.url.pathname);
   const contactSectionActive = $derived(CONTACT_SECTION_PATH.includes(currentPath));
-  const contactSubmenuOpen = $derived(showContactSubmenu);
+  const contactSubmenuOpen = $derived(contactSectionActive || showContactSubmenu);
   const paymentSectionActive = $derived(currentPath === PATH_PAYMENT || currentPath.startsWith(`${PATH_PAYMENT}/`));
+  const phoneSectionActive = $derived(
+    currentPath === PATH_PHONE ||
+      currentPath.startsWith(`${PATH_PHONE}/`) ||
+      currentPath === PATH_BUSINESS ||
+      currentPath.startsWith(`${PATH_BUSINESS}/`),
+  );
   const userSectionActive = $derived(currentPath === PATH_USER || currentPath.startsWith(`${PATH_USER}/`));
-
-  $effect(() => {
-    if (CONTACT_SECTION_PATH.includes(currentPath)) {
-      showContactSubmenu = true;
-    }
-  });
 
   function notifyItemClick(): void {
     onItemClicked?.();
@@ -54,7 +59,7 @@
 
   async function goToProfile(): Promise<void> {
     notifyItemClick();
-    await goto(PATH_PROFILE);
+    await goto(resolve(PATH_PROFILE));
   }
 
   async function signOutClick(): Promise<void> {
@@ -69,9 +74,13 @@
     <span class="text-xl font-medium text-slate-800 [font-stretch:expanded]">Mega Texting</span>
   </li>
 
+  <li class="mb-3">
+    <PhoneFilter />
+  </li>
+
   <li>
     <a
-      href={PATH_DASHBOARD}
+      href={resolve(PATH_DASHBOARD)}
       class={[
         `group flex w-full items-center gap-3 rounded-xl border px-2 py-3 font-medium
           transition-colors`,
@@ -91,7 +100,7 @@
 
   <li>
     <a
-      href={PATH_CONVERSATION}
+      href={resolve(PATH_CONVERSATION)}
       class={[
         `group flex w-full items-center gap-3 rounded-xl border px-2 py-3 font-medium
           transition-colors`,
@@ -111,7 +120,7 @@
 
   <li>
     <a
-      href={PATH_CAMPAIGN}
+      href={resolve(PATH_CAMPAIGN)}
       class={[
         `group flex w-full items-center gap-3 rounded-xl border px-2 py-3 font-medium
           transition-colors`,
@@ -131,7 +140,25 @@
 
   <li>
     <a
-      href={PATH_PAYMENT}
+      href={resolve(PATH_PHONE)}
+      class={[
+        `group flex w-full items-center gap-3 rounded-xl border px-2 py-3 font-medium
+          transition-colors`,
+        phoneSectionActive
+          ? "active text-sky-800 border-sky-200/90 bg-sky-100/90 shadow-sm"
+          : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
+             hover:bg-white/70 hover:text-slate-800`,
+      ]}
+      onclick={notifyItemClick}
+    >
+      <Phone class={["size-6", phoneSectionActive ? "fill-sky-700" : "fill-slate-500 group-hover:fill-sky-700"]} />
+      <span>Phone Numbers</span>
+    </a>
+  </li>
+
+  <li>
+    <a
+      href={resolve(PATH_PAYMENT)}
       class={[
         `group flex w-full items-center gap-3 rounded-xl border px-2 py-3 font-medium
           transition-colors`,
@@ -158,7 +185,7 @@
              hover:bg-white/70 hover:text-slate-800`,
       ]}
     >
-      <a href={PATH_CONTACT} class="flex min-w-0 grow items-center gap-3" onclick={notifyItemClick}>
+      <a href={resolve(PATH_CONTACT)} class="flex min-w-0 grow items-center gap-3" onclick={notifyItemClick}>
         <Contact
           class={["size-6 shrink-0", contactSectionActive ? "fill-sky-700" : "fill-slate-500 group-hover:fill-sky-700"]}
         />
@@ -182,7 +209,7 @@
   <ul class={["overflow-hidden transition-all", contactSubmenuOpen ? "h-36" : "h-0"]}>
     <li>
       <a
-        href={PATH_CONTACT_GROUP}
+        href={resolve(PATH_CONTACT_GROUP)}
         class={[
           `block rounded-xl border py-3 pl-11 font-medium transition-colors`,
           isActive(PATH_CONTACT_GROUP)
@@ -198,7 +225,7 @@
 
     <li>
       <a
-        href={PATH_SMART_GROUP}
+        href={resolve(PATH_SMART_GROUP)}
         class={[
           `block rounded-xl border py-3 pl-11 font-medium transition-colors`,
           isActive(PATH_SMART_GROUP)
@@ -214,7 +241,7 @@
 
     <li>
       <a
-        href={PATH_CUSTOM_FIELD}
+        href={resolve(PATH_CUSTOM_FIELD)}
         class={[
           `block rounded-xl border py-3 pl-11 font-medium transition-colors`,
           isActive(PATH_CUSTOM_FIELD)
@@ -231,7 +258,7 @@
 
   <li>
     <a
-      href={PATH_USER}
+      href={resolve(PATH_USER)}
       class={[
         `group flex w-full items-center gap-3 rounded-xl border px-2 py-3 font-medium
           transition-colors`,

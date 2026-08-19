@@ -1,0 +1,6 @@
+query AvailablePhoneNumbers($input: AvailableTenantPhonesInput!) @cache(policy: NetworkOnly) {
+  availableTenantPhones(input: $input) {
+    phoneNumber
+    phoneType
+  }
+}

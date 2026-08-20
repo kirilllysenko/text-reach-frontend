@@ -7,6 +7,7 @@ const validValues = {
   entityType: "PRIVATE_PROFIT" as const,
   registrationCountry: "us",
   taxId: "12-3456789",
+  businessRegistrationType: " EIN ",
   taxIdIssuingCountry: "us",
   industry: " Software ",
   address: {
@@ -40,6 +41,7 @@ describe("business profile form", () => {
       entityType: "PRIVATE_PROFIT",
       registrationCountry: "US",
       taxId: "12-3456789",
+      businessRegistrationType: "EIN",
       taxIdIssuingCountry: "US",
       industry: "Software",
       address: {
@@ -64,13 +66,16 @@ describe("business profile form", () => {
     });
   });
 
-  it("requires tax ID and issuing country together", () => {
+  it("requires all tax identity fields together", () => {
     const result = validator.safeParse({ ...validValues, taxIdIssuingCountry: "" });
 
     expect(result.success).toBe(false);
     if (!result.success) {
       expect(result.error.issues).toContainEqual(
-        expect.objectContaining({ path: ["taxIdIssuingCountry"], message: "Required when a tax ID is provided" }),
+        expect.objectContaining({
+          path: ["taxIdIssuingCountry"],
+          message: "Required when tax information is provided",
+        }),
       );
     }
   });

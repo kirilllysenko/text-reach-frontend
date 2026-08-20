@@ -30,6 +30,7 @@ export const validator = z
     entityType: z.enum(entityTypes),
     registrationCountry: countryCode,
     taxId: z.string().trim().max(100, "Too long"),
+    businessRegistrationType: z.string().trim().max(100, "Too long"),
     taxIdIssuingCountry: z.string().trim(),
     industry: requiredText(100),
     address: z.object({
@@ -54,18 +55,28 @@ export const validator = z
   })
   .superRefine((values, context) => {
     const hasTaxId = values.taxId.length > 0;
+    const hasRegistrationType = values.businessRegistrationType.length > 0;
     const hasIssuingCountry = values.taxIdIssuingCountry.length > 0;
+    const hasTaxInformation = hasTaxId || hasRegistrationType || hasIssuingCountry;
 
-    if (hasTaxId && !hasIssuingCountry) {
+    if (hasTaxInformation && !hasTaxId) {
+      context.addIssue({ code: "custom", message: "Required when tax information is provided", path: ["taxId"] });
+    }
+
+    if (hasTaxInformation && !hasRegistrationType) {
       context.addIssue({
         code: "custom",
-        message: "Required when a tax ID is provided",
-        path: ["taxIdIssuingCountry"],
+        message: "Required when tax information is provided",
+        path: ["businessRegistrationType"],
       });
     }
 
-    if (!hasTaxId && hasIssuingCountry) {
-      context.addIssue({ code: "custom", message: "Required when an issuing country is provided", path: ["taxId"] });
+    if (hasTaxInformation && !hasIssuingCountry) {
+      context.addIssue({
+        code: "custom",
+        message: "Required when tax information is provided",
+        path: ["taxIdIssuingCountry"],
+      });
     }
 
     if (hasIssuingCountry && values.taxIdIssuingCountry.length !== 2) {
@@ -79,6 +90,7 @@ export const validator = z
       entityType: values.entityType,
       registrationCountry: values.registrationCountry,
       taxId: optionalText(values.taxId),
+      businessRegistrationType: optionalText(values.businessRegistrationType),
       taxIdIssuingCountry: optionalCountry(values.taxIdIssuingCountry),
       industry: values.industry,
       address: values.address,
@@ -100,6 +112,7 @@ export const initialValues: FormValues = {
   entityType: "PRIVATE_PROFIT",
   registrationCountry: "US",
   taxId: "",
+  businessRegistrationType: "",
   taxIdIssuingCountry: "",
   industry: "",
   address: {

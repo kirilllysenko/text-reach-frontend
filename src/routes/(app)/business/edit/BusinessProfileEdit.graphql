@@ -6,6 +6,7 @@ query BusinessProfileEdit @cache(policy: NetworkOnly) {
     entityType
     registrationCountry
     hasTaxId
+    businessRegistrationType
     taxIdIssuingCountry
     taxIdLastFour
     industry

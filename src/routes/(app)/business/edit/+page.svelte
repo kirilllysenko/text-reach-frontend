@@ -63,6 +63,7 @@
         entityType: profile.entityType,
         registrationCountry: profile.registrationCountry,
         taxId: "",
+        businessRegistrationType: profile.businessRegistrationType ?? "",
         taxIdIssuingCountry: profile.taxIdIssuingCountry ?? "",
         industry: profile.industry,
         address: {

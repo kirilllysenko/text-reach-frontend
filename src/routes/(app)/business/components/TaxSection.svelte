@@ -17,12 +17,12 @@
 
   {#if existingTaxIdLastFour}
     <div class="mt-3 rounded-xl border border-amber-200 bg-amber-100 px-3 py-2 text-sm text-amber-800">
-      A tax ID ending in {existingTaxIdLastFour} is saved. Re-enter it to keep it on this full-profile update, or leave both
+      A tax ID ending in {existingTaxIdLastFour} is saved. Re-enter it to keep it on this full-profile update, or leave all
       tax fields blank to remove it.
     </div>
   {/if}
 
-  <div class="mt-4 grid gap-4 sm:grid-cols-2">
+  <div class="mt-4 grid gap-4 sm:grid-cols-3">
     <Field>
       <FieldLabel for="business-tax-id">Tax ID</FieldLabel>
       <Input
@@ -35,6 +35,20 @@
         error={form.taxId.error}
       />
       <FieldError error={form.taxId.error} />
+    </Field>
+
+    <Field>
+      <FieldLabel for="business-registration-type">Business registration type</FieldLabel>
+      <Input
+        id="business-registration-type"
+        bind:value={form.businessRegistrationType.value}
+        {loading}
+        maxlength={100}
+        autocomplete="off"
+        placeholder="EIN"
+        error={form.businessRegistrationType.error}
+      />
+      <FieldError error={form.businessRegistrationType.error} />
     </Field>
 
     <Field>

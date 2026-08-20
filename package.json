@@ -51,7 +51,7 @@
     "papaparse": "^5.5.4",
     "remeda": "^2.33.6",
     "svelte-virtuallists": "^1.4.2",
-    "text-reach-frontend-library": "git+ssh://git@github.com/kirilllysenko/text-reach-frontend-library.git#4045336d446c73af3be758b21ea0bbbd2f90a8ef",
+    "text-reach-frontend-library": "git+ssh://git@github.com/kirilllysenko/text-reach-frontend-library.git#7ec059e19c195d7a4102d5d88a30659ab7ab8b32",
     "xlsx": "^0.18.5",
     "zod": "^4.3.6"
   },

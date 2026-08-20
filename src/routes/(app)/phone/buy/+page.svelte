@@ -261,7 +261,11 @@
                   <p class="truncate font-semibold text-slate-800">{formatPhoneNumber(phone.phoneNumber)}</p>
                   <p class="mt-1 text-xs text-slate-500">{phoneTypeLabels[phone.phoneType]}</p>
                 </div>
-                <Button small onclick={() => choosePhone(phone)}>Buy</Button>
+                <Button
+                  id={`phone-buy-${phone.phoneNumber.replace(/\D/g, "")}`}
+                  small
+                  onclick={() => choosePhone(phone)}>Buy</Button
+                >
               </article>
             {/each}
           </div>
@@ -287,7 +291,7 @@
 
     <div class="mt-5 flex justify-end gap-2">
       <Button variant="secondary" disabled={buying} onclick={() => (selectedPhone = null)}>Cancel</Button>
-      <Button spinner={buying} onclick={buySelectedPhone}>Confirm purchase</Button>
+      <Button id="phone-buy-confirm" spinner={buying} onclick={buySelectedPhone}>Confirm purchase</Button>
     </div>
   {/if}
 </ResponsiveDialog>

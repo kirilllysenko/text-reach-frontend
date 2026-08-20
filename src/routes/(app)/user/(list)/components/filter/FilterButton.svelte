@@ -29,7 +29,14 @@
   };
 </script>
 
-<Button variant="secondary" active={open} icon={Filter} class="relative gap-2 text-sm" onclick={() => (open = true)}>
+<Button
+  id="table-filter-button"
+  variant="secondary"
+  active={open}
+  icon={Filter}
+  class="relative gap-2 text-sm"
+  onclick={() => (open = true)}
+>
   <span class="flex items-center gap-2">
     Filters
     <span
@@ -42,6 +49,7 @@
 </Button>
 
 <ResponsiveDialog
+  id="table-filter-dialog"
   {open}
   title="Filter users"
   description="Refine the users table without taking over the whole page."

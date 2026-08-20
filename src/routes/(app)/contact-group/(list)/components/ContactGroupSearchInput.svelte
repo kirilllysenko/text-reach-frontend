@@ -27,6 +27,7 @@
 </script>
 
 <Input
+  id="filter-field"
   class="min-w-0 grow"
   placeholder="Search contact groups"
   {value}

@@ -10,7 +10,14 @@
   let open = $state(false);
 </script>
 
-<Button variant="secondary" active={open} icon={Sort} class="relative gap-2 text-sm" onclick={() => (open = true)}>
+<Button
+  id="table-sort-button"
+  variant="secondary"
+  active={open}
+  icon={Sort}
+  class="relative gap-2 text-sm"
+  onclick={() => (open = true)}
+>
   <span class="flex items-center gap-2">
     Sort
     <span
@@ -23,6 +30,7 @@
 </Button>
 
 <ResponsiveDialog
+  id="table-sort-dialog"
   {open}
   title="Sort users"
   description="Adjust the priority stack for the users table."

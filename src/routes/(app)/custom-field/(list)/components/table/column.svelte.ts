@@ -1,5 +1,10 @@
 import type { CustomFields$result } from "$houdini/artifacts/CustomFields";
-import { accessorColumn, computedColumn, displayColumn, type ColumnDef } from "text-reach-frontend-library/components/table";
+import {
+  accessorColumn,
+  computedColumn,
+  displayColumn,
+  type ColumnDef,
+} from "text-reach-frontend-library/components/table";
 import { customFieldTypeLabelMap } from "$lib/feature/custom-field/custom-field-view-data";
 import CustomFieldActionCell from "./CustomFieldActionCell.svelte";
 

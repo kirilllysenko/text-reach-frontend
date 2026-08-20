@@ -1,5 +1,11 @@
 import { CustomFieldsStore } from "$houdini";
-import { DatagridCore, filteringFeature, sortingFeature, type DataTableSort } from "text-reach-frontend-library/components/table";
+import {
+  DatagridCore,
+  filteringFeature,
+  globalSearchFeature,
+  sortingFeature,
+  type DataTableSort,
+} from "text-reach-frontend-library/components/table";
 import { customFieldFilterDefinitions } from "../filter/filter.svelte";
 import { customFieldSortDefinitions } from "../sort/sort.svelte";
 import { createCustomFieldColumns } from "./column.svelte";
@@ -14,6 +20,7 @@ export function createCustomFieldTable(): DatagridCore<CustomFieldTableRow> {
     features: [
       sortingFeature<DataTableSort>({ definitions: customFieldSortDefinitions, initialSorts: initialSorting }),
       filteringFeature({ definitions: customFieldFilterDefinitions }),
+      globalSearchFeature({ isFuzzySearchEnabled: false }),
     ],
   });
 }

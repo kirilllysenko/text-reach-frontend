@@ -204,6 +204,7 @@
         </span>
       {:else}
         <span
+          id={part.id}
           bind:textContent={part.value}
           data-message-part-id={part.id}
           data-placeholder={emptyMessage ? "Write your message" : undefined}
@@ -228,6 +229,7 @@
   >
     <div class="relative">
       <Button
+        id="campaign-contact-field-button"
         small
         variant="secondary"
         icon={Plus}

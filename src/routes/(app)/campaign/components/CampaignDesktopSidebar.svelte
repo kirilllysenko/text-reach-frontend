@@ -21,6 +21,7 @@
   <div class="shrink-0 space-y-3 border-b border-white/70 bg-white/55 p-3 backdrop-blur-sm">
     <div class="flex items-center gap-2">
       <Input
+        id="campaign-search-desktop"
         class="min-w-0 grow"
         placeholder="Search campaigns"
         value={state.search}

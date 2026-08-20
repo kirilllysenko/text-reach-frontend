@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import { CampaignFormContactGroupsStore } from "$houdini";
   import { Button, FieldError } from "$lib";
   import Close from "text-reach-frontend-library/icons/Close.svelte";
@@ -17,6 +18,10 @@
   const nextGroup = $derived(groups.find((group) => !value.includes(group.id)));
   const allGroupsAdded = $derived(groups.length > 0 && selectedGroups.length === groups.length);
   const loadFailed = $derived(Boolean($contactGroupsQuery.errors));
+
+  onMount(() => {
+    void contactGroupsQuery.fetch();
+  });
 
   function addNextGroup(): void {
     if (!nextGroup) return;
@@ -66,6 +71,7 @@
       {/each}
 
       <Button
+        id="campaign-contact-group-add"
         variant="secondary"
         icon={Plus}
         class="w-full border-dashed"

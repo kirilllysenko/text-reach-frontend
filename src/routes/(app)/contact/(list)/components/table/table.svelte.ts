@@ -5,6 +5,7 @@ import {
   dataLoadingFeature,
   DatagridCore,
   filteringFeature,
+  paginationFeature,
   rowSelectionFeature,
   sortingFeature,
   type DataTableLoadRequest,
@@ -26,6 +27,7 @@ export function createContactTable(): DatagridCore<ContactTableRow, ContactSortB
         initialSorts: [...initialContactSorts],
       }),
       filteringFeature<ContactFilterInput>({ definitions: contactFilterDefinitions }),
+      paginationFeature({ pageSize: 10 }),
       rowSelectionFeature(),
       dataLoadingFeature<ContactTableRow, ContactSortByInput, ContactFilterInput>({
         combineFilters: combineContactFilters,

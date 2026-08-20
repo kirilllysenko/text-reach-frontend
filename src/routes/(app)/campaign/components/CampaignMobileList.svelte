@@ -21,6 +21,7 @@
 
     <div class="mt-2 flex items-center gap-2">
       <Input
+        id="campaign-search-mobile"
         class="grow"
         placeholder="Search campaigns"
         value={state.search}

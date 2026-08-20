@@ -119,7 +119,14 @@
   }
 </script>
 
-<Button variant="secondary" active={open} icon={Filter} class="relative gap-2 text-sm" onclick={openFilters}>
+<Button
+  id="table-filter-button"
+  variant="secondary"
+  active={open}
+  icon={Filter}
+  class="relative gap-2 text-sm"
+  onclick={openFilters}
+>
   <span class="flex items-center gap-2">
     Filters
     <span
@@ -132,6 +139,7 @@
 </Button>
 
 <ResponsiveDialog
+  id="table-filter-dialog"
   {open}
   title="Filter transactions"
   description="Refine the transactions table without taking over the whole page."

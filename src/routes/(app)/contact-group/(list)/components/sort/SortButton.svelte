@@ -19,7 +19,14 @@
   }
 </script>
 
-<Button variant="secondary" active={open} icon={Sort} class="relative gap-2 text-sm" onclick={openSort}>
+<Button
+  id="table-sort-button"
+  variant="secondary"
+  active={open}
+  icon={Sort}
+  class="relative gap-2 text-sm"
+  onclick={openSort}
+>
   <span class="flex items-center gap-2">
     Sort
     <span
@@ -32,6 +39,7 @@
 </Button>
 
 <ResponsiveDialog
+  id="table-sort-dialog"
   {open}
   title="Sort contact groups"
   description="Adjust the priority stack for the contact groups table."

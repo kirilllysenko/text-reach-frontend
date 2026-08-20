@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import { CampaignFormSenderPhonesStore } from "$houdini";
   import { Button, Field, FieldError, Select, type DropdownOption } from "$lib";
 
@@ -21,6 +22,10 @@
   );
   const selectedOption = $derived(options.find((option) => option.id === value));
   const loadFailed = $derived(Boolean($senderPhonesQuery.errors));
+
+  onMount(() => {
+    void senderPhonesQuery.fetch();
+  });
 
   $effect(() => {
     if (!value && options[0]) {

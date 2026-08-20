@@ -14,6 +14,7 @@
 </script>
 
 <button
+  id={`campaign-list-item-${campaign.id}`}
   class={[
     `w-full cursor-pointer rounded-xl border p-3 text-left shadow-sm backdrop-blur-sm
       transition-colors`,

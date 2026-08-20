@@ -13,6 +13,7 @@
 >
   {#each contactFieldOptions as field (field.key)}
     <button
+      id={`campaign-contact-field-${field.key}`}
       type="button"
       class="block w-full rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:cursor-pointer hover:bg-sky-50 focus-visible:outline-2 focus-visible:outline-sky-500"
       onclick={() => onSelect(field)}

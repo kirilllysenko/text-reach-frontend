@@ -1,0 +1,532 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="dc715fc1-1119-4b5e-89b2-2494cb1992b3" name="Changes" comment="library">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/prettier.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vscode/extensions.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vscode/settings.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/campaign-create-compact-images.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/campaign-create-image-lightbox.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/campaign-create-mock.README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/campaign-create-preview-hidden.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/campaign-create-preview-visible.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-contact-loading-skeleton.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-contact-loading.mp4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-contact-loading.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-000.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-001.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-002.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-003.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-004.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-005.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-006.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-007.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-008.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-009.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-010.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-011.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-012.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-013.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-014.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-015.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-016.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-017.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-018.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-019.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-020.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-021.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-022.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-023.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-024.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-025.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-026.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-027.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-028.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-029.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-030.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-031.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-032.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-033.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-034.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-035.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-036.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-037.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-038.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-039.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-040.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-041.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-042.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-043.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-044.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-045.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-046.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-047.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-048.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-049.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-050.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-051.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-052.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-053.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-054.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-055.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-056.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-057.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-058.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-059.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-060.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-061.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-062.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-063.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-full-page-skeleton.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-input-skeletons.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bun.lock" beforeDir="false" afterPath="$PROJECT_DIR$/bun.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/e2e/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/e2e/contact.live.spec.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/playwright.config.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screenshots/contacts-sort-modal-desktop.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screenshots/contacts-sort-modal-mobile.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/generate-live-update.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/(app)/campaign/(form)/components/details/contact-groups/ContactGroupsSection.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/campaign/(form)/components/details/contact-groups/ContactGroupsSection.svelte" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/(app)/campaign/(form)/components/details/sender/SenderPhoneField.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/campaign/(form)/components/details/sender/SenderPhoneField.svelte" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/(app)/campaign/(form)/components/message/editor/ContactFieldMenu.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/campaign/(form)/components/message/editor/ContactFieldMenu.svelte" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/(app)/campaign/(form)/components/message/editor/MessageEditor.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/campaign/(form)/components/message/editor/MessageEditor.svelte" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/(app)/campaign/[id]/messages/components/MessageSearchInput.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/campaign/[id]/messages/components/MessageSearchInput.svelte" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/(app)/campaign/[id]/messages/components/filter/FilterButton.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/campaign/[id]/messages/components/filter/FilterButton.svelte" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/(app)/campaign/[id]/messages/components/sort/SortButton.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/campaign/[id]/messages/components/sort/SortButton.svelte" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/(app)/campaign/[id]/messages/components/table/column.svelte.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/campaign/[id]/messages/components/table/column.svelte.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/(app)/campaign/components/CampaignDesktopSidebar.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/campaign/components/CampaignDesktopSidebar.svelte" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/(app)/campaign/components/CampaignListItem.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/campaign/components/CampaignListItem.svelte" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/(app)/campaign/components/CampaignMobileList.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/campaign/components/CampaignMobileList.svelte" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/(app)/contact-group/(list)/components/ContactGroupSearchInput.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/contact-group/(list)/components/ContactGroupSearchInput.svelte" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/(app)/contact-group/(list)/components/filter/FilterButton.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/contact-group/(list)/components/filter/FilterButton.svelte" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/(app)/contact-group/(list)/components/sort/SortButton.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/contact-group/(list)/components/sort/SortButton.svelte" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/(app)/contact/(list)/components/ContactSearchInput.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/contact/(list)/components/ContactSearchInput.svelte" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/(app)/contact/(list)/components/filter/ContactGroupFilterControl.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/contact/(list)/components/filter/ContactGroupFilterControl.svelte" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/(app)/contact/(list)/components/filter/FilterButton.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/contact/(list)/components/filter/FilterButton.svelte" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/(app)/contact/(list)/components/sort/SortButton.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/contact/(list)/components/sort/SortButton.svelte" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/(app)/contact/(list)/components/table/column.svelte.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/contact/(list)/components/table/column.svelte.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/(app)/contact/(list)/components/table/table.svelte.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/contact/(list)/components/table/table.svelte.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/(app)/custom-field/(list)/components/CustomFieldSearchInput.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/custom-field/(list)/components/CustomFieldSearchInput.svelte" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/(app)/custom-field/(list)/components/filter/FilterButton.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/custom-field/(list)/components/filter/FilterButton.svelte" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/(app)/custom-field/(list)/components/sort/SortButton.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/custom-field/(list)/components/sort/SortButton.svelte" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/(app)/custom-field/(list)/components/table/column.svelte.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/custom-field/(list)/components/table/column.svelte.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/(app)/custom-field/(list)/components/table/table.svelte.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/custom-field/(list)/components/table/table.svelte.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/(app)/payment/transaction/components/TransactionSearchInput.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/payment/transaction/components/TransactionSearchInput.svelte" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/(app)/payment/transaction/components/filter/FilterButton.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/payment/transaction/components/filter/FilterButton.svelte" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/(app)/payment/transaction/components/sort/SortButton.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/payment/transaction/components/sort/SortButton.svelte" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/(app)/phone/buy/+page.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/phone/buy/+page.svelte" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/(app)/user/(list)/components/UserSearchInput.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/user/(list)/components/UserSearchInput.svelte" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/(app)/user/(list)/components/filter/FilterButton.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/user/(list)/components/filter/FilterButton.svelte" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/(app)/user/(list)/components/sort/SortButton.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/user/(list)/components/sort/SortButton.svelte" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/(app)/user/(list)/components/table/column.svelte.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/user/(list)/components/table/column.svelte.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/sign-in/+page.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/sign-in/+page.svelte" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ComposerSettings">
+    <execution />
+  </component>
+  <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="1225" />
+    <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;kirilllysenko&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/kirilllysenko/text-reach-frontend.git&quot;,
+    &quot;accountId&quot;: &quot;d8ac7130-7fa8-44b5-895d-ecbd323bb275&quot;
+  }
+}</component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
+  <component name="NextEditCompletionFeaturesState">
+    <decayedCancelled>
+      <entry key="MS100" value="1.0308216403679402" />
+      <entry key="MS500" value="1.5821849138395225" />
+      <entry key="S2" value="2.688903516436988" />
+      <entry key="S5" value="3.3591068973670013" />
+      <entry key="S10" value="3.8303582872534325" />
+      <entry key="S30" value="5.010136946556135" />
+      <entry key="S60" value="5.770093777424223" />
+      <entry key="M2" value="6.309450639262618" />
+      <entry key="M5" value="6.705825376608445" />
+      <entry key="M10" value="7.00807762781424" />
+      <entry key="M15" value="7.545391690736971" />
+      <entry key="M30" value="9.672702678893625" />
+      <entry key="H1" value="12.656711985966222" />
+      <entry key="H2" value="15.23177778451326" />
+      <entry key="H4" value="16.941511957923126" />
+      <entry key="D1" value="26.719765448835965" />
+      <entry key="W1" value="67.93606654487424" />
+    </decayedCancelled>
+    <decayedSelected>
+      <entry key="MS100" value="0.0" />
+      <entry key="MS500" value="0.0" />
+      <entry key="S2" value="0.0" />
+      <entry key="S5" value="2.0886251833398457E-238" />
+      <entry key="S10" value="1.523327636927737E-119" />
+      <entry key="S30" value="3.3642447593690467E-40" />
+      <entry key="S60" value="2.5245105926238476E-20" />
+      <entry key="M2" value="2.2310613420859145E-10" />
+      <entry key="M5" value="2.085791036078474E-4" />
+      <entry key="M10" value="0.020418541101985595" />
+      <entry key="M15" value="0.09411637553047346" />
+      <entry key="M30" value="0.4338440255010843" />
+      <entry key="H1" value="0.9314902528500795" />
+      <entry key="H2" value="1.36490769372258" />
+      <entry key="H4" value="1.6522144662414224" />
+      <entry key="D1" value="1.9788579272612852" />
+      <entry key="W1" value="4.512885920265208" />
+    </decayedSelected>
+    <decayedShown>
+      <entry key="MS100" value="0.29562339001329885" />
+      <entry key="MS500" value="1.020927266528225" />
+      <entry key="S2" value="2.2855536796340417" />
+      <entry key="S5" value="3.131173983454963" />
+      <entry key="S10" value="3.700600856919094" />
+      <entry key="S30" value="4.962461803470605" />
+      <entry key="S60" value="5.74556896514607" />
+      <entry key="M2" value="6.296997277435711" />
+      <entry key="M5" value="6.70100113724672" />
+      <entry key="M10" value="7.025859818196486" />
+      <entry key="M15" value="7.637483698700943" />
+      <entry key="M30" value="10.104932975242008" />
+      <entry key="H1" value="13.58695967138803" />
+      <entry key="H2" value="16.59587547190745" />
+      <entry key="H4" value="18.59325903114968" />
+      <entry key="D1" value="28.69852939139803" />
+      <entry key="W1" value="72.44890318237277" />
+    </decayedShown>
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 0
+}</component>
+  <component name="ProjectId" id="3B8kOBNLcj3EhdKpUVJnl9bfUBP" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;JavaScript Debug.api-docs.yaml.executor&quot;: &quot;Debug&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;javascript.preferred.runtime.type.id&quot;: &quot;bun&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/kirill/Projects/Personal/text-reach/text-reach-frontend&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;bun&quot;,
+    &quot;npm.dev.executor&quot;: &quot;Run&quot;,
+    &quot;prettierjs.PrettierConfiguration.Package&quot;: &quot;/Users/kirill/Projects/Personal/text-reach/text-reach-frontend/node_modules/prettier&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;settings.javascript.prettier&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/Users/kirill/Projects/Personal/text-reach/text-reach-frontend/node_modules/typescript/lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/routes/(app)/contact/(list)/components/import/dialog" />
+      <recent name="$PROJECT_DIR$/src/routes/(app)/contact/(list)/components/import/dialog/mapping" />
+      <recent name="$PROJECT_DIR$/src/lib/feature/contact-group/MultiCombobox" />
+      <recent name="$PROJECT_DIR$/src/routes/(app)/contact/(form)/components/form" />
+      <recent name="$PROJECT_DIR$/src/routes/(app)/contact/(form)/components/ContactCustomFields" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="dev" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="dev" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="npm.dev" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-WS-253.31033.133" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="dc715fc1-1119-4b5e-89b2-2494cb1992b3" name="Changes" comment="" />
+      <created>1773878049617</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1773878049617</updated>
+      <workItem from="1773878050649" duration="1000" />
+      <workItem from="1773878123892" duration="27626000" />
+      <workItem from="1773956966765" duration="41405000" />
+      <workItem from="1778868544827" duration="10841000" />
+      <workItem from="1779937574732" duration="14902000" />
+      <workItem from="1781585254014" duration="45000" />
+      <workItem from="1781766969119" duration="50707000" />
+      <workItem from="1782790657174" duration="67141000" />
+      <workItem from="1785819071635" duration="18374000" />
+      <workItem from="1786074103559" duration="4997000" />
+      <workItem from="1786347834793" duration="35470000" />
+    </task>
+    <task id="LOCAL-00001" summary="test">
+      <option name="closed" value="true" />
+      <created>1773897915348</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1773897915348</updated>
+    </task>
+    <task id="LOCAL-00002" summary="test">
+      <option name="closed" value="true" />
+      <created>1773957418566</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1773957418566</updated>
+    </task>
+    <task id="LOCAL-00003" summary="test">
+      <option name="closed" value="true" />
+      <created>1773970372289</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1773970372289</updated>
+    </task>
+    <task id="LOCAL-00004" summary="svelte">
+      <option name="closed" value="true" />
+      <created>1778868565389</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1778868565389</updated>
+    </task>
+    <task id="LOCAL-00005" summary="svelte">
+      <option name="closed" value="true" />
+      <created>1780198715983</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1780198715983</updated>
+    </task>
+    <task id="LOCAL-00006" summary="svelte">
+      <option name="closed" value="true" />
+      <created>1781837046090</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1781837046090</updated>
+    </task>
+    <task id="LOCAL-00007" summary="new table">
+      <option name="closed" value="true" />
+      <created>1782280682910</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1782280682910</updated>
+    </task>
+    <task id="LOCAL-00008" summary="new table">
+      <option name="closed" value="true" />
+      <created>1782442596977</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1782442596977</updated>
+    </task>
+    <task id="LOCAL-00009" summary="new table">
+      <option name="closed" value="true" />
+      <created>1782442607664</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1782442607664</updated>
+    </task>
+    <task id="LOCAL-00010" summary="frontend">
+      <option name="closed" value="true" />
+      <created>1782618770160</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1782618770160</updated>
+    </task>
+    <task id="LOCAL-00011" summary="sign in">
+      <option name="closed" value="true" />
+      <created>1782791663099</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1782791663099</updated>
+    </task>
+    <task id="LOCAL-00012" summary="svelte">
+      <option name="closed" value="true" />
+      <created>1782956116358</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1782956116358</updated>
+    </task>
+    <task id="LOCAL-00013" summary="svelte">
+      <option name="closed" value="true" />
+      <created>1782956136320</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1782956136320</updated>
+    </task>
+    <task id="LOCAL-00014" summary="payment">
+      <option name="closed" value="true" />
+      <created>1783214414286</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1783214414286</updated>
+    </task>
+    <task id="LOCAL-00015" summary="singular form">
+      <option name="closed" value="true" />
+      <created>1783222592232</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1783222592232</updated>
+    </task>
+    <task id="LOCAL-00016" summary="refactoring">
+      <option name="closed" value="true" />
+      <created>1783236640389</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1783236640389</updated>
+    </task>
+    <task id="LOCAL-00017" summary="refactoring">
+      <option name="closed" value="true" />
+      <created>1783236651858</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1783236651858</updated>
+    </task>
+    <task id="LOCAL-00018" summary="refactoring">
+      <option name="closed" value="true" />
+      <created>1783842683553</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1783842683553</updated>
+    </task>
+    <task id="LOCAL-00019" summary="refactoring">
+      <option name="closed" value="true" />
+      <created>1783844962910</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1783844962910</updated>
+    </task>
+    <task id="LOCAL-00020" summary="refactoring">
+      <option name="closed" value="true" />
+      <created>1783844967853</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1783844967853</updated>
+    </task>
+    <task id="LOCAL-00021" summary="refactoring">
+      <option name="closed" value="true" />
+      <created>1783845009269</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1783845009269</updated>
+    </task>
+    <task id="LOCAL-00022" summary="contact form">
+      <option name="closed" value="true" />
+      <created>1786348062759</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1786348062759</updated>
+    </task>
+    <task id="LOCAL-00023" summary="library">
+      <option name="closed" value="true" />
+      <created>1787117845461</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1787117845461</updated>
+    </task>
+    <option name="localTasksCounter" value="24" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="test" />
+    <MESSAGE value="new table" />
+    <MESSAGE value="frontend" />
+    <MESSAGE value="sign in" />
+    <MESSAGE value="svelte" />
+    <MESSAGE value="payment" />
+    <MESSAGE value="singular form" />
+    <MESSAGE value="refactoring" />
+    <MESSAGE value="contact form" />
+    <MESSAGE value="library" />
+    <option name="LAST_COMMIT_MESSAGE" value="library" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+</project>

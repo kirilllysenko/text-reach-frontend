@@ -1,5 +1,10 @@
 import type { Users$result } from "$houdini/artifacts/Users";
-import { accessorColumn, computedColumn, displayColumn, type ColumnDef } from "text-reach-frontend-library/components/table";
+import {
+  accessorColumn,
+  computedColumn,
+  displayColumn,
+  type ColumnDef,
+} from "text-reach-frontend-library/components/table";
 import { userRoleLabelMap } from "$lib/feature/user/user-view-data";
 import UserActionCell from "./UserActionCell.svelte";
 

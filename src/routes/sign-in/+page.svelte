@@ -1,5 +1,6 @@
 <script lang="ts">
   import { browser } from "$app/environment";
+  import { resolve } from "$app/paths";
   import { page } from "$app/state";
   import Button from "text-reach-frontend-library/components/button/Button.svelte";
   import { form, redirectActiveSession } from "./form.svelte";
@@ -47,7 +48,9 @@
     {/if}
 
     {#if signUpOk}
-      <Alert type="success">You have successfully registered. Use your email and password to sign in to the app.</Alert>
+      <Alert id="sign-up-success" type="success">
+        You have successfully registered. Use your email and password to sign in to the app.
+      </Alert>
     {/if}
 
     <h1 class="mx-auto text-slate-800">Sign in</h1>
@@ -79,12 +82,12 @@
 
       <p class="mt-10 text-center text-sm text-slate-500">
         No account?
-        <a href="/sign-up">Sign up</a>
+        <a href={resolve("/sign-up")}>Sign up</a>
       </p>
 
       <p class="mt-2 text-center text-sm text-slate-500">
         Forgot password?
-        <a href="/reset-password">Reset password</a>
+        <a href={resolve("/reset-password")}>Reset password</a>
       </p>
     </Card>
   </div>

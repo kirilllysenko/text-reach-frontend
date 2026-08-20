@@ -1,5 +1,10 @@
 import type { Messages$result } from "$houdini/artifacts/Messages";
-import { accessorColumn, computedColumn, displayColumn, type ColumnDef } from "text-reach-frontend-library/components/table";
+import {
+  accessorColumn,
+  computedColumn,
+  displayColumn,
+  type ColumnDef,
+} from "text-reach-frontend-library/components/table";
 import { formatMessageDate } from "../message-display";
 import { messageStatusLabelMap } from "../message-status";
 import MessageInspectionCell from "./MessageInspectionCell.svelte";

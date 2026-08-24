@@ -1,12 +1,14 @@
 import { goto } from "$app/navigation";
 import { CheckSessionStore, ProfileStore, SignOutStore } from "$houdini";
+import type { AccessGroup$options } from "$houdini/graphql/enums";
 import { PATH_SIGN_IN } from "$lib/app/paths";
+import { accessFailurePath } from "$lib/feature/account-access/access-failure";
 import type { ApiErrorCode } from "$lib/form/errors";
 import { graphQLErrorCode } from "$lib/graphql/errors";
 import { phoneFilterState } from "$lib/state/phone-filter.svelte";
 
 export interface ProfileData {
-  accessGroups: string[];
+  accessGroups: AccessGroup$options[];
   email: string;
   name?: string | null;
 }
@@ -47,7 +49,8 @@ class SessionState {
 
     phoneFilterState.reset();
     this.profile = null;
-    await goto(buildSignInHref(graphQLErrorCode(response.errors)));
+    const errorCode = graphQLErrorCode(response.errors);
+    await goto(accessFailurePath(errorCode) ?? buildSignInHref(errorCode));
     return false;
   };
 
@@ -63,6 +66,10 @@ class SessionState {
 
   applyProfile = (profile: ProfileData): void => {
     this.profile = profile;
+  };
+
+  hasAccess = (accessGroup: AccessGroup$options): boolean => {
+    return this.profile?.accessGroups.includes(accessGroup) ?? false;
   };
 
   signOutAndRedirect = async (): Promise<void> => {

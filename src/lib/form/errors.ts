@@ -6,6 +6,12 @@ export type ApiErrorCode =
   | "SESSION_CLIENT_CHANGED"
   | "SESSION_EXPIRED"
   | "SESSION_INVALID_USER"
+  | "TRIAL_EXPIRED"
+  | "TENANT_TRIAL_EXPIRED"
+  | "ACCOUNT_SUSPENDED"
+  | "TENANT_SUSPENDED"
+  | "ACCOUNT_CLOSED"
+  | "TENANT_CLOSED"
   | "TEN_DLC_BRAND_REQUIRED"
   | "TOO_MANY_EMAIL_CODE_REQUESTS"
   | "TOO_MANY_PHONE_CODE_REQUESTS"
@@ -28,6 +34,12 @@ const errorTextByCode: Partial<Record<ApiErrorCode, string>> = {
   SESSION_EXPIRED: "Your session has expired. Please sign in again.",
   SESSION_CLIENT_CHANGED: "Your browser or internet connection settings changed. Please sign in again.",
   SESSION_INVALID_USER: "Your session is no longer valid. Please sign in again.",
+  TRIAL_EXPIRED: "Your free trial has ended.",
+  TENANT_TRIAL_EXPIRED: "Your free trial has ended.",
+  ACCOUNT_SUSPENDED: "This account is suspended.",
+  TENANT_SUSPENDED: "This account is suspended.",
+  ACCOUNT_CLOSED: "This account is closed.",
+  TENANT_CLOSED: "This account is closed.",
   TEN_DLC_BRAND_REQUIRED: "A 10DLC brand is required for this action.",
 };
 

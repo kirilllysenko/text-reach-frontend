@@ -49,7 +49,7 @@
 
     {#if signUpOk}
       <Alert id="sign-up-success" type="success">
-        You have successfully registered. Use your email and password to sign in to the app.
+        Your 7-day trial has started. Use your email and password to sign in.
       </Alert>
     {/if}
 
@@ -77,7 +77,7 @@
 
         <FieldError error={form.error} />
 
-        <Button class="mt-5 w-full" submit spinner={form.loading}>Sign in</Button>
+        <Button id="sign-in-submit" class="mt-5 w-full" submit spinner={form.loading}>Sign in</Button>
       </form>
 
       <p class="mt-10 text-center text-sm text-slate-500">

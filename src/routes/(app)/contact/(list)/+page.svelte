@@ -1,6 +1,8 @@
 <script lang="ts">
   import { Card, LinkButton, PageTitle, Table } from "$lib";
+  import { AccessGroup } from "$houdini/graphql/enums";
   import { PATH_CONTACT_ADD } from "$lib/app/paths";
+  import { sessionState } from "$lib/state/session.svelte";
   import type { ContactFilterInput } from "$houdini/graphql/inputs";
   import ContactDeleteButton from "./components/ContactDeleteButton.svelte";
   import ContactSearchInput from "./components/ContactSearchInput.svelte";
@@ -12,6 +14,7 @@
 
   let search = $state("");
   const table = createContactTable();
+  const canWriteContacts = $derived(sessionState.hasAccess(AccessGroup.CONTACT_WRITE));
   const selectedContactIds = $derived(
     table.features.rowSelection.getSelectedRowsIds().map((identifier) => String(identifier)),
   );
@@ -35,9 +38,11 @@
 >
   <PageTitle title="Contacts">
     <div class="flex items-center gap-2">
-      <LinkButton href={PATH_CONTACT_ADD}>Add contact</LinkButton>
+      {#if canWriteContacts}
+        <LinkButton id="contact-add" href={PATH_CONTACT_ADD}>Add contact</LinkButton>
 
-      <ContactImportButton onImported={refreshContacts} />
+        <ContactImportButton onImported={refreshContacts} />
+      {/if}
 
       <ContactExportButton
         snapshot={{
@@ -56,11 +61,13 @@
       <div class="flex items-center gap-2">
         <FilterButton filtering={table.handlers.filtering} />
         <SortButton sorting={table.handlers.sorting} />
-        <ContactDeleteButton
-          filter={selectedContactFilter}
-          onDeleted={refreshAfterDelete}
-          selectedCount={selectedContactIds.length}
-        />
+        {#if canWriteContacts}
+          <ContactDeleteButton
+            filter={selectedContactFilter}
+            onDeleted={refreshAfterDelete}
+            selectedCount={selectedContactIds.length}
+          />
+        {/if}
       </div>
     </div>
   </Card>

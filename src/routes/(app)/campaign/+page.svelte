@@ -1,8 +1,10 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
+  import { AccessGroup } from "$houdini/graphql/enums";
   import { LinkButton, PageTitle } from "$lib";
   import { PATH_CAMPAIGN_ADD } from "$lib/app/paths";
   import { phoneFilterState } from "$lib/state/phone-filter.svelte";
+  import { sessionState } from "$lib/state/session.svelte";
   import { CampaignState } from "./components/campaign-state.svelte";
   import CampaignDesktopSidebar from "./components/CampaignDesktopSidebar.svelte";
   import CampaignDetailsPanel from "./components/CampaignDetailsPanel.svelte";
@@ -11,6 +13,7 @@
   import CampaignOverlay from "./components/CampaignOverlay.svelte";
 
   const state = new CampaignState(phoneFilterState.selectedPhoneId);
+  const canWriteCampaigns = $derived(sessionState.hasAccess(AccessGroup.CAMPAIGN_WRITE));
 
   $effect(() => {
     state.setPhoneFilter(phoneFilterState.selectedPhoneId);
@@ -25,7 +28,9 @@
 >
   <div class="hidden sm:block">
     <PageTitle title="Campaigns">
-      <LinkButton href={PATH_CAMPAIGN_ADD}>Create campaign</LinkButton>
+      {#if canWriteCampaigns}
+        <LinkButton id="campaign-add" href={PATH_CAMPAIGN_ADD}>Create campaign</LinkButton>
+      {/if}
     </PageTitle>
   </div>
 

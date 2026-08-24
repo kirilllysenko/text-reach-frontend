@@ -2,6 +2,7 @@
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
   import { page } from "$app/state";
+  import { AccessGroup } from "$houdini/graphql/enums";
   import ProfileButton from "text-reach-frontend-library/components/profile-button/ProfileButton.svelte";
   import {
     CONTACT_SECTION_PATH,
@@ -48,6 +49,13 @@
       currentPath.startsWith(`${PATH_BUSINESS}/`),
   );
   const userSectionActive = $derived(currentPath === PATH_USER || currentPath.startsWith(`${PATH_USER}/`));
+  const canReadBilling = $derived(sessionState.hasAccess(AccessGroup.BILLING_READ));
+  const canReadCampaigns = $derived(sessionState.hasAccess(AccessGroup.CAMPAIGN_READ));
+  const canReadContacts = $derived(sessionState.hasAccess(AccessGroup.CONTACT_READ));
+  const canReadCustomFields = $derived(sessionState.hasAccess(AccessGroup.CUSTOM_FIELDS_READ));
+  const canReadMessages = $derived(sessionState.hasAccess(AccessGroup.MESSAGE_READ));
+  const canReadPhones = $derived(sessionState.hasAccess(AccessGroup.PHONE_READ));
+  const canReadUsers = $derived(sessionState.hasAccess(AccessGroup.USER_READ));
 
   function notifyItemClick(): void {
     onItemClicked?.();
@@ -74,12 +82,15 @@
     <span class="text-xl font-medium text-slate-800 [font-stretch:expanded]">Mega Texting</span>
   </li>
 
-  <li class="mb-3">
-    <PhoneFilter />
-  </li>
+  {#if canReadPhones}
+    <li class="mb-3">
+      <PhoneFilter />
+    </li>
+  {/if}
 
   <li>
     <a
+      id="sidebar-nav-dashboard"
       href={resolve(PATH_DASHBOARD)}
       class={[
         `group flex w-full items-center gap-3 rounded-xl border px-2 py-3 font-medium
@@ -98,186 +109,220 @@
     </a>
   </li>
 
-  <li>
-    <a
-      href={resolve(PATH_CONVERSATION)}
-      class={[
-        `group flex w-full items-center gap-3 rounded-xl border px-2 py-3 font-medium
+  {#if canReadMessages}
+    <li>
+      <a
+        id="sidebar-nav-conversation"
+        href={resolve(PATH_CONVERSATION)}
+        class={[
+          `group flex w-full items-center gap-3 rounded-xl border px-2 py-3 font-medium
           transition-colors`,
-        isActive(PATH_CONVERSATION)
-          ? "active text-sky-800 border-sky-200/90 bg-sky-100/90 shadow-sm"
-          : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
+          isActive(PATH_CONVERSATION)
+            ? "active text-sky-800 border-sky-200/90 bg-sky-100/90 shadow-sm"
+            : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
              hover:bg-white/70 hover:text-slate-800`,
-      ]}
-      onclick={notifyItemClick}
-    >
-      <Conversation
-        class={["size-6", isActive(PATH_CONVERSATION) ? "fill-sky-700" : "fill-slate-500 group-hover:fill-sky-700"]}
-      />
-      <span>Conversations</span>
-    </a>
-  </li>
-
-  <li>
-    <a
-      href={resolve(PATH_CAMPAIGN)}
-      class={[
-        `group flex w-full items-center gap-3 rounded-xl border px-2 py-3 font-medium
-          transition-colors`,
-        isActive(PATH_CAMPAIGN)
-          ? "active text-sky-800 border-sky-200/90 bg-sky-100/90 shadow-sm"
-          : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
-             hover:bg-white/70 hover:text-slate-800`,
-      ]}
-      onclick={notifyItemClick}
-    >
-      <Campaign
-        class={["size-6", isActive(PATH_CAMPAIGN) ? "fill-sky-700" : "fill-slate-500 group-hover:fill-sky-700"]}
-      />
-      <span>Campaigns</span>
-    </a>
-  </li>
-
-  <li>
-    <a
-      href={resolve(PATH_PHONE)}
-      class={[
-        `group flex w-full items-center gap-3 rounded-xl border px-2 py-3 font-medium
-          transition-colors`,
-        phoneSectionActive
-          ? "active text-sky-800 border-sky-200/90 bg-sky-100/90 shadow-sm"
-          : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
-             hover:bg-white/70 hover:text-slate-800`,
-      ]}
-      onclick={notifyItemClick}
-    >
-      <Phone class={["size-6", phoneSectionActive ? "fill-sky-700" : "fill-slate-500 group-hover:fill-sky-700"]} />
-      <span>Phone Numbers</span>
-    </a>
-  </li>
-
-  <li>
-    <a
-      href={resolve(PATH_PAYMENT)}
-      class={[
-        `group flex w-full items-center gap-3 rounded-xl border px-2 py-3 font-medium
-          transition-colors`,
-        paymentSectionActive
-          ? "active text-sky-800 border-sky-200/90 bg-sky-100/90 shadow-sm"
-          : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
-             hover:bg-white/70 hover:text-slate-800`,
-      ]}
-      onclick={notifyItemClick}
-    >
-      <Payment class={["size-6", paymentSectionActive ? "fill-sky-700" : "fill-slate-500 group-hover:fill-sky-700"]} />
-      <span>Payments</span>
-    </a>
-  </li>
-
-  <li>
-    <div
-      class={[
-        `group flex items-center gap-3 rounded-xl border px-2 py-3 font-medium
-          transition-colors`,
-        contactSectionActive
-          ? "active text-sky-800 border-sky-200/90 bg-sky-100/90 shadow-sm"
-          : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
-             hover:bg-white/70 hover:text-slate-800`,
-      ]}
-    >
-      <a href={resolve(PATH_CONTACT)} class="flex min-w-0 grow items-center gap-3" onclick={notifyItemClick}>
-        <Contact
-          class={["size-6 shrink-0", contactSectionActive ? "fill-sky-700" : "fill-slate-500 group-hover:fill-sky-700"]}
+        ]}
+        onclick={notifyItemClick}
+      >
+        <Conversation
+          class={["size-6", isActive(PATH_CONVERSATION) ? "fill-sky-700" : "fill-slate-500 group-hover:fill-sky-700"]}
         />
-        <span class="grow">Contacts</span>
-      </a>
-
-      <button
-        class="rounded-full p-0.5 hover:cursor-pointer hover:bg-white/80"
-        type="button"
-        onclick={() => (showContactSubmenu = !showContactSubmenu)}
-        aria-expanded={contactSubmenuOpen}
-        aria-label={contactSubmenuOpen ? "Collapse contacts submenu" : "Expand contacts submenu"}
-      >
-        <ChevronDown
-          class={["size-6 fill-slate-600 transition-transform", contactSubmenuOpen ? "rotate-180" : "rotate-0"]}
-        />
-      </button>
-    </div>
-  </li>
-
-  <ul class={["overflow-hidden transition-all", contactSubmenuOpen ? "h-36" : "h-0"]}>
-    <li>
-      <a
-        href={resolve(PATH_CONTACT_GROUP)}
-        class={[
-          `block rounded-xl border py-3 pl-11 font-medium transition-colors`,
-          isActive(PATH_CONTACT_GROUP)
-            ? "active text-sky-800 border-sky-200/90 bg-sky-100/90 shadow-sm"
-            : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
-               hover:bg-white/70 hover:text-slate-800`,
-        ]}
-        onclick={notifyItemClick}
-      >
-        Contact Groups
+        <span>Conversations</span>
       </a>
     </li>
+  {/if}
 
+  {#if canReadCampaigns}
     <li>
       <a
-        href={resolve(PATH_SMART_GROUP)}
+        id="sidebar-nav-campaign"
+        href={resolve(PATH_CAMPAIGN)}
         class={[
-          `block rounded-xl border py-3 pl-11 font-medium transition-colors`,
-          isActive(PATH_SMART_GROUP)
-            ? "active text-sky-800 border-sky-200/90 bg-sky-100/90 shadow-sm"
-            : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
-               hover:bg-white/70 hover:text-slate-800`,
-        ]}
-        onclick={notifyItemClick}
-      >
-        Smart Groups
-      </a>
-    </li>
-
-    <li>
-      <a
-        href={resolve(PATH_CUSTOM_FIELD)}
-        class={[
-          `block rounded-xl border py-3 pl-11 font-medium transition-colors`,
-          isActive(PATH_CUSTOM_FIELD)
-            ? "active text-sky-800 border-sky-200/90 bg-sky-100/90 shadow-sm"
-            : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
-               hover:bg-white/70 hover:text-slate-800`,
-        ]}
-        onclick={notifyItemClick}
-      >
-        Custom Fields
-      </a>
-    </li>
-  </ul>
-
-  <li>
-    <a
-      href={resolve(PATH_USER)}
-      class={[
-        `group flex w-full items-center gap-3 rounded-xl border px-2 py-3 font-medium
+          `group flex w-full items-center gap-3 rounded-xl border px-2 py-3 font-medium
           transition-colors`,
-        userSectionActive
-          ? "active text-sky-800 border-sky-200/90 bg-sky-100/90 shadow-sm"
-          : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
+          isActive(PATH_CAMPAIGN)
+            ? "active text-sky-800 border-sky-200/90 bg-sky-100/90 shadow-sm"
+            : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
              hover:bg-white/70 hover:text-slate-800`,
-      ]}
-      onclick={notifyItemClick}
-    >
-      <Profile class={["size-6", userSectionActive ? "fill-sky-700" : "fill-slate-500 group-hover:fill-sky-700"]} />
-      <span>Users</span>
-    </a>
-  </li>
+        ]}
+        onclick={notifyItemClick}
+      >
+        <Campaign
+          class={["size-6", isActive(PATH_CAMPAIGN) ? "fill-sky-700" : "fill-slate-500 group-hover:fill-sky-700"]}
+        />
+        <span>Campaigns</span>
+      </a>
+    </li>
+  {/if}
+
+  {#if canReadPhones}
+    <li>
+      <a
+        id="sidebar-nav-phone"
+        href={resolve(PATH_PHONE)}
+        class={[
+          `group flex w-full items-center gap-3 rounded-xl border px-2 py-3 font-medium
+          transition-colors`,
+          phoneSectionActive
+            ? "active text-sky-800 border-sky-200/90 bg-sky-100/90 shadow-sm"
+            : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
+             hover:bg-white/70 hover:text-slate-800`,
+        ]}
+        onclick={notifyItemClick}
+      >
+        <Phone class={["size-6", phoneSectionActive ? "fill-sky-700" : "fill-slate-500 group-hover:fill-sky-700"]} />
+        <span>Phone Numbers</span>
+      </a>
+    </li>
+  {/if}
+
+  {#if canReadBilling}
+    <li>
+      <a
+        id="sidebar-nav-payment"
+        href={resolve(PATH_PAYMENT)}
+        class={[
+          `group flex w-full items-center gap-3 rounded-xl border px-2 py-3 font-medium
+          transition-colors`,
+          paymentSectionActive
+            ? "active text-sky-800 border-sky-200/90 bg-sky-100/90 shadow-sm"
+            : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
+             hover:bg-white/70 hover:text-slate-800`,
+        ]}
+        onclick={notifyItemClick}
+      >
+        <Payment
+          class={["size-6", paymentSectionActive ? "fill-sky-700" : "fill-slate-500 group-hover:fill-sky-700"]}
+        />
+        <span>Payments</span>
+      </a>
+    </li>
+  {/if}
+
+  {#if canReadContacts}
+    <li>
+      <div
+        class={[
+          `group flex items-center gap-3 rounded-xl border px-2 py-3 font-medium
+          transition-colors`,
+          contactSectionActive
+            ? "active text-sky-800 border-sky-200/90 bg-sky-100/90 shadow-sm"
+            : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
+             hover:bg-white/70 hover:text-slate-800`,
+        ]}
+      >
+        <a
+          id="sidebar-nav-contact"
+          href={resolve(PATH_CONTACT)}
+          class="flex min-w-0 grow items-center gap-3"
+          onclick={notifyItemClick}
+        >
+          <Contact
+            class={[
+              "size-6 shrink-0",
+              contactSectionActive ? "fill-sky-700" : "fill-slate-500 group-hover:fill-sky-700",
+            ]}
+          />
+          <span class="grow">Contacts</span>
+        </a>
+
+        <button
+          id="sidebar-nav-contact-submenu"
+          class="rounded-full p-0.5 hover:cursor-pointer hover:bg-white/80"
+          type="button"
+          onclick={() => (showContactSubmenu = !showContactSubmenu)}
+          aria-expanded={contactSubmenuOpen}
+          aria-label={contactSubmenuOpen ? "Collapse contacts submenu" : "Expand contacts submenu"}
+        >
+          <ChevronDown
+            class={["size-6 fill-slate-600 transition-transform", contactSubmenuOpen ? "rotate-180" : "rotate-0"]}
+          />
+        </button>
+      </div>
+    </li>
+
+    <ul class={["overflow-hidden transition-all", contactSubmenuOpen ? "h-36" : "h-0"]}>
+      <li>
+        <a
+          id="sidebar-nav-contact-group"
+          href={resolve(PATH_CONTACT_GROUP)}
+          class={[
+            `block rounded-xl border py-3 pl-11 font-medium transition-colors`,
+            isActive(PATH_CONTACT_GROUP)
+              ? "active text-sky-800 border-sky-200/90 bg-sky-100/90 shadow-sm"
+              : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
+               hover:bg-white/70 hover:text-slate-800`,
+          ]}
+          onclick={notifyItemClick}
+        >
+          Contact Groups
+        </a>
+      </li>
+
+      <li>
+        <a
+          id="sidebar-nav-smart-group"
+          href={resolve(PATH_SMART_GROUP)}
+          class={[
+            `block rounded-xl border py-3 pl-11 font-medium transition-colors`,
+            isActive(PATH_SMART_GROUP)
+              ? "active text-sky-800 border-sky-200/90 bg-sky-100/90 shadow-sm"
+              : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
+               hover:bg-white/70 hover:text-slate-800`,
+          ]}
+          onclick={notifyItemClick}
+        >
+          Smart Groups
+        </a>
+      </li>
+
+      {#if canReadCustomFields}
+        <li>
+          <a
+            id="sidebar-nav-custom-field"
+            href={resolve(PATH_CUSTOM_FIELD)}
+            class={[
+              `block rounded-xl border py-3 pl-11 font-medium transition-colors`,
+              isActive(PATH_CUSTOM_FIELD)
+                ? "active text-sky-800 border-sky-200/90 bg-sky-100/90 shadow-sm"
+                : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
+                   hover:bg-white/70 hover:text-slate-800`,
+            ]}
+            onclick={notifyItemClick}
+          >
+            Custom Fields
+          </a>
+        </li>
+      {/if}
+    </ul>
+  {/if}
+
+  {#if canReadUsers}
+    <li>
+      <a
+        id="sidebar-nav-user"
+        href={resolve(PATH_USER)}
+        class={[
+          `group flex w-full items-center gap-3 rounded-xl border px-2 py-3 font-medium
+          transition-colors`,
+          userSectionActive
+            ? "active text-sky-800 border-sky-200/90 bg-sky-100/90 shadow-sm"
+            : `border-transparent text-slate-700 hover:cursor-pointer hover:border-white/70
+             hover:bg-white/70 hover:text-slate-800`,
+        ]}
+        onclick={notifyItemClick}
+      >
+        <Profile class={["size-6", userSectionActive ? "fill-sky-700" : "fill-slate-500 group-hover:fill-sky-700"]} />
+        <span>Users</span>
+      </a>
+    </li>
+  {/if}
 
   <li class="grow"></li>
 
   <li class="pt-5">
     <ProfileButton
+      id="sidebar-profile-button"
       class="w-full rounded-xl border border-transparent px-2 py-2 hover:bg-white/60"
       profile={sessionState.profile ?? undefined}
       onProfileClick={goToProfile}

@@ -1,6 +1,8 @@
 <script lang="ts">
   import { cache, CancelCampaignStore, PauseCampaignStore, ResumeCampaignStore } from "$houdini";
+  import { AccessGroup } from "$houdini/graphql/enums";
   import { Button, Dialog } from "$lib";
+  import { sessionState } from "$lib/state/session.svelte";
   import { notificationsState } from "text-reach-frontend-library/state/notifications.svelte";
   import { getCampaignActions, type CampaignAction } from "./campaign-actions";
   import type { CampaignStatus, CampaignViewModel } from "./campaign-view-data";
@@ -19,6 +21,7 @@
   let activeAction = $state<CampaignAction | null>(null);
   let confirmCancel = $state(false);
   const actions = $derived(getCampaignActions(campaign.status));
+  const canWriteCampaigns = $derived(sessionState.hasAccess(AccessGroup.CAMPAIGN_WRITE));
 
   async function performAction(action: CampaignAction): Promise<void> {
     if (activeAction) {
@@ -76,10 +79,11 @@
   }
 </script>
 
-{#if actions.length > 0}
+{#if canWriteCampaigns && actions.length > 0}
   <div class="flex flex-wrap items-center justify-end gap-2" aria-label="Campaign actions">
     {#if actions.includes("pause")}
       <Button
+        id="campaign-pause"
         variant="secondary"
         disabled={activeAction !== null}
         spinner={activeAction === "pause"}
@@ -89,6 +93,7 @@
 
     {#if actions.includes("resume")}
       <Button
+        id="campaign-resume"
         variant="secondary"
         disabled={activeAction !== null}
         spinner={activeAction === "resume"}
@@ -98,6 +103,7 @@
 
     {#if actions.includes("cancel")}
       <Button
+        id="campaign-cancel"
         class="text-rose-700"
         variant="secondary"
         disabled={activeAction !== null}
@@ -107,7 +113,7 @@
   </div>
 {/if}
 
-{#if confirmCancel}
+{#if canWriteCampaigns && confirmCancel}
   <div class="fixed inset-0 z-60 flex items-center justify-center">
     <button
       class="absolute inset-0 bg-slate-900/35 backdrop-blur-[1px]"

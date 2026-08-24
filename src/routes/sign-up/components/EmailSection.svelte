@@ -73,6 +73,7 @@
   >
     {#snippet rightAddon()}
       <Button
+        id="sign-up-email-code-send"
         class="min-w-24 px-3 text-xs tracking-[0.02em]"
         variant="secondary"
         small

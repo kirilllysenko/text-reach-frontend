@@ -2,10 +2,12 @@
   import { resolve } from "$app/paths";
   import { onMount } from "svelte";
   import { TenDlcBrandStore, TenDlcCampaignsStore } from "$houdini";
+  import { AccessGroup } from "$houdini/graphql/enums";
   import { Alert, BackButton, Button, Card, PageTitle } from "$lib";
   import { PATH_PHONE_BUY, PATH_TEN_DLC_BRAND, PATH_TEN_DLC_CAMPAIGN_ADD } from "$lib/app/paths";
   import { isActiveTenDlcCampaignStatus, tenDlcStatusLabel } from "$lib/feature/phone/ten-dlc-display";
   import { graphQLErrorCode } from "$lib/graphql/errors";
+  import { sessionState } from "$lib/state/session.svelte";
 
   const brandQuery = new TenDlcBrandStore();
   const campaignsQuery = new TenDlcCampaignsStore();
@@ -18,6 +20,7 @@
   const activeCampaigns = $derived(
     campaigns.filter((campaign) => isActiveTenDlcCampaignStatus(campaign.providerStatus)),
   );
+  const canWritePhones = $derived(sessionState.hasAccess(AccessGroup.PHONE_WRITE));
 
   onMount(() => {
     void loadRegistration();
@@ -63,7 +66,7 @@
         <p class="text-xs font-semibold tracking-[0.06em] text-slate-500 uppercase">Brand</p>
         {#if loading}
           <div class="skeleton-loading mt-3 h-24 rounded-xl"></div>
-        {:else if brandMissing}
+        {:else if brandMissing && canWritePhones}
           <h2 class="mt-2 text-lg font-semibold text-slate-800">Register your business brand</h2>
           <p class="mt-2 text-sm leading-6 text-slate-500">
             We use your saved legal business and authorized-contact information for carrier registration.
@@ -74,6 +77,11 @@
             class="mt-4 flex h-10 items-center justify-center rounded-xl bg-slate-700 px-3 text-sm font-medium
               text-white shadow-sm hover:bg-slate-800">Register brand</a
           >
+        {:else if brandMissing}
+          <h2 class="mt-2 text-lg font-semibold text-slate-800">No registered brand</h2>
+          <p class="mt-2 text-sm leading-6 text-slate-500">
+            A user with phone management access can register the business brand.
+          </p>
         {:else if brand}
           <h2 id="ten-dlc-brand-name" class="mt-2 text-lg font-semibold text-slate-800">{brand.name}</h2>
           <p class="mt-2 text-sm text-slate-500">Status: {tenDlcStatusLabel(brand.providerStatus)}</p>
@@ -86,7 +94,7 @@
             <p class="text-xs font-semibold tracking-[0.06em] text-slate-500 uppercase">Campaigns</p>
             <h2 class="mt-1 text-lg font-semibold text-slate-800">Messaging use cases</h2>
           </div>
-          {#if brand && !loadError}
+          {#if brand && !loadError && canWritePhones}
             <a
               id="ten-dlc-campaign-add"
               href={resolve(PATH_TEN_DLC_CAMPAIGN_ADD)}
@@ -138,7 +146,7 @@
           </div>
         {/if}
 
-        {#if activeCampaigns.length > 0}
+        {#if activeCampaigns.length > 0 && canWritePhones}
           <a id="ten-dlc-buy-number" href={resolve(PATH_PHONE_BUY)} class="mt-4 inline-block text-sm font-medium">
             Buy a 10DLC number
           </a>

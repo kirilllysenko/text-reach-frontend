@@ -3,8 +3,9 @@ import { SignInSessionQueryStore, SignInStore } from "$houdini";
 import { PATH_DASHBOARD } from "$lib/app/paths";
 import { createForm, type FormSubmitResult } from "$lib/form/form.svelte";
 import { networkErrorText } from "$lib/form/errors";
+import { accessFailurePath } from "$lib/feature/account-access/access-failure";
 import { PasswordSchema } from "$lib/form/validators";
-import { toGraphQLErrorText } from "$lib/graphql/errors";
+import { graphQLErrorCode, toGraphQLErrorText } from "$lib/graphql/errors";
 import { z } from "zod";
 
 export const validator = z.object({
@@ -28,6 +29,12 @@ export async function redirectActiveSession(): Promise<void> {
   const response = await checkSessionQuery.fetch();
   if (!response.errors && response.data?.checkSession) {
     await goto(PATH_DASHBOARD);
+    return;
+  }
+
+  const failurePath = accessFailurePath(graphQLErrorCode(response.errors));
+  if (failurePath) {
+    await goto(failurePath);
   }
 }
 
@@ -37,6 +44,12 @@ async function submit(values: FormValues): Promise<FormSubmitResult> {
 
     if (!response.errors && response.data?.signIn) {
       await goto(PATH_DASHBOARD);
+      return {};
+    }
+
+    const failurePath = accessFailurePath(graphQLErrorCode(response.errors));
+    if (failurePath) {
+      await goto(failurePath);
       return {};
     }
 

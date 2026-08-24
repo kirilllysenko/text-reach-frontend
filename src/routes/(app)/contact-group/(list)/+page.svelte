@@ -1,6 +1,8 @@
 <script lang="ts">
   import { Card, LinkButton, PageTitle, Table } from "$lib";
+  import { AccessGroup } from "$houdini/graphql/enums";
   import { PATH_CONTACT_GROUP_ADD } from "$lib/app/paths";
+  import { sessionState } from "$lib/state/session.svelte";
   import ContactGroupSearchInput from "./components/ContactGroupSearchInput.svelte";
   import FilterButton from "./components/filter/FilterButton.svelte";
   import SortButton from "./components/sort/SortButton.svelte";
@@ -8,6 +10,7 @@
 
   let search = $state("");
   const table = createContactGroupTable({ getSearch: () => search });
+  const canWriteContacts = $derived(sessionState.hasAccess(AccessGroup.CONTACT_WRITE));
 </script>
 
 <div
@@ -15,7 +18,9 @@
     to-stone-100 p-2 sm:h-[calc(100dvh-3rem)] sm:p-3"
 >
   <PageTitle title="Contact Groups">
-    <LinkButton href={PATH_CONTACT_GROUP_ADD}>Add contact group</LinkButton>
+    {#if canWriteContacts}
+      <LinkButton id="contact-group-add" href={PATH_CONTACT_GROUP_ADD}>Add contact group</LinkButton>
+    {/if}
   </PageTitle>
 
   <Card variant="panel" class="shrink-0 space-y-3">

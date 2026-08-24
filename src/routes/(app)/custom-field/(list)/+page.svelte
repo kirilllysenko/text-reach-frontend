@@ -1,7 +1,9 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { Card, LinkButton, PageTitle, Table } from "$lib";
+  import { AccessGroup } from "$houdini/graphql/enums";
   import { PATH_CUSTOM_FIELD_ADD } from "$lib/app/paths";
+  import { sessionState } from "$lib/state/session.svelte";
   import CustomFieldSearchInput from "./components/CustomFieldSearchInput.svelte";
   import FilterButton from "./components/filter/FilterButton.svelte";
   import SortButton from "./components/sort/SortButton.svelte";
@@ -11,6 +13,7 @@
   let loading = $state(true);
   let error = $state<string | null>(null);
   const table = createCustomFieldTable();
+  const canWriteCustomFields = $derived(sessionState.hasAccess(AccessGroup.CUSTOM_FIELDS_WRITE));
 
   onMount(() => {
     void reloadCustomFields();
@@ -35,7 +38,9 @@
     to-stone-100 p-2 sm:h-[calc(100dvh-3rem)] sm:p-3"
 >
   <PageTitle title="Custom Fields">
-    <LinkButton href={PATH_CUSTOM_FIELD_ADD}>Add custom field</LinkButton>
+    {#if canWriteCustomFields}
+      <LinkButton id="custom-field-add" href={PATH_CUSTOM_FIELD_ADD}>Add custom field</LinkButton>
+    {/if}
   </PageTitle>
 
   <Card variant="panel" class="shrink-0 space-y-3">

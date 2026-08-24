@@ -42,7 +42,12 @@
   }
 </script>
 
-<Button variant="secondary" disabled={!filter || selectedCount === 0} onclick={() => (confirmDelete = true)}>
+<Button
+  id="contact-delete"
+  variant="secondary"
+  disabled={!filter || selectedCount === 0}
+  onclick={() => (confirmDelete = true)}
+>
   {selectedCount > 0 ? `Delete selected (${selectedCount})` : "Delete selected"}
 </Button>
 

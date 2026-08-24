@@ -1,6 +1,10 @@
 export const PATH_SIGN_IN = "/sign-in";
 export const PATH_SIGN_UP = "/sign-up";
 export const PATH_RESET_PASSWORD = "/reset-password";
+export const PATH_TRIAL_EXPIRED = "/trial-expired";
+export const PATH_ACCOUNT_SUSPENDED = "/account-suspended";
+export const PATH_ACCOUNT_CLOSED = "/account-closed";
+export const PATH_ACCOUNT_UNAVAILABLE = "/account-unavailable";
 export const PATH_DASHBOARD = "/dashboard";
 export const PATH_CONTACT = "/contact";
 export const PATH_CONTACT_ADD = "/contact/add";

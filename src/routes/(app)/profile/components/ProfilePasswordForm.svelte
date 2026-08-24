@@ -110,6 +110,8 @@
 
     <FieldError class="mt-3" error={passwordFormError} />
 
-    <Button class="mt-4 w-30" submit spinner={savingPassword} disabled={!passwordDirty}>Save</Button>
+    <Button id="profile-password-submit" class="mt-4 w-30" submit spinner={savingPassword} disabled={!passwordDirty}>
+      Save
+    </Button>
   </form>
 </section>

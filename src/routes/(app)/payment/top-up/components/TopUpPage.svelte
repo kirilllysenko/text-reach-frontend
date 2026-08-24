@@ -260,18 +260,24 @@
 
       {#if checkoutActions}
         <div class="mt-4">
-          <Button class="w-full" onclick={confirmPayment} spinner={confirming}>Pay</Button>
+          <Button id="payment-top-up-pay" class="w-full" onclick={confirmPayment} spinner={confirming}>Pay</Button>
         </div>
       {/if}
 
       {#if message}
-        <div class="text-sky-900 mt-4 rounded-xl border border-sky-200/80 bg-sky-50/90 px-3 py-2 text-sm">
+        <div
+          id="payment-top-up-message"
+          class="text-sky-900 mt-4 rounded-xl border border-sky-200/80 bg-sky-50/90 px-3 py-2 text-sm"
+        >
           {message}
         </div>
       {/if}
 
       {#if error}
-        <div class="text-amber-900 mt-4 rounded-xl border border-amber-200/80 bg-amber-100/90 px-3 py-2 text-sm">
+        <div
+          id="payment-top-up-error"
+          class="text-amber-900 mt-4 rounded-xl border border-amber-200/80 bg-amber-100/90 px-3 py-2 text-sm"
+        >
           {error}
         </div>
       {/if}

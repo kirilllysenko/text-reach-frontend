@@ -14,6 +14,7 @@
   let render = $state(false);
 
   const signUpOk = $derived(browser && page.url.searchParams.get("signUpOk") === "1");
+  const resetPasswordOk = $derived(browser && page.url.searchParams.get("resetPasswordOk") === "1");
   const sessionError = $derived(browser ? page.url.searchParams.get("sessionError") : null);
 
   onMount(async () => {
@@ -50,6 +51,12 @@
     {#if signUpOk}
       <Alert id="sign-up-success" type="success">
         Your 7-day trial has started. Use your email and password to sign in.
+      </Alert>
+    {/if}
+
+    {#if resetPasswordOk}
+      <Alert id="reset-password-success" type="success">
+        Your password has been reset. Sign in with your new password.
       </Alert>
     {/if}
 

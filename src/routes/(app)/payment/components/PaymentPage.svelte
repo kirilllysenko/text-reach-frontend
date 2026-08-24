@@ -26,12 +26,13 @@
       <div class="rounded-2xl border border-white/80 bg-white/80 p-5 shadow-sm">
         <p class="text-sm font-medium text-slate-500">Available balance</p>
         <div class="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div class="text-4xl font-semibold text-slate-900 sm:text-5xl">
+          <div id="payment-balance" class="text-4xl font-semibold text-slate-900 sm:text-5xl">
             {paymentState.loading ? "Loading" : formatPaymentBalance(paymentState.balance)}
           </div>
 
           <div class="flex flex-col gap-2 sm:flex-row">
             <a
+              id="payment-top-up-link"
               href={PATH_PAYMENT_TOP_UP}
               class="flex h-10 items-center justify-center rounded-xl border border-slate-700 bg-slate-700 px-4
                 text-sm font-medium text-white shadow-sm hover:bg-slate-800"
@@ -39,6 +40,7 @@
               Top up
             </a>
             <a
+              id="payment-transactions-link"
               href={PATH_PAYMENT_TRANSACTION}
               class="flex h-10 items-center justify-center rounded-xl border border-white/80 bg-white/90 px-4
                 text-sm font-medium text-slate-700 shadow-sm hover:bg-white"
@@ -60,11 +62,13 @@
       <dl class="space-y-4">
         <div>
           <dt class="text-xs font-medium tracking-[0.04em] text-slate-500 uppercase">Currency</dt>
-          <dd class="mt-1 text-lg font-semibold text-slate-800">{paymentState.balance?.currency ?? "USD"}</dd>
+          <dd id="payment-currency" class="mt-1 text-lg font-semibold text-slate-800">
+            {paymentState.balance?.currency ?? "USD"}
+          </dd>
         </div>
         <div>
           <dt class="text-xs font-medium tracking-[0.04em] text-slate-500 uppercase">Status</dt>
-          <dd class="mt-1 text-lg font-semibold text-slate-800">
+          <dd id="payment-status" class="mt-1 text-lg font-semibold text-slate-800">
             {paymentState.loadingError ? "Unavailable" : "Ready"}
           </dd>
         </div>

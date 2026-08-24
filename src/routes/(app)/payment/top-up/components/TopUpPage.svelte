@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onDestroy, onMount } from "svelte";
+  import type { Attachment } from "svelte/attachments";
   import { CreateTopupCheckoutSessionStore, PaymentConfigStore } from "$houdini";
   import { loadStripe, type StripeCheckoutLoadActionsSuccess, type StripePaymentElement } from "@stripe/stripe-js";
   import { Button, Input, PageTitle } from "$lib";
@@ -23,7 +24,7 @@
   let startingSession = $state(false);
   let confirming = $state(false);
   let selectedPreset = $state(PRESET_AMOUNTS[0]);
-  let customAmount = $state("");
+  let customAmount = $state<number | string>("");
   let message = $state<string | null>(null);
   let error = $state<string | null>(null);
   let paymentElementContainer = $state<HTMLDivElement | null>(null);
@@ -32,7 +33,7 @@
 
   const selectedAmountDollars = $derived.by(() => {
     const customValue = Number(customAmount);
-    return customAmount.trim() && Number.isFinite(customValue) ? customValue : selectedPreset;
+    return String(customAmount).trim() && Number.isFinite(customValue) ? customValue : selectedPreset;
   });
   const selectedAmountMicros = $derived(dollarsToUsdMicros(selectedAmountDollars));
   const minAmountMicros = $derived(paymentConfig?.minTopupUsdMicros ?? 0);
@@ -159,6 +160,14 @@
     customAmount = "";
   }
 
+  const attachPaymentElementContainer: Attachment<HTMLDivElement> = (element) => {
+    paymentElementContainer = element;
+
+    return () => {
+      paymentElementContainer = null;
+    };
+  };
+
   function handleError(fallback: string): void {
     error = fallback;
   }
@@ -170,6 +179,7 @@
 >
   <PageTitle title="Top Up">
     <a
+      id="payment-top-up-balance-link"
       href={PATH_PAYMENT}
       class="flex h-9 items-center justify-center rounded-xl border border-white/80 bg-white/90 px-3
         text-sm font-medium text-slate-700 shadow-sm hover:bg-white"
@@ -203,6 +213,7 @@
       <div class="grid grid-cols-2 gap-2">
         {#each PRESET_AMOUNTS as amount (amount)}
           <Button
+            id={`payment-top-up-preset-${amount}`}
             variant="secondary"
             active={selectedPreset === amount && !customAmount}
             class="h-11 rounded-xl px-3 text-sm font-semibold"
@@ -216,6 +227,7 @@
       <label class="block space-y-1">
         <span class="text-xs font-medium text-slate-500">Custom amount</span>
         <Input
+          id="payment-top-up-custom-amount"
           type="number"
           min="1"
           step="0.01"
@@ -225,17 +237,26 @@
         />
       </label>
 
-      <div class="rounded-xl border border-white/80 bg-white/80 px-3 py-2 text-sm text-slate-600">
+      <div
+        id="payment-top-up-selected-amount"
+        class="rounded-xl border border-white/80 bg-white/80 px-3 py-2 text-sm text-slate-600"
+      >
         Selected: <span class="font-semibold text-slate-800">{formatUsdMicros(selectedAmountMicros)}</span>
       </div>
 
-      <Button class="w-full" submit disabled={!paymentConfig || !amountValid} spinner={startingSession}>
+      <Button
+        id="payment-top-up-continue"
+        class="w-full"
+        submit
+        disabled={!paymentConfig || !amountValid}
+        spinner={startingSession}
+      >
         Continue
       </Button>
     </form>
 
     <div class="min-h-[24rem] rounded-2xl border border-white/80 bg-white/80 p-4 shadow-sm">
-      <div bind:this={paymentElementContainer} class="min-h-32"></div>
+      <div {@attach attachPaymentElementContainer} class="min-h-32"></div>
 
       {#if checkoutActions}
         <div class="mt-4">

@@ -2,5 +2,12 @@ query PhonePurchaseBusinessProfile @cache(policy: NetworkOnly) {
   businessProfile {
     id
     displayName
+    businessRegistrationType
+    entityType
+    hasTaxId
+    privacyPolicyUrl
+    taxIdIssuingCountry
+    termsOfServiceUrl
+    website
   }
 }

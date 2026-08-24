@@ -7,6 +7,7 @@
   import type { ClassValue } from "svelte/elements";
 
   interface Props {
+    id: string;
     label: string;
     icon: Component<{ class?: ClassValue }>;
     fileLabel: string;
@@ -18,11 +19,12 @@
     onFile?: () => void;
   }
 
-  let { label, icon, fileLabel, fileIcon, historyLabel, activeJobs, fileHref, historyHref, onFile }: Props = $props();
+  let { id, label, icon, fileLabel, fileIcon, historyLabel, activeJobs, fileHref, historyHref, onFile }: Props =
+    $props();
   const FileIcon = $derived(fileIcon);
   let menuOpen = $state(false);
   let root = $state<HTMLDivElement | null>(null);
-  const menuId = $derived(`${label.toLowerCase()}-contact-actions`);
+  const menuId = $derived(`${id}-menu`);
 
   function toggleMenu(event: MouseEvent): void {
     event.stopPropagation();
@@ -45,12 +47,20 @@
       menuOpen = false;
     }
   }
+
+  function attachRoot(element: HTMLDivElement): () => void {
+    root = element;
+    return () => {
+      if (root === element) root = null;
+    };
+  }
 </script>
 
 <svelte:document onpointerdown={closeOnOutsideClick} onkeydown={closeOnEscape} />
 
-<div bind:this={root} class="relative">
+<div {@attach attachRoot} class="relative">
   <Button
+    id={`${id}-button`}
     variant="secondary"
     small
     {icon}
@@ -80,6 +90,7 @@
     >
       {#if fileHref}
         <a
+          id={`${id}-file`}
           class="group flex min-h-10 w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-slate-700
             hover:bg-slate-50 focus-visible:bg-slate-50 focus-visible:outline-2 focus-visible:outline-sky-500"
           href={fileHref}
@@ -91,6 +102,7 @@
         </a>
       {:else}
         <button
+          id={`${id}-file`}
           class="group flex min-h-10 w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-slate-700
             hover:cursor-pointer hover:bg-slate-50 focus-visible:bg-slate-50 focus-visible:outline-2
             focus-visible:outline-sky-500"
@@ -104,6 +116,7 @@
       {/if}
 
       <a
+        id={`${id}-history`}
         class="group flex min-h-10 w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-slate-700
           hover:bg-slate-50 focus-visible:bg-slate-50 focus-visible:outline-2 focus-visible:outline-sky-500"
         href={historyHref}

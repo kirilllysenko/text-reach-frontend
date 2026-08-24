@@ -14,7 +14,7 @@
   </div>
 
   <div class="flex justify-end gap-2">
-    <Button variant="secondary" onclick={onDone}>Back to contacts</Button>
-    <Button onclick={onHistory}>View import history</Button>
+    <Button id="contact-import-done" variant="secondary" onclick={onDone}>Back to contacts</Button>
+    <Button id="contact-import-view-history" onclick={onHistory}>View import history</Button>
   </div>
 </section>

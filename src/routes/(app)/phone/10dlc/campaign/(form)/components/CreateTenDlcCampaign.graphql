@@ -1,0 +1,5 @@
+mutation CreateTenDlcCampaign($input: TenDlcCampaignInput!) {
+  createTenDlcCampaign(input: $input) {
+    id
+  }
+}

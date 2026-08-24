@@ -80,6 +80,15 @@ describe("business profile form", () => {
     }
   });
 
+  it("requires registration type with tax identity", () => {
+    const result = validator.safeParse({ ...validValues, businessRegistrationType: "" });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues).toContainEqual(expect.objectContaining({ path: ["businessRegistrationType"] }));
+    }
+  });
+
   it("preserves an explicitly entered international country code", () => {
     const result = validator.parse({ ...validValues, businessPhone: "+33 1 23 45 67 89" });
 

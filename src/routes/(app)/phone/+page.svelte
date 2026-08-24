@@ -3,7 +3,7 @@
   import { onMount } from "svelte";
   import { PhoneNumbersStore } from "$houdini";
   import { Alert, Button, Card, PageTitle } from "$lib";
-  import { PATH_BUSINESS, PATH_PHONE_BUY } from "$lib/app/paths";
+  import { PATH_BUSINESS, PATH_PHONE_BUY, PATH_TEN_DLC } from "$lib/app/paths";
   import { formatPhoneNumber, phoneTypeLabels } from "$lib/feature/phone/phone-display";
 
   const phoneNumbersQuery = new PhoneNumbersStore();
@@ -88,7 +88,10 @@
         {:else}
           <div class="grid gap-3 sm:grid-cols-2">
             {#each phones as phone (phone.id)}
-              <article class="rounded-2xl border border-white/80 bg-white/80 p-4 shadow-sm">
+              <article
+                id={`phone-list-item-${phone.phoneNumber.replace(/\D/g, "")}`}
+                class="rounded-2xl border border-white/80 bg-white/80 p-4 shadow-sm"
+              >
                 <p class="text-lg font-semibold text-slate-800">{formatPhoneNumber(phone.phoneNumber)}</p>
                 <div class="mt-3 flex items-center justify-between gap-2">
                   <span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
@@ -114,6 +117,21 @@
         >
           Review business information
         </a>
+
+        <div class="mt-5 border-t border-slate-200/80 pt-5">
+          <h2 class="text-lg font-semibold text-slate-800">10DLC registration</h2>
+          <p class="mt-2 text-sm leading-6 text-slate-500">
+            Register your brand and messaging use case before purchasing a 10DLC number.
+          </p>
+          <a
+            id="phone-ten-dlc-registration"
+            href={resolve(PATH_TEN_DLC)}
+            class="mt-4 flex h-9 items-center justify-center rounded-xl border border-white/80 bg-white/90 px-3
+              text-sm font-medium text-slate-700 shadow-sm hover:bg-white"
+          >
+            Manage 10DLC
+          </a>
+        </div>
       </Card>
     </div>
   </div>

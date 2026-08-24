@@ -16,6 +16,7 @@
   <div class="flex flex-col gap-3 rounded-xl border border-white/80 bg-white/70 p-3 sm:flex-row sm:items-center">
     <label class="flex items-center gap-2 text-sm font-medium text-slate-700">
       <input
+        id="contact-import-first-row-headers"
         class="size-4 rounded border-slate-300 accent-slate-700"
         type="checkbox"
         checked={contactImport.skipFirstRow}
@@ -42,11 +43,12 @@
   <FieldError error={contactImport.error} />
 
   <div class="flex flex-col gap-2 sm:flex-row sm:justify-between">
-    <Button variant="secondary" onclick={() => (contactImport.step = "setup")}>Back</Button>
+    <Button id="contact-import-back" variant="secondary" onclick={() => (contactImport.step = "setup")}>Back</Button>
 
     <div class="flex flex-col gap-2 sm:flex-row">
-      <Button variant="secondary" onclick={onClose}>Cancel</Button>
+      <Button id="contact-import-mapping-cancel" variant="secondary" onclick={onClose}>Cancel</Button>
       <Button
+        id="contact-import-submit"
         disabled={!contactImport.canImport}
         spinner={contactImport.importSubmitting}
         onclick={contactImport.importContacts}

@@ -5,6 +5,7 @@ import type { ProxyOptions } from "vite";
 import { defineConfig } from "vite";
 
 const graphqlProxyTarget = process.env.E2E_GRAPHQL_TARGET ?? "http://localhost:4000";
+const storageProxyTarget = process.env.E2E_STORAGE_TARGET;
 
 function allowLocalHttpCookies(setCookieHeaders: string[] | undefined): string[] | undefined {
   return setCookieHeaders?.map((cookie) => cookie.replace(/;\s*Secure/gi, ""));
@@ -35,6 +36,15 @@ export default defineConfig({
   server: {
     proxy: {
       "/graphql": createApiProxy(graphqlProxyTarget),
+      ...(storageProxyTarget
+        ? {
+            "/api": {
+              target: storageProxyTarget,
+              changeOrigin: true,
+              rewrite: (path: string) => path.replace(/^\/api/, ""),
+            },
+          }
+        : {}),
       "/live-update": {
         target: "ws://localhost:8092",
         changeOrigin: true,

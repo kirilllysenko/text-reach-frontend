@@ -23,6 +23,7 @@
 </script>
 
 <ContactActionDropdown
+  id="contact-import"
   label="Import"
   icon={Upload}
   fileLabel="Import File"

@@ -60,10 +60,15 @@
         </tr>
       {:else}
         {#each jobs as job (job.id)}
-          <tr class={job.status === "PROCESSING" || job.status === "QUEUED" ? "bg-sky-50/45" : "bg-white/30"}>
+          <tr
+            data-job-id={job.id}
+            data-job-status={job.status}
+            class={job.status === "PROCESSING" || job.status === "QUEUED" ? "bg-sky-50/45" : "bg-white/30"}
+          >
             <td class="max-w-64 border-b border-slate-100 px-3 py-3 font-medium text-slate-700">
               {#if job.status === "COMPLETED"}
                 <button
+                  id={`contact-export-${job.id}-download`}
                   class="hover:text-sky-800 flex max-w-full items-center gap-1.5 text-sky-700 hover:cursor-pointer
                     focus-visible:rounded focus-visible:outline-2 focus-visible:outline-sky-500 disabled:cursor-wait"
                   type="button"

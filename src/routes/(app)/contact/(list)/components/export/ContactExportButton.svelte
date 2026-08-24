@@ -46,6 +46,7 @@
 </script>
 
 <ContactActionDropdown
+  id="contact-export"
   label="Export"
   icon={Download}
   fileLabel="Export File"

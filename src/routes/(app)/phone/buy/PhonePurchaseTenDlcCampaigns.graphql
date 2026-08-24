@@ -1,0 +1,12 @@
+query PhonePurchaseTenDlcCampaigns @cache(policy: NetworkOnly) {
+  tenDlcCampaigns(first: 50, sortBy: [{ createdAt: { direction: DESC } }]) {
+    edges {
+      node {
+        id
+        description
+        providerStatus
+        usecase
+      }
+    }
+  }
+}

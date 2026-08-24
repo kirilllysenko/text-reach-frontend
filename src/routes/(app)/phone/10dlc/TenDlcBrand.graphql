@@ -1,0 +1,7 @@
+query TenDlcBrand @cache(policy: NetworkOnly) {
+  tenDlcBrand {
+    id
+    name
+    providerStatus
+  }
+}

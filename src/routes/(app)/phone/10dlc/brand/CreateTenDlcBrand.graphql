@@ -1,0 +1,7 @@
+mutation CreateTenDlcBrand($input: TenDlcBrandInput!) {
+  createTenDlcBrand(input: $input) {
+    id
+    name
+    providerStatus
+  }
+}

@@ -13,7 +13,9 @@
 
 <section class="border-t border-slate-200/70 pt-5" aria-labelledby="tax-information-heading">
   <h2 id="tax-information-heading" class="text-lg font-semibold text-slate-800">Tax information</h2>
-  <p class="mt-1 text-sm text-slate-500">Optional unless it is required for your messaging registration.</p>
+  <p class="mt-1 text-sm text-slate-500">
+    Optional unless required for messaging registration. If provided, all three fields are required.
+  </p>
 
   {#if existingTaxIdLastFour}
     <div class="mt-3 rounded-xl border border-amber-200 bg-amber-100 px-3 py-2 text-sm text-amber-800">

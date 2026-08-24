@@ -17,6 +17,13 @@
     contactImport.setFile(input.files?.[0] ?? null);
     input.value = "";
   }
+
+  function attachFileInput(element: HTMLInputElement): () => void {
+    fileInput = element;
+    return () => {
+      if (fileInput === element) fileInput = null;
+    };
+  }
 </script>
 
 <section class="space-y-4">
@@ -25,7 +32,7 @@
 
     <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
       <input
-        bind:this={fileInput}
+        {@attach attachFileInput}
         id="contact-import-file"
         class="hidden"
         type="file"
@@ -41,6 +48,7 @@
 
   <Field>
     <ContactGroupMultiCombobox
+      id="contact-import-groups"
       value={contactImport.contactGroupIds}
       label="Contact groups"
       placeholder="Search groups"
@@ -56,6 +64,7 @@
         p-3 text-sm"
     >
       <input
+        id="contact-import-consent"
         class="border-amber-400 accent-amber-700 mt-0.5 size-4 shrink-0 rounded"
         type="checkbox"
         checked={contactImport.consentConfirmed}
@@ -76,8 +85,9 @@
   <FieldError error={contactImport.error} />
 
   <div class="flex flex-col gap-2 sm:flex-row sm:justify-end">
-    <Button variant="secondary" onclick={onClose}>Cancel</Button>
+    <Button id="contact-import-cancel" variant="secondary" onclick={onClose}>Cancel</Button>
     <Button
+      id="contact-import-continue"
       disabled={!contactImport.canContinue}
       spinner={contactImport.setupSubmitting}
       onclick={contactImport.continueToMapping}

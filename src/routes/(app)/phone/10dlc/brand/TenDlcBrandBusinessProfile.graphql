@@ -1,0 +1,9 @@
+query TenDlcBrandBusinessProfile @cache(policy: NetworkOnly) {
+  businessProfile {
+    businessEmail
+    displayName
+    entityType
+    legalCompanyName
+    website
+  }
+}

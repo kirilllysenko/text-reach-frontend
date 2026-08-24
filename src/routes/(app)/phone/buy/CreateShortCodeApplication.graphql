@@ -1,0 +1,8 @@
+mutation CreateShortCodeApplication($input: CreateShortCodeApplicationInput!) {
+  createShortCodeApplication(input: $input) {
+    id
+    requestedShortCode
+    shortCodeType
+    status
+  }
+}

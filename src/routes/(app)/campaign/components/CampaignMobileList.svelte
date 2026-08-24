@@ -5,6 +5,7 @@
   import { sessionState } from "$lib/state/session.svelte";
   import Filter from "text-reach-frontend-library/icons/Filter.svelte";
   import Sort from "text-reach-frontend-library/icons/Sort.svelte";
+  import CampaignListModeSwitch from "./CampaignListModeSwitch.svelte";
   import CampaignVirtualList from "./CampaignVirtualList.svelte";
   import type { CampaignState } from "./campaign-state.svelte";
 
@@ -22,6 +23,10 @@
       {#if sessionState.hasAccess(AccessGroup.CAMPAIGN_WRITE)}
         <LinkButton id="campaign-add-mobile" class="h-8 px-2 text-sm" href={PATH_CAMPAIGN_ADD}>New</LinkButton>
       {/if}
+    </div>
+
+    <div class="mt-2">
+      <CampaignListModeSwitch mode={state.listMode} onChange={state.setListMode} />
     </div>
 
     <div class="mt-2 flex items-center gap-2">

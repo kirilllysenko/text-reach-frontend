@@ -5,10 +5,11 @@
   import { BusinessProfileEditStore, cache, UpsertBusinessProfileStore } from "$houdini";
   import { onMount } from "svelte";
   import { Button, Card, FieldError, PageTitle } from "$lib";
-  import { PATH_BUSINESS, PATH_PHONE_BUY } from "$lib/app/paths";
+  import { PATH_BUSINESS, PATH_PHONE_BUY, PATH_UPGRADE } from "$lib/app/paths";
   import { networkErrorText } from "$lib/form/errors";
   import type { FormSubmitResult } from "$lib/form/form.svelte";
   import { graphQLErrorCode } from "$lib/graphql/errors";
+  import { sessionState } from "$lib/state/session.svelte";
   import { notificationsState } from "text-reach-frontend-library/state/notifications.svelte";
   import AddressSection from "../components/AddressSection.svelte";
   import AuthorizedContactSection from "../components/AuthorizedContactSection.svelte";
@@ -105,6 +106,7 @@
       }
 
       cache.markStale("BusinessProfile");
+      await sessionState.loadTenantLifecycle();
       notificationsState.showInfo(
         profileExists ? "Business information has been updated" : "Business information added",
       );
@@ -119,8 +121,9 @@
     await goto(resolve(returnPath));
   }
 
-  function safeReturnPath(value: string | null): typeof PATH_BUSINESS | typeof PATH_PHONE_BUY {
-    return value === PATH_PHONE_BUY ? PATH_PHONE_BUY : PATH_BUSINESS;
+  function safeReturnPath(value: string | null): typeof PATH_BUSINESS | typeof PATH_PHONE_BUY | typeof PATH_UPGRADE {
+    if (value === PATH_PHONE_BUY || value === PATH_UPGRADE) return value;
+    return PATH_BUSINESS;
   }
 </script>
 

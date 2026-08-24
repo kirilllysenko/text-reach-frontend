@@ -17,6 +17,7 @@
     PATH_PHONE,
     PATH_PROFILE,
     PATH_SMART_GROUP,
+    PATH_UPGRADE,
     PATH_USER,
   } from "$lib/app/paths";
   import Campaign from "text-reach-frontend-library/icons/Campaign.svelte";
@@ -49,6 +50,7 @@
       currentPath.startsWith(`${PATH_BUSINESS}/`),
   );
   const userSectionActive = $derived(currentPath === PATH_USER || currentPath.startsWith(`${PATH_USER}/`));
+  const upgradeSectionActive = $derived(currentPath === PATH_UPGRADE);
   const canReadBilling = $derived(sessionState.hasAccess(AccessGroup.BILLING_READ));
   const canReadCampaigns = $derived(sessionState.hasAccess(AccessGroup.CAMPAIGN_READ));
   const canReadContacts = $derived(sessionState.hasAccess(AccessGroup.CONTACT_READ));
@@ -56,6 +58,9 @@
   const canReadMessages = $derived(sessionState.hasAccess(AccessGroup.MESSAGE_READ));
   const canReadPhones = $derived(sessionState.hasAccess(AccessGroup.PHONE_READ));
   const canReadUsers = $derived(sessionState.hasAccess(AccessGroup.USER_READ));
+  const canUpgrade = $derived(
+    sessionState.hasAccess(AccessGroup.BUSINESS_PROFILE_WRITE) && sessionState.tenantLifecycle?.accessMode === "TRIAL",
+  );
 
   function notifyItemClick(): void {
     onItemClicked?.();
@@ -314,6 +319,31 @@
       >
         <Profile class={["size-6", userSectionActive ? "fill-sky-700" : "fill-slate-500 group-hover:fill-sky-700"]} />
         <span>Users</span>
+      </a>
+    </li>
+  {/if}
+
+  {#if canUpgrade}
+    <li class="mt-3">
+      <a
+        id="sidebar-nav-upgrade"
+        href={resolve(PATH_UPGRADE)}
+        class={[
+          `block rounded-xl border px-3 py-3 transition-colors`,
+          upgradeSectionActive
+            ? "text-sky-900 border-sky-300 bg-sky-100 shadow-sm"
+            : "text-sky-900 border-sky-200/80 bg-sky-50/80 hover:border-sky-300 hover:bg-sky-100/80",
+        ]}
+        onclick={notifyItemClick}
+      >
+        <span class="block text-sm font-semibold">Upgrade to full access</span>
+        <span class="mt-0.5 block text-xs leading-5 text-sky-700">
+          {sessionState.tenantLifecycle?.businessVerification === "PENDING"
+            ? "Your business is under review"
+            : sessionState.tenantLifecycle?.businessVerification === "REJECTED"
+              ? "Update your business details"
+              : "Complete your business review"}
+        </span>
       </a>
     </li>
   {/if}

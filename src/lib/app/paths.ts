@@ -6,6 +6,7 @@ export const PATH_ACCOUNT_SUSPENDED = "/account-suspended";
 export const PATH_ACCOUNT_CLOSED = "/account-closed";
 export const PATH_ACCOUNT_UNAVAILABLE = "/account-unavailable";
 export const PATH_DASHBOARD = "/dashboard";
+export const PATH_UPGRADE = "/upgrade";
 export const PATH_CONTACT = "/contact";
 export const PATH_CONTACT_ADD = "/contact/add";
 export const PATH_CONTACT_IMPORT = "/contact/import/upload";

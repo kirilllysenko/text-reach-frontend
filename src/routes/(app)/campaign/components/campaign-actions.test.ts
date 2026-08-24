@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { getCampaignActions } from "./campaign-actions";
 
 describe("getCampaignActions", () => {
-  it.each(["PENDING", "SENDING"] as const)("allows pausing and cancelling a %s campaign", (status) => {
+  it.each(["SCHEDULED", "PENDING", "SENDING"] as const)("allows pausing and cancelling a %s campaign", (status) => {
     expect(getCampaignActions(status)).toEqual(["pause", "cancel"]);
   });
 

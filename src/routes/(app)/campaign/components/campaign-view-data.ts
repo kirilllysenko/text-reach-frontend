@@ -10,12 +10,14 @@ export interface CampaignViewModel {
   messageCount: number;
   sentMessageCount: number;
   pendingMessageCount: number;
+  scheduledAt: string | null;
   contactGroupIds: string[];
   tenantPhoneId: string;
   tenantPhoneNumber: string;
 }
 
 export const statusLabelMap: Record<NonNullable<CampaignStatus>, string> = {
+  SCHEDULED: "Scheduled",
   PENDING: "Pending",
   IN_VERIFICATION: "In verification",
   BLOCKED: "Blocked",
@@ -28,6 +30,7 @@ export const statusLabelMap: Record<NonNullable<CampaignStatus>, string> = {
 };
 
 export const campaignStatusOptions: NonNullable<CampaignStatus>[] = [
+  "SCHEDULED",
   "PENDING",
   "IN_VERIFICATION",
   "BLOCKED",

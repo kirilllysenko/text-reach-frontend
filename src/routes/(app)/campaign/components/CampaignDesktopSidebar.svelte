@@ -2,6 +2,7 @@
   import { Button, Input } from "$lib";
   import Filter from "text-reach-frontend-library/icons/Filter.svelte";
   import Sort from "text-reach-frontend-library/icons/Sort.svelte";
+  import CampaignListModeSwitch from "./CampaignListModeSwitch.svelte";
   import CampaignVirtualList from "./CampaignVirtualList.svelte";
   import type { CampaignState } from "./campaign-state.svelte";
 
@@ -19,6 +20,8 @@
   ]}
 >
   <div class="shrink-0 space-y-3 border-b border-white/70 bg-white/55 p-3 backdrop-blur-sm">
+    <CampaignListModeSwitch mode={state.listMode} onChange={state.setListMode} />
+
     <div class="flex items-center gap-2">
       <Input
         id="campaign-search-desktop"

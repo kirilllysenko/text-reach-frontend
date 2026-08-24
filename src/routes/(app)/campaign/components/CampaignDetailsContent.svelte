@@ -3,6 +3,7 @@
   import { buildCampaignMessagesPath } from "$lib/app/paths";
   import CampaignActions from "./CampaignActions.svelte";
   import CampaignStatusBadge from "./CampaignStatusBadge.svelte";
+  import { formatCampaignSchedule } from "./campaign-display";
   import type { CampaignStatus, CampaignViewModel } from "./campaign-view-data";
 
   interface Props {
@@ -24,6 +25,7 @@
 
   const pendingPercent = $derived(campaign ? percent(campaign.pendingMessageCount, campaign.messageCount) : 0);
   const sentPercent = $derived(campaign ? percent(campaign.sentMessageCount, campaign.messageCount) : 0);
+  const scheduledAt = $derived(formatCampaignSchedule(campaign?.scheduledAt ?? null));
 </script>
 
 {#if campaign}
@@ -49,6 +51,12 @@
     {/if}
 
     <section class={["grid grid-cols-1 gap-3", mobile ? "grid-cols-2" : "sm:grid-cols-3"]}>
+      {#if scheduledAt}
+        <div class="rounded-xl border border-white/80 bg-white/75 p-3 shadow-sm backdrop-blur-sm">
+          <p class="text-xs text-slate-500">Scheduled for</p>
+          <p class="text-violet-700 text-sm font-semibold">{scheduledAt}</p>
+        </div>
+      {/if}
       <div class="rounded-xl border border-white/80 bg-white/75 p-3 shadow-sm backdrop-blur-sm">
         <p class="text-xs text-slate-500">All messages</p>
         <p class="text-lg font-semibold text-slate-800">{campaign.messageCount}</p>

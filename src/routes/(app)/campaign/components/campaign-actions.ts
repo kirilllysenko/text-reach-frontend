@@ -2,7 +2,7 @@ import type { CampaignStatus } from "./campaign-view-data";
 
 export type CampaignAction = "pause" | "resume" | "cancel";
 
-const pauseStatuses: CampaignStatus[] = ["PENDING", "SENDING"];
+const pauseStatuses: CampaignStatus[] = ["SCHEDULED", "PENDING", "SENDING"];
 const resumeStatuses: CampaignStatus[] = ["PAUSED_BY_USER", "PAUSED_LOW_BALANCE"];
 const cancelStatuses: CampaignStatus[] = [...pauseStatuses, ...resumeStatuses];
 

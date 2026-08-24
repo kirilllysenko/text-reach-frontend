@@ -1,0 +1,8 @@
+query TenantLifecycle @cache(policy: NetworkOnly) {
+  tenantLifecycle {
+    accessMode
+    accountStatus
+    businessVerification
+    trialEndsAt
+  }
+}

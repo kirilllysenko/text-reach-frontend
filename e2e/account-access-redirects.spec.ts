@@ -6,6 +6,7 @@ import {
   inactiveSessionResponse,
   mockGraphQL,
   profileResponse,
+  tenantLifecycleResponse,
 } from "./support/graphql";
 
 const credentials = {
@@ -83,6 +84,7 @@ test("an active session still proceeds to the app", async ({ page }) => {
     SignInSessionQuery: () => activeSessionResponse,
     CheckSession: () => activeSessionResponse,
     Profile: () => profileResponse,
+    TenantLifecycle: () => tenantLifecycleResponse(),
   });
 
   await page.goto("/sign-in");
@@ -101,6 +103,7 @@ test("successful sign-in still proceeds to the app", async ({ page }) => {
     },
     CheckSession: () => activeSessionResponse,
     Profile: () => profileResponse,
+    TenantLifecycle: () => tenantLifecycleResponse(),
   });
   await page.goto("/sign-in");
 

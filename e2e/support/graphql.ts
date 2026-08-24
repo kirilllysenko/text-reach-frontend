@@ -80,3 +80,24 @@ export const profileResponse: GraphQLResponse = {
     },
   },
 };
+
+export function tenantLifecycleResponse(
+  overrides: Partial<{
+    accessMode: "TRIAL" | "FULL";
+    accountStatus: "ACTIVE" | "SUSPENDED" | "CLOSED";
+    businessVerification: "UNVERIFIED" | "PENDING" | "VERIFIED" | "REJECTED";
+    trialEndsAt: string;
+  }> = {},
+): GraphQLResponse {
+  return {
+    data: {
+      tenantLifecycle: {
+        accessMode: "TRIAL",
+        accountStatus: "ACTIVE",
+        businessVerification: "UNVERIFIED",
+        trialEndsAt: "2026-08-30T12:00:00.000Z",
+        ...overrides,
+      },
+    },
+  };
+}

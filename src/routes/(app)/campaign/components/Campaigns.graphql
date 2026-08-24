@@ -11,6 +11,7 @@ query Campaigns($after: String, $filter: CampaignFilterInput, $first: Int, $sort
         messageCount
         messageTemplate
         name
+        scheduledAt
         sentMessageCount
         status
         tenantPhone {

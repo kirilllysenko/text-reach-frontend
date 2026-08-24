@@ -16,6 +16,7 @@ import { campaignFilterDefinitions } from "./filter/filter.svelte";
 import { mergeContactGroupNames, toCampaignViewModel } from "./campaign-display";
 
 type MobileView = "list" | "details";
+export type CampaignListMode = "schedule" | "history";
 
 const DEFAULT_PAGE_SIZE = 50;
 const SEARCH_DEBOUNCE_MS = 250;
@@ -29,6 +30,7 @@ export class CampaignState {
   contactGroupNameById = $state<Record<string, string>>({});
 
   search = $state("");
+  listMode = $state<CampaignListMode>("history");
   desktopExpanded = $state(false);
   filtersOpen = $state(false);
   sortOpen = $state(false);
@@ -92,8 +94,9 @@ export class CampaignState {
     return this.selectedCampaign.contactGroupIds.map((groupId) => this.contactGroupNameById[groupId] ?? groupId);
   });
 
-  constructor(selectedTenantPhoneId: string | null = null) {
+  constructor(selectedTenantPhoneId: string | null = null, initialListMode: CampaignListMode = "history") {
     this.selectedTenantPhoneId = selectedTenantPhoneId;
+    this.listMode = initialListMode;
     this.table.events.on("onFilterChange", this.handleTableChange);
     this.table.events.on("onSortingChange", this.handleTableChange);
     void this.load();
@@ -106,6 +109,16 @@ export class CampaignState {
   updateSearch = (value: string): void => {
     this.search = value;
     this.scheduleRefresh();
+  };
+
+  setListMode = (mode: CampaignListMode): void => {
+    if (mode === this.listMode) {
+      return;
+    }
+
+    this.listMode = mode;
+    this.closeOverlays();
+    void this.resetAndLoadCampaignList();
   };
 
   setPhoneFilter = (phoneId: string | null): void => {
@@ -225,6 +238,7 @@ export class CampaignState {
           pageSize: DEFAULT_PAGE_SIZE,
           cursor: this.nextCursor,
           filters: this.filtering.filters,
+          listMode: this.listMode,
           search: this.search,
           sort: this.sorting.sorts,
         }),
@@ -246,8 +260,8 @@ export class CampaignState {
         .map((edge, index) => toCampaignViewModel(edge.node, this.campaigns.length + index))
         .filter((campaign) => !this.selectedTenantPhoneId || campaign.tenantPhoneId === this.selectedTenantPhoneId);
 
-      const knownIds = new Set(this.campaigns.map((campaign: CampaignViewModel) => campaign.id));
-      const dedupedItems = newItems.filter((campaign: CampaignViewModel) => !knownIds.has(campaign.id));
+      const knownIds = this.campaigns.map((campaign: CampaignViewModel) => campaign.id);
+      const dedupedItems = newItems.filter((campaign: CampaignViewModel) => !knownIds.includes(campaign.id));
 
       this.campaigns = [...this.campaigns, ...dedupedItems];
       const nextCursor = data.pageInfo.endCursor ?? null;

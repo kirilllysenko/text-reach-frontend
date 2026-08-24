@@ -1,9 +1,11 @@
 import type { CampaignFilterInput, CampaignSortInput } from "$houdini/graphql/inputs";
+import type { CampaignListMode } from "./campaign-state.svelte";
 
 interface CampaignRequestOptions {
   pageSize: number;
   cursor: string | null;
   filters: CampaignFilterInput[];
+  listMode: CampaignListMode;
   search: string;
   sort: readonly CampaignSortInput[];
 }
@@ -18,7 +20,11 @@ export function buildCampaignRequest(options: CampaignRequestOptions) {
 }
 
 function buildCampaignFilter(options: CampaignRequestOptions): CampaignFilterInput | undefined {
-  const nested: CampaignFilterInput[] = [];
+  const nested: CampaignFilterInput[] = [
+    {
+      status: options.listMode === "schedule" ? { in: ["SCHEDULED"] } : { notIn: ["SCHEDULED"] },
+    },
+  ];
   const searchValue = options.search.trim();
 
   if (searchValue) {

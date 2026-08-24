@@ -1,5 +1,6 @@
 <script lang="ts">
   import CampaignStatusBadge from "./CampaignStatusBadge.svelte";
+  import { formatCampaignSchedule } from "./campaign-display";
   import type { CampaignViewModel } from "./campaign-view-data";
 
   interface Props {
@@ -11,6 +12,7 @@
   }
 
   let { campaign, compact = false, mobile = false, selected = false, onSelect }: Props = $props();
+  const scheduledAt = $derived(formatCampaignSchedule(campaign.scheduledAt));
 </script>
 
 <button
@@ -31,8 +33,14 @@
         <CampaignStatusBadge status={campaign.status} />
       </div>
 
+      {#if scheduledAt}
+        <p class="mt-2 truncate text-xs text-slate-500">{scheduledAt}</p>
+      {/if}
+
       {#if compact}
-        <p class="mt-2 text-xs text-slate-500">{campaign.messageCount} contacts</p>
+        <p class={scheduledAt ? "mt-1 text-xs text-slate-500" : "mt-2 text-xs text-slate-500"}>
+          {campaign.messageCount} contacts
+        </p>
       {:else}
         <div class="mt-2 grid grid-cols-2 gap-1 text-xs text-slate-500">
           <span>Sent: {campaign.sentMessageCount}</span>

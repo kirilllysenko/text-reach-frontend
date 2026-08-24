@@ -14,6 +14,7 @@
   import type { CampaignMediaDraft } from "../../components/message/images/media";
   import MessageSection from "../../components/message/MessageSection.svelte";
   import MessagePreview from "../../components/message/preview/MessagePreview.svelte";
+  import ScheduleSection from "../../components/schedule/ScheduleSection.svelte";
 
   const createCampaignMutation = new CreateCampaignStore();
   const form = createCampaignForm(submit);
@@ -31,8 +32,12 @@
       }
 
       cache.markStale("CampaignConnection");
-      notificationsState.showInfo("Campaign has been created and queued for sending");
-      await goto(resolve(PATH_CAMPAIGN));
+      notificationsState.showInfo(
+        form.scheduleType.value === "now" ? "Campaign has been queued for sending" : "Campaign has been scheduled",
+      );
+      await goto(resolve(PATH_CAMPAIGN), {
+        state: { campaignListMode: form.scheduleType.value === "now" ? "history" : "schedule" },
+      });
       return {};
     } catch {
       return { error: networkErrorText };
@@ -92,11 +97,24 @@
             onPreviewImage={(attachment) => (previewImage = attachment)}
           />
 
+          <ScheduleSection
+            bind:scheduleType={form.scheduleType.value}
+            bind:scheduledAt={form.scheduledAt.value}
+            bind:recurrenceFrequency={form.recurrenceFrequency.value}
+            bind:recurrenceInterval={form.recurrenceInterval.value}
+            bind:recurrenceCount={form.recurrenceCount.value}
+            scheduledAtError={form.scheduledAt.error}
+            recurrenceIntervalError={form.recurrenceInterval.error}
+            recurrenceCountError={form.recurrenceCount.error}
+          />
+
           <FieldError class="mt-4" error={form.error} />
 
           <div class="mt-5 flex justify-end gap-2">
             <Button variant="secondary" onclick={() => window.history.back()}>Cancel</Button>
-            <Button submit spinner={form.loading} disabled={form.loading || imageUploading}>Create & send</Button>
+            <Button submit spinner={form.loading} disabled={form.loading || imageUploading}>
+              {form.scheduleType.value === "now" ? "Create & send" : "Schedule campaign"}
+            </Button>
           </div>
         </form>
       </Card>

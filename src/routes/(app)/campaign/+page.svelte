@@ -1,23 +1,25 @@
 <script lang="ts">
-  import { onDestroy } from "svelte";
+  import { onDestroy, onMount } from "svelte";
+  import { page } from "$app/state";
   import { AccessGroup } from "$houdini/graphql/enums";
   import { LinkButton, PageTitle } from "$lib";
   import { PATH_CAMPAIGN_ADD } from "$lib/app/paths";
   import { phoneFilterState } from "$lib/state/phone-filter.svelte";
   import { sessionState } from "$lib/state/session.svelte";
-  import { CampaignState } from "./components/campaign-state.svelte";
+  import { CampaignState, type CampaignListMode } from "./components/campaign-state.svelte";
   import CampaignDesktopSidebar from "./components/CampaignDesktopSidebar.svelte";
   import CampaignDetailsPanel from "./components/CampaignDetailsPanel.svelte";
   import CampaignMobileDetails from "./components/CampaignMobileDetails.svelte";
   import CampaignMobileList from "./components/CampaignMobileList.svelte";
   import CampaignOverlay from "./components/CampaignOverlay.svelte";
 
-  const state = new CampaignState(phoneFilterState.selectedPhoneId);
+  const navigationListMode = (page.state as { campaignListMode?: CampaignListMode }).campaignListMode;
+  const initialListMode =
+    navigationListMode ?? (page.url.searchParams.get("view") === "schedule" ? "schedule" : "history");
+  const state = new CampaignState(phoneFilterState.selectedPhoneId, initialListMode);
   const canWriteCampaigns = $derived(sessionState.hasAccess(AccessGroup.CAMPAIGN_WRITE));
 
-  $effect(() => {
-    state.setPhoneFilter(phoneFilterState.selectedPhoneId);
-  });
+  onMount(() => phoneFilterState.subscribe(state.setPhoneFilter));
 
   onDestroy(() => state.dispose());
 </script>

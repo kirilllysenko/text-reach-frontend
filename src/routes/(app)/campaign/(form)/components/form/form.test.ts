@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { initialValues, validator } from "./form.svelte";
+import { buildRecurrenceRule, initialValues, validator } from "./form.svelte";
 
 const groupId = "01J00000000000000000000001";
 const phoneId = "01J00000000000000000000002";
@@ -56,4 +56,57 @@ describe("campaign form", () => {
       tenantPhoneId: ["Select a sending number"],
     });
   });
+
+  it("maps a one-time local schedule to an instant", () => {
+    const result = validator.parse({
+      ...validValues(),
+      scheduledAt: "2099-01-01T09:30",
+      scheduleType: "once",
+    });
+
+    expect(result.scheduledAt).toBe(new Date("2099-01-01T09:30").toISOString());
+    expect(result.recurrenceRule).toBeUndefined();
+  });
+
+  it("maps a recurring schedule to an RFC 5545 rule", () => {
+    const rule = buildRecurrenceRule(
+      {
+        recurrenceCount: "6",
+        recurrenceFrequency: "WEEKLY",
+        recurrenceInterval: "2",
+        scheduledAt: "2099-01-01T09:30",
+      },
+      "America/Los_Angeles",
+    );
+
+    expect(rule).toBe("DTSTART;TZID=America/Los_Angeles:20990101T093000\nRRULE:FREQ=WEEKLY;INTERVAL=2;COUNT=6");
+  });
+
+  it("validates active schedule controls", () => {
+    const result = validator.safeParse({
+      ...validValues(),
+      recurrenceCount: "1",
+      recurrenceInterval: "0",
+      scheduleType: "recurring",
+    });
+
+    expect(result.success).toBe(false);
+    if (result.success) return;
+
+    expect(result.error.flatten().fieldErrors).toMatchObject({
+      recurrenceCount: ["Occurrences must be between 2 and 365"],
+      recurrenceInterval: ["Repeat every must be between 1 and 100"],
+      scheduledAt: ["Choose a date and time"],
+    });
+  });
 });
+
+function validValues() {
+  return {
+    ...initialValues,
+    contactGroupIds: [groupId],
+    messageParts: [{ id: "text-1", type: "text" as const, value: "Hello" }],
+    name: "Campaign",
+    tenantPhoneId: phoneId,
+  };
+}

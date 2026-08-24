@@ -15,7 +15,7 @@
       return;
     }
 
-    await sessionState.loadProfile();
+    await Promise.all([sessionState.loadProfile(), sessionState.loadTenantLifecycle()]);
     render = true;
   });
 </script>

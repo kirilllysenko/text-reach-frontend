@@ -42,6 +42,7 @@
 </script>
 
 <button
+  id={`conversation-list-item-${conversation.id}`}
   type="button"
   class={[
     `group flex w-full items-center gap-3 border-b border-slate-100 px-3 py-3 text-left

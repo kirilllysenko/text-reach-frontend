@@ -83,8 +83,10 @@
             A user with phone management access can register the business brand.
           </p>
         {:else if brand}
-          <h2 id="ten-dlc-brand-name" class="mt-2 text-lg font-semibold text-slate-800">{brand.name}</h2>
-          <p class="mt-2 text-sm text-slate-500">Status: {tenDlcStatusLabel(brand.providerStatus)}</p>
+          <h2 id="ten-dlc-brand-summary-name" class="mt-2 text-lg font-semibold text-slate-800">{brand.name}</h2>
+          <p id="ten-dlc-brand-status" class="mt-2 text-sm text-slate-500">
+            Status: {tenDlcStatusLabel(brand.providerStatus)}
+          </p>
         {/if}
       </Card>
 

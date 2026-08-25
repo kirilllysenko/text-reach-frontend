@@ -5,6 +5,7 @@
   import Download from "text-reach-frontend-library/icons/Download.svelte";
   import { notificationsState } from "text-reach-frontend-library/state/notifications.svelte";
   import { onDestroy } from "svelte";
+  import { SvelteSet } from "svelte/reactivity";
   import { buildMessageFilter } from "../message-filter";
   import {
     createMessageExportCsv,
@@ -72,7 +73,7 @@
     abortController: AbortController,
   ): Promise<MessageExportItem[]> {
     const messages: MessageExportItem[] = [];
-    const seenCursors = new Set<string>();
+    const seenCursors = new SvelteSet<string>();
     const filter = buildMessageFilter(currentSnapshot);
     let after: string | undefined;
 
@@ -109,4 +110,12 @@
   }
 </script>
 
-<Button icon={Download} spinner={exporting} disabled={exporting} onclick={exportMessages}>Export</Button>
+<Button
+  id="campaign-message-export-button"
+  icon={Download}
+  spinner={exporting}
+  disabled={exporting}
+  onclick={exportMessages}
+>
+  Export
+</Button>

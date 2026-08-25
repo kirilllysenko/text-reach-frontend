@@ -36,6 +36,13 @@
   const imageLimitReached = $derived(media.length >= MAX_CAMPAIGN_IMAGES);
   const messageType = $derived(media.length > 0 ? "MMS" : "SMS");
 
+  function attachFileInput(element: HTMLInputElement): () => void {
+    fileInput = element;
+    return () => {
+      if (fileInput === element) fileInput = null;
+    };
+  }
+
   onDestroy(() => {
     for (const attachment of media) {
       URL.revokeObjectURL(attachment.previewUrl);
@@ -133,7 +140,8 @@
   <FieldError class="mt-2" error={messageError} />
 
   <input
-    bind:this={fileInput}
+    id="campaign-media-upload"
+    {@attach attachFileInput}
     class="hidden"
     type="file"
     accept={campaignImageAccept}

@@ -62,7 +62,7 @@
     ></button>
 
     <div class="relative z-10">
-      <Dialog>
+      <Dialog id="contact-delete-dialog">
         <h2 class="text-lg font-semibold text-slate-800">Delete selected contacts?</h2>
         <p class="mt-2 text-sm text-slate-600">
           {selectedCount === 1
@@ -72,7 +72,7 @@
 
         <div class="mt-5 flex justify-end gap-2">
           <Button variant="secondary" disabled={deleting} onclick={() => (confirmDelete = false)}>Cancel</Button>
-          <Button spinner={deleting} onclick={deleteContacts}>
+          <Button id="contact-delete-confirm" spinner={deleting} onclick={deleteContacts}>
             {selectedCount === 1 ? "Delete contact" : "Delete contacts"}
           </Button>
         </div>

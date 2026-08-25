@@ -47,6 +47,7 @@
     Edit
   </a>
   <button
+    id={`user-delete-${user.id}`}
     class="hover:text-rose-800 inline-flex h-7 items-center justify-center rounded-lg border border-white/80 bg-white/80 px-2
       text-sm font-medium text-rose-700 shadow-sm hover:bg-white"
     type="button"
@@ -74,7 +75,7 @@
 
         <div class="mt-5 flex justify-end gap-2">
           <Button variant="secondary" disabled={deleting} onclick={() => (confirmDelete = false)}>Cancel</Button>
-          <Button spinner={deleting} onclick={deleteUser}>Delete user</Button>
+          <Button id={`user-delete-confirm-${user.id}`} spinner={deleting} onclick={deleteUser}>Delete user</Button>
         </div>
       </Dialog>
     </div>

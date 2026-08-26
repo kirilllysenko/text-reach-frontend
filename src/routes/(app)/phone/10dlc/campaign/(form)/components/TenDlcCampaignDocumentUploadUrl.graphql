@@ -1,6 +1,0 @@
-query TenDlcCampaignDocumentUploadUrl($filename: String!) @cache(policy: NetworkOnly) {
-  campaignMediaUploadUrl(filename: $filename) {
-    mediaUrl
-    uploadUrl
-  }
-}

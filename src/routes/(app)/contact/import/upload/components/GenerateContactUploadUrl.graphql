@@ -1,6 +1,0 @@
-mutation GenerateContactUploadUrl($filename: String!) {
-  generateContactUploadUrl(filename: $filename) {
-    newFilename
-    url
-  }
-}

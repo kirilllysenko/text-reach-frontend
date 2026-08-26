@@ -1,0 +1,10 @@
+query SidebarPhoneNumbers {
+  tenantPhones(first: 100, sortBy: [{ phoneNumber: { direction: ASC } }]) {
+    edges {
+      node {
+        id
+        phoneNumber
+      }
+    }
+  }
+}

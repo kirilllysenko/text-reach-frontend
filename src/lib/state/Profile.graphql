@@ -1,4 +1,4 @@
-query Profile @cache(policy: NetworkOnly) {
+query Profile {
   profile {
     accessGroups
     email

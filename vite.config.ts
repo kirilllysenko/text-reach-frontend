@@ -1,6 +1,7 @@
 import tailwindcss from "@tailwindcss/vite";
-import { sveltekit } from "@sveltejs/kit/vite";
-import houdini from "houdini/vite";
+import solid from "@solidjs/vite-plugin";
+import { routePathFromFile } from "filesystem-routing";
+import { fileRoutes } from "filesystem-routing/vite";
 import type { ProxyOptions } from "vite";
 import { defineConfig } from "vite";
 
@@ -16,23 +17,45 @@ function createApiProxy(target: string): ProxyOptions {
     target,
     changeOrigin: true,
     configure: (proxy) => {
-      proxy.on("proxyReq", (proxyReq, req) => {
-        if (!req.headers.origin) {
-          return;
+      proxy.on("proxyReq", (proxyRequest, request) => {
+        if (request.headers.origin) {
+          proxyRequest.setHeader("origin", target);
         }
-
-        proxyReq.setHeader("origin", target);
       });
 
-      proxy.on("proxyRes", (proxyRes) => {
-        proxyRes.headers["set-cookie"] = allowLocalHttpCookies(proxyRes.headers["set-cookie"]);
+      proxy.on("proxyRes", (proxyResponse) => {
+        proxyResponse.headers["set-cookie"] = allowLocalHttpCookies(proxyResponse.headers["set-cookie"]);
       });
     },
   };
 }
 
+function svelteRoutePath(routeFile: string): string | undefined {
+  if (routeFile === "/+layout") return undefined;
+  if (routeFile.endsWith("/+layout")) {
+    return routePathFromFile(routeFile.slice(0, -"/+layout".length));
+  }
+  if (!routeFile.endsWith("/+page")) return undefined;
+
+  const routePath = routePathFromFile(routeFile.replace(/\+page$/, "index"));
+  return routePath.startsWith("/*") ? routePath.replace(/\/$/, "") : routePath;
+}
+
 export default defineConfig({
-  plugins: [process.env.VITEST !== "true" && houdini(), tailwindcss(), sveltekit()],
+  publicDir: "static",
+  plugins: [
+    solid({ extensions: [".jsx", ".tsx"] }),
+    fileRoutes({ toPath: svelteRoutePath, types: "src/file-routes.d.ts" }),
+    tailwindcss(),
+  ],
+  build: {
+    outDir: "dist",
+  },
+  resolve: {
+    alias: {
+      "~": new URL("./src", import.meta.url).pathname,
+    },
+  },
   server: {
     proxy: {
       "/graphql": createApiProxy(graphqlProxyTarget),

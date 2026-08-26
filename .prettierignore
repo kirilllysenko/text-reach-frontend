@@ -5,8 +5,7 @@ yarn.lock
 bun.lock
 bun.lockb
 
-# Generated contracts
-.houdini
-
 # Miscellaneous
 /static/
+/src/gql/
+/src/file-routes.d.ts

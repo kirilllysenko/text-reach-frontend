@@ -1,0 +1,37 @@
+@import "./layout.css";
+
+#app {
+  min-height: 100%;
+}
+
+.button-motion::after {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  bottom: -0.4rem;
+  content: "";
+}
+
+.button-motion--raised {
+  transform: translateY(-0.125rem);
+  box-shadow:
+    0 12px 24px -12px rgb(15 23 42 / 65%),
+    0 6px 9px -6px rgb(15 23 42 / 45%);
+}
+
+.button-motion--pressed {
+  transform: translateY(0.08rem);
+  box-shadow:
+    0 5px 12px -8px rgb(15 23 42 / 35%),
+    0 2px 6px -5px rgb(15 23 42 / 25%);
+}
+
+.chat-wallpaper {
+  background-color: #eef2f1;
+  background-image:
+    radial-gradient(circle at 15px 15px, rgb(100 116 139 / 5.5%) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 38px 42px, rgb(16 185 129 / 4.5%) 1px, transparent 1px);
+  background-size:
+    52px 52px,
+    68px 68px;
+}

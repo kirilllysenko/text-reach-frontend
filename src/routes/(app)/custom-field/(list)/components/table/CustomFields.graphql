@@ -1,8 +1,0 @@
-query CustomFields @cache(policy: CacheOrNetwork) {
-  customFields {
-    fieldType
-    id
-    name
-    position
-  }
-}

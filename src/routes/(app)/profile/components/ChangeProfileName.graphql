@@ -1,3 +1,0 @@
-mutation ChangeProfileName($name: String) {
-  changeProfileName(name: $name)
-}

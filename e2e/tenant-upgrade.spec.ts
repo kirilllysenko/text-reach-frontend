@@ -24,7 +24,7 @@ test("an unverified trial can start the full-access upgrade", async ({ page }) =
 
   await page.goto("/upgrade");
 
-  await expect(page).toHaveTitle("Upgrade to full access | Mega Texting");
+  await expect(page).toHaveTitle("Upgrade to full access | Text Reach");
   await expect(page.getByRole("heading", { name: "Submit your business information" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Start upgrade" })).toHaveAttribute(
     "href",

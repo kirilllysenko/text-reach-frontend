@@ -24,7 +24,7 @@ const pageCases = [
     path: "/account-unavailable",
     title: "We can’t open this workspace",
     eyebrow: "Access unavailable",
-    description: "Your session is valid, but it no longer has access to an active Mega Texting workspace.",
+    description: "Your session is valid, but it no longer has access to an active Text Reach workspace.",
   },
 ] as const;
 
@@ -32,7 +32,7 @@ for (const pageCase of pageCases) {
   test(`${pageCase.path} explains the access state without exposing workspace data`, async ({ page }) => {
     await page.goto(pageCase.path);
 
-    await expect(page).toHaveTitle(`${pageCase.title} | Mega Texting`);
+    await expect(page).toHaveTitle(`${pageCase.title} | Text Reach`);
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "noindex");
     await expect(page.getByRole("heading", { level: 1, name: pageCase.title })).toBeVisible();
     await expect(page.getByText(pageCase.eyebrow, { exact: true })).toBeVisible();

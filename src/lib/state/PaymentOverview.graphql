@@ -1,0 +1,6 @@
+query PaymentOverview {
+  walletBalance {
+    balanceUsdMicros
+    currency
+  }
+}

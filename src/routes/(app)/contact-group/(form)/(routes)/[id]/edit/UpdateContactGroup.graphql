@@ -1,3 +1,0 @@
-mutation UpdateContactGroup($id: Ulid!, $input: ContactGroupWriteInput!) {
-  updateContactGroup(id: $id, input: $input)
-}

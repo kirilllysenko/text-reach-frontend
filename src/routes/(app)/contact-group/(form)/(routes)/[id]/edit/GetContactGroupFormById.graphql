@@ -1,6 +1,0 @@
-query ContactGroupFormEditQuery($id: Ulid!) @cache(policy: NetworkOnly) {
-  contactGroup(id: $id) {
-    id
-    name
-  }
-}

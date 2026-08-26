@@ -1,45 +1,18 @@
-You are able to use the Svelte MCP server, where you have access to comprehensive Svelte 5 and SvelteKit documentation. Here's how to use the available tools effectively:
+# Project instructions
 
-## Project docs
-
-Before changing project code, read `docs/README.md` and the relevant files it links. Those docs define the project-specific rules for SvelteKit, Svelte 5, Capacitor, component splitting, and folder structure. Treat them as binding alongside this file.
-
-## Available Svelte MCP Tools:
-
-### 1. list-sections
-
-Use this FIRST to discover all available documentation sections. Returns a structured list with titles, use_cases, and paths.
-When asked about Svelte or SvelteKit topics, ALWAYS use this tool at the start of the chat to find relevant sections.
-
-### 2. get-documentation
-
-Retrieves full documentation content for specific sections. Accepts single or multiple sections.
-After calling the list-sections tool, you MUST analyze the returned documentation sections (especially the use_cases field) and then use the get-documentation tool to fetch ALL documentation sections that are relevant for the user's task.
-
-### 3. svelte-autofixer
-
-Analyzes Svelte code and returns issues and suggestions.
-You MUST use this tool whenever writing Svelte code before sending it to the user. Keep calling it until no issues or suggestions are returned.
-
-### 4. playground-link
-
-Generates a Svelte Playground link with the provided code.
-After completing the code, ask the user if they want a playground link. Only call this tool after user confirmation and NEVER if code was written to files in their project.
+Read `docs/README.md` and the relevant linked guides before changing project code. Treat those documents as binding.
 
 ## Coding rules
 
-### 1. This app will run both in web and in capacitor
-
-### 2. This app must not depend on runtime SSR. Static pages may use SSG/prerendered HTML, and Capacitor builds may disable page SSR when needed.
-
-### 3. Build this website with adapter-static
-
-### 4. Don't write classes in scripts. Write them in html elements. When choosing between array class or object class, chose array
-
-### 5. Make long string (like classes) into multiline strings if they exceed 120 symbols
-
-### 6. Instead of dumb forwarding of props, use spread on inner html element. This works well for inputs, buttons and etc.
-
-### 7. Always use bun or bunx instead of npm or npmx
-
-### 8. Don't write class: classProp. Instead use rest props like inputProps.class or buttonProps.class and etc.
+1. The app must work in both browsers and Capacitor webviews.
+2. The app is a client-rendered static Vite application. Do not add runtime SSR or SolidStart.
+3. Use SolidJS with `@solidjs/router`, URQL for GraphQL, and Virtua for virtualized lists.
+4. Do not add a form library, Solid Query, a table library, or another virtual-list library.
+5. Never create state classes. Export signals, stores, derived values, and plain functions from state modules; import and modify them directly.
+6. Do not create classes for component styling in script constants. Put static classes on elements. For conditional classes, use arrays and the shared `classes` helper.
+7. Split strings longer than 120 characters across lines when practical.
+8. For wrapper components such as inputs and buttons, spread remaining native props onto the inner element.
+9. Use `bun` and `bunx` for package and script commands.
+10. Keep one operation per `.graphql` file, colocate it with its consumer, and regenerate types with `bun run generate:graphql`.
+11. Keep page implementations and page-only code in `src/routes`, reusable UI in `src/components`, feature logic in
+    `src/lib/feature`, and imported shared state in `src/lib/state`.

@@ -4,7 +4,7 @@ import {
   PATH_ACCOUNT_SUSPENDED,
   PATH_ACCOUNT_UNAVAILABLE,
   PATH_TRIAL_EXPIRED,
-} from "$lib/app/paths";
+} from "~/lib/app/paths";
 import { accessFailurePath } from "./access-failure";
 
 describe("accessFailurePath", () => {

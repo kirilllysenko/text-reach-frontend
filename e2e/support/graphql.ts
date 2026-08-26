@@ -29,6 +29,21 @@ function operationName(payload: GraphQLRequest): string | null {
   return payload.query?.match(/\b(?:query|mutation)\s+([A-Za-z0-9_]+)/)?.[1] ?? null;
 }
 
+function requestPayload(request: Request): GraphQLRequest {
+  if (request.postData()) {
+    return request.postDataJSON() as GraphQLRequest;
+  }
+
+  const url = new URL(request.url());
+  const variables = url.searchParams.get("variables");
+
+  return {
+    operationName: url.searchParams.get("operationName") ?? undefined,
+    query: url.searchParams.get("query") ?? undefined,
+    variables: variables ? (JSON.parse(variables) as Record<string, unknown>) : undefined,
+  };
+}
+
 export function graphQLError(code: string, message = code): GraphQLResponse {
   return {
     data: null,
@@ -37,9 +52,9 @@ export function graphQLError(code: string, message = code): GraphQLResponse {
 }
 
 export async function mockGraphQL(page: Page, resolvers: GraphQLResolvers): Promise<void> {
-  await page.route("**/graphql", async (route) => {
+  await page.route(/\/graphql(?:\?|$)/, async (route) => {
     const request = route.request();
-    const payload = request.postDataJSON() as GraphQLRequest;
+    const payload = requestPayload(request);
     const name = operationName(payload);
     const resolver = name ? resolvers[name] : undefined;
 

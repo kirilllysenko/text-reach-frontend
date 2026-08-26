@@ -1,4 +1,4 @@
-query TenantLifecycle @cache(policy: NetworkOnly) {
+query TenantLifecycle {
   tenantLifecycle {
     accessMode
     accountStatus

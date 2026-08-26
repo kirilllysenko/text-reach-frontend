@@ -1,7 +1,0 @@
-query TenDlcCampaignBrand @cache(policy: NetworkOnly) {
-  tenDlcBrand {
-    id
-    name
-    providerStatus
-  }
-}

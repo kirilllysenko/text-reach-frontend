@@ -1,4 +1,4 @@
-query TenDlcBrand {
+query TenDlcBrand @cache(policy: NetworkOnly) {
   tenDlcBrand {
     id
     name

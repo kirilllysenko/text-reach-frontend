@@ -1,5 +1,0 @@
-query ContactExportHistoryDownloadUrl($id: Ulid!) {
-  contactExportDownloadUrl(id: $id) {
-    url
-  }
-}

@@ -1,7 +1,0 @@
-query CampaignMediaUploadUrl($filename: String!) {
-  campaignMediaUploadUrl(filename: $filename) {
-    mediaUrl
-    newFilename
-    uploadUrl
-  }
-}

@@ -1,8 +1,0 @@
-query PaymentConfig {
-  paymentConfig {
-    currency
-    maxTopupUsdMicros
-    minTopupUsdMicros
-    stripePublishableKey
-  }
-}

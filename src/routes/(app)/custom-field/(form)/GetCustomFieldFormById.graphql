@@ -1,7 +1,0 @@
-query CustomFieldFormEditQuery($id: Ulid!) {
-  customField(id: $id) {
-    fieldType
-    id
-    name
-  }
-}

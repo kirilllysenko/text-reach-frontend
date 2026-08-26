@@ -1,4 +1,4 @@
-query BusinessProfile {
+query BusinessProfile @cache(policy: NetworkOnly) {
   businessProfile {
     id
     updatedAt

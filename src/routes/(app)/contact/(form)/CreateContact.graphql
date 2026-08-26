@@ -1,3 +1,0 @@
-mutation CreateContact($input: ContactWriteInput!) {
-  createContact(input: $input)
-}

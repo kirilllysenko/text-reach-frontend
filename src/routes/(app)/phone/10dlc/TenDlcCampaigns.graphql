@@ -1,4 +1,4 @@
-query TenDlcCampaigns {
+query TenDlcCampaigns @cache(policy: NetworkOnly) {
   tenDlcCampaigns(first: 50, sortBy: [{ createdAt: { direction: DESC } }]) {
     edges {
       node {

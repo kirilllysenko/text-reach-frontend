@@ -1,6 +1,0 @@
-query TenDlcCampaignDocumentUploadUrl($filename: String!) {
-  campaignMediaUploadUrl(filename: $filename) {
-    mediaUrl
-    uploadUrl
-  }
-}

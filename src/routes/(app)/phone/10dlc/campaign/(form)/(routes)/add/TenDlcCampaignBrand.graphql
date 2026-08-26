@@ -1,7 +1,0 @@
-query TenDlcCampaignBrand {
-  tenDlcBrand {
-    id
-    name
-    providerStatus
-  }
-}

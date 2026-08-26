@@ -34,9 +34,13 @@ export const initialValues: FormValues = {
 };
 
 export function createSignUpForm() {
+  return createForm(initialValues, validator, createSubmit());
+}
+
+function createSubmit() {
   const signUpMutation = new SignUpStore();
 
-  return createForm(initialValues, validator, async (values): Promise<FormSubmitResult> => {
+  return async (values: FormValues): Promise<FormSubmitResult> => {
     try {
       const response = await signUpMutation.mutate({
         input: {
@@ -57,7 +61,7 @@ export function createSignUpForm() {
     } catch {
       return formError(networkErrorText);
     }
-  });
+  };
 }
 
 export type SignUpForm = ReturnType<typeof createSignUpForm>;

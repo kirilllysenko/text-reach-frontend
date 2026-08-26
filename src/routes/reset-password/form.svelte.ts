@@ -30,9 +30,13 @@ export const initialValues: FormValues = {
 };
 
 export function createResetPasswordForm() {
+  return createForm(initialValues, validator, createSubmit());
+}
+
+function createSubmit() {
   const resetPasswordMutation = new ResetPasswordStore();
 
-  return createForm(initialValues, validator, async (values): Promise<FormSubmitResult> => {
+  return async (values: FormValues): Promise<FormSubmitResult> => {
     try {
       const response = await resetPasswordMutation.mutate({ input: values });
 
@@ -50,7 +54,7 @@ export function createResetPasswordForm() {
     } catch {
       return { error: networkErrorText };
     }
-  });
+  };
 }
 
 export type ResetPasswordForm = ReturnType<typeof createResetPasswordForm>;

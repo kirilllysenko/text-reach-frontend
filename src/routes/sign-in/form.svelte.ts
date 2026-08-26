@@ -22,9 +22,13 @@ export const initialValues: FormValues = {
 };
 
 export function createSignInForm() {
+  return createForm(initialValues, validator, createSubmit());
+}
+
+function createSubmit() {
   const signInMutation = new SignInStore();
 
-  return createForm(initialValues, validator, async (values): Promise<FormSubmitResult> => {
+  return async (values: FormValues): Promise<FormSubmitResult> => {
     try {
       const response = await signInMutation.mutate({ input: values });
 
@@ -43,7 +47,7 @@ export function createSignInForm() {
     } catch {
       return formError(networkErrorText);
     }
-  });
+  };
 }
 
 export async function redirectActiveSession(): Promise<void> {

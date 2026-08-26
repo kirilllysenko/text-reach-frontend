@@ -1,0 +1,6 @@
+query ContactGroupFormEditQuery($id: Ulid!) {
+  contactGroup(id: $id) {
+    id
+    name
+  }
+}

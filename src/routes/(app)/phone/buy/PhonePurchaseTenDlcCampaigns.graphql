@@ -1,4 +1,4 @@
-query PhonePurchaseTenDlcCampaigns @cache(policy: NetworkOnly) {
+query PhonePurchaseTenDlcCampaigns {
   tenDlcCampaigns(first: 50, sortBy: [{ createdAt: { direction: DESC } }]) {
     edges {
       node {

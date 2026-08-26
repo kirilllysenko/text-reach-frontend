@@ -1,0 +1,11 @@
+query CampaignFormContactGroups {
+  contactGroups(first: 300, sortBy: [{ name: { direction: ASC } }]) {
+    edges {
+      node {
+        contactCount
+        id
+        name
+      }
+    }
+  }
+}

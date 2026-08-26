@@ -1,0 +1,8 @@
+query CustomFields {
+  customFields {
+    fieldType
+    id
+    name
+    position
+  }
+}

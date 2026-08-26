@@ -1,0 +1,3 @@
+mutation CreateCustomField($input: CustomFieldWriteInput!) {
+  createCustomField(input: $input)
+}

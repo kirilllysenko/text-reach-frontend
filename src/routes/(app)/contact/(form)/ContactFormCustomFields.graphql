@@ -1,0 +1,7 @@
+query CustomFieldsQuery {
+  customFields {
+    fieldType
+    id
+    name
+  }
+}

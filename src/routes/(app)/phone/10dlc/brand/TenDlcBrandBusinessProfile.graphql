@@ -1,4 +1,4 @@
-query TenDlcBrandBusinessProfile @cache(policy: NetworkOnly) {
+query TenDlcBrandBusinessProfile {
   businessProfile {
     businessEmail
     displayName

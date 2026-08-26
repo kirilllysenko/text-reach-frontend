@@ -1,4 +1,4 @@
-query PhonePurchaseBusinessProfile @cache(policy: NetworkOnly) {
+query PhonePurchaseBusinessProfile {
   businessProfile {
     id
     displayName

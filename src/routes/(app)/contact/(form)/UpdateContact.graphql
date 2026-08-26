@@ -1,0 +1,3 @@
+mutation UpdateContact($id: Ulid!, $input: ContactWriteInput!) {
+  updateContact(id: $id, input: $input)
+}

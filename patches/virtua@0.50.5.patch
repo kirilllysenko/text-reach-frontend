@@ -1,0 +1,184 @@
+diff --git a/lib/solid/VList.d.ts b/lib/solid/VList.d.ts
+index f4711d2c08ddf0467e2fd311f6971910996bc6a8..a9fd9820dc8e433a133272adf030e562d3d95323 100644
+--- a/lib/solid/VList.d.ts
++++ b/lib/solid/VList.d.ts
+@@ -1,4 +1,4 @@
+-import { JSX } from 'solid-js';
++import type { JSX } from '@solidjs/web';
+ import { ViewportComponentAttributes } from './types.js';
+ import { VirtualizerHandle, VirtualizerProps } from './Virtualizer.js';
+ /**
+diff --git a/lib/solid/Virtualizer.d.ts b/lib/solid/Virtualizer.d.ts
+index 34d8c009c29a845209db11bed513a5f1df62fd36..4b7e68c3d3bdde82efa3ce05604b109174a0b2d2 100644
+--- a/lib/solid/Virtualizer.d.ts
++++ b/lib/solid/Virtualizer.d.ts
+@@ -1,4 +1,5 @@
+-import { JSX, ValidComponent, Accessor } from 'solid-js';
++import type { JSX } from '@solidjs/web';
++import type { ValidComponent, Accessor } from 'solid-js';
+ import { ScrollToIndexOpts, CacheSnapshot } from '../core/index.js';
+ /**
+  * Methods of {@link Virtualizer}.
+diff --git a/lib/solid/WindowVirtualizer.d.ts b/lib/solid/WindowVirtualizer.d.ts
+index 331fb780ace864836e4d206ffceecf3a5838a040..f47e2ddde861e42190959b3c062a2bcd84554580 100644
+--- a/lib/solid/WindowVirtualizer.d.ts
++++ b/lib/solid/WindowVirtualizer.d.ts
+@@ -1,4 +1,5 @@
+-import { JSX, Accessor } from 'solid-js';
++import type { JSX } from '@solidjs/web';
++import type { Accessor } from 'solid-js';
+ import { ScrollToIndexOpts, CacheSnapshot } from '../core/index.js';
+ /**
+  * Methods of {@link WindowVirtualizer}.
+diff --git a/lib/solid/index.jsx b/lib/solid/index.jsx
+index 9668ad287aa839a2ce68f3e33d1bab2d421d63c4..63248c2c6095cc53072eff832878ff27ccaaba3b 100644
+--- a/lib/solid/index.jsx
++++ b/lib/solid/index.jsx
+@@ -1,5 +1,5 @@
+-import { For, createComputed, createEffect, createMemo, createSignal, mergeProps, on, onCleanup, onMount, splitProps, untrack } from "solid-js";
+-import { Dynamic } from "solid-js/web";
++import { For, createEffect, createMemo, createSignal, omit, onSettled, untrack } from "solid-js";
++import { Dynamic } from "@solidjs/web";
+ 
+ //#region src/core/utils.ts
+ var NULL = null;
+@@ -989,10 +989,9 @@ var gridScrollToIndex = (driver, rowStore, colStore, row, col) => {
+ //#region src/solid/ListItem.tsx
+ var ListItem = (props) => {
+ 	let elementRef;
+-	props = mergeProps({ _as: "div" }, props);
+-	createEffect(() => {
++	onSettled(() => {
+ 		if (!elementRef) return;
+-		onCleanup(props._resizer(elementRef, props._index));
++		return props._resizer(elementRef, props._index);
+ 	});
+ 	const style = createMemo(() => {
+ 		const isHorizontal = props._isHorizontal;
+@@ -1011,7 +1010,7 @@ var ListItem = (props) => {
+ 		}
+ 		return style;
+ 	});
+-	return <Dynamic component={props._as} index={props._index} ref={elementRef} style={style()}>
++	return <Dynamic component={props._as ?? "div"} index={props._index} ref={elementRef} style={style()}>
+       {props._children}
+     </Dynamic>;
+ };
+@@ -1027,7 +1026,6 @@ var isSameRange = (prev, next) => {
+ var Virtualizer = (props) => {
+ 	let containerRef;
+ 	const { itemSize, horizontal = false, cache, ssrCount } = props;
+-	props = mergeProps({ as: "div" }, props);
+ 	const [isSSR, setIsSSR] = createSignal(!!ssrCount);
+ 	const layout = createListLayout(props.data.length, itemSize, cache);
+ 	const store = createVirtualStore(layout, ssrCount);
+@@ -1053,7 +1051,7 @@ var Virtualizer = (props) => {
+ 	const isScrolling = createMemo(() => stateVersion() && store.$isScrolling());
+ 	const totalSize = createMemo(() => stateVersion() && store.$getTotalSize());
+ 	const isNegative = createMemo(() => stateVersion() && driver.$isNegative());
+-	onMount(() => {
++	onSettled(() => {
+ 		setIsSSR(false);
+ 		if (props.ref) {
+ 			props.ref({
+@@ -1078,22 +1076,22 @@ var Virtualizer = (props) => {
+ 			});
+ 		}
+ 		driver.$observe(containerRef, props.scrollRef);
+-		onCleanup(() => {
++		return () => {
+ 			if (props.ref) {
+ 				props.ref();
+ 			}
+ 			store.$dispose();
+ 			driver.$dispose();
+-		});
++		};
+ 	});
+-	createComputed(on(() => props.startMargin || 0, (value) => {
++	createEffect(() => props.startMargin || 0, (value) => {
+ 		if (value !== store.$getStartSpacerSize()) {
+ 			store.$update(6, value);
+ 		}
+-	}));
+-	createEffect(on(stateVersion, () => {
++	});
++	createEffect(stateVersion, () => {
+ 		driver.$effect();
+-	}));
++	});
+ 	const dataSlice = createMemo(() => {
+ 		const count = props.data.length;
+ 		untrack(() => {
+@@ -1137,7 +1135,7 @@ var Virtualizer = (props) => {
+ 		});
+ 		return <ListItem _as={props.item} _index={index()} _resizer={driver.$observeItem} _offset={offset()} _hide={hide()} _children={children()} _isHorizontal={horizontal} _isSSR={isSSR()} />;
+ 	};
+-	return <Dynamic component={props.as} ref={containerRef} style={{
++	return <Dynamic component={props.as ?? "div"} ref={containerRef} style={{
+ 		contain: "size style",
+ 		"overflow-anchor": "none",
+ 		flex: "none",
+@@ -1158,7 +1156,8 @@ var Virtualizer = (props) => {
+ //#endregion
+ //#region src/solid/VList.tsx
+ var VList = (props) => {
+-	const [local, others] = splitProps(props, [
++	const local = props;
++	const others = omit(props,
+ 		"ref",
+ 		"data",
+ 		"children",
+@@ -1173,7 +1172,7 @@ var VList = (props) => {
+ 		"onScroll",
+ 		"onScrollEnd",
+ 		"style"
+-	]);
++	);
+ 	return <div {...others} style={{
+ 		display: local.horizontal ? "inline-block" : "block",
+ 		[local.horizontal ? "overflow-x" : "overflow-y"]: "auto",
+@@ -1218,7 +1217,7 @@ var WindowVirtualizer = (props) => {
+ 	const isScrolling = createMemo(() => stateVersion() && store.$isScrolling());
+ 	const totalSize = createMemo(() => stateVersion() && store.$getTotalSize());
+ 	const isNegative = createMemo(() => stateVersion() && driver.$isNegative());
+-	onMount(() => {
++	onSettled(() => {
+ 		setIsSSR(false);
+ 		if (props.ref) {
+ 			props.ref({
+@@ -1238,17 +1237,17 @@ var WindowVirtualizer = (props) => {
+ 			});
+ 		}
+ 		driver.$observe(containerRef);
+-		onCleanup(() => {
++		return () => {
+ 			if (props.ref) {
+ 				props.ref();
+ 			}
+ 			store.$dispose();
+ 			driver.$dispose();
+-		});
++		};
+ 	});
+-	createEffect(on(stateVersion, () => {
++	createEffect(stateVersion, () => {
+ 		driver.$effect();
+-	}));
++	});
+ 	const dataSlice = createMemo(() => {
+ 		const count = props.data.length;
+ 		untrack(() => {
+diff --git a/lib/solid/types.d.ts b/lib/solid/types.d.ts
+index c48b0a17331743016b81989e4f4b1ae3d33a1e8d..ea233d6b1f04a402cf8e9f51ba9c3a4725680605 100644
+--- a/lib/solid/types.d.ts
++++ b/lib/solid/types.d.ts
+@@ -1,5 +1,6 @@
+-import { JSX, ParentComponent } from 'solid-js';
+-export type ViewportComponentAttributes = Pick<JSX.HTMLAttributes<HTMLElement>, "class" | "id" | "role" | "tabIndex" | "onKeyDown" | "onWheel"> & JSX.AriaAttributes & {
++import type { JSX } from '@solidjs/web';
++import type { ParentComponent } from 'solid-js';
++export type ViewportComponentAttributes = Pick<JSX.HTMLAttributes<HTMLElement>, "class" | "id" | "role" | "tabindex" | "onKeyDown" | "onWheel"> & JSX.AriaAttributes & {
+     style?: JSX.CSSProperties;
+ };
+ export interface CustomContainerComponentProps {

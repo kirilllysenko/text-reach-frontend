@@ -1,0 +1,28 @@
+query Campaigns($after: String, $filter: CampaignFilterInput, $first: Int, $sortBy: [CampaignSortInput!]! = []) {
+  campaigns(after: $after, filter: $filter, first: $first, sortBy: $sortBy) {
+    edges {
+      node {
+        contactGroups {
+          id
+          name
+        }
+        id
+        messageCount
+        messageTemplate
+        name
+        scheduledAt
+        sentMessageCount
+        status
+        tenantPhone {
+          id
+          phoneNumber
+        }
+      }
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+    totalCount
+  }
+}

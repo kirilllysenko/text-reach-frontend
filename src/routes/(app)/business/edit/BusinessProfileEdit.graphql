@@ -1,4 +1,4 @@
-query BusinessProfileEdit @cache(policy: NetworkOnly) {
+query BusinessProfileEdit {
   businessProfile {
     id
     legalCompanyName

@@ -1,0 +1,8 @@
+query ContactImportCustomFieldsQuery {
+  customFields {
+    fieldType
+    id
+    name
+    position
+  }
+}

@@ -1,0 +1,12 @@
+query UserFormEditQuery($id: Ulid!) {
+  users(filter: { id: { in: [$id] } }, first: 1) {
+    edges {
+      node {
+        email
+        id
+        name
+        role
+      }
+    }
+  }
+}

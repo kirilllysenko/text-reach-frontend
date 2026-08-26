@@ -1,0 +1,3 @@
+mutation UpdateCustomFieldName($id: Ulid!, $name: String!) {
+  updateCustomFieldName(id: $id, name: $name)
+}

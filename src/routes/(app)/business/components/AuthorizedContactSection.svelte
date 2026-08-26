@@ -19,11 +19,10 @@
       <FieldLabel for="authorized-contact-first-name">First name</FieldLabel>
       <Input
         id="authorized-contact-first-name"
-        bind:value={form.authorizedContact.firstName.value}
+        field={form.authorizedContact.firstName}
         {loading}
         maxlength={100}
         autocomplete="given-name"
-        error={form.authorizedContact.firstName.error}
       />
       <FieldError error={form.authorizedContact.firstName.error} />
     </Field>
@@ -32,11 +31,10 @@
       <FieldLabel for="authorized-contact-last-name">Last name</FieldLabel>
       <Input
         id="authorized-contact-last-name"
-        bind:value={form.authorizedContact.lastName.value}
+        field={form.authorizedContact.lastName}
         {loading}
         maxlength={100}
         autocomplete="family-name"
-        error={form.authorizedContact.lastName.error}
       />
       <FieldError error={form.authorizedContact.lastName.error} />
     </Field>
@@ -45,11 +43,10 @@
       <FieldLabel for="authorized-contact-title">Title</FieldLabel>
       <Input
         id="authorized-contact-title"
-        bind:value={form.authorizedContact.title.value}
+        field={form.authorizedContact.title}
         {loading}
         maxlength={100}
         autocomplete="organization-title"
-        error={form.authorizedContact.title.error}
       />
       <FieldError error={form.authorizedContact.title.error} />
     </Field>
@@ -59,12 +56,11 @@
       <Input
         id="authorized-contact-phone"
         type="tel"
-        bind:value={form.authorizedContact.phone.value}
+        field={form.authorizedContact.phone}
         {loading}
         maxlength={24}
         autocomplete="tel"
         placeholder="+1 415 555 0101"
-        error={form.authorizedContact.phone.error}
       />
       <FieldError error={form.authorizedContact.phone.error} />
     </Field>
@@ -74,11 +70,10 @@
       <Input
         id="authorized-contact-email"
         type="email"
-        bind:value={form.authorizedContact.email.value}
+        field={form.authorizedContact.email}
         {loading}
         maxlength={255}
         autocomplete="email"
-        error={form.authorizedContact.email.error}
       />
       <FieldError error={form.authorizedContact.email.error} />
     </Field>

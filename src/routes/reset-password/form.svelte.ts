@@ -1,11 +1,12 @@
 import { goto } from "$app/navigation";
+import { resolve } from "$app/paths";
 import { ResetPasswordStore } from "$houdini";
-import { PATH_SIGN_IN } from "$lib/app/paths";
-import { createForm, type FormSubmitResult } from "$lib/form/form.svelte";
+import { createForm, type FormSubmitResult } from "text-reach-frontend-library/form";
 import { defaultErrorText, networkErrorText } from "$lib/form/errors";
 import { OTP_LENGTH, PasswordSchema } from "$lib/form/validators";
 import { graphQLErrorCode } from "$lib/graphql/errors";
 import { z } from "zod";
+import { createContext } from "svelte";
 
 export const EmailSchema = z.email();
 
@@ -28,26 +29,29 @@ export const initialValues: FormValues = {
   newPassword: "",
 };
 
-const resetPasswordMutation = new ResetPasswordStore();
+export function createResetPasswordForm() {
+  const resetPasswordMutation = new ResetPasswordStore();
 
-export const form = createForm(initialValues, validator, submit);
+  return createForm(initialValues, validator, async (values): Promise<FormSubmitResult> => {
+    try {
+      const response = await resetPasswordMutation.mutate({ input: values });
 
-async function submit(values: FormValues): Promise<FormSubmitResult> {
-  try {
-    const response = await resetPasswordMutation.mutate({ input: values });
+      if (!response.errors && response.data?.resetPassword) {
+        await goto(resolve("/sign-in?resetPasswordOk=1"));
+        return {};
+      }
 
-    if (!response.errors && response.data?.resetPassword) {
-      await goto(`${PATH_SIGN_IN}?resetPasswordOk=1`);
-      return {};
+      const code = graphQLErrorCode(response.errors);
+      if (code === "INVALID_VALUE" || code === "NOT_FOUND") {
+        return { error: "The reset code is invalid or has expired." };
+      }
+
+      return { error: defaultErrorText };
+    } catch {
+      return { error: networkErrorText };
     }
-
-    const code = graphQLErrorCode(response.errors);
-    if (code === "INVALID_VALUE" || code === "NOT_FOUND") {
-      return { error: "The reset code is invalid or has expired." };
-    }
-
-    return { error: defaultErrorText };
-  } catch {
-    return { error: networkErrorText };
-  }
+  });
 }
+
+export type ResetPasswordForm = ReturnType<typeof createResetPasswordForm>;
+export const [getResetPasswordForm, setResetPasswordForm] = createContext<ResetPasswordForm>();

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Button, Field, FieldError, FieldLabel, Input, TextArea } from "$lib";
-  import type { FormSubmitResult } from "$lib/form/form.svelte";
+  import type { FormSubmitResult } from "text-reach-frontend-library/form";
   import { createShortCodeApplicationForm, type SubmitValues } from "./form.svelte";
 
   interface Props {
@@ -55,11 +55,10 @@
         <FieldLabel for="short-code-requested-code">Requested short code</FieldLabel>
         <Input
           id="short-code-requested-code"
-          bind:value={form.requestedShortCode.value}
+          field={form.requestedShortCode}
           inputmode="numeric"
           maxlength={6}
           placeholder="54321"
-          error={form.requestedShortCode.error}
         />
         <FieldError error={form.requestedShortCode.error} />
       </Field>
@@ -75,10 +74,9 @@
         <FieldLabel for="short-code-use-case">Use case</FieldLabel>
         <Input
           id="short-code-use-case"
-          bind:value={form.useCase.value}
+          field={form.useCase}
           maxlength={255}
           placeholder="Customer care and account alerts"
-          error={form.useCase.error}
         />
         <FieldError error={form.useCase.error} />
       </Field>
@@ -87,12 +85,11 @@
         <FieldLabel for="short-code-monthly-volume">Estimated monthly messages</FieldLabel>
         <Input
           id="short-code-monthly-volume"
-          bind:value={form.estimatedMonthlyVolume.value}
+          field={form.estimatedMonthlyVolume}
           inputmode="numeric"
           min="1"
           placeholder="25000"
           type="number"
-          error={form.estimatedMonthlyVolume.error}
         />
         <FieldError error={form.estimatedMonthlyVolume.error} />
       </Field>
@@ -102,7 +99,7 @@
       <FieldLabel for="short-code-description">Program description</FieldLabel>
       <TextArea
         id="short-code-description"
-        bind:value={form.description.value}
+        field={form.description}
         maxlength={2000}
         rows={4}
         placeholder="Explain the messages your organization will send and who receives them."
@@ -115,7 +112,7 @@
       <FieldLabel for="short-code-message-flow">Opt-in and message flow</FieldLabel>
       <TextArea
         id="short-code-message-flow"
-        bind:value={form.messageFlow.value}
+        field={form.messageFlow}
         maxlength={2000}
         rows={5}
         placeholder="Describe every step from consent through the first message, including required disclosures."
@@ -128,7 +125,7 @@
       <FieldLabel for="short-code-consent-evidence">Consent evidence URLs</FieldLabel>
       <TextArea
         id="short-code-consent-evidence"
-        bind:value={form.optInEvidenceUrls.value}
+        field={form.optInEvidenceUrls}
         rows={3}
         placeholder="https://example.com/signup\nhttps://example.com/consent.pdf"
         aria-describedby="short-code-consent-evidence-help"
@@ -149,7 +146,7 @@
         <FieldLabel for="short-code-sample-message-1">Sample message 1</FieldLabel>
         <TextArea
           id="short-code-sample-message-1"
-          bind:value={form.sampleMessage1.value}
+          field={form.sampleMessage1}
           maxlength={1600}
           rows={4}
           placeholder="Your account update is ready. Reply STOP to opt out."
@@ -162,7 +159,7 @@
         <FieldLabel for="short-code-sample-message-2">Sample message 2</FieldLabel>
         <TextArea
           id="short-code-sample-message-2"
-          bind:value={form.sampleMessage2.value}
+          field={form.sampleMessage2}
           maxlength={1600}
           rows={4}
           placeholder="We received your request. Reply HELP for help."
@@ -173,19 +170,14 @@
 
       <Field>
         <FieldLabel for="short-code-opt-in-keywords">Opt-in keywords</FieldLabel>
-        <Input
-          id="short-code-opt-in-keywords"
-          bind:value={form.optInKeywords.value}
-          maxlength={255}
-          placeholder="START, YES"
-        />
+        <Input id="short-code-opt-in-keywords" field={form.optInKeywords} maxlength={255} placeholder="START, YES" />
       </Field>
 
       <Field>
         <FieldLabel for="short-code-opt-out-keywords">Opt-out keywords</FieldLabel>
         <Input
           id="short-code-opt-out-keywords"
-          bind:value={form.optOutKeywords.value}
+          field={form.optOutKeywords}
           maxlength={255}
           placeholder="STOP, END, CANCEL"
         />
@@ -193,19 +185,14 @@
 
       <Field>
         <FieldLabel for="short-code-help-keywords">Help keywords</FieldLabel>
-        <Input
-          id="short-code-help-keywords"
-          bind:value={form.helpKeywords.value}
-          maxlength={255}
-          placeholder="HELP, INFO"
-        />
+        <Input id="short-code-help-keywords" field={form.helpKeywords} maxlength={255} placeholder="HELP, INFO" />
       </Field>
 
       <Field>
         <FieldLabel for="short-code-help-message">Help response</FieldLabel>
         <TextArea
           id="short-code-help-message"
-          bind:value={form.helpMessage.value}
+          field={form.helpMessage}
           maxlength={500}
           rows={3}
           aria-invalid={!!form.helpMessage.error}

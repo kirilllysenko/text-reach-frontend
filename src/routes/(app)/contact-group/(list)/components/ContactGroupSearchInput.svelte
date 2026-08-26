@@ -1,23 +1,24 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
   import { Input } from "$lib";
+  import type { FormValue } from "text-reach-frontend-library/form";
   import { debounce } from "$lib/utils/debounce";
 
   interface Props {
     dataLoading: { reload: (reason: "search") => Promise<unknown> };
-    value: string;
+    field: FormValue<string>;
   }
 
   const SEARCH_DEBOUNCE_MS = 250;
 
-  let { dataLoading, value = $bindable("") }: Props = $props();
+  let { dataLoading, field = $bindable() }: Props = $props();
 
   const reloadSearch = debounce(() => {
     void dataLoading.reload("search");
   }, SEARCH_DEBOUNCE_MS);
 
   function updateSearch(search: string): void {
-    value = search;
+    field.value = search;
     reloadSearch();
   }
 
@@ -30,6 +31,6 @@
   id="filter-field"
   class="min-w-0 grow"
   placeholder="Search contact groups"
-  {value}
+  {field}
   oninput={(event) => updateSearch(event.currentTarget.value)}
 />

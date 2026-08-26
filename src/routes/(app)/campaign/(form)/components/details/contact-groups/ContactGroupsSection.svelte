@@ -4,18 +4,18 @@
   import { Button, FieldError } from "$lib";
   import Close from "text-reach-frontend-library/icons/Close.svelte";
   import Plus from "text-reach-frontend-library/icons/Plus.svelte";
+  import type { FormValue } from "text-reach-frontend-library/form";
 
   interface Props {
-    error?: string | null;
-    value?: string[];
+    field: FormValue<string[]>;
   }
 
   const contactGroupsQuery = new CampaignFormContactGroupsStore();
-  let { error = null, value = $bindable<string[]>([]) }: Props = $props();
+  let { field = $bindable() }: Props = $props();
 
   const groups = $derived($contactGroupsQuery.data?.contactGroups.edges.map((edge) => edge.node) ?? []);
-  const selectedGroups = $derived(value.flatMap((id) => groups.find((group) => group.id === id) ?? []));
-  const nextGroup = $derived(groups.find((group) => !value.includes(group.id)));
+  const selectedGroups = $derived(field.value.flatMap((id) => groups.find((group) => group.id === id) ?? []));
+  const nextGroup = $derived(groups.find((group) => !field.value.includes(group.id)));
   const allGroupsAdded = $derived(groups.length > 0 && selectedGroups.length === groups.length);
   const loadFailed = $derived(Boolean($contactGroupsQuery.errors));
 
@@ -25,11 +25,11 @@
 
   function addNextGroup(): void {
     if (!nextGroup) return;
-    value = [...value, nextGroup.id];
+    field.value = [...field.value, nextGroup.id];
   }
 
   function removeGroup(id: string): void {
-    value = value.filter((groupId) => groupId !== id);
+    field.value = field.value.filter((groupId) => groupId !== id);
   }
 </script>
 
@@ -94,5 +94,5 @@
     </div>
   {/if}
 
-  <FieldError class="mt-2" {error} />
+  <FieldError class="mt-2" error={field.error} />
 </section>

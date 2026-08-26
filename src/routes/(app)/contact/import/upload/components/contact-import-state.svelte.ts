@@ -1,6 +1,7 @@
 import { ContactImportCustomFieldsQueryStore, GenerateContactUploadUrlStore, ImportContactsStore } from "$houdini";
 import { toGraphQLErrorText } from "$lib/graphql/errors";
-import { notificationsState } from "text-reach-frontend-library/state/notifications.svelte";
+import { getNotificationsState, type NotificationsState } from "$lib/state/notifications.svelte";
+import { createContext } from "svelte";
 import {
   buildContactImportRequest,
   CONTACT_IMPORT_IGNORE,
@@ -17,9 +18,11 @@ type ContactImportStep = "setup" | "mapping" | "complete";
 
 interface ContactImportStateOptions {
   onQueued: (jobId: string) => Promise<void> | void;
+  notifications?: Pick<NotificationsState, "showInfo">;
 }
 
 export function createContactImportState(options: ContactImportStateOptions) {
+  const notificationsState = options.notifications ?? getNotificationsState();
   const customFieldsQuery = new ContactImportCustomFieldsQueryStore();
   const generateUploadUrlMutation = new GenerateContactUploadUrlStore();
   const importContactsMutation = new ImportContactsStore();
@@ -287,3 +290,5 @@ function getFallbackContentType(file: File): string {
 }
 
 export type ContactImportState = ReturnType<typeof createContactImportState>;
+
+export const [getContactImportState, setContactImportState] = createContext<ContactImportState>();

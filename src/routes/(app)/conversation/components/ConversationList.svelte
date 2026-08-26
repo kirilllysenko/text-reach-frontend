@@ -1,14 +1,10 @@
 <script lang="ts">
   import Menu from "text-reach-frontend-library/icons/Menu.svelte";
-  import { appShellState } from "text-reach-frontend-library/state/app-shell.svelte";
-  import type { ConversationState } from "./conversation-state.svelte";
+  import { getAppShellState } from "$lib/state/app-shell.svelte";
+  import { getConversationState } from "./conversation-state.svelte";
   import ConversationListItem from "./ConversationListItem.svelte";
-
-  interface Props {
-    state: ConversationState;
-  }
-
-  let { state }: Props = $props();
+  const appShellState = getAppShellState();
+  const state = getConversationState();
 </script>
 
 <aside class="flex h-full min-h-0 flex-col bg-white" aria-label="Conversations">
@@ -71,7 +67,7 @@
   <div class="min-h-0 grow overflow-y-auto overscroll-contain">
     {#if state.loading}
       <div class="space-y-px" aria-label="Loading conversations">
-        {#each Array(7) as _}
+        {#each Array(7) as _, index (index)}
           <div class="flex items-center gap-3 px-3 py-3">
             <div class="skeleton-loading size-12 shrink-0 rounded-full"></div>
             <div class="grow space-y-2">

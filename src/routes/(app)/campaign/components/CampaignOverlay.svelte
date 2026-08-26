@@ -1,13 +1,9 @@
 <script lang="ts">
   import { Button, ResponsiveDialog, SortPanel } from "$lib";
-  import type { CampaignState } from "./campaign-state.svelte";
+  import { getCampaignState } from "./campaign-state.svelte";
   import CampaignFilterPanel from "./CampaignFilterPanel.svelte";
 
-  interface Props {
-    state: CampaignState;
-  }
-
-  let { state }: Props = $props();
+  const state = getCampaignState();
 </script>
 
 <ResponsiveDialog
@@ -16,7 +12,7 @@
   description="Refine the campaign feed without taking over the whole page."
   onClose={state.closeOverlays}
 >
-  <CampaignFilterPanel {state} />
+  <CampaignFilterPanel />
 
   {#snippet mobileFooter()}
     <Button class="w-full" onclick={state.closeOverlays}>Apply filters</Button>

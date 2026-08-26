@@ -1,6 +1,6 @@
 # Form Page Guide
 
-Use this guide for add and edit pages backed by `src/lib/form/form.svelte.ts`. It describes the preferred structure,
+Use this guide for add and edit pages backed by `text-reach-frontend-library/form`. It describes the preferred structure,
 ownership boundaries, loading behavior, validation, submission, and component decomposition.
 
 ## Responsibilities
@@ -13,7 +13,7 @@ Keep each concern in one place:
 | Form markup, primary fields, general error, and action buttons                                            | `+page.svelte`                      |
 | Independent sections with their own query or section-local state                                          | Route-local section component       |
 | Input shape, initial values, validation, normalization, API input transformation                          | `components/form/form.svelte.ts`    |
-| Field state, validation execution, submit state, and error assignment                                     | `src/lib/form/form.svelte.ts`       |
+| Field state, validation execution, submit state, and error assignment                                     | Shared library `form` module        |
 | Reusable inputs, fields, buttons, cards, and loading visuals                                              | `src/lib/components` and global CSS |
 
 The route owns application side effects. Do not put Houdini mutations, navigation, cache writes, notifications, or
@@ -82,7 +82,7 @@ Each add and edit page should follow this shape:
   <div class="grid gap-4 sm:grid-cols-2">
     <Field>
       <FieldLabel for="item-name">Name</FieldLabel>
-      <Input id="item-name" bind:value={form.name.value} {loading} error={form.name.error} maxlength={100} />
+      <Input id="item-name" field={form.name} {loading} maxlength={100} />
       <FieldError error={form.name.error} />
     </Field>
   </div>
@@ -97,9 +97,9 @@ Each add and edit page should follow this shape:
 ```
 
 - Every control has a stable, page-specific `id`, and every `FieldLabel` points to it.
-- Bind controls to `form.<field>.value`.
-- Pass `form.<field>.error` both to the input's error state and its `FieldError` when the primitive supports an error
-  appearance.
+- Pass `form.<field>` to the control's `field` prop. The shared `FormValue` carries both its editable value and error.
+- Pass `form.<field>.error` to `FieldError` for the visible validation message; controls read the same error from
+  `field` for their invalid appearance and accessibility state.
 - Put the general `form.error` after the fields and before the actions.
 - Use `form.loading` only for submission state. It drives `inert`, the submit spinner, and submit disabling.
 - Preserve native attributes such as `type`, `maxlength`, and `autocomplete`; Zod remains the source of validation
@@ -186,7 +186,7 @@ A feature form module contains four things:
 
 ```ts
 import type { ItemWriteInput } from "$houdini/graphql/inputs";
-import { createForm, type FormSubmitResult } from "$lib/form/form.svelte";
+import { createForm, type FormSubmitResult } from "text-reach-frontend-library/form";
 import { z } from "zod";
 
 export const validator = z

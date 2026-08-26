@@ -1,7 +1,8 @@
 <script lang="ts">
   import { CustomFieldsQueryStore, type CustomFieldType$options } from "$houdini";
   import { Button, Field, FieldError, FieldLabel, Input } from "$lib";
-  import { setFormShapeValue, type FormShape } from "$lib/form/form.svelte";
+  import { createFormValue, setFormShapeValue, type FormShape } from "text-reach-frontend-library/form";
+  import { onMount } from "svelte";
   import type { HTMLInputTypeAttribute } from "svelte/elements";
   import type { FormValues } from "../form/form.svelte";
 
@@ -12,24 +13,31 @@
 
   const customFieldsQuery = new CustomFieldsQueryStore();
   let { loading = false, values }: Props = $props();
+  const loadingField = createFormValue("");
 
   const fields = $derived($customFieldsQuery.data?.customFields);
   const customFieldsLoading = $derived(loading || $customFieldsQuery.fetching);
 
-  $effect.pre(() => {
-    if (!fields) {
-      return;
-    }
+  onMount(() =>
+    customFieldsQuery.subscribe((result) => {
+      const loadedFields = result.data?.customFields;
+      if (!loadedFields) {
+        return;
+      }
 
-    const fieldIds = fields.map((field) => field.id);
-    const valueIds = Object.keys(values);
+      const fieldIds = loadedFields.map((field) => field.id);
+      const valueIds = Object.keys(values);
 
-    if (fieldIds.length === valueIds.length && fieldIds.every((fieldId) => valueIds.includes(fieldId))) {
-      return;
-    }
+      if (fieldIds.length === valueIds.length && fieldIds.every((fieldId) => valueIds.includes(fieldId))) {
+        return;
+      }
 
-    setFormShapeValue(values, Object.fromEntries(fields.map((field) => [field.id, values[field.id]?.value ?? ""])));
-  });
+      setFormShapeValue(
+        values,
+        Object.fromEntries(loadedFields.map((field) => [field.id, values[field.id]?.value ?? ""])),
+      );
+    }),
+  );
 
   function inputType(type: CustomFieldType$options): HTMLInputTypeAttribute {
     return type.toLowerCase();
@@ -48,7 +56,7 @@
           </FieldLabel>
           <Input
             id={`contact-custom-field-${field.id}`}
-            bind:value={values[field.id].value}
+            field={values[field.id]}
             loading={customFieldsLoading}
             type={inputType(field.fieldType)}
           />
@@ -64,7 +72,7 @@
       {#each [0, 1] as placeholder (placeholder)}
         <Field aria-hidden="true">
           <div class="skeleton-loading h-4 w-24 rounded-lg"></div>
-          <Input loading />
+          <Input field={loadingField} loading />
         </Field>
       {/each}
     </div>

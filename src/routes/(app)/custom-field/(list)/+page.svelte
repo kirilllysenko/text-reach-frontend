@@ -3,13 +3,15 @@
   import { Card, LinkButton, PageTitle, Table } from "$lib";
   import { AccessGroup } from "$houdini/graphql/enums";
   import { PATH_CUSTOM_FIELD_ADD } from "$lib/app/paths";
-  import { sessionState } from "$lib/state/session.svelte";
+  import { getSessionState } from "$lib/state/session.svelte";
+  import { createFormValue } from "text-reach-frontend-library/form";
   import CustomFieldSearchInput from "./components/CustomFieldSearchInput.svelte";
   import FilterButton from "./components/filter/FilterButton.svelte";
   import SortButton from "./components/sort/SortButton.svelte";
   import { createCustomFieldTable, loadCustomFields } from "./components/table/table.svelte";
+  const sessionState = getSessionState();
 
-  let search = $state("");
+  const search = $state(createFormValue(""));
   let loading = $state(true);
   let error = $state<string | null>(null);
   const table = createCustomFieldTable();
@@ -45,7 +47,7 @@
 
   <Card variant="panel" class="shrink-0 space-y-3">
     <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
-      <CustomFieldSearchInput search={table.handlers.globalSearch} bind:value={search} />
+      <CustomFieldSearchInput search={table.handlers.globalSearch} field={search} />
 
       <div class="flex items-center gap-2">
         <FilterButton filtering={table.handlers.filtering} />

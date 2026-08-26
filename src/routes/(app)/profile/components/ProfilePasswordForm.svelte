@@ -2,38 +2,38 @@
   import { ChangePasswordStore } from "$houdini";
   import { Button, ButtonEye, Field, FieldError, FieldLabel, Input } from "$lib";
   import { networkErrorText } from "$lib/form/errors";
+  import { createFormValue } from "text-reach-frontend-library/form";
   import { PasswordSchema } from "$lib/form/validators";
   import { toGraphQLErrorText } from "$lib/graphql/errors";
-  import { notificationsState } from "text-reach-frontend-library/state/notifications.svelte";
+  import { getNotificationsState } from "$lib/state/notifications.svelte";
+  const notificationsState = getNotificationsState();
 
   const changePasswordMutation = new ChangePasswordStore();
 
-  let oldPassword = $state("");
-  let newPassword = $state("");
-  let oldPasswordError = $state<string | null>(null);
-  let newPasswordError = $state<string | null>(null);
+  const oldPassword = $state(createFormValue(""));
+  const newPassword = $state(createFormValue(""));
   let passwordFormError = $state<string | null>(null);
   let maskOldPassword = $state(true);
   let maskNewPassword = $state(true);
   let savingPassword = $state(false);
 
-  const passwordDirty = $derived(oldPassword.length > 0 || newPassword.length > 0);
+  const passwordDirty = $derived(oldPassword.value.length > 0 || newPassword.value.length > 0);
 
   async function submitPassword(event: SubmitEvent): Promise<void> {
     event.preventDefault();
 
-    oldPasswordError = null;
-    newPasswordError = null;
+    oldPassword.error = null;
+    newPassword.error = null;
     passwordFormError = null;
 
-    const oldPasswordResult = PasswordSchema.safeParse(oldPassword);
+    const oldPasswordResult = PasswordSchema.safeParse(oldPassword.value);
     if (!oldPasswordResult.success) {
-      oldPasswordError = oldPasswordResult.error.issues[0]?.message ?? "Required";
+      oldPassword.error = oldPasswordResult.error.issues[0]?.message ?? "Required";
     }
 
-    const newPasswordResult = PasswordSchema.safeParse(newPassword);
+    const newPasswordResult = PasswordSchema.safeParse(newPassword.value);
     if (!newPasswordResult.success) {
-      newPasswordError = newPasswordResult.error.issues[0]?.message ?? "Required";
+      newPassword.error = newPasswordResult.error.issues[0]?.message ?? "Required";
     }
 
     if (!oldPasswordResult.success || !newPasswordResult.success) {
@@ -44,7 +44,9 @@
 
     let response;
     try {
-      response = await changePasswordMutation.mutate({ input: { oldPassword, newPassword } });
+      response = await changePasswordMutation.mutate({
+        input: { oldPassword: oldPassword.value, newPassword: newPassword.value },
+      });
     } catch {
       savingPassword = false;
       passwordFormError = networkErrorText;
@@ -54,8 +56,8 @@
     savingPassword = false;
 
     if (!response.errors && response.data?.changePassword) {
-      oldPassword = "";
-      newPassword = "";
+      oldPassword.value = "";
+      newPassword.value = "";
       notificationsState.showInfo("Your password has been changed");
       return;
     }
@@ -70,12 +72,7 @@
   <form class="sm:max-w-md" onsubmit={submitPassword}>
     <Field>
       <FieldLabel for="old-password">Current password</FieldLabel>
-      <Input
-        id="old-password"
-        bind:value={oldPassword}
-        type={maskOldPassword ? "password" : "text"}
-        error={oldPasswordError}
-      >
+      <Input id="old-password" field={oldPassword} type={maskOldPassword ? "password" : "text"}>
         {#snippet rightAddon()}
           <ButtonEye
             off={!maskOldPassword}
@@ -85,17 +82,12 @@
           />
         {/snippet}
       </Input>
-      <FieldError error={oldPasswordError} />
+      <FieldError error={oldPassword.error} />
     </Field>
 
     <Field class="mt-4">
       <FieldLabel for="new-password">New password</FieldLabel>
-      <Input
-        id="new-password"
-        bind:value={newPassword}
-        type={maskNewPassword ? "password" : "text"}
-        error={newPasswordError}
-      >
+      <Input id="new-password" field={newPassword} type={maskNewPassword ? "password" : "text"}>
         {#snippet rightAddon()}
           <ButtonEye
             off={!maskNewPassword}
@@ -105,7 +97,7 @@
           />
         {/snippet}
       </Input>
-      <FieldError error={newPasswordError} />
+      <FieldError error={newPassword.error} />
     </Field>
 
     <FieldError class="mt-3" error={passwordFormError} />

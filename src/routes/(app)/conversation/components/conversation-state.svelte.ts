@@ -12,6 +12,7 @@ import {
   type LiveUpdateServerMessage,
 } from "$lib/live-update/generated";
 import { debounce } from "$lib/utils/debounce";
+import { createContext } from "svelte";
 import {
   matchesConversation,
   toChatMessage,
@@ -470,3 +471,5 @@ function liveUpdateUrl(location: Location): string {
   const protocol = location.protocol === "https:" ? "wss:" : "ws:";
   return `${protocol}//${location.host}/live-update/ws`;
 }
+
+export const [getConversationState, setConversationState] = createContext<ConversationState>();

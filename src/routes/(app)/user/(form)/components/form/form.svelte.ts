@@ -1,6 +1,6 @@
 import type { CreateUserInput } from "$houdini/graphql/inputs";
 import { userRoleOptions } from "$lib/feature/user/user-view-data";
-import { createForm, type FormSubmitResult } from "$lib/form/form.svelte";
+import { createForm, type FormSubmitResult } from "text-reach-frontend-library/form";
 import { PasswordSchema } from "$lib/form/validators";
 import { z } from "zod";
 

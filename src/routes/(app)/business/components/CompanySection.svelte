@@ -17,11 +17,6 @@
   ];
 
   let { form, loading = false }: Props = $props();
-  const selectedEntityType = $derived(entityTypeOptions.find((option) => option.id === form.entityType.value));
-
-  function selectEntityType(option: DropdownOption<BusinessEntityType$options>): void {
-    form.entityType.value = option.id;
-  }
 </script>
 
 <section aria-labelledby="company-information-heading">
@@ -33,50 +28,34 @@
       <FieldLabel for="business-legal-name">Legal company name</FieldLabel>
       <Input
         id="business-legal-name"
-        bind:value={form.legalCompanyName.value}
+        field={form.legalCompanyName}
         {loading}
         maxlength={255}
         autocomplete="organization"
-        error={form.legalCompanyName.error}
       />
       <FieldError error={form.legalCompanyName.error} />
     </Field>
 
     <Field>
       <FieldLabel for="business-display-name">Display name</FieldLabel>
-      <Input
-        id="business-display-name"
-        bind:value={form.displayName.value}
-        {loading}
-        maxlength={255}
-        error={form.displayName.error}
-      />
+      <Input id="business-display-name" field={form.displayName} {loading} maxlength={255} />
       <FieldError error={form.displayName.error} />
     </Field>
 
     <Field>
       <Select
         options={entityTypeOptions}
-        value={selectedEntityType}
+        field={form.entityType}
         label="Entity type"
         inputId="business-entity-type"
         {loading}
-        error={form.entityType.error}
-        onChange={selectEntityType}
       />
       <FieldError error={form.entityType.error} />
     </Field>
 
     <Field>
       <FieldLabel for="business-industry">Industry</FieldLabel>
-      <Input
-        id="business-industry"
-        bind:value={form.industry.value}
-        {loading}
-        maxlength={100}
-        placeholder="Software"
-        error={form.industry.error}
-      />
+      <Input id="business-industry" field={form.industry} {loading} maxlength={100} placeholder="Software" />
       <FieldError error={form.industry.error} />
     </Field>
 
@@ -84,12 +63,11 @@
       <FieldLabel for="business-registration-country">Registration country</FieldLabel>
       <Input
         id="business-registration-country"
-        bind:value={form.registrationCountry.value}
+        field={form.registrationCountry}
         {loading}
         maxlength={2}
         autocapitalize="characters"
         placeholder="US"
-        error={form.registrationCountry.error}
       />
       <FieldError error={form.registrationCountry.error} />
     </Field>

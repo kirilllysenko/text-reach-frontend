@@ -1,14 +1,42 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import { PaymentOverviewStore } from "$houdini";
   import { PageTitle } from "$lib";
   import { PATH_PAYMENT_TOP_UP, PATH_PAYMENT_TRANSACTION } from "$lib/app/paths";
   import { formatPaymentBalance } from "$lib/feature/payment/payment-display";
-  import { PaymentOverviewState } from "$lib/feature/payment/payment-state.svelte";
+  import type { WalletBalanceData } from "$lib/feature/payment/payment-display";
 
-  const paymentState = new PaymentOverviewState();
+  const paymentOverviewQuery = new PaymentOverviewStore();
+  const paymentState = $state({
+    balance: null as WalletBalanceData | null,
+    loading: false,
+    loadingError: null as string | null,
+  });
+
+  async function loadPaymentOverview(): Promise<void> {
+    paymentState.loading = true;
+    try {
+      const response = await paymentOverviewQuery.fetch();
+      if (response.errors || !response.data) {
+        handleResponseError();
+        return;
+      }
+      paymentState.balance = response.data.walletBalance;
+      paymentState.loadingError = null;
+    } catch {
+      handleResponseError();
+    } finally {
+      paymentState.loading = false;
+    }
+  }
+
+  function handleResponseError(): void {
+    paymentState.loadingError = "Could not load payment balance.";
+    paymentState.balance = null;
+  }
 
   onMount(() => {
-    void paymentState.load();
+    void loadPaymentOverview();
   });
 </script>
 

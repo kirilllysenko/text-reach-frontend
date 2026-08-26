@@ -5,8 +5,8 @@
   import { BackButton, Button, Card, Field, FieldError, FieldLabel, Input, PageTitle } from "$lib";
   import { PATH_CAMPAIGN } from "$lib/app/paths";
   import { networkErrorText } from "$lib/form/errors";
-  import type { FormSubmitResult } from "$lib/form/form.svelte";
-  import { notificationsState } from "text-reach-frontend-library/state/notifications.svelte";
+  import type { FormSubmitResult } from "text-reach-frontend-library/form";
+  import { getNotificationsState } from "$lib/state/notifications.svelte";
   import ContactGroupsSection from "../../components/details/contact-groups/ContactGroupsSection.svelte";
   import SenderPhoneField from "../../components/details/sender/SenderPhoneField.svelte";
   import { createCampaignForm, type SubmitValues } from "../../components/form/form.svelte";
@@ -15,6 +15,7 @@
   import MessageSection from "../../components/message/MessageSection.svelte";
   import MessagePreview from "../../components/message/preview/MessagePreview.svelte";
   import ScheduleSection from "../../components/schedule/ScheduleSection.svelte";
+  const notificationsState = getNotificationsState();
 
   const createCampaignMutation = new CreateCampaignStore();
   const form = createCampaignForm(submit);
@@ -68,24 +69,14 @@
             <div class="grid gap-4 sm:grid-cols-2">
               <Field>
                 <FieldLabel for="campaign-name">Campaign name<span class="text-rose-500">*</span></FieldLabel>
-                <Input
-                  id="campaign-name"
-                  bind:value={form.name.value}
-                  maxlength={200}
-                  placeholder="August customer offer"
-                  error={form.name.error}
-                />
+                <Input id="campaign-name" field={form.name} maxlength={200} placeholder="August customer offer" />
                 <FieldError error={form.name.error} />
               </Field>
 
-              <SenderPhoneField
-                bind:value={form.tenantPhoneId.value}
-                bind:phoneNumber={senderPhoneNumber}
-                error={form.tenantPhoneId.error}
-              />
+              <SenderPhoneField field={form.tenantPhoneId} bind:phoneNumber={senderPhoneNumber} />
             </div>
 
-            <ContactGroupsSection bind:value={form.contactGroupIds.value} error={form.contactGroupIds.error} />
+            <ContactGroupsSection field={form.contactGroupIds} />
           </section>
 
           <MessageSection
@@ -98,14 +89,11 @@
           />
 
           <ScheduleSection
-            bind:scheduleType={form.scheduleType.value}
-            bind:scheduledAt={form.scheduledAt.value}
-            bind:recurrenceFrequency={form.recurrenceFrequency.value}
-            bind:recurrenceInterval={form.recurrenceInterval.value}
-            bind:recurrenceCount={form.recurrenceCount.value}
-            scheduledAtError={form.scheduledAt.error}
-            recurrenceIntervalError={form.recurrenceInterval.error}
-            recurrenceCountError={form.recurrenceCount.error}
+            bind:scheduleType={form.scheduleType}
+            bind:scheduledAt={form.scheduledAt}
+            bind:recurrenceFrequency={form.recurrenceFrequency}
+            bind:recurrenceInterval={form.recurrenceInterval}
+            bind:recurrenceCount={form.recurrenceCount}
           />
 
           <FieldError class="mt-4" error={form.error} />

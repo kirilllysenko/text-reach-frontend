@@ -5,10 +5,12 @@
   import { Field, FieldError, FieldLabel } from "text-reach-frontend-library/components/field";
   import { defaultErrorText, networkErrorText } from "$lib/form/errors";
   import { toGraphQLErrorText } from "$lib/graphql/errors";
-  import { notificationsState } from "text-reach-frontend-library/state/notifications.svelte";
+  import { getNotificationsState } from "$lib/state/notifications.svelte";
   import { Countdown } from "$lib/utils/countdown.svelte";
   import { OTP_LENGTH } from "$lib/form/validators";
-  import { EmailSchema, form } from "../form.svelte";
+  import { EmailSchema, getSignUpForm } from "../form.svelte";
+  const notificationsState = getNotificationsState();
+  const form = getSignUpForm();
 
   let { email, emailCode } = form;
 
@@ -51,26 +53,13 @@
 
 <Field>
   <FieldLabel for="email">E-mail</FieldLabel>
-  <Input
-    id="email"
-    bind:value={email.value}
-    type="email"
-    autocomplete="email"
-    placeholder="you@example.com"
-    error={email.error}
-  />
+  <Input id="email" field={email} type="email" autocomplete="email" placeholder="you@example.com" />
   <FieldError error={email.error} />
 </Field>
 
 <Field class="mt-4">
   <FieldLabel for="emailCode">E-mail confirmation code</FieldLabel>
-  <Input
-    id="emailCode"
-    bind:value={emailCode.value}
-    maxlength={OTP_LENGTH}
-    autocomplete="one-time-code"
-    error={emailCode.error}
-  >
+  <Input id="emailCode" field={emailCode} maxlength={OTP_LENGTH} autocomplete="one-time-code">
     {#snippet rightAddon()}
       <Button
         id="sign-up-email-code-send"

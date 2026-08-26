@@ -16,40 +16,19 @@
   <div class="mt-4 grid gap-4 sm:grid-cols-2">
     <Field class="sm:col-span-2">
       <FieldLabel for="business-street">Street address</FieldLabel>
-      <Input
-        id="business-street"
-        bind:value={form.address.street.value}
-        {loading}
-        maxlength={255}
-        autocomplete="street-address"
-        error={form.address.street.error}
-      />
+      <Input id="business-street" field={form.address.street} {loading} maxlength={255} autocomplete="street-address" />
       <FieldError error={form.address.street.error} />
     </Field>
 
     <Field>
       <FieldLabel for="business-city">City</FieldLabel>
-      <Input
-        id="business-city"
-        bind:value={form.address.city.value}
-        {loading}
-        maxlength={255}
-        autocomplete="address-level2"
-        error={form.address.city.error}
-      />
+      <Input id="business-city" field={form.address.city} {loading} maxlength={255} autocomplete="address-level2" />
       <FieldError error={form.address.city.error} />
     </Field>
 
     <Field>
       <FieldLabel for="business-region">State or region</FieldLabel>
-      <Input
-        id="business-region"
-        bind:value={form.address.region.value}
-        {loading}
-        maxlength={100}
-        autocomplete="address-level1"
-        error={form.address.region.error}
-      />
+      <Input id="business-region" field={form.address.region} {loading} maxlength={100} autocomplete="address-level1" />
       <FieldError error={form.address.region.error} />
     </Field>
 
@@ -57,11 +36,10 @@
       <FieldLabel for="business-postal-code">Postal code</FieldLabel>
       <Input
         id="business-postal-code"
-        bind:value={form.address.postalCode.value}
+        field={form.address.postalCode}
         {loading}
         maxlength={32}
         autocomplete="postal-code"
-        error={form.address.postalCode.error}
       />
       <FieldError error={form.address.postalCode.error} />
     </Field>
@@ -70,13 +48,12 @@
       <FieldLabel for="business-address-country">Country</FieldLabel>
       <Input
         id="business-address-country"
-        bind:value={form.address.country.value}
+        field={form.address.country}
         {loading}
         maxlength={2}
         autocomplete="country"
         autocapitalize="characters"
         placeholder="US"
-        error={form.address.country.error}
       />
       <FieldError error={form.address.country.error} />
     </Field>

@@ -29,8 +29,9 @@
   import Payment from "text-reach-frontend-library/icons/Payment.svelte";
   import Phone from "text-reach-frontend-library/icons/Phone.svelte";
   import Profile from "text-reach-frontend-library/icons/Profile.svelte";
-  import { sessionState } from "$lib/state/session.svelte";
+  import { getSessionState } from "$lib/state/session.svelte";
   import PhoneFilter from "./PhoneFilter.svelte";
+  const sessionState = getSessionState();
 
   interface Props {
     onItemClicked?: () => void;

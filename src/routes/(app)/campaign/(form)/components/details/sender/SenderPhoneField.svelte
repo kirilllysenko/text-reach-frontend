@@ -2,15 +2,15 @@
   import { onMount } from "svelte";
   import { CampaignFormSenderPhonesStore } from "$houdini";
   import { Button, Field, FieldError, Select, type DropdownOption } from "$lib";
+  import type { FormValue } from "text-reach-frontend-library/form";
 
   interface Props {
-    error?: string | null;
+    field: FormValue<string>;
     phoneNumber?: string;
-    value?: string;
   }
 
   const senderPhonesQuery = new CampaignFormSenderPhonesStore();
-  let { error = null, phoneNumber = $bindable(""), value = $bindable("") }: Props = $props();
+  let { field = $bindable(), phoneNumber = $bindable("") }: Props = $props();
 
   const options = $derived(
     ($senderPhonesQuery.data?.tenantPhones.edges ?? []).map(
@@ -20,23 +20,23 @@
       }),
     ),
   );
-  const selectedOption = $derived(options.find((option) => option.id === value));
   const loadFailed = $derived(Boolean($senderPhonesQuery.errors));
 
   onMount(() => {
-    void senderPhonesQuery.fetch();
+    void loadSenderPhones();
   });
 
-  $effect(() => {
-    if (!value && options[0]) {
-      value = options[0].id;
+  async function loadSenderPhones(): Promise<void> {
+    await senderPhonesQuery.fetch();
+    const selectedOption = options.find((option) => option.id === field.value) ?? options[0];
+
+    if (selectedOption) {
+      selectPhone(selectedOption);
     }
-
-    phoneNumber = options.find((option) => option.id === value)?.value ?? "";
-  });
+  }
 
   function selectPhone(option: DropdownOption<string>): void {
-    value = option.id;
+    field.value = option.id;
     phoneNumber = option.value;
   }
 </script>
@@ -44,17 +44,16 @@
 <Field>
   <Select
     {options}
-    value={selectedOption}
+    {field}
     label="Send from"
     inputId="campaign-sender-phone"
     placeholder={loadFailed ? "Could not load sending numbers" : "Select a sending number"}
     requiredMark
     loading={$senderPhonesQuery.fetching}
     disabled={loadFailed || options.length === 0}
-    {error}
     onChange={selectPhone}
   />
-  <FieldError {error} />
+  <FieldError error={field.error} />
 
   {#if loadFailed}
     <Button class="mt-1" small variant="secondary" onclick={() => senderPhonesQuery.fetch()}>Try again</Button>

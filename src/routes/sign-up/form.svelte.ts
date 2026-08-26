@@ -1,10 +1,12 @@
 import { normalizePhoneNumber, OTP_LENGTH, PasswordSchema, PhoneNumberSchema } from "$lib/form/validators";
 import { z } from "zod";
-import { createForm, type FormSubmitResult } from "$lib/form/form.svelte";
+import { createForm, type FormSubmitResult } from "text-reach-frontend-library/form";
 import { goto } from "$app/navigation";
+import { resolve } from "$app/paths";
 import { SignUpStore } from "$houdini";
 import { networkErrorText } from "$lib/form/errors";
 import { toGraphQLErrorText } from "$lib/graphql/errors";
+import { createContext } from "svelte";
 
 export const EmailSchema = z.email();
 
@@ -31,32 +33,35 @@ export const initialValues: FormValues = {
   password: "",
 };
 
-const signUpMutation = new SignUpStore();
+export function createSignUpForm() {
+  const signUpMutation = new SignUpStore();
 
-export const form = createForm(initialValues, validator, submit);
+  return createForm(initialValues, validator, async (values): Promise<FormSubmitResult> => {
+    try {
+      const response = await signUpMutation.mutate({
+        input: {
+          email: values.email,
+          emailCode: values.emailCode,
+          phoneNumber: normalizePhoneNumber(values.phoneNumber),
+          phoneNumberCode: values.phoneNumberCode,
+          password: values.password,
+        },
+      });
 
-async function submit(values: FormValues): Promise<FormSubmitResult> {
-  try {
-    const response = await signUpMutation.mutate({
-      input: {
-        email: values.email,
-        emailCode: values.emailCode,
-        phoneNumber: normalizePhoneNumber(values.phoneNumber),
-        phoneNumberCode: values.phoneNumberCode,
-        password: values.password,
-      },
-    });
+      if (!response.errors && response.data?.signUp) {
+        await goto(resolve("/sign-in?signUpOk=1"));
+        return {};
+      }
 
-    if (!response.errors && response.data?.signUp) {
-      await goto("/sign-in?signUpOk=1");
-      return {};
+      return formError(toGraphQLErrorText(response.errors));
+    } catch {
+      return formError(networkErrorText);
     }
-
-    return formError(toGraphQLErrorText(response.errors));
-  } catch {
-    return formError(networkErrorText);
-  }
+  });
 }
+
+export type SignUpForm = ReturnType<typeof createSignUpForm>;
+export const [getSignUpForm, setSignUpForm] = createContext<SignUpForm>();
 
 function formError(error: string): FormSubmitResult {
   return { error };

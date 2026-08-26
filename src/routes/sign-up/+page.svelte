@@ -7,9 +7,10 @@
   import PhoneSection from "./components/PhoneSection.svelte";
   import Alert from "text-reach-frontend-library/components/alert/Alert.svelte";
   import Card from "text-reach-frontend-library/components/card/Card.svelte";
-  import { form } from "./form.svelte";
+  import { createSignUpForm, setSignUpForm } from "./form.svelte";
   import PasswordInput from "text-reach-frontend-library/components/password-input/PasswordInput.svelte";
 
+  const form = setSignUpForm(createSignUpForm());
   let { password } = form;
 </script>
 
@@ -40,13 +41,7 @@
 
       <Field class="mt-4">
         <FieldLabel for="password">Password</FieldLabel>
-        <PasswordInput
-          id="password"
-          bind:value={password.value}
-          autocomplete="new-password"
-          placeholder="Create password"
-          error={password.error}
-        />
+        <PasswordInput id="password" field={password} autocomplete="new-password" placeholder="Create password" />
         <FieldError error={password.error} />
       </Field>
 

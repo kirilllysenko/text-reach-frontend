@@ -5,10 +5,10 @@
   import { PATH_CONTACT, PATH_CONTACT_IMPORT_HISTORY } from "$lib/app/paths";
   import ContactImportComplete from "./components/ContactImportComplete.svelte";
   import ContactImportSetup from "./components/ContactImportSetup.svelte";
-  import { createContactImportState } from "./components/contact-import-state.svelte";
+  import { createContactImportState, setContactImportState } from "./components/contact-import-state.svelte";
   import ContactImportMapping from "./components/mapping/ContactImportMapping.svelte";
 
-  const contactImport = createContactImportState({ onQueued: () => {} });
+  const contactImport = setContactImportState(createContactImportState({ onQueued: () => {} }));
 
   function goToContacts(): void {
     void goto(resolve(PATH_CONTACT));
@@ -30,9 +30,9 @@
   <div class="flex min-h-0 grow justify-center overflow-y-auto pt-4 pb-18 sm:items-start">
     <Card variant="panel" class="w-full max-w-6xl p-4 sm:p-6">
       {#if contactImport.step === "setup"}
-        <ContactImportSetup {contactImport} onClose={goToContacts} />
+        <ContactImportSetup onClose={goToContacts} />
       {:else if contactImport.step === "mapping"}
-        <ContactImportMapping {contactImport} onClose={goToContacts} />
+        <ContactImportMapping onClose={goToContacts} />
       {:else}
         <ContactImportComplete onDone={goToContacts} onHistory={goToHistory} />
       {/if}

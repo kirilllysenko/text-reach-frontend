@@ -6,8 +6,9 @@
   import Card from "text-reach-frontend-library/components/card/Card.svelte";
   import PasswordInput from "text-reach-frontend-library/components/password-input/PasswordInput.svelte";
   import EmailSection from "./components/EmailSection.svelte";
-  import { form } from "./form.svelte";
+  import { createResetPasswordForm, setResetPasswordForm } from "./form.svelte";
 
+  const form = setResetPasswordForm(createResetPasswordForm());
   let { newPassword } = form;
 </script>
 
@@ -37,10 +38,9 @@
         <FieldLabel for="new-password">New password</FieldLabel>
         <PasswordInput
           id="new-password"
-          bind:value={newPassword.value}
+          field={newPassword}
           autocomplete="new-password"
           placeholder="Create new password"
-          error={newPassword.error}
         />
         <FieldError error={newPassword.error} />
       </Field>

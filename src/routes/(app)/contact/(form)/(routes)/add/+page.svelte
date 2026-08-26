@@ -5,11 +5,12 @@
   import { BackButton, Button, Card, Field, FieldError, FieldLabel, Input, PageTitle, TextArea } from "$lib";
   import { PATH_CONTACT } from "$lib/app/paths";
   import { networkErrorText } from "$lib/form/errors";
-  import type { FormSubmitResult } from "$lib/form/form.svelte";
-  import { notificationsState } from "text-reach-frontend-library/state/notifications.svelte";
+  import type { FormSubmitResult } from "text-reach-frontend-library/form";
+  import { getNotificationsState } from "$lib/state/notifications.svelte";
   import ContactGroupMultiCombobox from "$lib/feature/contact-group/MultiCombobox/ContactGroupMultiCombobox.svelte";
   import ContactFormCustomFields from "../../components/ContactFormCustomFields/ContactFormCustomFields.svelte";
   import { createAddContactForm, type SubmitValues } from "../../components/form/form.svelte";
+  const notificationsState = getNotificationsState();
 
   const createContactMutation = new CreateContactStore();
   const form = createAddContactForm(submit);
@@ -44,42 +45,29 @@
         <div class="grid gap-4 sm:grid-cols-2">
           <Field>
             <FieldLabel for="contact-first-name">First name</FieldLabel>
-            <Input id="contact-first-name" bind:value={form.firstName.value} maxlength={100} placeholder="Avery" />
+            <Input id="contact-first-name" field={form.firstName} maxlength={100} placeholder="Avery" />
           </Field>
 
           <Field>
             <FieldLabel for="contact-last-name">Last name</FieldLabel>
-            <Input id="contact-last-name" bind:value={form.lastName.value} maxlength={100} placeholder="Johnson" />
+            <Input id="contact-last-name" field={form.lastName} maxlength={100} placeholder="Johnson" />
           </Field>
 
           <Field>
             <FieldLabel for="contact-phone-number">Phone</FieldLabel>
-            <Input
-              id="contact-phone-number"
-              bind:value={form.phoneNumber.value}
-              maxlength={40}
-              placeholder="+1 415 555 0127"
-              error={form.phoneNumber.error}
-            />
+            <Input id="contact-phone-number" field={form.phoneNumber} maxlength={40} placeholder="+1 415 555 0127" />
             <FieldError error={form.phoneNumber.error} />
           </Field>
 
           <Field>
             <FieldLabel for="contact-email">Email</FieldLabel>
-            <Input
-              id="contact-email"
-              bind:value={form.email.value}
-              maxlength={255}
-              placeholder="avery@example.com"
-              type="email"
-              error={form.email.error}
-            />
+            <Input id="contact-email" field={form.email} maxlength={255} placeholder="avery@example.com" type="email" />
             <FieldError error={form.email.error} />
           </Field>
 
           <Field>
             <FieldLabel for="contact-birthday">Birthday</FieldLabel>
-            <Input id="contact-birthday" bind:value={form.birthday.value} type="date" />
+            <Input id="contact-birthday" field={form.birthday} type="date" />
           </Field>
         </div>
 
@@ -87,7 +75,7 @@
           <FieldLabel for="contact-notes">Notes</FieldLabel>
           <TextArea
             id="contact-notes"
-            bind:value={form.notes.value}
+            field={form.notes}
             maxlength={1000}
             rows={4}
             placeholder="Prefers afternoon texts"
@@ -95,7 +83,7 @@
         </Field>
 
         <section class="mt-5">
-          <ContactGroupMultiCombobox bind:value={form.contactGroupIds.value} id="contact-groups" />
+          <ContactGroupMultiCombobox field={form.contactGroupIds} id="contact-groups" />
         </section>
 
         <ContactFormCustomFields values={form.customFields} />

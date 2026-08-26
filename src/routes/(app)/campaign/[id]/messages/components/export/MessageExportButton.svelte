@@ -3,7 +3,7 @@
   import type { MessageFilterInput, MessageSortByInput } from "$houdini/graphql/inputs";
   import { Button } from "$lib";
   import Download from "text-reach-frontend-library/icons/Download.svelte";
-  import { notificationsState } from "text-reach-frontend-library/state/notifications.svelte";
+  import { getNotificationsState } from "$lib/state/notifications.svelte";
   import { onDestroy } from "svelte";
   import { SvelteSet } from "svelte/reactivity";
   import { buildMessageFilter } from "../message-filter";
@@ -13,6 +13,7 @@
     downloadMessageExport,
     type MessageExportItem,
   } from "./message-export";
+  const notificationsState = getNotificationsState();
 
   interface MessageExportSnapshot {
     campaignId: string;

@@ -3,15 +3,15 @@
   import { resolve } from "$app/paths";
   import { page } from "$app/state";
   import Button from "text-reach-frontend-library/components/button/Button.svelte";
-  import { form, redirectActiveSession } from "./form.svelte";
-  import { Input } from "$lib";
+  import { createSignInForm, redirectActiveSession } from "./form.svelte";
+  import { Input, PasswordInput } from "$lib";
   import { Field, FieldError, FieldLabel } from "text-reach-frontend-library/components/field";
-  import PasswordInput from "./components/PasswordInput.svelte";
   import { onMount } from "svelte";
   import Alert from "text-reach-frontend-library/components/alert/Alert.svelte";
   import Card from "text-reach-frontend-library/components/card/Card.svelte";
 
   let render = $state(false);
+  const form = createSignInForm();
 
   const signUpOk = $derived(browser && page.url.searchParams.get("signUpOk") === "1");
   const resetPasswordOk = $derived(browser && page.url.searchParams.get("resetPasswordOk") === "1");
@@ -66,19 +66,13 @@
       <form onsubmit={form.submit}>
         <Field>
           <FieldLabel for="email">E-mail</FieldLabel>
-          <Input
-            id="email"
-            bind:value={form.email.value}
-            error={form.email.error}
-            autocomplete="email"
-            placeholder="you@example.com"
-          />
+          <Input id="email" field={form.email} autocomplete="email" placeholder="you@example.com" />
           <FieldError error={form.email.error} />
         </Field>
 
         <Field>
           <FieldLabel for="password">Password</FieldLabel>
-          <PasswordInput id="password" bind:value={form.password.value} error={form.password.error} />
+          <PasswordInput id="password" field={form.password} />
           <FieldError error={form.password.error} />
         </Field>
 

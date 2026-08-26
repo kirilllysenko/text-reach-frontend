@@ -3,11 +3,12 @@
   import { PATH_CONTACT_EXPORT_HISTORY } from "$lib/app/paths";
   import { createContactJobPoller } from "$lib/feature/contact-job/contact-job-poller.svelte";
   import Download from "text-reach-frontend-library/icons/Download.svelte";
-  import { notificationsState } from "text-reach-frontend-library/state/notifications.svelte";
+  import { getNotificationsState } from "$lib/state/notifications.svelte";
   import { onMount } from "svelte";
   import ContactActionDropdown from "../ContactActionDropdown.svelte";
   import { loadContactExportJobs } from "./contact-export-jobs";
   import { buildContactExportRequest, type ContactExportSnapshot } from "./contact-export";
+  const notificationsState = getNotificationsState();
 
   interface Props {
     snapshot: ContactExportSnapshot;

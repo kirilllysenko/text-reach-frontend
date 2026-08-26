@@ -1,16 +1,23 @@
 <script lang="ts">
   import { Button, Input } from "$lib";
+  import type { FormValue } from "text-reach-frontend-library/form";
   import Filter from "text-reach-frontend-library/icons/Filter.svelte";
   import Sort from "text-reach-frontend-library/icons/Sort.svelte";
   import CampaignListModeSwitch from "./CampaignListModeSwitch.svelte";
   import CampaignVirtualList from "./CampaignVirtualList.svelte";
-  import type { CampaignState } from "./campaign-state.svelte";
+  import { getCampaignState } from "./campaign-state.svelte";
 
-  interface Props {
-    state: CampaignState;
-  }
+  const state = getCampaignState();
 
-  let { state }: Props = $props();
+  const searchField: FormValue<string> = {
+    get value() {
+      return state.search;
+    },
+    set value(value) {
+      state.updateSearch(value);
+    },
+    error: null,
+  };
 </script>
 
 <aside
@@ -23,13 +30,7 @@
     <CampaignListModeSwitch mode={state.listMode} onChange={state.setListMode} />
 
     <div class="flex items-center gap-2">
-      <Input
-        id="campaign-search-desktop"
-        class="min-w-0 grow"
-        placeholder="Search campaigns"
-        value={state.search}
-        oninput={(event) => state.updateSearch(event.currentTarget.value)}
-      />
+      <Input id="campaign-search-desktop" class="min-w-0 grow" placeholder="Search campaigns" field={searchField} />
 
       <Button
         variant="secondary"

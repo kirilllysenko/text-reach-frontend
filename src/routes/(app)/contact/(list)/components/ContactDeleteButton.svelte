@@ -2,7 +2,8 @@
   import { DeleteContactsStore } from "$houdini";
   import type { ContactFilterInput } from "$houdini/graphql/inputs";
   import { Button, Dialog } from "$lib";
-  import { notificationsState } from "text-reach-frontend-library/state/notifications.svelte";
+  import { getNotificationsState } from "$lib/state/notifications.svelte";
+  const notificationsState = getNotificationsState();
 
   interface Props {
     filter: ContactFilterInput | null;

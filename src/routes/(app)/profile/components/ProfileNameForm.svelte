@@ -2,41 +2,33 @@
   import { ChangeProfileNameStore } from "$houdini";
   import { Button, Field, FieldError, FieldLabel, Input } from "$lib";
   import { networkErrorText } from "$lib/form/errors";
+  import { createFormValue } from "text-reach-frontend-library/form";
   import { toGraphQLErrorText } from "$lib/graphql/errors";
-  import { notificationsState } from "text-reach-frontend-library/state/notifications.svelte";
-  import { sessionState } from "$lib/state/session.svelte";
+  import { getNotificationsState } from "$lib/state/notifications.svelte";
+  import { getSessionState } from "$lib/state/session.svelte";
+  const notificationsState = getNotificationsState();
+  const sessionState = getSessionState();
 
   const changeNameMutation = new ChangeProfileNameStore();
 
-  let name = $state("");
-  let initialName = $state("");
-  let initialized = $state(false);
+  const initialProfileName = sessionState.profile?.name ?? "";
+  const name = $state(createFormValue(initialProfileName));
+  let initialName = $state(initialProfileName);
   let savingName = $state(false);
-  let nameError = $state<string | null>(null);
   let nameFormError = $state<string | null>(null);
 
-  $effect(() => {
-    if (initialized || !sessionState.profile) {
-      return;
-    }
-
-    name = sessionState.profile.name ?? "";
-    initialName = name;
-    initialized = true;
-  });
-
-  const nameDirty = $derived(name !== initialName);
+  const nameDirty = $derived(name.value !== initialName);
 
   async function submitName(event: SubmitEvent): Promise<void> {
     event.preventDefault();
 
-    nameError = null;
+    name.error = null;
     nameFormError = null;
     savingName = true;
 
     let response;
     try {
-      response = await changeNameMutation.mutate({ name: name.trim() || null });
+      response = await changeNameMutation.mutate({ name: name.value.trim() || null });
     } catch {
       savingName = false;
       nameFormError = networkErrorText;
@@ -52,12 +44,12 @@
 
       const nextProfile = {
         ...sessionState.profile,
-        name: name.trim(),
+        name: name.value.trim(),
       };
 
       sessionState.applyProfile(nextProfile);
-      name = nextProfile.name ?? "";
-      initialName = name;
+      name.value = nextProfile.name ?? "";
+      initialName = name.value;
       notificationsState.showInfo("Your name has been changed");
       return;
     }
@@ -72,8 +64,8 @@
   <form class="sm:max-w-md" onsubmit={submitName}>
     <Field>
       <FieldLabel for="profile-name">Name</FieldLabel>
-      <Input id="profile-name" bind:value={name} maxlength={50} placeholder="Your name" error={nameError} />
-      <FieldError error={nameError} />
+      <Input id="profile-name" field={name} maxlength={50} placeholder="Your name" />
+      <FieldError error={name.error} />
     </Field>
 
     <FieldError class="mt-3" error={nameFormError} />

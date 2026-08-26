@@ -1,11 +1,7 @@
 <script lang="ts">
-  import type { ConversationState } from "./conversation-state.svelte";
+  import { getConversationState } from "./conversation-state.svelte";
 
-  interface Props {
-    state: ConversationState;
-  }
-
-  let { state: conversationState }: Props = $props();
+  const conversationState = getConversationState();
   let textareaElement = $state<HTMLTextAreaElement>();
 
   async function submit(): Promise<void> {

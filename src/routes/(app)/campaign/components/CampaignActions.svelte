@@ -2,10 +2,12 @@
   import { cache, CancelCampaignStore, PauseCampaignStore, ResumeCampaignStore } from "$houdini";
   import { AccessGroup } from "$houdini/graphql/enums";
   import { Button, Dialog } from "$lib";
-  import { sessionState } from "$lib/state/session.svelte";
-  import { notificationsState } from "text-reach-frontend-library/state/notifications.svelte";
+  import { getSessionState } from "$lib/state/session.svelte";
+  import { getNotificationsState } from "$lib/state/notifications.svelte";
   import { getCampaignActions, type CampaignAction } from "./campaign-actions";
   import type { CampaignStatus, CampaignViewModel } from "./campaign-view-data";
+  const notificationsState = getNotificationsState();
+  const sessionState = getSessionState();
 
   interface Props {
     campaign: CampaignViewModel;

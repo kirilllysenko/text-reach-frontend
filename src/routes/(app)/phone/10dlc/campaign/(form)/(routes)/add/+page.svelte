@@ -18,11 +18,12 @@
   } from "$lib";
   import { PATH_TEN_DLC } from "$lib/app/paths";
   import { networkErrorText } from "$lib/form/errors";
-  import type { FormSubmitResult } from "$lib/form/form.svelte";
+  import type { FormSubmitResult } from "text-reach-frontend-library/form";
   import { tenDlcStatusLabel } from "$lib/feature/phone/ten-dlc-display";
-  import { notificationsState } from "text-reach-frontend-library/state/notifications.svelte";
+  import { getNotificationsState } from "$lib/state/notifications.svelte";
   import SupportingDocumentField from "../../components/SupportingDocumentField.svelte";
   import { createTenDlcCampaignForm, type SubmitValues } from "../../components/form/form.svelte";
+  const notificationsState = getNotificationsState();
 
   const usecaseOptions = [
     { id: "MIXED", value: "Mixed messaging" },
@@ -44,7 +45,6 @@
   let loading = $state(true);
   let loadError = $state<string | null>(null);
   const brand = $derived($brandQuery.data?.tenDlcBrand ?? null);
-  const selectedUsecase = $derived(usecaseOptions.find((option) => option.id === form.usecase.value));
   const brandVerified = $derived(
     !brand?.providerStatus || ["VERIFIED", "VETTED_VERIFIED"].includes(brand.providerStatus.toUpperCase()),
   );
@@ -117,10 +117,8 @@
                   inputId="ten-dlc-campaign-usecase"
                   label="Use case"
                   options={usecaseOptions}
-                  value={selectedUsecase}
+                  field={form.usecase}
                   {loading}
-                  error={form.usecase.error}
-                  onChange={(option) => (form.usecase.value = option.id)}
                 />
                 <FieldError error={form.usecase.error} />
               </Field>
@@ -128,7 +126,7 @@
                 <FieldLabel for="ten-dlc-campaign-description">Description</FieldLabel>
                 <TextArea
                   id="ten-dlc-campaign-description"
-                  bind:value={form.description.value}
+                  field={form.description}
                   {loading}
                   rows={4}
                   placeholder="Order confirmations and delivery updates for customers who opt in at checkout."
@@ -145,21 +143,17 @@
                 <FieldLabel for="ten-dlc-campaign-message-flow">How customers opt in</FieldLabel>
                 <TextArea
                   id="ten-dlc-campaign-message-flow"
-                  bind:value={form.messageFlow.value}
+                  field={form.messageFlow}
                   {loading}
                   rows={4}
                   placeholder="Customers enter their number and check the SMS consent box during checkout."
                 />
                 <FieldError error={form.messageFlow.error} />
               </Field>
-              <SupportingDocumentField
-                bind:value={form.documentUrl.value}
-                disabled={loading || form.loading}
-                error={form.documentUrl.error}
-              />
+              <SupportingDocumentField field={form.documentUrl} disabled={loading || form.loading} />
               <Field>
                 <FieldLabel for="ten-dlc-campaign-opt-in-keywords">Opt-in keywords</FieldLabel>
-                <Input id="ten-dlc-campaign-opt-in-keywords" bind:value={form.optInKeywords.value} {loading} />
+                <Input id="ten-dlc-campaign-opt-in-keywords" field={form.optInKeywords} {loading} />
               </Field>
             </div>
           </section>
@@ -169,12 +163,12 @@
             <div class="mt-4 grid gap-4 sm:grid-cols-2">
               <Field>
                 <FieldLabel for="ten-dlc-campaign-sample-1">Sample message 1</FieldLabel>
-                <TextArea id="ten-dlc-campaign-sample-1" bind:value={form.sampleMessage1.value} {loading} rows={4} />
+                <TextArea id="ten-dlc-campaign-sample-1" field={form.sampleMessage1} {loading} rows={4} />
                 <FieldError error={form.sampleMessage1.error} />
               </Field>
               <Field>
                 <FieldLabel for="ten-dlc-campaign-sample-2">Sample message 2</FieldLabel>
-                <TextArea id="ten-dlc-campaign-sample-2" bind:value={form.sampleMessage2.value} {loading} rows={4} />
+                <TextArea id="ten-dlc-campaign-sample-2" field={form.sampleMessage2} {loading} rows={4} />
                 <FieldError error={form.sampleMessage2.error} />
               </Field>
             </div>
@@ -186,21 +180,21 @@
               <Field
                 ><FieldLabel for="ten-dlc-campaign-help-keywords">Help keywords</FieldLabel><Input
                   id="ten-dlc-campaign-help-keywords"
-                  bind:value={form.helpKeywords.value}
+                  field={form.helpKeywords}
                   {loading}
                 /></Field
               >
               <Field
                 ><FieldLabel for="ten-dlc-campaign-opt-out-keywords">Opt-out keywords</FieldLabel><Input
                   id="ten-dlc-campaign-opt-out-keywords"
-                  bind:value={form.optOutKeywords.value}
+                  field={form.optOutKeywords}
                   {loading}
                 /></Field
               >
               <Field
                 ><FieldLabel for="ten-dlc-campaign-help-message">Help response</FieldLabel><TextArea
                   id="ten-dlc-campaign-help-message"
-                  bind:value={form.helpMessage.value}
+                  field={form.helpMessage}
                   {loading}
                   rows={3}
                 /></Field
@@ -208,7 +202,7 @@
               <Field
                 ><FieldLabel for="ten-dlc-campaign-opt-out-message">Opt-out response</FieldLabel><TextArea
                   id="ten-dlc-campaign-opt-out-message"
-                  bind:value={form.optoutMessage.value}
+                  field={form.optoutMessage}
                   {loading}
                   rows={3}
                 /></Field

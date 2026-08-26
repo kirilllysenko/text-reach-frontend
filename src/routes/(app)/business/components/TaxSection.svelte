@@ -29,12 +29,11 @@
       <FieldLabel for="business-tax-id">Tax ID</FieldLabel>
       <Input
         id="business-tax-id"
-        bind:value={form.taxId.value}
+        field={form.taxId}
         {loading}
         maxlength={100}
         autocomplete="off"
         placeholder={existingTaxIdLastFour ? `Ending in ${existingTaxIdLastFour}` : "12-3456789"}
-        error={form.taxId.error}
       />
       <FieldError error={form.taxId.error} />
     </Field>
@@ -43,12 +42,11 @@
       <FieldLabel for="business-registration-type">Business registration type</FieldLabel>
       <Input
         id="business-registration-type"
-        bind:value={form.businessRegistrationType.value}
+        field={form.businessRegistrationType}
         {loading}
         maxlength={100}
         autocomplete="off"
         placeholder="EIN"
-        error={form.businessRegistrationType.error}
       />
       <FieldError error={form.businessRegistrationType.error} />
     </Field>
@@ -57,12 +55,11 @@
       <FieldLabel for="business-tax-country">Tax ID issuing country</FieldLabel>
       <Input
         id="business-tax-country"
-        bind:value={form.taxIdIssuingCountry.value}
+        field={form.taxIdIssuingCountry}
         {loading}
         maxlength={2}
         autocapitalize="characters"
         placeholder="US"
-        error={form.taxIdIssuingCountry.error}
       />
       <FieldError error={form.taxIdIssuingCountry.error} />
     </Field>

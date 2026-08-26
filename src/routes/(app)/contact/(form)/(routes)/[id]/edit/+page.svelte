@@ -6,12 +6,13 @@
   import { BackButton, Button, Card, Field, FieldError, FieldLabel, Input, PageTitle, TextArea } from "$lib";
   import { PATH_CONTACT } from "$lib/app/paths";
   import { networkErrorText } from "$lib/form/errors";
-  import type { FormSubmitResult } from "$lib/form/form.svelte";
-  import { notificationsState } from "text-reach-frontend-library/state/notifications.svelte";
+  import type { FormSubmitResult } from "text-reach-frontend-library/form";
+  import { getNotificationsState } from "$lib/state/notifications.svelte";
   import { onMount } from "svelte";
   import ContactGroupMultiCombobox from "$lib/feature/contact-group/MultiCombobox/ContactGroupMultiCombobox.svelte";
   import ContactFormCustomFields from "../../../components/ContactFormCustomFields/ContactFormCustomFields.svelte";
   import { createContactForm, type FormValues, type SubmitValues } from "../../../components/form/form.svelte";
+  const notificationsState = getNotificationsState();
 
   const contactId = page.params.id;
   const formByIdQuery = new ContactFormByIdStore();
@@ -112,35 +113,22 @@
           <div class="grid gap-4 sm:grid-cols-2">
             <Field>
               <FieldLabel for="contact-first-name">First name</FieldLabel>
-              <Input
-                id="contact-first-name"
-                bind:value={form.firstName.value}
-                {loading}
-                maxlength={100}
-                placeholder="Avery"
-              />
+              <Input id="contact-first-name" field={form.firstName} {loading} maxlength={100} placeholder="Avery" />
             </Field>
 
             <Field>
               <FieldLabel for="contact-last-name">Last name</FieldLabel>
-              <Input
-                id="contact-last-name"
-                bind:value={form.lastName.value}
-                {loading}
-                maxlength={100}
-                placeholder="Johnson"
-              />
+              <Input id="contact-last-name" field={form.lastName} {loading} maxlength={100} placeholder="Johnson" />
             </Field>
 
             <Field>
               <FieldLabel for="contact-phone-number">Phone</FieldLabel>
               <Input
                 id="contact-phone-number"
-                bind:value={form.phoneNumber.value}
+                field={form.phoneNumber}
                 {loading}
                 maxlength={40}
                 placeholder="+1 415 555 0127"
-                error={form.phoneNumber.error}
               />
               <FieldError error={form.phoneNumber.error} />
             </Field>
@@ -149,19 +137,18 @@
               <FieldLabel for="contact-email">Email</FieldLabel>
               <Input
                 id="contact-email"
-                bind:value={form.email.value}
+                field={form.email}
                 {loading}
                 maxlength={255}
                 placeholder="avery@example.com"
                 type="email"
-                error={form.email.error}
               />
               <FieldError error={form.email.error} />
             </Field>
 
             <Field>
               <FieldLabel for="contact-birthday">Birthday</FieldLabel>
-              <Input id="contact-birthday" bind:value={form.birthday.value} {loading} type="date" />
+              <Input id="contact-birthday" field={form.birthday} {loading} type="date" />
             </Field>
           </div>
 
@@ -169,7 +156,7 @@
             <FieldLabel for="contact-notes">Notes</FieldLabel>
             <TextArea
               id="contact-notes"
-              bind:value={form.notes.value}
+              field={form.notes}
               {loading}
               maxlength={1000}
               rows={4}
@@ -178,7 +165,7 @@
           </Field>
 
           <section class="mt-5">
-            <ContactGroupMultiCombobox bind:value={form.contactGroupIds.value} id="contact-groups" {loading} />
+            <ContactGroupMultiCombobox field={form.contactGroupIds} id="contact-groups" {loading} />
           </section>
 
           <ContactFormCustomFields values={form.customFields} {loading} />

@@ -1,7 +1,8 @@
 import { goto } from "$app/navigation";
+import { resolve } from "$app/paths";
 import { SignInSessionQueryStore, SignInStore } from "$houdini";
 import { PATH_DASHBOARD } from "$lib/app/paths";
-import { createForm, type FormSubmitResult } from "$lib/form/form.svelte";
+import { createForm, type FormSubmitResult } from "text-reach-frontend-library/form";
 import { networkErrorText } from "$lib/form/errors";
 import { accessFailurePath } from "$lib/feature/account-access/access-failure";
 import { PasswordSchema } from "$lib/form/validators";
@@ -20,42 +21,42 @@ export const initialValues: FormValues = {
   password: "",
 };
 
-const checkSessionQuery = new SignInSessionQueryStore();
-const signInMutation = new SignInStore();
+export function createSignInForm() {
+  const signInMutation = new SignInStore();
 
-export const form = createForm(initialValues, validator, submit);
+  return createForm(initialValues, validator, async (values): Promise<FormSubmitResult> => {
+    try {
+      const response = await signInMutation.mutate({ input: values });
+
+      if (!response.errors && response.data?.signIn) {
+        await goto(resolve(PATH_DASHBOARD));
+        return {};
+      }
+
+      const failurePath = accessFailurePath(graphQLErrorCode(response.errors));
+      if (failurePath) {
+        await goto(resolve(failurePath));
+        return {};
+      }
+
+      return formError(toGraphQLErrorText(response.errors));
+    } catch {
+      return formError(networkErrorText);
+    }
+  });
+}
 
 export async function redirectActiveSession(): Promise<void> {
+  const checkSessionQuery = new SignInSessionQueryStore();
   const response = await checkSessionQuery.fetch();
   if (!response.errors && response.data?.checkSession) {
-    await goto(PATH_DASHBOARD);
+    await goto(resolve(PATH_DASHBOARD));
     return;
   }
 
   const failurePath = accessFailurePath(graphQLErrorCode(response.errors));
   if (failurePath) {
-    await goto(failurePath);
-  }
-}
-
-async function submit(values: FormValues): Promise<FormSubmitResult> {
-  try {
-    const response = await signInMutation.mutate({ input: values });
-
-    if (!response.errors && response.data?.signIn) {
-      await goto(PATH_DASHBOARD);
-      return {};
-    }
-
-    const failurePath = accessFailurePath(graphQLErrorCode(response.errors));
-    if (failurePath) {
-      await goto(failurePath);
-      return {};
-    }
-
-    return formError(toGraphQLErrorText(response.errors));
-  } catch {
-    return formError(networkErrorText);
+    await goto(resolve(failurePath));
   }
 }
 

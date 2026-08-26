@@ -1,10 +1,12 @@
 <script lang="ts">
   import { DeleteUserStore, cache } from "$houdini";
+  import { resolve } from "$app/paths";
   import { Button, Dialog } from "$lib";
   import { buildUserEditPath } from "$lib/app/paths";
   import { defaultErrorText, networkErrorText } from "$lib/form/errors";
-  import { notificationsState } from "text-reach-frontend-library/state/notifications.svelte";
+  import { getNotificationsState } from "$lib/state/notifications.svelte";
   import type { UserTableRow } from "./column.svelte";
+  const notificationsState = getNotificationsState();
 
   interface Props {
     onDeleted: () => Promise<unknown>;
@@ -40,7 +42,7 @@
 
 <div class="flex items-center justify-end gap-1">
   <a
-    href={buildUserEditPath(user.id)}
+    href={resolve(buildUserEditPath(user.id))}
     class="hover:text-sky-800 inline-flex h-7 items-center justify-center rounded-lg border border-white/80 bg-white/80 px-2
       text-sm font-medium text-sky-700 shadow-sm hover:bg-white"
   >

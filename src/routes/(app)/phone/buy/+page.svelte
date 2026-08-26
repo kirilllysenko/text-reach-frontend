@@ -17,10 +17,12 @@
   import { formatPhoneNumber, phoneTypeLabels } from "$lib/feature/phone/phone-display";
   import { isActiveTenDlcCampaignStatus } from "$lib/feature/phone/ten-dlc-display";
   import { networkErrorText } from "$lib/form/errors";
-  import type { FormSubmitResult } from "$lib/form/form.svelte";
+  import { createFormValue } from "text-reach-frontend-library/form";
+  import type { FormSubmitResult } from "text-reach-frontend-library/form";
   import { graphQLErrorCode } from "$lib/graphql/errors";
-  import { notificationsState } from "text-reach-frontend-library/state/notifications.svelte";
+  import { getNotificationsState } from "$lib/state/notifications.svelte";
   import ShortCodeApplicationForm from "./components/short-code/ShortCodeApplicationForm.svelte";
+  const notificationsState = getNotificationsState();
 
   interface AvailablePhone {
     phoneNumber: string;
@@ -48,7 +50,7 @@
   const createShortCodeApplicationMutation = new CreateShortCodeApplicationStore();
 
   let selectedType = $state<PhoneType$options>("TOLL_FREE");
-  let searchNumber = $state("");
+  const phoneSearch = $state(createFormValue(""));
   let availablePhones = $state<AvailablePhone[]>([]);
   let selectedPhone = $state<AvailablePhone | null>(null);
   let businessName = $state<string | null>(null);
@@ -58,12 +60,11 @@
   let checkingBusiness = $state(true);
   let searching = $state(false);
   let buying = $state(false);
-  let searchError = $state<string | null>(null);
   let purchaseError = $state<string | null>(null);
   let tenDlcCampaigns = $state<TenDlcCampaign[]>([]);
   let tenDlcCampaignsLoading = $state(false);
   let tenDlcCampaignsError = $state<string | null>(null);
-  let selectedTenDlcCampaignId = $state("");
+  const tenDlcCampaignId = $state(createFormValue(""));
   const tenDlcCampaignOptions = $derived(
     tenDlcCampaigns
       .filter((campaign) => isActiveTenDlcCampaignStatus(campaign.providerStatus))
@@ -72,13 +73,10 @@
         value: `${campaign.description} (${campaign.usecase.replaceAll("_", " ")})`,
       })),
   );
-  const selectedTenDlcCampaign = $derived(
-    tenDlcCampaignOptions.find((campaign) => campaign.id === selectedTenDlcCampaignId),
-  );
   const canSearch = $derived(
     businessProfileReady &&
       selectedType !== "SHORT_CODE" &&
-      (selectedType !== "TEN_DLC" || Boolean(selectedTenDlcCampaignId)),
+      (selectedType !== "TEN_DLC" || Boolean(tenDlcCampaignId.value)),
   );
 
   onMount(() => {
@@ -123,7 +121,7 @@
 
     selectedType = phoneType;
     availablePhones = [];
-    searchError = null;
+    phoneSearch.error = null;
     purchaseError = null;
     selectedPhone = null;
 
@@ -134,7 +132,7 @@
 
     if (phoneType === "TEN_DLC") {
       await loadTenDlcCampaigns();
-      if (!selectedTenDlcCampaignId) {
+      if (!tenDlcCampaignId.value) {
         availablePhones = [];
         return;
       }
@@ -149,7 +147,7 @@
       const response = await tenDlcCampaignsQuery.fetch();
       if (response.errors || !response.data) {
         tenDlcCampaigns = [];
-        selectedTenDlcCampaignId = "";
+        tenDlcCampaignId.value = "";
         tenDlcCampaignsError = "There was an error.";
         return;
       }
@@ -158,12 +156,12 @@
       const activeCampaigns = tenDlcCampaigns.filter((campaign) =>
         isActiveTenDlcCampaignStatus(campaign.providerStatus),
       );
-      if (!activeCampaigns.some((campaign) => campaign.id === selectedTenDlcCampaignId)) {
-        selectedTenDlcCampaignId = activeCampaigns[0]?.id ?? "";
+      if (!activeCampaigns.some((campaign) => campaign.id === tenDlcCampaignId.value)) {
+        tenDlcCampaignId.value = activeCampaigns[0]?.id ?? "";
       }
     } catch {
       tenDlcCampaigns = [];
-      selectedTenDlcCampaignId = "";
+      tenDlcCampaignId.value = "";
       tenDlcCampaignsError = "Please check your internet connection and try again.";
     } finally {
       tenDlcCampaignsLoading = false;
@@ -176,12 +174,12 @@
     }
 
     searching = true;
-    searchError = null;
+    phoneSearch.error = null;
     purchaseError = null;
     selectedPhone = null;
 
     try {
-      const number = searchNumber.replace(/\D/g, "");
+      const number = phoneSearch.value.replace(/\D/g, "");
       const response = await availablePhoneNumbersQuery.fetch({
         variables: {
           input: {
@@ -193,14 +191,14 @@
 
       if (response.errors || !response.data) {
         availablePhones = [];
-        searchError = "There was an error.";
+        phoneSearch.error = "There was an error.";
         return;
       }
 
       availablePhones = [...response.data.availableTenantPhones];
     } catch {
       availablePhones = [];
-      searchError = "Please check your internet connection and try again.";
+      phoneSearch.error = "Please check your internet connection and try again.";
     } finally {
       searching = false;
     }
@@ -224,7 +222,7 @@
         input: {
           number: selectedPhone.phoneNumber,
           phoneType: selectedPhone.phoneType,
-          ...(selectedPhone.phoneType === "TEN_DLC" ? { tenDlcCampaignId: selectedTenDlcCampaignId } : {}),
+          ...(selectedPhone.phoneType === "TEN_DLC" ? { tenDlcCampaignId: tenDlcCampaignId.value } : {}),
         },
       });
       if (response.errors || !response.data) {
@@ -425,8 +423,7 @@
                   inputId="ten-dlc-purchase-campaign"
                   label="Approved 10DLC campaign"
                   options={tenDlcCampaignOptions}
-                  value={selectedTenDlcCampaign}
-                  onChange={(option) => (selectedTenDlcCampaignId = option.id)}
+                  field={tenDlcCampaignId}
                 />
               {/if}
             </div>
@@ -444,7 +441,7 @@
               inputmode="numeric"
               maxlength={10}
               placeholder="Area code or digits"
-              bind:value={searchNumber}
+              field={phoneSearch}
               disabled={!canSearch}
             />
             <Button class="sm:w-28" submit spinner={searching} disabled={!canSearch || searching}>Search</Button>
@@ -459,8 +456,8 @@
             </Alert>
           {/if}
 
-          {#if searchError}
-            <Alert type="error" layout="inline" class="mt-4">{searchError}</Alert>
+          {#if phoneSearch.error}
+            <Alert type="error" layout="inline" class="mt-4">{phoneSearch.error}</Alert>
           {/if}
 
           {#if searching}
@@ -469,7 +466,7 @@
                 <div class="skeleton-loading h-20 rounded-2xl"></div>
               {/each}
             </div>
-          {:else if businessProfileReady && !searchError && availablePhones.length === 0}
+          {:else if businessProfileReady && !phoneSearch.error && availablePhones.length === 0}
             <div class="mt-4 rounded-2xl border border-dashed border-slate-300 bg-white/50 px-4 py-10 text-center">
               <p class="font-medium text-slate-700">No matching numbers</p>
               <p class="mt-1 text-sm text-slate-500">Try fewer digits or choose another number type.</p>

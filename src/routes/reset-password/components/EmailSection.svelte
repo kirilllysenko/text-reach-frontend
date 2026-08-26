@@ -6,8 +6,10 @@
   import { graphQLErrorCode } from "$lib/graphql/errors";
   import { Countdown } from "$lib/utils/countdown.svelte";
   import { onDestroy } from "svelte";
-  import { notificationsState } from "text-reach-frontend-library/state/notifications.svelte";
-  import { EmailSchema, form } from "../form.svelte";
+  import { getNotificationsState } from "$lib/state/notifications.svelte";
+  import { EmailSchema, getResetPasswordForm } from "../form.svelte";
+  const notificationsState = getNotificationsState();
+  const form = getResetPasswordForm();
 
   let { email, code } = form;
 
@@ -51,27 +53,13 @@
 
 <Field>
   <FieldLabel for="email">E-mail</FieldLabel>
-  <Input
-    id="email"
-    bind:value={email.value}
-    type="email"
-    autocomplete="email"
-    placeholder="you@example.com"
-    error={email.error}
-  />
+  <Input id="email" field={email} type="email" autocomplete="email" placeholder="you@example.com" />
   <FieldError error={email.error} />
 </Field>
 
 <Field class="mt-4">
   <FieldLabel for="reset-code">Reset code</FieldLabel>
-  <Input
-    id="reset-code"
-    bind:value={code.value}
-    maxlength={OTP_LENGTH}
-    inputmode="numeric"
-    autocomplete="one-time-code"
-    error={code.error}
-  >
+  <Input id="reset-code" field={code} maxlength={OTP_LENGTH} inputmode="numeric" autocomplete="one-time-code">
     {#snippet rightAddon()}
       <Button
         id="reset-password-code-send"

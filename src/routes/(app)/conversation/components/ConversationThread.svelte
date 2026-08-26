@@ -40,7 +40,7 @@
 
 <script lang="ts">
   import { tick } from "svelte";
-  import type { ConversationState } from "./conversation-state.svelte";
+  import { getConversationState } from "./conversation-state.svelte";
   import {
     conversationInitials,
     conversationTitle,
@@ -51,11 +51,7 @@
   import MessageBubble from "./MessageBubble.svelte";
   import MessageComposer from "./MessageComposer.svelte";
 
-  interface Props {
-    state: ConversationState;
-  }
-
-  let { state: conversationState }: Props = $props();
+  const conversationState = getConversationState();
   let messagesElement = $state<HTMLDivElement>();
   let previousLastMessageId: string | undefined;
 
@@ -180,7 +176,7 @@
       </div>
     {/if}
 
-    <MessageComposer state={conversationState} />
+    <MessageComposer />
   {:else}
     <div class="chat-wallpaper flex h-full items-center justify-center px-8 text-center">
       <div class="max-w-md">

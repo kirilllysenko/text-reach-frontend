@@ -4,133 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="dc715fc1-1119-4b5e-89b2-2494cb1992b3" name="Changes" comment="library">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/prettier.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.vscode/extensions.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.vscode/settings.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/campaign-create-compact-images.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/campaign-create-image-lightbox.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/campaign-create-mock.README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/campaign-create-preview-hidden.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/campaign-create-preview-visible.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-contact-loading-skeleton.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-contact-loading.mp4" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-contact-loading.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-000.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-001.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-002.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-003.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-004.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-005.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-006.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-007.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-008.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-009.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-010.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-011.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-012.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-013.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-014.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-015.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-016.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-017.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-018.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-019.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-020.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-021.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-022.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-023.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-024.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-025.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-026.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-027.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-028.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-029.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-030.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-031.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-032.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-033.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-034.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-035.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-036.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-037.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-038.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-039.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-040.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-041.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-042.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-043.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-044.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-045.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-046.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-047.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-048.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-049.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-050.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-051.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-052.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-053.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-054.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-055.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-056.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-057.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-058.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-059.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-060.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-061.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-062.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-frames-animated/frame-063.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-full-page-skeleton.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/artifacts/edit-loading-input-skeletons.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bun.lock" beforeDir="false" afterPath="$PROJECT_DIR$/bun.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/e2e/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/e2e/contact.live.spec.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/playwright.config.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/screenshots/contacts-sort-modal-desktop.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/screenshots/contacts-sort-modal-mobile.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/generate-live-update.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/(app)/campaign/(form)/components/details/contact-groups/ContactGroupsSection.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/campaign/(form)/components/details/contact-groups/ContactGroupsSection.svelte" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/(app)/campaign/(form)/components/details/sender/SenderPhoneField.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/campaign/(form)/components/details/sender/SenderPhoneField.svelte" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/(app)/campaign/(form)/components/message/editor/ContactFieldMenu.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/campaign/(form)/components/message/editor/ContactFieldMenu.svelte" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/(app)/campaign/(form)/components/message/editor/MessageEditor.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/campaign/(form)/components/message/editor/MessageEditor.svelte" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/(app)/campaign/[id]/messages/components/MessageSearchInput.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/campaign/[id]/messages/components/MessageSearchInput.svelte" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/(app)/campaign/[id]/messages/components/filter/FilterButton.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/campaign/[id]/messages/components/filter/FilterButton.svelte" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/(app)/campaign/[id]/messages/components/sort/SortButton.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/campaign/[id]/messages/components/sort/SortButton.svelte" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/(app)/campaign/[id]/messages/components/table/column.svelte.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/campaign/[id]/messages/components/table/column.svelte.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/(app)/campaign/components/CampaignDesktopSidebar.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/campaign/components/CampaignDesktopSidebar.svelte" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/(app)/campaign/components/CampaignListItem.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/campaign/components/CampaignListItem.svelte" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/(app)/campaign/components/CampaignMobileList.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/campaign/components/CampaignMobileList.svelte" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/(app)/contact-group/(list)/components/ContactGroupSearchInput.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/contact-group/(list)/components/ContactGroupSearchInput.svelte" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/(app)/contact-group/(list)/components/filter/FilterButton.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/contact-group/(list)/components/filter/FilterButton.svelte" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/(app)/contact-group/(list)/components/sort/SortButton.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/contact-group/(list)/components/sort/SortButton.svelte" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/(app)/contact/(list)/components/ContactSearchInput.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/contact/(list)/components/ContactSearchInput.svelte" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/(app)/contact/(list)/components/filter/ContactGroupFilterControl.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/contact/(list)/components/filter/ContactGroupFilterControl.svelte" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/(app)/contact/(list)/components/filter/FilterButton.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/contact/(list)/components/filter/FilterButton.svelte" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/(app)/contact/(list)/components/sort/SortButton.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/contact/(list)/components/sort/SortButton.svelte" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/(app)/contact/(list)/components/table/column.svelte.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/contact/(list)/components/table/column.svelte.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/(app)/contact/(list)/components/table/table.svelte.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/contact/(list)/components/table/table.svelte.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/(app)/custom-field/(list)/components/CustomFieldSearchInput.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/custom-field/(list)/components/CustomFieldSearchInput.svelte" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/(app)/custom-field/(list)/components/filter/FilterButton.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/custom-field/(list)/components/filter/FilterButton.svelte" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/(app)/custom-field/(list)/components/sort/SortButton.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/custom-field/(list)/components/sort/SortButton.svelte" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/(app)/custom-field/(list)/components/table/column.svelte.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/custom-field/(list)/components/table/column.svelte.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/(app)/custom-field/(list)/components/table/table.svelte.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/custom-field/(list)/components/table/table.svelte.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/(app)/payment/transaction/components/TransactionSearchInput.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/payment/transaction/components/TransactionSearchInput.svelte" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/(app)/payment/transaction/components/filter/FilterButton.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/payment/transaction/components/filter/FilterButton.svelte" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/(app)/payment/transaction/components/sort/SortButton.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/payment/transaction/components/sort/SortButton.svelte" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/(app)/phone/buy/+page.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/phone/buy/+page.svelte" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/(app)/user/(list)/components/UserSearchInput.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/user/(list)/components/UserSearchInput.svelte" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/(app)/user/(list)/components/filter/FilterButton.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/user/(list)/components/filter/FilterButton.svelte" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/(app)/user/(list)/components/sort/SortButton.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/user/(list)/components/sort/SortButton.svelte" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/(app)/user/(list)/components/table/column.svelte.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/(app)/user/(list)/components/table/column.svelte.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/sign-in/+page.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/sign-in/+page.svelte" afterDir="false" />
-    </list>
+    <list default="true" id="dc715fc1-1119-4b5e-89b2-2494cb1992b3" name="Changes" comment="library" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -144,6 +18,11 @@
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="svelte" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
@@ -229,33 +108,32 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;JavaScript Debug.api-docs.yaml.executor&quot;: &quot;Debug&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;javascript.preferred.runtime.type.id&quot;: &quot;bun&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/kirill/Projects/Personal/text-reach/text-reach-frontend&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;bun&quot;,
-    &quot;npm.dev.executor&quot;: &quot;Run&quot;,
-    &quot;prettierjs.PrettierConfiguration.Package&quot;: &quot;/Users/kirill/Projects/Personal/text-reach/text-reach-frontend/node_modules/prettier&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;settings.javascript.prettier&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;/Users/kirill/Projects/Personal/text-reach/text-reach-frontend/node_modules/typescript/lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "JavaScript Debug.api-docs.yaml.executor": "Debug",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "javascript.preferred.runtime.type.id": "bun",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/Users/kirill/Projects/Personal/text-reach/text-reach-frontend",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "bun",
+    "npm.dev.executor": "Run",
+    "prettierjs.PrettierConfiguration.Package": "/Users/kirill/Projects/Personal/text-reach/text-reach-frontend/node_modules/prettier",
+    "settings.editor.selected.configurable": "settings.javascript.prettier",
+    "ts.external.directory.path": "/Users/kirill/Projects/Personal/text-reach/text-reach-frontend/node_modules/typescript/lib",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />

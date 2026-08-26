@@ -1,13 +1,14 @@
 <script lang="ts">
   import { BackButton, Card, PageTitle, Table } from "$lib";
+  import { createFormValue } from "text-reach-frontend-library/form";
   import FilterButton from "./components/filter/FilterButton.svelte";
   import SortButton from "./components/sort/SortButton.svelte";
   import TransactionSearchInput from "./components/TransactionSearchInput.svelte";
   import { createTransactionTable, isWalletTransactionId } from "./components/table/table.svelte";
 
-  let idSearch = $state("");
-  const activeIdSearchIsInvalid = $derived(Boolean(idSearch.trim()) && !isWalletTransactionId(idSearch));
-  const table = createTransactionTable({ getIdSearch: () => idSearch });
+  const idSearch = $state(createFormValue(""));
+  const activeIdSearchIsInvalid = $derived(Boolean(idSearch.value.trim()) && !isWalletTransactionId(idSearch.value));
+  const table = createTransactionTable({ getIdSearch: () => idSearch.value });
 </script>
 
 <div
@@ -20,7 +21,7 @@
 
   <Card variant="panel" class="shrink-0 space-y-3">
     <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
-      <TransactionSearchInput dataLoading={table.handlers.dataLoading} bind:value={idSearch} />
+      <TransactionSearchInput dataLoading={table.handlers.dataLoading} field={idSearch} />
 
       <div class="flex items-center gap-2">
         <FilterButton filtering={table.handlers.filtering} />

@@ -2,15 +2,26 @@
   import { Button, Field, FieldError, FieldLabel } from "$lib";
   import ContactGroupMultiCombobox from "$lib/feature/contact-group/MultiCombobox/ContactGroupMultiCombobox.svelte";
   import Upload from "text-reach-frontend-library/icons/Upload.svelte";
-  import type { ContactImportState } from "./contact-import-state.svelte";
+  import type { FormValue } from "text-reach-frontend-library/form";
+  import { getContactImportState } from "./contact-import-state.svelte";
 
   interface Props {
-    contactImport: ContactImportState;
     onClose: () => void;
   }
 
-  let { contactImport, onClose }: Props = $props();
+  let { onClose }: Props = $props();
+  const contactImport = getContactImportState();
   let fileInput = $state<HTMLInputElement | null>(null);
+
+  const contactGroupsField: FormValue<string[]> = {
+    get value() {
+      return contactImport.contactGroupIds;
+    },
+    set value(value) {
+      contactImport.setContactGroupIds(value);
+    },
+    error: null,
+  };
 
   function handleFileChange(event: Event): void {
     const input = event.currentTarget as HTMLInputElement;
@@ -49,12 +60,11 @@
   <Field>
     <ContactGroupMultiCombobox
       id="contact-import-groups"
-      value={contactImport.contactGroupIds}
+      field={contactGroupsField}
       label="Contact groups"
       placeholder="Search groups"
       emptyText="No groups found"
       loadingText="Loading groups..."
-      onChange={contactImport.setContactGroupIds}
     />
   </Field>
 

@@ -4,19 +4,21 @@
   import { AccessGroup } from "$houdini/graphql/enums";
   import { LinkButton, PageTitle } from "$lib";
   import { PATH_CAMPAIGN_ADD } from "$lib/app/paths";
-  import { phoneFilterState } from "$lib/state/phone-filter.svelte";
-  import { sessionState } from "$lib/state/session.svelte";
-  import { CampaignState, type CampaignListMode } from "./components/campaign-state.svelte";
+  import { getPhoneFilterState } from "$lib/state/phone-filter.svelte";
+  import { getSessionState } from "$lib/state/session.svelte";
+  import { CampaignState, setCampaignState, type CampaignListMode } from "./components/campaign-state.svelte";
   import CampaignDesktopSidebar from "./components/CampaignDesktopSidebar.svelte";
   import CampaignDetailsPanel from "./components/CampaignDetailsPanel.svelte";
   import CampaignMobileDetails from "./components/CampaignMobileDetails.svelte";
   import CampaignMobileList from "./components/CampaignMobileList.svelte";
   import CampaignOverlay from "./components/CampaignOverlay.svelte";
+  const sessionState = getSessionState();
+  const phoneFilterState = getPhoneFilterState();
 
   const navigationListMode = (page.state as { campaignListMode?: CampaignListMode }).campaignListMode;
   const initialListMode =
     navigationListMode ?? (page.url.searchParams.get("view") === "schedule" ? "schedule" : "history");
-  const state = new CampaignState(phoneFilterState.selectedPhoneId, initialListMode);
+  const state = setCampaignState(new CampaignState(phoneFilterState.selectedPhoneId, initialListMode));
   const canWriteCampaigns = $derived(sessionState.hasAccess(AccessGroup.CAMPAIGN_WRITE));
 
   onMount(() => phoneFilterState.subscribe(state.setPhoneFilter));
@@ -57,9 +59,9 @@
 
     <div class="h-full sm:hidden">
       {#if state.mobileView === "list"}
-        <CampaignMobileList {state} />
+        <CampaignMobileList />
       {:else}
-        <CampaignMobileDetails {state} />
+        <CampaignMobileDetails />
       {/if}
     </div>
 
@@ -67,7 +69,7 @@
       class="hidden h-full overflow-hidden rounded-2xl border border-white/70 bg-white/70 shadow-[0_20px_45px_-25px_rgba(30,41,59,0.45)]
         backdrop-blur-md sm:flex"
     >
-      <CampaignDesktopSidebar {state} />
+      <CampaignDesktopSidebar />
 
       <div
         class={[
@@ -76,10 +78,10 @@
         ]}
         style={state.desktopExpanded ? "width:0px;" : "width:calc(100% - 18rem);"}
       >
-        <CampaignDetailsPanel {state} />
+        <CampaignDetailsPanel />
       </div>
     </div>
   </div>
 </div>
 
-<CampaignOverlay {state} />
+<CampaignOverlay />

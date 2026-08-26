@@ -7,17 +7,17 @@
   import { PATH_USER } from "$lib/app/paths";
   import { userRoleLabelMap, userRoleOptions } from "$lib/feature/user/user-view-data";
   import { networkErrorText } from "$lib/form/errors";
-  import type { FormSubmitResult } from "$lib/form/form.svelte";
-  import { notificationsState } from "text-reach-frontend-library/state/notifications.svelte";
+  import type { FormSubmitResult } from "text-reach-frontend-library/form";
+  import { getNotificationsState } from "$lib/state/notifications.svelte";
   import { onMount } from "svelte";
   import { createUserForm, type FormValues, type SubmitValues } from "../../../components/form/form.svelte";
+  const notificationsState = getNotificationsState();
 
   const userId = page.params.id;
   const editFormQuery = new UserFormEditQueryStore();
   const updateUserMutation = new UpdateUserStore();
   const form = createUserForm("edit", submit);
   const roleOptions = userRoleOptions.map((role) => ({ id: role, value: userRoleLabelMap[role] }));
-  const selectedRole = $derived(roleOptions.find((option) => option.id === form.role.value) ?? roleOptions[0]);
 
   let loadError = $state<string | null>(null);
   let loading = $state(true);
@@ -25,10 +25,6 @@
   onMount(() => {
     void loadForm();
   });
-
-  function selectRole(option: (typeof roleOptions)[number]): void {
-    form.role.value = option.id;
-  }
 
   async function loadForm(): Promise<void> {
     loading = true;
@@ -112,39 +108,24 @@
           <div class="grid gap-4 sm:grid-cols-2">
             <Field>
               <FieldLabel for="user-name">Name</FieldLabel>
-              <Input
-                id="user-name"
-                bind:value={form.name.value}
-                {loading}
-                maxlength={50}
-                placeholder="Avery Johnson"
-                error={form.name.error}
-              />
+              <Input id="user-name" field={form.name} {loading} maxlength={50} placeholder="Avery Johnson" />
               <FieldError error={form.name.error} />
             </Field>
 
             <Field>
-              <Select
-                value={selectedRole}
-                options={roleOptions}
-                label="Role"
-                inputId="user-role"
-                {loading}
-                onChange={selectRole}
-              />
+              <Select field={form.role} options={roleOptions} label="Role" inputId="user-role" {loading} />
             </Field>
 
             <Field class="sm:col-span-2">
               <FieldLabel for="user-email">Email</FieldLabel>
               <Input
                 id="user-email"
-                bind:value={form.email.value}
+                field={form.email}
                 {loading}
                 maxlength={255}
                 placeholder="avery@example.com"
                 type="email"
                 disabled
-                error={form.email.error}
               />
               <FieldError error={form.email.error} />
             </Field>

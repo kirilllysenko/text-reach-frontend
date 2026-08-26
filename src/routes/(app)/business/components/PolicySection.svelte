@@ -22,11 +22,10 @@
       <Input
         id="business-privacy-policy"
         type="url"
-        bind:value={form.privacyPolicyUrl.value}
+        field={form.privacyPolicyUrl}
         {loading}
         maxlength={2048}
         placeholder="https://example.com/privacy"
-        error={form.privacyPolicyUrl.error}
       />
       <FieldError error={form.privacyPolicyUrl.error} />
     </Field>
@@ -36,11 +35,10 @@
       <Input
         id="business-terms"
         type="url"
-        bind:value={form.termsOfServiceUrl.value}
+        field={form.termsOfServiceUrl}
         {loading}
         maxlength={2048}
         placeholder="https://example.com/terms"
-        error={form.termsOfServiceUrl.error}
       />
       <FieldError error={form.termsOfServiceUrl.error} />
     </Field>

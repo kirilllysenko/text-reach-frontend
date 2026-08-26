@@ -2,10 +2,11 @@
   import { ContactExportHistoryDownloadUrlStore, ContactExportHistoryStore } from "$houdini";
   import { BackButton, Card, PageTitle } from "$lib";
   import { createContactJobPoller } from "$lib/feature/contact-job/contact-job-poller.svelte";
-  import { notificationsState } from "text-reach-frontend-library/state/notifications.svelte";
+  import { getNotificationsState } from "$lib/state/notifications.svelte";
   import { onMount } from "svelte";
   import { loadContactExportHistory, type ContactExportHistoryJob } from "./contact-export-history";
   import ContactExportHistoryTable from "./components/ContactExportHistoryTable.svelte";
+  const notificationsState = getNotificationsState();
 
   const historyQuery = new ContactExportHistoryStore();
   const downloadUrlQuery = new ContactExportHistoryDownloadUrlStore();

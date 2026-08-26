@@ -5,7 +5,13 @@ import {
   PATH_TRIAL_EXPIRED,
 } from "$lib/app/paths";
 
-const accessFailurePathByCode: Readonly<Record<string, string>> = {
+type AccessFailurePath =
+  | typeof PATH_ACCOUNT_CLOSED
+  | typeof PATH_ACCOUNT_SUSPENDED
+  | typeof PATH_ACCOUNT_UNAVAILABLE
+  | typeof PATH_TRIAL_EXPIRED;
+
+const accessFailurePathByCode: Readonly<Record<string, AccessFailurePath>> = {
   ACCOUNT_CLOSED: PATH_ACCOUNT_CLOSED,
   ACCOUNT_SUSPENDED: PATH_ACCOUNT_SUSPENDED,
   SESSION_INVALID_USER: PATH_ACCOUNT_UNAVAILABLE,
@@ -15,7 +21,7 @@ const accessFailurePathByCode: Readonly<Record<string, string>> = {
   TRIAL_EXPIRED: PATH_TRIAL_EXPIRED,
 };
 
-export function accessFailurePath(errorCode?: string): string | null {
+export function accessFailurePath(errorCode?: string): AccessFailurePath | null {
   if (!errorCode) {
     return null;
   }

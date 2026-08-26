@@ -14,6 +14,7 @@ import { buildCampaignRequest } from "./campaign-query";
 import { campaignSortDefinitions, initialCampaignSorts } from "./sort/sort.svelte";
 import { campaignFilterDefinitions } from "./filter/filter.svelte";
 import { mergeContactGroupNames, toCampaignViewModel } from "./campaign-display";
+import { createContext } from "svelte";
 
 type MobileView = "list" | "details";
 export type CampaignListMode = "schedule" | "history";
@@ -301,3 +302,5 @@ export class CampaignState {
     }
   }
 }
+
+export const [getCampaignState, setCampaignState] = createContext<CampaignState>();

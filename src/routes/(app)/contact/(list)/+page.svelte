@@ -2,8 +2,9 @@
   import { Card, LinkButton, PageTitle, Table } from "$lib";
   import { AccessGroup } from "$houdini/graphql/enums";
   import { PATH_CONTACT_ADD } from "$lib/app/paths";
-  import { sessionState } from "$lib/state/session.svelte";
+  import { getSessionState } from "$lib/state/session.svelte";
   import type { ContactFilterInput } from "$houdini/graphql/inputs";
+  import { createFormValue } from "text-reach-frontend-library/form";
   import ContactDeleteButton from "./components/ContactDeleteButton.svelte";
   import ContactSearchInput from "./components/ContactSearchInput.svelte";
   import ContactExportButton from "./components/export/ContactExportButton.svelte";
@@ -11,8 +12,9 @@
   import ContactImportButton from "./components/import/ContactImportButton.svelte";
   import SortButton from "./components/sort/SortButton.svelte";
   import { createContactTable } from "./components/table/table.svelte";
+  const sessionState = getSessionState();
 
-  let search = $state("");
+  const search = $state(createFormValue(""));
   const table = createContactTable();
   const canWriteContacts = $derived(sessionState.hasAccess(AccessGroup.CONTACT_WRITE));
   const selectedContactIds = $derived(
@@ -47,7 +49,7 @@
       <ContactExportButton
         snapshot={{
           filters: table.features.filtering.filters,
-          search,
+          search: search.value,
           sorts: table.features.sorting.sorts,
         }}
       />
@@ -56,7 +58,7 @@
 
   <Card variant="panel" class="shrink-0 space-y-3">
     <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
-      <ContactSearchInput bind:value={search} filtering={table.handlers.filtering} />
+      <ContactSearchInput field={search} filtering={table.handlers.filtering} />
 
       <div class="flex items-center gap-2">
         <FilterButton filtering={table.handlers.filtering} />

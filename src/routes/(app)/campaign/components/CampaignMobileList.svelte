@@ -2,18 +2,25 @@
   import { AccessGroup } from "$houdini/graphql/enums";
   import { Button, Input, LinkButton } from "$lib";
   import { PATH_CAMPAIGN_ADD } from "$lib/app/paths";
-  import { sessionState } from "$lib/state/session.svelte";
+  import type { FormValue } from "text-reach-frontend-library/form";
+  import { getSessionState } from "$lib/state/session.svelte";
   import Filter from "text-reach-frontend-library/icons/Filter.svelte";
   import Sort from "text-reach-frontend-library/icons/Sort.svelte";
   import CampaignListModeSwitch from "./CampaignListModeSwitch.svelte";
   import CampaignVirtualList from "./CampaignVirtualList.svelte";
-  import type { CampaignState } from "./campaign-state.svelte";
+  import { getCampaignState } from "./campaign-state.svelte";
+  const sessionState = getSessionState();
+  const state = getCampaignState();
 
-  interface Props {
-    state: CampaignState;
-  }
-
-  let { state }: Props = $props();
+  const searchField: FormValue<string> = {
+    get value() {
+      return state.search;
+    },
+    set value(value) {
+      state.updateSearch(value);
+    },
+    error: null,
+  };
 </script>
 
 <section class="flex h-full min-h-0 flex-col bg-gradient-to-br from-slate-100 via-slate-50 to-stone-100">
@@ -30,13 +37,7 @@
     </div>
 
     <div class="mt-2 flex items-center gap-2">
-      <Input
-        id="campaign-search-mobile"
-        class="grow"
-        placeholder="Search campaigns"
-        value={state.search}
-        oninput={(event) => state.updateSearch(event.currentTarget.value)}
-      />
+      <Input id="campaign-search-mobile" class="grow" placeholder="Search campaigns" field={searchField} />
 
       <Button variant="secondary" icon={Sort} class="size-9 p-0" aria-label="Sort campaigns" onclick={state.openSort} />
 

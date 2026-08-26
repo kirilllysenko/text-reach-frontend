@@ -6,13 +6,9 @@ vi.mock("$houdini", () => ({
   ImportContactsStore: class {},
 }));
 
-vi.mock("text-reach-frontend-library/state/notifications.svelte", () => ({
-  notificationsState: {
-    showInfo: vi.fn(),
-  },
-}));
-
 import { createContactImportState } from "./contact-import-state.svelte";
+
+const notifications = { showInfo: vi.fn() };
 
 describe("contact import consent", () => {
   beforeEach(() => {
@@ -20,7 +16,7 @@ describe("contact import consent", () => {
   });
 
   it("requires consent for the selected file before continuing", () => {
-    const contactImport = createContactImportState({ onQueued: vi.fn() });
+    const contactImport = createContactImportState({ onQueued: vi.fn(), notifications });
 
     contactImport.setFile(new File(["phone\n5551234567"], "contacts.csv", { type: "text/csv" }));
 
@@ -32,7 +28,7 @@ describe("contact import consent", () => {
   });
 
   it("clears consent when the selected file changes", () => {
-    const contactImport = createContactImportState({ onQueued: vi.fn() });
+    const contactImport = createContactImportState({ onQueued: vi.fn(), notifications });
 
     contactImport.setFile(new File(["phone\n5551234567"], "contacts.csv", { type: "text/csv" }));
     contactImport.setConsentConfirmed(true);

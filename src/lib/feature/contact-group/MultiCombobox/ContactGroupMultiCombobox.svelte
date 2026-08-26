@@ -12,7 +12,7 @@
 
   interface Props extends Omit<MultiComboboxProps, "hasNextPage" | "onLoadNextPage" | "onSearch" | "options"> {}
 
-  let { value = $bindable<string[]>([]), ...comboboxProps }: Props = $props();
+  let { field = $bindable(), ...comboboxProps }: Props = $props();
 
   const contactGroupsQuery = new ContactGroupComboboxQueryStore();
 
@@ -54,7 +54,7 @@
 
 <MultiCombobox
   {...comboboxProps}
-  bind:value
+  {field}
   {options}
   {hasNextPage}
   label="Groups"

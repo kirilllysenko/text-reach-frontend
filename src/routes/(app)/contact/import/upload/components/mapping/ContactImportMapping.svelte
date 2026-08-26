@@ -2,14 +2,14 @@
   import { Button, FieldError } from "$lib";
   import ContactImportMappingColumn from "./ContactImportMappingColumn.svelte";
   import ContactImportPreview from "./ContactImportPreview.svelte";
-  import type { ContactImportState } from "../contact-import-state.svelte";
+  import { getContactImportState } from "../contact-import-state.svelte";
 
   interface Props {
-    contactImport: ContactImportState;
     onClose: () => void;
   }
 
-  let { contactImport, onClose }: Props = $props();
+  let { onClose }: Props = $props();
+  const contactImport = getContactImportState();
 </script>
 
 <section class="space-y-4">
@@ -33,11 +33,11 @@
   <div class="space-y-3">
     <div class="grid gap-3 md:grid-cols-2">
       {#each contactImport.columns as column (column.index)}
-        <ContactImportMappingColumn {contactImport} {column} />
+        <ContactImportMappingColumn {column} />
       {/each}
     </div>
 
-    <ContactImportPreview {contactImport} />
+    <ContactImportPreview />
   </div>
 
   <FieldError error={contactImport.error} />

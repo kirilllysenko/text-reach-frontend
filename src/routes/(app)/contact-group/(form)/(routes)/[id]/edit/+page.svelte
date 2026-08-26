@@ -6,10 +6,11 @@
   import { BackButton, Button, Card, Field, FieldError, FieldLabel, Input, PageTitle } from "$lib";
   import { PATH_CONTACT_GROUP } from "$lib/app/paths";
   import { networkErrorText } from "$lib/form/errors";
-  import type { FormSubmitResult } from "$lib/form/form.svelte";
-  import { notificationsState } from "text-reach-frontend-library/state/notifications.svelte";
+  import type { FormSubmitResult } from "text-reach-frontend-library/form";
+  import { getNotificationsState } from "$lib/state/notifications.svelte";
   import { onMount } from "svelte";
   import { createContactGroupForm, type FormValues, type SubmitValues } from "../../../components/form/form.svelte";
+  const notificationsState = getNotificationsState();
 
   const contactGroupId = page.params.id;
   const editFormQuery = new ContactGroupFormEditQueryStore();
@@ -94,11 +95,10 @@
             <FieldLabel for="contact-group-name">Name</FieldLabel>
             <Input
               id="contact-group-name"
-              bind:value={form.name.value}
+              field={form.name}
               {loading}
               maxlength={100}
               placeholder="Newsletter subscribers"
-              error={form.name.error}
             />
             <FieldError error={form.name.error} />
           </Field>

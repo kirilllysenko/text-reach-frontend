@@ -1,17 +1,15 @@
 <script lang="ts">
   import { Field, FieldError, FieldLabel, Input } from "$lib";
+  import type { FormValue } from "text-reach-frontend-library/form";
   import { SvelteDate } from "svelte/reactivity";
   import type { CampaignRecurrenceFrequency, CampaignScheduleType } from "../form/form.svelte";
 
   interface Props {
-    scheduleType: CampaignScheduleType;
-    scheduledAt: string;
-    recurrenceFrequency: CampaignRecurrenceFrequency;
-    recurrenceInterval: string;
-    recurrenceCount: string;
-    scheduledAtError?: string | null;
-    recurrenceIntervalError?: string | null;
-    recurrenceCountError?: string | null;
+    scheduleType: FormValue<CampaignScheduleType>;
+    scheduledAt: FormValue<string>;
+    recurrenceFrequency: FormValue<CampaignRecurrenceFrequency>;
+    recurrenceInterval: FormValue<string>;
+    recurrenceCount: FormValue<string>;
   }
 
   let {
@@ -20,9 +18,6 @@
     recurrenceFrequency = $bindable(),
     recurrenceInterval = $bindable(),
     recurrenceCount = $bindable(),
-    scheduledAtError = null,
-    recurrenceIntervalError = null,
-    recurrenceCountError = null,
   }: Props = $props();
 
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "your device timezone";
@@ -33,9 +28,9 @@
   ];
 
   function selectScheduleType(value: CampaignScheduleType): void {
-    scheduleType = value;
-    if (value !== "now" && !scheduledAt) {
-      scheduledAt = nextAvailableTime();
+    scheduleType.value = value;
+    if (value !== "now" && !scheduledAt.value) {
+      scheduledAt.value = nextAvailableTime();
     }
   }
 
@@ -61,7 +56,7 @@
           class={[
             `cursor-pointer rounded-xl border px-3 py-3 transition-colors focus-within:ring-2
             focus-within:ring-sky-500/30`,
-            scheduleType === option.value
+            scheduleType.value === option.value
               ? "border-sky-300 bg-sky-50/90 shadow-sm"
               : "border-slate-200 bg-white/70 hover:bg-white",
           ]}
@@ -72,7 +67,7 @@
             type="radio"
             name="campaign-schedule-type"
             value={option.value}
-            checked={scheduleType === option.value}
+            checked={scheduleType.value === option.value}
             onchange={() => selectScheduleType(option.value)}
           />
           <span class="block text-sm font-medium text-slate-800">{option.label}</span>
@@ -82,24 +77,24 @@
     </div>
   </fieldset>
 
-  {#if scheduleType !== "now"}
+  {#if scheduleType.value !== "now"}
     <div class="mt-4 grid gap-4 sm:grid-cols-2">
       <Field>
         <FieldLabel for="campaign-scheduled-at">
-          {scheduleType === "recurring" ? "First send" : "Send at"}<span class="text-rose-500">*</span>
+          {scheduleType.value === "recurring" ? "First send" : "Send at"}<span class="text-rose-500">*</span>
         </FieldLabel>
-        <Input id="campaign-scheduled-at" type="datetime-local" bind:value={scheduledAt} error={scheduledAtError} />
+        <Input id="campaign-scheduled-at" type="datetime-local" field={scheduledAt} />
         <p class="mt-1 text-xs text-slate-500">Time zone: {timeZone}</p>
-        <FieldError error={scheduledAtError} />
+        <FieldError error={scheduledAt.error} />
       </Field>
 
-      {#if scheduleType === "recurring"}
+      {#if scheduleType.value === "recurring"}
         <Field>
           <FieldLabel for="campaign-recurrence-frequency">Repeat</FieldLabel>
           <select
             id="campaign-recurrence-frequency"
             class="h-10 w-full rounded-[1.05rem] border-none bg-white/70 px-3 text-slate-700 shadow-[inset_0px_0px_7px_3px_rgba(30,41,59,0.1)] focus:ring-2 focus:ring-sky-500/25 focus:outline-none"
-            bind:value={recurrenceFrequency}
+            bind:value={recurrenceFrequency.value}
           >
             <option value="DAILY">Daily</option>
             <option value="WEEKLY">Weekly</option>
@@ -109,34 +104,22 @@
 
         <Field>
           <FieldLabel for="campaign-recurrence-interval">Repeat every</FieldLabel>
-          <Input
-            id="campaign-recurrence-interval"
-            type="number"
-            min="1"
-            max="100"
-            value={recurrenceInterval}
-            error={recurrenceIntervalError}
-            oninput={(event) => (recurrenceInterval = event.currentTarget.value)}
-          />
+          <Input id="campaign-recurrence-interval" type="number" min="1" max="100" field={recurrenceInterval} />
           <p class="mt-1 text-xs text-slate-500">
-            {recurrenceFrequency === "DAILY" ? "day(s)" : recurrenceFrequency === "WEEKLY" ? "week(s)" : "month(s)"}
+            {recurrenceFrequency.value === "DAILY"
+              ? "day(s)"
+              : recurrenceFrequency.value === "WEEKLY"
+                ? "week(s)"
+                : "month(s)"}
           </p>
-          <FieldError error={recurrenceIntervalError} />
+          <FieldError error={recurrenceInterval.error} />
         </Field>
 
         <Field>
           <FieldLabel for="campaign-recurrence-count">Occurrences</FieldLabel>
-          <Input
-            id="campaign-recurrence-count"
-            type="number"
-            min="2"
-            max="365"
-            value={recurrenceCount}
-            error={recurrenceCountError}
-            oninput={(event) => (recurrenceCount = event.currentTarget.value)}
-          />
+          <Input id="campaign-recurrence-count" type="number" min="2" max="365" field={recurrenceCount} />
           <p class="mt-1 text-xs text-slate-500">Includes the first send.</p>
-          <FieldError error={recurrenceCountError} />
+          <FieldError error={recurrenceCount.error} />
         </Field>
       {/if}
     </div>

@@ -1,11 +1,13 @@
 <script lang="ts">
   import { onDestroy, onMount } from "svelte";
   import type { Attachment } from "svelte/attachments";
+  import { resolve } from "$app/paths";
   import { CreateTopupCheckoutSessionStore, PaymentConfigStore } from "$houdini";
   import { loadStripe, type StripeCheckoutLoadActionsSuccess, type StripePaymentElement } from "@stripe/stripe-js";
   import { Button, Input, PageTitle } from "$lib";
   import { PATH_PAYMENT } from "$lib/app/paths";
   import { dollarsToUsdMicros, formatUsdMicros } from "$lib/feature/payment/payment-display";
+  import { createFormValue } from "text-reach-frontend-library/form";
 
   const PRESET_AMOUNTS = [10, 25, 50, 100];
 
@@ -24,7 +26,7 @@
   let startingSession = $state(false);
   let confirming = $state(false);
   let selectedPreset = $state(PRESET_AMOUNTS[0]);
-  let customAmount = $state<number | string>("");
+  const customAmount = $state(createFormValue<number | string>(""));
   let message = $state<string | null>(null);
   let error = $state<string | null>(null);
   let paymentElementContainer = $state<HTMLDivElement | null>(null);
@@ -32,8 +34,8 @@
   let checkoutActions = $state.raw<StripeCheckoutLoadActionsSuccess | null>(null);
 
   const selectedAmountDollars = $derived.by(() => {
-    const customValue = Number(customAmount);
-    return String(customAmount).trim() && Number.isFinite(customValue) ? customValue : selectedPreset;
+    const customValue = Number(customAmount.value);
+    return String(customAmount.value).trim() && Number.isFinite(customValue) ? customValue : selectedPreset;
   });
   const selectedAmountMicros = $derived(dollarsToUsdMicros(selectedAmountDollars));
   const minAmountMicros = $derived(paymentConfig?.minTopupUsdMicros ?? 0);
@@ -157,7 +159,7 @@
 
   function selectPreset(amount: number): void {
     selectedPreset = amount;
-    customAmount = "";
+    customAmount.value = "";
   }
 
   const attachPaymentElementContainer: Attachment<HTMLDivElement> = (element) => {
@@ -180,7 +182,7 @@
   <PageTitle title="Top Up">
     <a
       id="payment-top-up-balance-link"
-      href={PATH_PAYMENT}
+      href={resolve(PATH_PAYMENT)}
       class="flex h-9 items-center justify-center rounded-xl border border-white/80 bg-white/90 px-3
         text-sm font-medium text-slate-700 shadow-sm hover:bg-white"
     >
@@ -215,7 +217,7 @@
           <Button
             id={`payment-top-up-preset-${amount}`}
             variant="secondary"
-            active={selectedPreset === amount && !customAmount}
+            active={selectedPreset === amount && !customAmount.value}
             class="h-11 rounded-xl px-3 text-sm font-semibold"
             onclick={() => selectPreset(amount)}
           >
@@ -232,7 +234,7 @@
           min="1"
           step="0.01"
           placeholder="75.00"
-          bind:value={customAmount}
+          field={customAmount}
           disabled={loadingConfig}
         />
       </label>

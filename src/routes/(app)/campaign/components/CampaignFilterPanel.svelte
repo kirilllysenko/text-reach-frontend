@@ -1,13 +1,9 @@
 <script lang="ts">
   import { FilterPanel, type FilterPanelConfig } from "$lib";
-  import type { CampaignState } from "./campaign-state.svelte";
+  import { getCampaignState } from "./campaign-state.svelte";
   import { campaignStatusOptions, statusLabelMap } from "./campaign-view-data";
 
-  interface Props {
-    state: CampaignState;
-  }
-
-  let { state }: Props = $props();
+  const state = getCampaignState();
 
   const config: FilterPanelConfig = {
     title: "Active filters",

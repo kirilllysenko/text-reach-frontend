@@ -6,9 +6,10 @@
   import { Alert, BackButton, Button, Card, Field, FieldError, FieldLabel, Input, PageTitle } from "$lib";
   import { PATH_BUSINESS_EDIT, PATH_TEN_DLC } from "$lib/app/paths";
   import { networkErrorText } from "$lib/form/errors";
-  import type { FormSubmitResult } from "$lib/form/form.svelte";
-  import { notificationsState } from "text-reach-frontend-library/state/notifications.svelte";
+  import type { FormSubmitResult } from "text-reach-frontend-library/form";
+  import { getNotificationsState } from "$lib/state/notifications.svelte";
   import { createTenDlcBrandForm, type SubmitValues } from "./components/form/form.svelte";
+  const notificationsState = getNotificationsState();
 
   const businessProfileQuery = new TenDlcBrandBusinessProfileStore();
   const createBrandMutation = new CreateTenDlcBrandStore();
@@ -108,14 +109,7 @@
 
           <Field class="mt-5">
             <FieldLabel for="ten-dlc-brand-name">Customer-facing brand name</FieldLabel>
-            <Input
-              id="ten-dlc-brand-name"
-              bind:value={form.name.value}
-              {loading}
-              maxlength={255}
-              autocomplete="organization"
-              error={form.name.error}
-            />
+            <Input id="ten-dlc-brand-name" field={form.name} {loading} maxlength={255} autocomplete="organization" />
             <FieldError error={form.name.error} />
           </Field>
 

@@ -7,10 +7,10 @@
   import { Button, Card, FieldError, PageTitle } from "$lib";
   import { PATH_BUSINESS, PATH_PHONE_BUY, PATH_UPGRADE } from "$lib/app/paths";
   import { networkErrorText } from "$lib/form/errors";
-  import type { FormSubmitResult } from "$lib/form/form.svelte";
+  import type { FormSubmitResult } from "text-reach-frontend-library/form";
   import { graphQLErrorCode } from "$lib/graphql/errors";
-  import { sessionState } from "$lib/state/session.svelte";
-  import { notificationsState } from "text-reach-frontend-library/state/notifications.svelte";
+  import { getSessionState } from "$lib/state/session.svelte";
+  import { getNotificationsState } from "$lib/state/notifications.svelte";
   import AddressSection from "../components/AddressSection.svelte";
   import AuthorizedContactSection from "../components/AuthorizedContactSection.svelte";
   import BusinessContactSection from "../components/BusinessContactSection.svelte";
@@ -18,6 +18,8 @@
   import PolicySection from "../components/PolicySection.svelte";
   import TaxSection from "../components/TaxSection.svelte";
   import { createBusinessProfileForm, type FormValues, type SubmitValues } from "../components/form/form.svelte";
+  const notificationsState = getNotificationsState();
+  const sessionState = getSessionState();
 
   const businessProfileQuery = new BusinessProfileEditStore();
   const upsertBusinessProfileMutation = new UpsertBusinessProfileStore();

@@ -1,11 +1,7 @@
 <script lang="ts">
-  import type { ContactImportState } from "../contact-import-state.svelte";
+  import { getContactImportState } from "../contact-import-state.svelte";
 
-  interface Props {
-    contactImport: ContactImportState;
-  }
-
-  let { contactImport }: Props = $props();
+  const contactImport = getContactImportState();
 </script>
 
 <div class="overflow-hidden rounded-xl border border-white/80 bg-white/70">
@@ -21,7 +17,7 @@
       </thead>
 
       <tbody>
-        {#each contactImport.previewRows as row, rowIndex}
+        {#each contactImport.previewRows as row, rowIndex (rowIndex)}
           <tr class={rowIndex % 2 === 0 ? "bg-white/50" : "bg-slate-50/70"}>
             {#each contactImport.columns as column (column.index)}
               <td class="max-w-56 truncate border-b border-white/70 px-3 py-2 text-slate-700">

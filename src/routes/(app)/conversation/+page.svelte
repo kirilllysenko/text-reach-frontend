@@ -1,15 +1,14 @@
 <script lang="ts">
-  import { onDestroy } from "svelte";
-  import { phoneFilterState } from "$lib/state/phone-filter.svelte";
+  import { onDestroy, onMount } from "svelte";
+  import { getPhoneFilterState } from "$lib/state/phone-filter.svelte";
   import ConversationList from "./components/ConversationList.svelte";
-  import { ConversationState } from "./components/conversation-state.svelte";
+  import { ConversationState, setConversationState } from "./components/conversation-state.svelte";
   import ConversationThread from "./components/ConversationThread.svelte";
+  const phoneFilterState = getPhoneFilterState();
 
-  const state = new ConversationState(phoneFilterState.selectedPhoneId);
+  const state = setConversationState(new ConversationState(phoneFilterState.selectedPhoneId));
 
-  $effect(() => {
-    state.setPhoneFilter(phoneFilterState.selectedPhoneId);
-  });
+  onMount(() => phoneFilterState.subscribe(state.setPhoneFilter));
 
   onDestroy(state.dispose);
 </script>
@@ -20,11 +19,11 @@
 >
   <div class="grid h-full min-h-0 sm:grid-cols-[21rem_minmax(0,1fr)]">
     <div class={["min-h-0 border-r border-slate-200", state.mobileThreadOpen ? "hidden sm:block" : "block"]}>
-      <ConversationList {state} />
+      <ConversationList />
     </div>
 
     <div class={["min-h-0", state.mobileThreadOpen ? "block" : "hidden sm:block"]}>
-      <ConversationThread {state} />
+      <ConversationThread />
     </div>
   </div>
 </div>

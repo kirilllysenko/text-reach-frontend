@@ -5,10 +5,12 @@
   import { Field, FieldError, FieldLabel } from "text-reach-frontend-library/components/field";
   import { defaultErrorText, networkErrorText } from "$lib/form/errors";
   import { toGraphQLErrorText } from "$lib/graphql/errors";
-  import { notificationsState } from "text-reach-frontend-library/state/notifications.svelte";
+  import { getNotificationsState } from "$lib/state/notifications.svelte";
   import { Countdown } from "$lib/utils/countdown.svelte";
   import { normalizePhoneNumber, OTP_LENGTH, PhoneNumberSchema } from "$lib/form/validators";
-  import { form } from "../form.svelte";
+  import { getSignUpForm } from "../form.svelte";
+  const notificationsState = getNotificationsState();
+  const form = getSignUpForm();
 
   let { phoneNumber, phoneNumberCode } = form;
 
@@ -52,26 +54,13 @@
 
 <Field class="mt-4">
   <FieldLabel for="phoneNumber">Phone number</FieldLabel>
-  <Input
-    id="phoneNumber"
-    bind:value={phoneNumber.value}
-    type="tel"
-    autocomplete="tel"
-    placeholder="(555) 123-4567"
-    error={phoneNumber.error}
-  />
+  <Input id="phoneNumber" field={phoneNumber} type="tel" autocomplete="tel" placeholder="(555) 123-4567" />
   <FieldError error={phoneNumber.error} />
 </Field>
 
 <Field class="mt-4">
   <FieldLabel for="phoneNumberCode">Phone number confirmation code</FieldLabel>
-  <Input
-    id="phoneNumberCode"
-    bind:value={phoneNumberCode.value}
-    maxlength={OTP_LENGTH}
-    autocomplete="one-time-code"
-    error={phoneNumberCode.error}
-  >
+  <Input id="phoneNumberCode" field={phoneNumberCode} maxlength={OTP_LENGTH} autocomplete="one-time-code">
     {#snippet rightAddon()}
       <Button
         id="sign-up-phone-code-send"

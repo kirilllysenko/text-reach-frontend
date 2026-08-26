@@ -7,7 +7,8 @@
   import { PATH_PHONE_BUY, PATH_TEN_DLC_BRAND, PATH_TEN_DLC_CAMPAIGN_ADD } from "$lib/app/paths";
   import { isActiveTenDlcCampaignStatus, tenDlcStatusLabel } from "$lib/feature/phone/ten-dlc-display";
   import { graphQLErrorCode } from "$lib/graphql/errors";
-  import { sessionState } from "$lib/state/session.svelte";
+  import { getSessionState } from "$lib/state/session.svelte";
+  const sessionState = getSessionState();
 
   const brandQuery = new TenDlcBrandStore();
   const campaignsQuery = new TenDlcCampaignsStore();

@@ -2,12 +2,13 @@
   import { onMount } from "svelte";
   import { Card, LinkButton, PageTitle, Table } from "$lib";
   import { PATH_USER_ADD } from "$lib/app/paths";
+  import { createFormValue } from "text-reach-frontend-library/form";
   import UserSearchInput from "./components/UserSearchInput.svelte";
   import FilterButton from "./components/filter/FilterButton.svelte";
   import SortButton from "./components/sort/SortButton.svelte";
   import { createUserTable, loadUsers } from "./components/table/table.svelte";
 
-  let search = $state("");
+  const search = $state(createFormValue(""));
   let loading = $state(true);
   let error = $state<string | null>(null);
   const table = createUserTable({ onDeleted: reloadUsers });
@@ -41,7 +42,7 @@
 
   <Card variant="panel" class="shrink-0 space-y-3">
     <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
-      <UserSearchInput search={table.handlers.globalSearch} bind:value={search} />
+      <UserSearchInput search={table.handlers.globalSearch} field={search} />
 
       <div class="flex items-center gap-2">
         <FilterButton filtering={table.handlers.filtering} />

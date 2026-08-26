@@ -4,7 +4,7 @@ import {
   customFieldTypeOptions,
   type CustomFieldType,
 } from "$lib/feature/custom-field/custom-field-view-data";
-import { createForm, type FormSubmitResult } from "$lib/form/form.svelte";
+import { createForm, type FormSubmitResult } from "text-reach-frontend-library/form";
 import { z } from "zod";
 
 export interface TypeOption {

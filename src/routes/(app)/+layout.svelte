@@ -1,11 +1,15 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import Sidebar from "$lib/components/sidebar/Sidebar.svelte";
-  import { appShellState } from "text-reach-frontend-library/state/app-shell.svelte";
-  import { sessionState } from "$lib/state/session.svelte";
+  import { createAppShellState, setAppShellState } from "$lib/state/app-shell.svelte";
+  import { createPhoneFilterState, setPhoneFilterState } from "$lib/state/phone-filter.svelte";
+  import { createSessionState, setSessionState } from "$lib/state/session.svelte";
 
   let { children } = $props();
   let render = $state(false);
+  const appShellState = setAppShellState(createAppShellState());
+  const phoneFilterState = setPhoneFilterState(createPhoneFilterState());
+  const sessionState = setSessionState(createSessionState(phoneFilterState));
 
   onMount(async () => {
     appShellState.closeSidebar();

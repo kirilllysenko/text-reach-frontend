@@ -1,12 +1,8 @@
 <script lang="ts">
   import CampaignDetailsContent from "./CampaignDetailsContent.svelte";
-  import type { CampaignState } from "./campaign-state.svelte";
+  import { getCampaignState } from "./campaign-state.svelte";
 
-  interface Props {
-    state: CampaignState;
-  }
-
-  let { state }: Props = $props();
+  const state = getCampaignState();
 </script>
 
 <main class="min-w-0 grow overflow-y-auto bg-transparent p-4 sm:p-6">

@@ -7,7 +7,8 @@
     tenantUpgradeStatus,
     trialTimeText,
   } from "$lib/feature/tenant-upgrade/tenant-upgrade-view-data";
-  import { sessionState } from "$lib/state/session.svelte";
+  import { getSessionState } from "$lib/state/session.svelte";
+  const sessionState = getSessionState();
 
   let loading = $state(false);
   const lifecycle = $derived(sessionState.tenantLifecycle);

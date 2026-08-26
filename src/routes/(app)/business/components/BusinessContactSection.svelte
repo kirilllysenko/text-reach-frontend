@@ -19,11 +19,10 @@
       <Input
         id="business-email"
         type="email"
-        bind:value={form.businessEmail.value}
+        field={form.businessEmail}
         {loading}
         maxlength={255}
         autocomplete="email"
-        error={form.businessEmail.error}
       />
       <FieldError error={form.businessEmail.error} />
     </Field>
@@ -33,12 +32,11 @@
       <Input
         id="business-phone"
         type="tel"
-        bind:value={form.businessPhone.value}
+        field={form.businessPhone}
         {loading}
         maxlength={24}
         autocomplete="tel"
         placeholder="+1 415 555 0100"
-        error={form.businessPhone.error}
       />
       <FieldError error={form.businessPhone.error} />
     </Field>
@@ -48,12 +46,11 @@
       <Input
         id="business-website"
         type="url"
-        bind:value={form.website.value}
+        field={form.website}
         {loading}
         maxlength={2048}
         autocomplete="url"
         placeholder="https://example.com"
-        error={form.website.error}
       />
       <FieldError error={form.website.error} />
     </Field>

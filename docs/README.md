@@ -19,9 +19,14 @@ relevant section when working in that area.
 - Use `src/lib/feature/<feature>` for reused feature state, display mapping, query assembly, and business logic. Match suffixes: `*-state.svelte.ts`, `*-view-data.ts`, `*-display.ts`, `*-query.ts`.
 - Use `text-reach-frontend-library` for generic UI, shared table infrastructure, and shared icons. Keep only
   app-specific component composition (such as the customer sidebar) in `src/lib/components`; use `src/lib/state` for
-  app-wide product state, `src/lib/form` for form logic, and `src/lib/utils` for product utilities.
+  app-wide product state, the shared library form module for generic form state, `src/lib/form` for product-specific
+  schemas and error mapping, and `src/lib/utils` for product utilities.
 - Put component-owned GraphQL operations beside their component. Put genuinely shared feature operations under
   `src/lib/feature`, and use the generated Houdini stores. Do not add REST clients for application business operations.
+- Never export mutable product or UI state as a module singleton. Create it at the owning layout or page boundary and
+  provide it to descendants with typed Svelte context.
+- Prefer small reactive objects and factories for page-owned state. Keep classes for cohesive reusable infrastructure
+  or genuinely complex orchestration, not as the default container for an entire page.
 
 ## Components
 

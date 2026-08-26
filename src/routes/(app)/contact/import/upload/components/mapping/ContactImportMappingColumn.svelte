@@ -1,24 +1,30 @@
 <script lang="ts">
-  import { Select, type DropdownOption } from "$lib";
+  import { Select } from "$lib";
+  import type { FormValue } from "text-reach-frontend-library/form";
   import {
     CONTACT_IMPORT_IGNORE,
     type ContactImportMappingValue,
     type ContactImportPreviewColumn,
   } from "../contact-import";
-  import type { ContactImportState } from "../contact-import-state.svelte";
+  import { getContactImportState } from "../contact-import-state.svelte";
 
   interface Props {
-    contactImport: ContactImportState;
     column: ContactImportPreviewColumn;
   }
 
-  let { contactImport, column }: Props = $props();
+  let { column }: Props = $props();
+  const contactImport = getContactImportState();
 
   const mapping = $derived(contactImport.mappings[column.index] ?? CONTACT_IMPORT_IGNORE);
-
-  function updateMapping(option: DropdownOption<ContactImportMappingValue>): void {
-    contactImport.updateMapping(column.index, option.id);
-  }
+  const field: FormValue<ContactImportMappingValue> = {
+    get value() {
+      return mapping;
+    },
+    set value(value) {
+      contactImport.updateMapping(column.index, value);
+    },
+    error: null,
+  };
 </script>
 
 <div class="rounded-xl border border-white/80 bg-white/70 p-3">
@@ -31,9 +37,8 @@
 
   <Select
     options={contactImport.mappingOptions}
-    value={contactImport.getMappingOption(mapping)}
+    {field}
     inputId={`contact-import-column-${column.index}`}
     popupVisibleItems={7}
-    onChange={updateMapping}
   />
 </div>

@@ -5,23 +5,13 @@
   import { BackButton, Button, Card, Field, FieldError, FieldLabel, Input, PageTitle, Select } from "$lib";
   import { PATH_CUSTOM_FIELD } from "$lib/app/paths";
   import { networkErrorText } from "$lib/form/errors";
-  import type { FormSubmitResult } from "$lib/form/form.svelte";
-  import { notificationsState } from "text-reach-frontend-library/state/notifications.svelte";
-  import {
-    createCustomFieldForm,
-    getTypeOption,
-    type SubmitValues,
-    type TypeOption,
-    typeOptions,
-  } from "../../components/form/form.svelte";
+  import type { FormSubmitResult } from "text-reach-frontend-library/form";
+  import { getNotificationsState } from "$lib/state/notifications.svelte";
+  import { createCustomFieldForm, type SubmitValues, typeOptions } from "../../components/form/form.svelte";
+  const notificationsState = getNotificationsState();
 
   const createCustomFieldMutation = new CreateCustomFieldStore();
   const form = createCustomFieldForm(submit);
-  const selectedType = $derived(getTypeOption(form.type.value));
-
-  function selectType(option: TypeOption): void {
-    form.type.value = option.id;
-  }
 
   async function submit(input: SubmitValues): Promise<FormSubmitResult> {
     try {
@@ -53,24 +43,12 @@
       <form onsubmit={form.submit} inert={form.loading || undefined}>
         <Field>
           <FieldLabel for="custom-field-name">Name</FieldLabel>
-          <Input
-            id="custom-field-name"
-            bind:value={form.name.value}
-            maxlength={100}
-            placeholder="Lead source"
-            error={form.name.error}
-          />
+          <Input id="custom-field-name" field={form.name} maxlength={100} placeholder="Lead source" />
           <FieldError error={form.name.error} />
         </Field>
 
         <Field class="mt-4">
-          <Select
-            value={selectedType}
-            options={typeOptions}
-            label="Type"
-            inputId="custom-field-type"
-            onChange={selectType}
-          />
+          <Select field={form.type} options={typeOptions} label="Type" inputId="custom-field-type" />
         </Field>
 
         <FieldError class="mt-3" error={form.error} />

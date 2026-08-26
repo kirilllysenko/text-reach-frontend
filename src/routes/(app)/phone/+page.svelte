@@ -6,7 +6,8 @@
   import { Alert, Button, Card, PageTitle } from "$lib";
   import { PATH_BUSINESS, PATH_PHONE_BUY, PATH_TEN_DLC } from "$lib/app/paths";
   import { formatPhoneNumber, phoneTypeLabels } from "$lib/feature/phone/phone-display";
-  import { sessionState } from "$lib/state/session.svelte";
+  import { getSessionState } from "$lib/state/session.svelte";
+  const sessionState = getSessionState();
 
   const phoneNumbersQuery = new PhoneNumbersStore();
 

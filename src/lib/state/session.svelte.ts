@@ -10,7 +10,8 @@ import { PATH_SIGN_IN } from "$lib/app/paths";
 import { accessFailurePath } from "$lib/feature/account-access/access-failure";
 import type { ApiErrorCode } from "$lib/form/errors";
 import { graphQLErrorCode } from "$lib/graphql/errors";
-import { phoneFilterState } from "$lib/state/phone-filter.svelte";
+import type { PhoneFilterState } from "$lib/state/phone-filter.svelte";
+import { createContext } from "svelte";
 
 export interface ProfileData {
   accessGroups: AccessGroup$options[];
@@ -34,84 +35,101 @@ function buildSignInHref(errorCode?: ApiErrorCode): string {
   return `${PATH_SIGN_IN}?${searchParams.toString()}`;
 }
 
-class SessionState {
-  private readonly checkSessionQuery = new CheckSessionStore();
-  private readonly profileQuery = new ProfileStore();
-  private readonly tenantLifecycleQuery = new TenantLifecycleStore();
-  private readonly signOutMutation = new SignOutStore();
-  ready = $state(false);
-  profile = $state<ProfileData | null>(null);
-  tenantLifecycle = $state<TenantLifecycleData | null>(null);
+export function createSessionState(phoneFilter: PhoneFilterState) {
+  const checkSessionQuery = new CheckSessionStore();
+  const profileQuery = new ProfileStore();
+  const tenantLifecycleQuery = new TenantLifecycleStore();
+  const signOutMutation = new SignOutStore();
+  const state = $state({
+    ready: false,
+    profile: null as ProfileData | null,
+    tenantLifecycle: null as TenantLifecycleData | null,
+  });
 
-  ensureAppAccess = async (): Promise<boolean> => {
-    this.ready = false;
+  function clear(): void {
+    phoneFilter.reset();
+    state.ready = false;
+    state.profile = null;
+    state.tenantLifecycle = null;
+  }
+
+  async function ensureAppAccess(): Promise<boolean> {
+    state.ready = false;
     let response;
 
     try {
-      response = await this.checkSessionQuery.fetch();
+      response = await checkSessionQuery.fetch();
     } catch {
-      phoneFilterState.reset();
-      this.profile = null;
-      this.tenantLifecycle = null;
+      clear();
       await goto(PATH_SIGN_IN);
       return false;
     }
 
     if (!response.errors && response.data?.checkSession) {
-      this.ready = true;
+      state.ready = true;
       return true;
     }
 
-    phoneFilterState.reset();
-    this.profile = null;
-    this.tenantLifecycle = null;
+    clear();
     const errorCode = graphQLErrorCode(response.errors);
     await goto(accessFailurePath(errorCode) ?? buildSignInHref(errorCode));
     return false;
-  };
+  }
 
-  loadProfile = async (): Promise<ProfileData | null> => {
-    const response = await this.profileQuery.fetch();
+  async function loadProfile(): Promise<ProfileData | null> {
+    const response = await profileQuery.fetch();
     if (response.errors || !response.data?.profile) {
       return null;
     }
 
-    this.profile = response.data.profile;
+    state.profile = response.data.profile;
     return response.data.profile;
-  };
+  }
 
-  loadTenantLifecycle = async (): Promise<TenantLifecycleData | null> => {
+  async function loadTenantLifecycle(): Promise<TenantLifecycleData | null> {
     try {
-      const response = await this.tenantLifecycleQuery.fetch();
+      const response = await tenantLifecycleQuery.fetch();
       if (response.errors || !response.data?.tenantLifecycle) {
-        this.tenantLifecycle = null;
+        state.tenantLifecycle = null;
         return null;
       }
 
-      this.tenantLifecycle = response.data.tenantLifecycle;
+      state.tenantLifecycle = response.data.tenantLifecycle;
       return response.data.tenantLifecycle;
     } catch {
-      this.tenantLifecycle = null;
+      state.tenantLifecycle = null;
       return null;
     }
-  };
+  }
 
-  applyProfile = (profile: ProfileData): void => {
-    this.profile = profile;
-  };
-
-  hasAccess = (accessGroup: AccessGroup$options): boolean => {
-    return this.profile?.accessGroups.includes(accessGroup) ?? false;
-  };
-
-  signOutAndRedirect = async (): Promise<void> => {
-    await this.signOutMutation.mutate(undefined);
-    phoneFilterState.reset();
-    this.profile = null;
-    this.tenantLifecycle = null;
-    this.ready = false;
+  async function signOutAndRedirect(): Promise<void> {
+    await signOutMutation.mutate(undefined);
+    clear();
     await goto(PATH_SIGN_IN);
+  }
+
+  return {
+    get ready() {
+      return state.ready;
+    },
+    get profile() {
+      return state.profile;
+    },
+    get tenantLifecycle() {
+      return state.tenantLifecycle;
+    },
+    ensureAppAccess,
+    loadProfile,
+    loadTenantLifecycle,
+    applyProfile(profile: ProfileData): void {
+      state.profile = profile;
+    },
+    hasAccess(accessGroup: AccessGroup$options): boolean {
+      return state.profile?.accessGroups.includes(accessGroup) ?? false;
+    },
+    signOutAndRedirect,
   };
 }
 
-export const sessionState = new SessionState();
+export type SessionState = ReturnType<typeof createSessionState>;
+export const [getSessionState, setSessionState] = createContext<SessionState>();

@@ -2,13 +2,9 @@
   import CampaignDetailsContent from "./CampaignDetailsContent.svelte";
   import CampaignStatusBadge from "./CampaignStatusBadge.svelte";
   import { Button } from "$lib";
-  import type { CampaignState } from "./campaign-state.svelte";
+  import { getCampaignState } from "./campaign-state.svelte";
 
-  interface Props {
-    state: CampaignState;
-  }
-
-  let { state }: Props = $props();
+  const state = getCampaignState();
 </script>
 
 <section class="flex h-full min-h-0 flex-col bg-gradient-to-br from-slate-100 via-slate-50 to-stone-100">

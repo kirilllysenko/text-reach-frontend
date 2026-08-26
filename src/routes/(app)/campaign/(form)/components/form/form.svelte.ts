@@ -1,5 +1,5 @@
 import type { CreateCampaignInput } from "$houdini/graphql/inputs";
-import { createForm, type FormSubmitResult } from "$lib/form/form.svelte";
+import { createForm, type FormSubmitResult } from "text-reach-frontend-library/form";
 import { z } from "zod";
 import type { CampaignMediaDraft } from "../message/images/media";
 import { toMessageTemplate, type MessagePart } from "../message/message";

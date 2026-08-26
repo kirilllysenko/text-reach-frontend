@@ -1,5 +1,5 @@
 import type { CreateShortCodeApplicationInput } from "$houdini/graphql/inputs";
-import { createForm, type FormSubmitResult } from "$lib/form/form.svelte";
+import { createForm, type FormSubmitResult } from "text-reach-frontend-library/form";
 import { z } from "zod";
 
 const requiredText = (maxLength = 2_000) => z.string().trim().min(1, "Required").max(maxLength, "Too long");

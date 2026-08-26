@@ -1,15 +1,15 @@
 <script lang="ts">
   import { TenDlcCampaignDocumentUploadUrlStore } from "$houdini";
   import { Field, FieldError, FieldLabel } from "$lib";
+  import type { FormValue } from "text-reach-frontend-library/form";
 
   interface Props {
     disabled?: boolean;
-    error?: string | null;
-    value?: string;
+    field: FormValue<string>;
   }
 
   const uploadUrlQuery = new TenDlcCampaignDocumentUploadUrlStore();
-  let { disabled = false, error = null, value = $bindable("") }: Props = $props();
+  let { disabled = false, field = $bindable() }: Props = $props();
   let filename = $state("");
   let uploading = $state(false);
   let uploadError = $state<string | null>(null);
@@ -50,7 +50,7 @@
       }
 
       filename = file.name;
-      value = upload.mediaUrl;
+      field.value = upload.mediaUrl;
     } catch {
       uploadError = "Could not upload the document.";
     } finally {
@@ -85,11 +85,11 @@
         `flex h-9 items-center justify-center rounded-xl border border-white/80 bg-white/90 px-3 text-sm
           font-medium text-slate-700 shadow-sm`,
         disabled || uploading ? "cursor-not-allowed opacity-50" : "cursor-pointer hover:bg-white",
-      ]}>{uploading ? "Uploading…" : value ? "Replace document" : "Choose document"}</label
+      ]}>{uploading ? "Uploading…" : field.value ? "Replace document" : "Choose document"}</label
     >
     {#if filename}
       <span id="ten-dlc-campaign-document-name" class="max-w-full truncate text-sm text-emerald-700">{filename}</span>
     {/if}
   </div>
-  <FieldError class="mt-2" error={uploadError ?? error} />
+  <FieldError class="mt-2" error={uploadError ?? field.error} />
 </Field>

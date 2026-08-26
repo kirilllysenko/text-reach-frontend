@@ -1,30 +1,24 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import { page } from "$app/state";
   import { BackButton, Card, PageTitle, Table } from "$lib";
-  import { phoneFilterState } from "$lib/state/phone-filter.svelte";
+  import { getPhoneFilterState } from "$lib/state/phone-filter.svelte";
+  import { createFormValue } from "text-reach-frontend-library/form";
   import MessageExportButton from "./components/export/MessageExportButton.svelte";
   import FilterButton from "./components/filter/FilterButton.svelte";
   import MessageSearchInput from "./components/MessageSearchInput.svelte";
   import SortButton from "./components/sort/SortButton.svelte";
   import { createMessageTable } from "./components/table/table.svelte";
+  const phoneFilterState = getPhoneFilterState();
 
-  let search = $state("");
-  let loadedPhoneId = $state(phoneFilterState.selectedPhoneId);
+  const search = $state(createFormValue(""));
   const table = createMessageTable({
     campaignId: page.params.id ?? "",
-    getSearch: () => search,
+    getSearch: () => search.value,
     getTenantPhoneId: () => phoneFilterState.selectedPhoneId,
   });
 
-  $effect(() => {
-    const selectedPhoneId = phoneFilterState.selectedPhoneId;
-    if (selectedPhoneId === loadedPhoneId) {
-      return;
-    }
-
-    loadedPhoneId = selectedPhoneId;
-    void table.handlers.dataLoading.reload();
-  });
+  onMount(() => phoneFilterState.subscribe(() => void table.handlers.dataLoading.reload()));
 </script>
 
 <div
@@ -38,7 +32,7 @@
         snapshot={{
           campaignId: page.params.id ?? "",
           filters: table.features.filtering.filters,
-          search,
+          search: search.value,
           sorts: table.features.sorting.sorts,
           tenantPhoneId: phoneFilterState.selectedPhoneId,
         }}
@@ -48,7 +42,7 @@
 
   <Card variant="panel" class="shrink-0 space-y-3">
     <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
-      <MessageSearchInput dataLoading={table.handlers.dataLoading} bind:value={search} />
+      <MessageSearchInput dataLoading={table.handlers.dataLoading} field={search} />
 
       <div class="flex items-center gap-2">
         <FilterButton filtering={table.handlers.filtering} />

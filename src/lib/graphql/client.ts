@@ -1,9 +1,9 @@
-import { cacheExchange, Client, fetchExchange } from "@urql/core";
+import { HoudiniClient } from "$houdini";
 
-export const graphqlClient = new Client({
-  url: "/graphql",
-  exchanges: [cacheExchange, fetchExchange],
-  fetchOptions: {
-    credentials: "include",
+export default new HoudiniClient({
+  fetchParams() {
+    return {
+      credentials: "include",
+    };
   },
 });

@@ -1,0 +1,34 @@
+query ContactGroups(
+  $after: String
+  $before: String
+  $filter: ContactGroupFilterInput
+  $first: Int
+  $last: Int
+  $offset: Int
+  $sortBy: [ContactGroupSortByInput!]! = []
+) @cache(policy: CacheOrNetwork) {
+  contactGroups(
+    after: $after
+    before: $before
+    filter: $filter
+    first: $first
+    last: $last
+    offset: $offset
+    sortBy: $sortBy
+  ) {
+    edges {
+      node {
+        id
+        contactCount
+        name
+      }
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+      hasPreviousPage
+      startCursor
+    }
+    totalCount
+  }
+}

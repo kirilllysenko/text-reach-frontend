@@ -1,0 +1,3 @@
+mutation DeleteContacts($filter: ContactFilterInput!) {
+  deleteContacts(filter: $filter)
+}

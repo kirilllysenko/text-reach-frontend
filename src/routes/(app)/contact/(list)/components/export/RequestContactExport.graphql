@@ -1,0 +1,8 @@
+mutation RequestContactExport($input: RequestContactExportInput!) {
+  requestContactExport(input: $input) {
+    contactExport {
+      id
+      status
+    }
+  }
+}

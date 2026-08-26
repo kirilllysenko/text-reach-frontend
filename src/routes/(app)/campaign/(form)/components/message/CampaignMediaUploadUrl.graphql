@@ -1,0 +1,7 @@
+query CampaignMediaUploadUrl($filename: String!) @cache(policy: NetworkOnly) {
+  campaignMediaUploadUrl(filename: $filename) {
+    mediaUrl
+    newFilename
+    uploadUrl
+  }
+}

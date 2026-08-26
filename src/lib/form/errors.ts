@@ -44,5 +44,9 @@ const errorTextByCode: Partial<Record<ApiErrorCode, string>> = {
 };
 
 export function toErrorText(code?: ApiErrorCode): string {
-  return code ? (errorTextByCode[code] ?? defaultErrorText) : defaultErrorText;
+  if (!code) {
+    return defaultErrorText;
+  }
+
+  return errorTextByCode[code] ?? defaultErrorText;
 }

@@ -3,7 +3,8 @@ export interface WalletBalanceData {
   currency: string;
 }
 
-const usdMicrosPerDollar = 1_000_000;
+const USD_MICROS_PER_DOLLAR = 1_000_000;
+
 const usdFormatter = new Intl.NumberFormat("en-US", {
   currency: "USD",
   maximumFractionDigits: 2,
@@ -11,12 +12,17 @@ const usdFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
 });
 
+const dateTimeFormatter = new Intl.DateTimeFormat("en-US", {
+  dateStyle: "medium",
+  timeStyle: "short",
+});
+
 export function usdMicrosToDollars(value: number): number {
-  return value / usdMicrosPerDollar;
+  return value / USD_MICROS_PER_DOLLAR;
 }
 
 export function dollarsToUsdMicros(value: number): number {
-  return Math.round(value * usdMicrosPerDollar);
+  return Math.round(value * USD_MICROS_PER_DOLLAR);
 }
 
 export function formatUsdMicros(value: number): string {
@@ -29,9 +35,12 @@ export function formatPaymentBalance(balance: WalletBalanceData | null): string 
 
 export function formatPaymentDate(value: string): string {
   const date = new Date(value);
-  return Number.isNaN(date.getTime())
-    ? value
-    : new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeStyle: "short" }).format(date);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return dateTimeFormatter.format(date);
 }
 
 export function formatPaymentType(value: string): string {

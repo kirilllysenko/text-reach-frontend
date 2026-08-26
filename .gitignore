@@ -1,10 +1,13 @@
 node_modules
+.houdini
 
 # Output
+.output
 .vercel
 .netlify
 .wrangler
-/dist
+/.svelte-kit
+/build
 /playwright-report
 /test-results
 

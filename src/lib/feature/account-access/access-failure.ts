@@ -3,7 +3,7 @@ import {
   PATH_ACCOUNT_SUSPENDED,
   PATH_ACCOUNT_UNAVAILABLE,
   PATH_TRIAL_EXPIRED,
-} from "~/lib/app/paths";
+} from "$lib/app/paths";
 
 const accessFailurePathByCode: Readonly<Record<string, string>> = {
   ACCOUNT_CLOSED: PATH_ACCOUNT_CLOSED,
@@ -16,5 +16,9 @@ const accessFailurePathByCode: Readonly<Record<string, string>> = {
 };
 
 export function accessFailurePath(errorCode?: string): string | null {
-  return errorCode ? (accessFailurePathByCode[errorCode] ?? null) : null;
+  if (!errorCode) {
+    return null;
+  }
+
+  return accessFailurePathByCode[errorCode] ?? null;
 }

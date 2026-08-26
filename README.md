@@ -1,40 +1,51 @@
-# Text Reach frontend
+# texting-frontend-svelte
 
-A static client-rendered SolidJS application for web and Capacitor.
+Single-page SvelteKit app built with:
 
-## Stack
+- Bun
+- Tailwind CSS v4
+- `@sveltejs/adapter-static` (configured for SPA fallback)
 
-- SolidJS 2 (`2.0.0-rc.2`), Router 2, and filesystem routing
-- Vite and Tailwind CSS
-- URQL and generated GraphQL document types
-- Virtua for virtual lists and tables
-- Vitest and Playwright
-
-The project intentionally does not use SolidStart, a form library, Solid Query, or a table library.
-
-SolidJS 2 is currently a release candidate. The versions in `package.json` are pinned so framework, renderer, router,
-metadata, testing, and Vite integration packages advance together.
-
-## Development
+## Run locally
 
 ```sh
 bun install
 bun run dev
 ```
 
-The development server proxies `/graphql` to `http://localhost:4000`, `/live-update` to the local WebSocket service,
-and supports an optional `E2E_STORAGE_TARGET` for storage uploads.
+The local dev server proxies `/graphql` to the Hive Router at `http://localhost:4000`.
 
-## Validation
+## Build
+
+```sh
+bun run build
+bun run preview
+```
+
+Build output is generated in the `build/` folder.
+
+## API Client Generation
+
+This project uses Houdini and generates its GraphQL client by introspecting the running Hive Router.
 
 ```sh
 bun run generate:graphql
-bun run check
-bun run test
-bun run build
-bun run test:e2e
 ```
 
-`bun run build` writes the static application to `dist`, which is also the intended Capacitor `webDir`.
+Set `HIVE_ROUTER_URL` if the router is not available at the default URL.
 
-See `docs/README.md` for project-specific architecture and coding rules.
+Example usage:
+
+```ts
+import { CampaignListStore } from "$houdini";
+
+const store = new CampaignListStore();
+const result = await store.fetch({ variables: { first: 25 } });
+console.log(result.data?.campaigns);
+```
+
+## Capacitor-ready notes
+
+- SSR is disabled (`src/routes/+layout.ts`) so the app runs client-side.
+- Static adapter uses `fallback: 'index.html'` so deep links resolve in a webview SPA context.
+- Relative asset paths are enabled in `svelte.config.js` for better compatibility in mobile wrappers.

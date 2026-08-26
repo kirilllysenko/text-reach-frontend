@@ -1,0 +1,17 @@
+query Users($after: String, $first: Int, $sortBy: [TenantUserSortByInput!]! = []) @cache(policy: NetworkOnly) {
+  users(after: $after, first: $first, sortBy: $sortBy) {
+    edges {
+      node {
+        id
+        email
+        name
+        role
+      }
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+    totalCount
+  }
+}

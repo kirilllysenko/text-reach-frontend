@@ -1,5 +1,15 @@
 {
   "printWidth": 120,
   "singleQuote": false,
-  "semi": true
+  "semi": true,
+  "plugins": ["prettier-plugin-svelte", "prettier-plugin-tailwindcss"],
+  "overrides": [
+    {
+      "files": "*.svelte",
+      "options": {
+        "parser": "svelte"
+      }
+    }
+  ],
+  "tailwindStylesheet": "./src/routes/layout.css"
 }

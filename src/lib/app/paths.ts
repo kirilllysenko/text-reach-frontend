@@ -34,8 +34,10 @@ export const PATH_PROFILE = "/profile";
 export const PATH_USER = "/user";
 export const PATH_USER_ADD = "/user/add";
 
-export function buildUserEditPath(id: string): string {
-  return `/user/${id}/edit`;
+export const CONTACT_SECTION_PATH = [PATH_CONTACT, PATH_CONTACT_GROUP, PATH_SMART_GROUP, PATH_CUSTOM_FIELD];
+
+export function buildCustomFieldEditPath(id: string): string {
+  return `/custom-field/${id}/edit`;
 }
 
 export function buildContactEditPath(id: string): string {
@@ -46,12 +48,10 @@ export function buildContactGroupEditPath(id: string): string {
   return `/contact-group/${id}/edit`;
 }
 
-export function buildCustomFieldEditPath(id: string): string {
-  return `/custom-field/${id}/edit`;
-}
-
 export function buildCampaignMessagesPath(id: string): string {
   return `/campaign/${id}/messages`;
 }
 
-export const CONTACT_SECTION_PATH = [PATH_CONTACT, PATH_CONTACT_GROUP, PATH_SMART_GROUP, PATH_CUSTOM_FIELD];
+export function buildUserEditPath(id: string): string {
+  return `/user/${id}/edit`;
+}

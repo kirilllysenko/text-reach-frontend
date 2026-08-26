@@ -1,0 +1,6 @@
+query PaymentOverview @cache(policy: NetworkOnly) {
+  walletBalance {
+    balanceUsdMicros
+    currency
+  }
+}

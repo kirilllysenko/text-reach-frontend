@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
-import { createUserForm, initialValues } from "./form.svelte";
+import { createAddUserForm, initialValues } from "./form.svelte";
 
-describe("user form helpers", () => {
-  it("validates create-only credentials", async () => {
+describe("add user form", () => {
+  it("validates credentials", async () => {
     const submit = vi.fn(async () => ({}));
-    const form = createUserForm("create", submit);
+    const form = createAddUserForm(submit);
 
     form.setValues({
       ...initialValues,
@@ -18,9 +18,9 @@ describe("user form helpers", () => {
     expect(form.password.error).not.toBeNull();
   });
 
-  it("normalizes create values before submission", async () => {
+  it("normalizes values before submission", async () => {
     const submit = vi.fn(async () => ({}));
-    const form = createUserForm("create", submit);
+    const form = createAddUserForm(submit);
 
     form.setValues({
       email: "  avery@example.com  ",
@@ -36,14 +36,5 @@ describe("user form helpers", () => {
       password: "Password1",
       role: "MANAGER",
     });
-  });
-
-  it("does not require credentials while editing", async () => {
-    const submit = vi.fn(async () => ({}));
-    const form = createUserForm("edit", submit);
-
-    await form.submit({ preventDefault: vi.fn() } as unknown as SubmitEvent);
-
-    expect(submit).toHaveBeenCalledOnce();
   });
 });

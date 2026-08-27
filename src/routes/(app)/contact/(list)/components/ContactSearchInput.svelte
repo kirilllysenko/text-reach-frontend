@@ -3,7 +3,7 @@
   import { onDestroy } from "svelte";
   import { Input, type FilteringService } from "$lib";
   import type { FormValue } from "text-reach-frontend-library/form";
-  import { debounce } from "$lib/utils/debounce";
+  import { debounce } from "text-reach-frontend-library/utils/debounce";
 
   interface Props {
     filtering: FilteringService<ContactFilterInput>;

@@ -8,31 +8,21 @@
   import CustomFieldSearchInput from "./components/CustomFieldSearchInput.svelte";
   import FilterButton from "./components/filter/FilterButton.svelte";
   import SortButton from "./components/sort/SortButton.svelte";
-  import { createCustomFieldTable, loadCustomFields } from "./components/table/table.svelte";
+  import { createCustomFieldTable } from "./components/table/table.svelte";
+
   const sessionState = getSessionState();
 
   const search = $state(createFormValue(""));
-  let loading = $state(true);
-  let error = $state<string | null>(null);
-  const table = createCustomFieldTable();
+  const { query: customFieldsQuery, table } = createCustomFieldTable();
   const canWriteCustomFields = $derived(sessionState.hasAccess(AccessGroup.CUSTOM_FIELDS_WRITE));
 
-  onMount(() => {
-    void reloadCustomFields();
-  });
-
-  async function reloadCustomFields(): Promise<void> {
-    loading = true;
-    error = null;
-
-    try {
-      table.replaceData(await loadCustomFields());
-    } catch (loadError) {
-      error = loadError instanceof Error ? loadError.message : "Could not load custom fields.";
-    } finally {
-      loading = false;
-    }
-  }
+  onMount(() =>
+    customFieldsQuery.subscribe((result) => {
+      if (result.data) {
+        table.replaceData(result.data.customFields);
+      }
+    }),
+  );
 </script>
 
 <div
@@ -57,6 +47,10 @@
   </Card>
 
   <Card variant="table">
-    <Table {table} {loading} {error} />
+    <Table
+      {table}
+      loading={$customFieldsQuery.fetching}
+      error={$customFieldsQuery.errors ? "There was an error." : null}
+    />
   </Card>
 </div>

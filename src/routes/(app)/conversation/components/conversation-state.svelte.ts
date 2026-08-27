@@ -11,7 +11,7 @@ import {
   type LiveUpdateClient,
   type LiveUpdateServerMessage,
 } from "$lib/live-update/generated";
-import { debounce } from "$lib/utils/debounce";
+import { debounce } from "text-reach-frontend-library/utils/debounce";
 import { createContext } from "svelte";
 import {
   matchesConversation,

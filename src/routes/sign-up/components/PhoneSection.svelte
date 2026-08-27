@@ -1,33 +1,26 @@
 <script lang="ts">
-  import { onDestroy } from "svelte";
   import { SendSignUpPhoneCodeStore } from "$houdini";
-  import { Button, Input } from "$lib";
+  import { Input, OtpInput } from "$lib";
   import { Field, FieldError, FieldLabel } from "text-reach-frontend-library/components/field";
   import { defaultErrorText, networkErrorText } from "$lib/form/errors";
   import { toGraphQLErrorText } from "$lib/graphql/errors";
   import { getNotificationsState } from "$lib/state/notifications.svelte";
-  import { Countdown } from "$lib/utils/countdown.svelte";
-  import { normalizePhoneNumber, OTP_LENGTH, PhoneNumberSchema } from "$lib/form/validators";
+  import { normalizePhoneNumber, PhoneNumberSchema } from "$lib/form/validators";
   import { getSignUpForm } from "../form.svelte";
   const notificationsState = getNotificationsState();
   const form = getSignUpForm();
 
   let { phoneNumber, phoneNumberCode } = form;
 
-  let codeLoading = $state(false);
-
-  const countdown = new Countdown();
   const sendPhoneCodeMutation = new SendSignUpPhoneCodeStore();
 
-  async function sendCodeClick(): Promise<void> {
+  async function sendCode(): Promise<boolean> {
     const phoneResult = PhoneNumberSchema.safeParse(phoneNumber.value);
     phoneNumber.error = phoneResult.success ? null : (phoneResult.error.issues[0]?.message ?? defaultErrorText);
 
     if (!phoneResult.success) {
-      return;
+      return false;
     }
-
-    codeLoading = true;
 
     try {
       const response = await sendPhoneCodeMutation.mutate({
@@ -35,21 +28,16 @@
       });
 
       if (!response.errors && response.data?.sendSignUpPhoneCode) {
-        countdown.start(60);
-        return;
+        return true;
       }
 
       notificationsState.showError(toGraphQLErrorText(response.errors));
+      return false;
     } catch {
       notificationsState.showError(networkErrorText);
-    } finally {
-      codeLoading = false;
+      return false;
     }
   }
-
-  onDestroy(() => {
-    countdown.stop();
-  });
 </script>
 
 <Field class="mt-4">
@@ -60,20 +48,6 @@
 
 <Field class="mt-4">
   <FieldLabel for="phoneNumberCode">Phone number confirmation code</FieldLabel>
-  <Input id="phoneNumberCode" field={phoneNumberCode} maxlength={OTP_LENGTH} autocomplete="one-time-code">
-    {#snippet rightAddon()}
-      <Button
-        id="sign-up-phone-code-send"
-        class="min-w-24 px-3 text-xs tracking-[0.02em]"
-        variant="secondary"
-        small
-        spinner={codeLoading}
-        disabled={codeLoading || countdown.remainingSeconds > 0}
-        onclick={() => void sendCodeClick()}
-      >
-        {countdown.remainingSeconds === 0 ? "Send code" : countdown.remainingSeconds}
-      </Button>
-    {/snippet}
-  </Input>
+  <OtpInput id="phoneNumberCode" field={phoneNumberCode} onSend={sendCode} />
   <FieldError error={phoneNumberCode.error} />
 </Field>

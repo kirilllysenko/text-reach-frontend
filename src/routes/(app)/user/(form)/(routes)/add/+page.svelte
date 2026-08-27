@@ -9,11 +9,11 @@
   import { networkErrorText } from "$lib/form/errors";
   import type { FormSubmitResult } from "text-reach-frontend-library/form";
   import { getNotificationsState } from "$lib/state/notifications.svelte";
-  import { createUserForm, type SubmitValues } from "../../components/form/form.svelte";
+  import { createAddUserForm, type SubmitValues } from "./form.svelte";
   const notificationsState = getNotificationsState();
 
   const createUserMutation = new CreateUserStore();
-  const form = createUserForm("create", submit);
+  const form = createAddUserForm(submit);
   const roleOptions = userRoleOptions.map((role) => ({ id: role, value: userRoleLabelMap[role] }));
 
   async function submit(input: SubmitValues): Promise<FormSubmitResult> {

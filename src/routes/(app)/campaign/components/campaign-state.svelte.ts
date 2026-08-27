@@ -8,7 +8,7 @@ import {
   type FilteringService,
   type SortingService,
 } from "text-reach-frontend-library/components/table";
-import { debounce } from "$lib/utils/debounce";
+import { debounce } from "text-reach-frontend-library/utils/debounce";
 import type { CampaignStatus, CampaignViewModel } from "./campaign-view-data";
 import { buildCampaignRequest } from "./campaign-query";
 import { campaignSortDefinitions, initialCampaignSorts } from "./sort/sort.svelte";

@@ -1,54 +1,42 @@
 <script lang="ts">
-  import { onDestroy } from "svelte";
   import { SendSignUpEmailCodeStore } from "$houdini";
-  import { Button, Input } from "$lib";
+  import { Input, OtpInput } from "$lib";
   import { Field, FieldError, FieldLabel } from "text-reach-frontend-library/components/field";
   import { defaultErrorText, networkErrorText } from "$lib/form/errors";
   import { toGraphQLErrorText } from "$lib/graphql/errors";
   import { getNotificationsState } from "$lib/state/notifications.svelte";
-  import { Countdown } from "$lib/utils/countdown.svelte";
-  import { OTP_LENGTH } from "$lib/form/validators";
   import { EmailSchema, getSignUpForm } from "../form.svelte";
   const notificationsState = getNotificationsState();
   const form = getSignUpForm();
 
   let { email, emailCode } = form;
 
-  let codeLoading = $state(false);
-
-  const countdown = new Countdown();
   const sendEmailCodeMutation = new SendSignUpEmailCodeStore();
 
-  async function sendCodeClick(): Promise<void> {
+  async function sendCode(): Promise<boolean> {
     const emailResult = EmailSchema.safeParse(email.value);
 
     if (!emailResult.success) {
       email.error = emailResult.error.issues[0]?.message ?? defaultErrorText;
-      return;
+      return false;
     }
 
     email.error = null;
-    codeLoading = true;
 
     try {
       const response = await sendEmailCodeMutation.mutate({ email: email.value });
 
       if (!response.errors && response.data?.sendSignUpEmailCode) {
-        countdown.start(60);
-        return;
+        return true;
       }
 
       notificationsState.showError(toGraphQLErrorText(response.errors));
+      return false;
     } catch {
       notificationsState.showError(networkErrorText);
-    } finally {
-      codeLoading = false;
+      return false;
     }
   }
-
-  onDestroy(() => {
-    countdown.stop();
-  });
 </script>
 
 <Field>
@@ -59,20 +47,6 @@
 
 <Field class="mt-4">
   <FieldLabel for="emailCode">E-mail confirmation code</FieldLabel>
-  <Input id="emailCode" field={emailCode} maxlength={OTP_LENGTH} autocomplete="one-time-code">
-    {#snippet rightAddon()}
-      <Button
-        id="sign-up-email-code-send"
-        class="min-w-24 px-3 text-xs tracking-[0.02em]"
-        variant="secondary"
-        small
-        spinner={codeLoading}
-        disabled={codeLoading || countdown.remainingSeconds > 0}
-        onclick={() => void sendCodeClick()}
-      >
-        {countdown.remainingSeconds === 0 ? "Send code" : countdown.remainingSeconds}
-      </Button>
-    {/snippet}
-  </Input>
+  <OtpInput id="emailCode" field={emailCode} onSend={sendCode} />
   <FieldError error={emailCode.error} />
 </Field>

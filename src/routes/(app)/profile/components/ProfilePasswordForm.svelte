@@ -2,77 +2,48 @@
   import { ChangePasswordStore } from "$houdini";
   import { Button, ButtonEye, Field, FieldError, FieldLabel, Input } from "$lib";
   import { networkErrorText } from "$lib/form/errors";
-  import { createFormValue } from "text-reach-frontend-library/form";
-  import { PasswordSchema } from "$lib/form/validators";
+  import type { FormSubmitResult } from "text-reach-frontend-library/form";
   import { toGraphQLErrorText } from "$lib/graphql/errors";
   import { getNotificationsState } from "$lib/state/notifications.svelte";
+  import {
+    createProfilePasswordForm,
+    initialPasswordValues,
+    type ProfilePasswordSubmitValues,
+  } from "./form/form.svelte";
   const notificationsState = getNotificationsState();
 
   const changePasswordMutation = new ChangePasswordStore();
 
-  const oldPassword = $state(createFormValue(""));
-  const newPassword = $state(createFormValue(""));
-  let passwordFormError = $state<string | null>(null);
+  const form = createProfilePasswordForm(submitPassword);
   let maskOldPassword = $state(true);
   let maskNewPassword = $state(true);
-  let savingPassword = $state(false);
 
-  const passwordDirty = $derived(oldPassword.value.length > 0 || newPassword.value.length > 0);
+  const passwordDirty = $derived(form.oldPassword.value.length > 0 || form.newPassword.value.length > 0);
 
-  async function submitPassword(event: SubmitEvent): Promise<void> {
-    event.preventDefault();
-
-    oldPassword.error = null;
-    newPassword.error = null;
-    passwordFormError = null;
-
-    const oldPasswordResult = PasswordSchema.safeParse(oldPassword.value);
-    if (!oldPasswordResult.success) {
-      oldPassword.error = oldPasswordResult.error.issues[0]?.message ?? "Required";
-    }
-
-    const newPasswordResult = PasswordSchema.safeParse(newPassword.value);
-    if (!newPasswordResult.success) {
-      newPassword.error = newPasswordResult.error.issues[0]?.message ?? "Required";
-    }
-
-    if (!oldPasswordResult.success || !newPasswordResult.success) {
-      return;
-    }
-
-    savingPassword = true;
-
-    let response;
+  async function submitPassword(input: ProfilePasswordSubmitValues): Promise<FormSubmitResult> {
     try {
-      response = await changePasswordMutation.mutate({
-        input: { oldPassword: oldPassword.value, newPassword: newPassword.value },
-      });
-    } catch {
-      savingPassword = false;
-      passwordFormError = networkErrorText;
-      return;
-    }
+      const response = await changePasswordMutation.mutate({ input });
 
-    savingPassword = false;
+      if (response.errors || !response.data?.changePassword) {
+        return { error: toGraphQLErrorText(response.errors) };
+      }
 
-    if (!response.errors && response.data?.changePassword) {
-      oldPassword.value = "";
-      newPassword.value = "";
+      form.setValues(initialPasswordValues);
       notificationsState.showInfo("Your password has been changed");
-      return;
+      return {};
+    } catch {
+      return { error: networkErrorText };
     }
-
-    passwordFormError = toGraphQLErrorText(response.errors);
   }
 </script>
 
 <section>
   <h2 class="pb-3 text-slate-800">Change password</h2>
 
-  <form class="sm:max-w-md" onsubmit={submitPassword}>
+  <form class="sm:max-w-md" onsubmit={form.submit} inert={form.loading || undefined}>
     <Field>
       <FieldLabel for="old-password">Current password</FieldLabel>
-      <Input id="old-password" field={oldPassword} type={maskOldPassword ? "password" : "text"}>
+      <Input id="old-password" field={form.oldPassword} type={maskOldPassword ? "password" : "text"}>
         {#snippet rightAddon()}
           <ButtonEye
             off={!maskOldPassword}
@@ -82,12 +53,12 @@
           />
         {/snippet}
       </Input>
-      <FieldError error={oldPassword.error} />
+      <FieldError error={form.oldPassword.error} />
     </Field>
 
     <Field class="mt-4">
       <FieldLabel for="new-password">New password</FieldLabel>
-      <Input id="new-password" field={newPassword} type={maskNewPassword ? "password" : "text"}>
+      <Input id="new-password" field={form.newPassword} type={maskNewPassword ? "password" : "text"}>
         {#snippet rightAddon()}
           <ButtonEye
             off={!maskNewPassword}
@@ -97,12 +68,18 @@
           />
         {/snippet}
       </Input>
-      <FieldError error={newPassword.error} />
+      <FieldError error={form.newPassword.error} />
     </Field>
 
-    <FieldError class="mt-3" error={passwordFormError} />
+    <FieldError class="mt-3" error={form.error} />
 
-    <Button id="profile-password-submit" class="mt-4 w-30" submit spinner={savingPassword} disabled={!passwordDirty}>
+    <Button
+      id="profile-password-submit"
+      class="mt-4 w-30"
+      submit
+      spinner={form.loading}
+      disabled={!passwordDirty || form.loading}
+    >
       Save
     </Button>
   </form>

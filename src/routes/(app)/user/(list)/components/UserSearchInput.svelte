@@ -2,7 +2,7 @@
   import { onDestroy } from "svelte";
   import { Input } from "$lib";
   import type { FormValue } from "text-reach-frontend-library/form";
-  import { debounce } from "$lib/utils/debounce";
+  import { debounce } from "text-reach-frontend-library/utils/debounce";
 
   interface Props {
     search: { updateSearchQuery: (query: string) => void };

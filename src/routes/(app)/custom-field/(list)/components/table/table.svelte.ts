@@ -13,8 +13,14 @@ import type { CustomFieldTableRow } from "./column.svelte";
 
 const initialSorting = [{ sortId: "name", direction: "ascending" }] satisfies DataTableSort[];
 
-export function createCustomFieldTable(): DatagridCore<CustomFieldTableRow> {
-  return new DatagridCore<CustomFieldTableRow>({
+interface CustomFieldTable {
+  query: CustomFieldsStore;
+  table: DatagridCore<CustomFieldTableRow>;
+}
+
+export function createCustomFieldTable(): CustomFieldTable {
+  const query = new CustomFieldsStore();
+  const table = new DatagridCore<CustomFieldTableRow>({
     columns: createCustomFieldColumns(),
     data: [],
     features: [
@@ -23,20 +29,6 @@ export function createCustomFieldTable(): DatagridCore<CustomFieldTableRow> {
       globalSearchFeature({ isFuzzySearchEnabled: false }),
     ],
   });
-}
 
-export async function loadCustomFields(): Promise<CustomFieldTableRow[]> {
-  const customFieldsQuery = new CustomFieldsStore();
-
-  try {
-    const response = await customFieldsQuery.fetch();
-
-    if (response.errors || !response.data) {
-      throw new Error("Could not load custom fields.");
-    }
-
-    return response.data.customFields;
-  } catch {
-    throw new Error("Could not load custom fields.");
-  }
+  return { query, table };
 }

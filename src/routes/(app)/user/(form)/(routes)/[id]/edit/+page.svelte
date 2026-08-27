@@ -10,13 +10,13 @@
   import type { FormSubmitResult } from "text-reach-frontend-library/form";
   import { getNotificationsState } from "$lib/state/notifications.svelte";
   import { onMount } from "svelte";
-  import { createUserForm, type FormValues, type SubmitValues } from "../../../components/form/form.svelte";
+  import { createEditUserForm, type FormValues, type SubmitValues } from "./form.svelte";
   const notificationsState = getNotificationsState();
 
   const userId = page.params.id;
   const editFormQuery = new UserFormEditQueryStore();
   const updateUserMutation = new UpdateUserStore();
-  const form = createUserForm("edit", submit);
+  const form = createEditUserForm(submit);
   const roleOptions = userRoleOptions.map((role) => ({ id: role, value: userRoleLabelMap[role] }));
 
   let loadError = $state<string | null>(null);
@@ -48,7 +48,6 @@
       const values: FormValues = {
         email: user.email,
         name: user.name ?? "",
-        password: "",
         role: user.role,
       };
 
@@ -69,8 +68,7 @@
       const response = await updateUserMutation.mutate({
         input: {
           id: userId,
-          name: input.name,
-          role: input.role,
+          ...input,
         },
       });
 
